@@ -1,0 +1,12 @@
+
+{% include "bootstrap5/layout/baseinput.html" %}
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+
+<div class="input-group mb-3">
+  {% if crispy_prepended_text %}<span class="input-group-text">{{ crispy_prepended_text|safe }}</span>{% endif %}
+  {{field}}
+  {% if crispy_appended_text %}<span class="input-group-text">{{ crispy_appended_text|safe }}</span>{% endif %}
+</div>
+{%endif%}

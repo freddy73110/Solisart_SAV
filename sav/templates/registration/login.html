@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% extends "registration/Base_PW.html" %}
+{% load crispy_forms_tags %}
+<head>
+    <meta charset="UTF-8">
+    {% block Titre %}Authentification{% endblock %}
+
+</head>
+{% block Titre_Modal %}Authentification{% endblock %}
+{% block frame %}
+
+    {% if error %}
+    <p><strong>Mauvaise mot de passe passe.</strong></p>
+    {% endif %}
+    {% if user.is_authenticated %}
+    Vous êtes connectés {{ user.first_name }} !
+    <a href="/sav/">Cliquer ici pour démarrer</a>
+    {% else %}
+{%if not 'Chrome' in request.META.HTTP_USER_AGENT%}
+<h2>Nous garantissons un fonctiennement optinal avec Google Chrome.</h2>
+{%endif%}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="button" class="btn btn-success text-right" id="connect">Connecter</button>
+                <button type="submit" class="d-none" id="send">Connecter</button>
+            </form><br>
+            <a href="/password_reset/" class="text-right">Mot de passe oublié?</a>
+    {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+</html>

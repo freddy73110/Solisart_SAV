@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <div id="installation_carte" style="height: 500px" class="m-3"></div>
+        </div>
+        <div class="col-4">
+            <table
+                    data-toolbar="#toolbar"
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                <thead>
+                    <th class="text-center">Installation</th>
+                    <th class="text-center">Propriétaire</th>
+                </thead>
+                <tbody>
+                    {% for inst in util.profil_user.installations %}
+                    <tr>
+                        <td class="text-center"><a href="{% url 'sav:installation' pk=inst.id %}">{{inst}}</a></td>
+                        <td class="text-center">{% if inst.proprio%}
+                            {% for p in inst.proprio %}
+                            <a href="{% url 'sav:utilisateur' pk=p.id %}">{{p}}</a>
+                            {% if not forloop.last %}<br>{%endif%}
+                            {%endfor%}
+                            {%endif%}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+<!--    <div class="row">-->
+<!--        <div class="col">-->
+<!--            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">-->
+<!--              <li class="nav-item" role="presentation">-->
+<!--                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>-->
+<!--              </li>-->
+<!--              <li class="nav-item" role="presentation">-->
+<!--                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#installation" type="button" role="tab" aria-controls="profile" aria-selected="false">Installation</button>-->
+<!--              </li>-->
+<!--            </ul>-->
+<!--        </div>-->
+<!--    </div>-->
+    <div class="row">
+        <div class="col">
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
+<!--                  <h2>Description:</h2>-->
+                  <form id="profil_id">{% csrf_token %}
+                      <input type="hidden" name="modifier_profil">
+                      <button type="button"
+                              class="btn btn-outline-primary visually-hidden"
+                              name="modifier_profil"
+                              id="modifier_profil"
+
+                      >Modifier</button>
+                      <div class="row">
+                          <div class="col-6">
+                              <fieldset class="border p-2 h-100">
+                                  <legend class="float-none w-auto p-2">Général</legend>
+                                    {% crispy form %}
+                              </fieldset >
+                          </div>
+                          <div class="col-6">
+                              <fieldset class="border p-2 h-100">
+                                  <legend class="float-none w-auto p-2">Détail</legend>
+                                    {% crispy form_profil %}
+                              </fieldset>
+                          </div>
+                      </div>
+                      <script>
+                          $("form#profil_id :input").on("input", function(){
+                            $("button[name='modifier_profil']").removeClass('visually-hidden')
+                          })
+                          $("button[name='modifier_profil']").on("click", function(){
+                            var form = $(this).closest("form");
+                            $.ajax({
+                                    url: window.location.href,
+                                    type:'post',
+                                    data: form.serialize(),
+                                    dataType: 'json',
+                                    success: function (data) {
+                                    //todo faire un message de validation
+                                        console.log(data)
+                                    }
+                            })
+                          })
+                      </script>
+                  </form>
+              </div>
+              <div class="tab-pane fade" id="installation" role="tabpanel" aria-labelledby="home-tab">
+                  <h2>Installation</h2>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const fontAwesomeIcon = L.divIcon({
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-solar-panel fa-inverse" data-fa-transform="shrink-10"></i></span>',
+    iconSize: [20, 20],
+    className: 'myDivIcon'
+});
+const fontAwesomeIconInstallateur = L.divIcon({
+    html: '<i class="fas fa-map-marker-alt text-danger fa-4x"></i>',
+    iconSize: [20, 20],
+    className: 'myDivIcon'
+});
+const mymap = L.map('installation_carte',{
+        center:[45, 0],
+        zoom:6
+        });
+            L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
+                    {%for t in util.profil_user.installations%}
+                    {% if t.coordonnee_GPS.valeur and t.coordonnee_GPS.valeur != "nan" and t.coordonnee_GPS.valeur != "None"%}
+                    L.marker([{{t.coordonnee_GPS.valeur}}],{ icon: fontAwesomeIcon}).addTo(mymap)
+                        .bindPopup("<a href='{% url 'sav:installation' pk=t.id%}' ><b>{{t}}-{{t.proprio.0}}</b></a>")
+                  {%endif%}
+                  {%endfor%}
+                  {% if util.profil_user.geolocalisation %}
+                  L.marker({{util.profil_user.geolocalisation}},{ icon: fontAwesomeIconInstallateur}).addTo(mymap)
+                   .bindPopup("<b>{{util}}</b>")
+                  {%endif %}
+
+var arrayOfMarkers=[
+{% if util.profil_user.geolocalisation %}{{util.profil_user.geolocalisation}},{%endif %}
+{%for t in util.profil_user.installations%}
+
+                    {% if t.coordonnee_GPS.valeur and t.coordonnee_GPS.valeur != "nan" and t.coordonnee_GPS.valeur != "None"%}
+                    [{{t.coordonnee_GPS.valeur}}]
+                  {%endif%}
+                  {% if not forloop.last %},{%endif%}
+                  {%endfor%}
+]
+var bounds = new L.LatLngBounds(arrayOfMarkers);
+mymap.fitBounds(bounds)
+</script>
+{%endblock%}

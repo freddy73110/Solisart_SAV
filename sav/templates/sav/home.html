@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center">{{title}}</h1>
+            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                <div class="row">
+                    <div class="col-6">
+                        <fieldset class="border p-2 h-100">
+                            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                                <legend class="w-auto"><b>Recherche par Utilisateur</b></legend>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Téléphone</span>
+                                  <input type="text" class="form-control" name="telephone" id="telephone" aria-label="telephone">
+                                  <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                </div>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Prénom</span>
+                                  <input type="text" class="form-control" name="prenom" id="prenom" aria-label="prenom">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Nom</span>
+                                  <input type="text" class="form-control" name="nom" id="nom" aria-label="nom">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Email</span>
+                                  <input type="text" class="form-control" name="email" id="email" aria-label="email">
+                                    <span class="input-group-text"><i class="fas fa-at"></i></span>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </div>
+                    <div class="col-6">
+                        <fieldset class="border p-2 h-100">
+                            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                                <legend class="w-auto"><b>Recherche par Installation</b></legend>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Module</span>
+                                  <input type="text" class="form-control" name="id_instal" id="id_instal" aria-label="Nom client">
+                                  <span class="input-group-text"><i class="fas fa-box"></i></span>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div id="resultat"></div>
+        </div>
+    </div>
+</div>
+<script>
+var timesetvar = ''
+$(document).ready(function(){
+    $("#id_instal, #telephone, #prenom, #nom, #email").on("keyup change", function() {
+        var t = $(this)
+        setTimeout(function(){
+            if(t.val() == timesetvar){
+                send(t)
+                timesetvar = ''
+            }
+            else{
+                timesetvar = t.val()
+            }
+        }, 300);
+
+    })
+
+})
+function send(t){
+    if (t.val().length>2){
+          var form = t.closest("form");
+          $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: form.serialize(),
+            dataType: 'html',
+            success: function (html) {
+                $("#resultat").html()
+                $("#resultat").html(html)
+                }
+          })
+    }
+}
+</script>
+{%endblock%}

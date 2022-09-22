@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+            <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+            <div class="row justify-content-center">
+                {%if instal.histo %}
+                <div class="col-9">
+                    <img src="data:image/png;base64,{{instal.schema}}" class="mw-100 mh-70"/>
+                <!--<canvas id="the-canvas" style="height:300px" class="m-auto"></canvas>-->
+                    </div>
+                <div class="col-3 text-center">
+                    <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}" class="btn btn-outline-primary m-auto">
+                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
+                        lien vers mySolisArt
+                  </a>
+                    <ul class="list-group m-2">
+                    {%for h in instal.histo%}
+                        <li class="list-group-item">{{h}}</li>
+                    {%endfor%}
+                    </ul>
+                </div>
+            </div>
+            {%else%}
+            <div class="col-12 text-center m-3">
+                <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
+                   class="btn btn-outline-primary m-auto"
+                   target="_blank"
+                >
+                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
+                        lien vers mySolisArt
+                  </a>
+            </div>
+            {%endif%}
+            {% if instal.schema_installation %}
+            <script>
+
+            // If absolute URL from the remote server is provided, configure the CORS
+// header on that server.
+var url = '{{instal.schema_installation.url}}';
+
+// Loaded via <script> tag, create shortcut to access PDF.js exports.
+var pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+// The workerSrc property shall be specified.
+pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+// Asynchronous download of PDF
+var loadingTask = pdfjsLib.getDocument(url);
+loadingTask.promise.then(function(pdf) {
+  console.log('PDF loaded');
+
+  // Fetch the first page
+  var pageNumber = 1;
+  pdf.getPage(pageNumber).then(function(page) {
+    console.log('Page loaded');
+
+    var scale = 1.5;
+    var viewport = page.getViewport({scale: scale});
+
+    // Prepare canvas using PDF page dimensions
+    var canvas = document.getElementById('the-canvas');
+    var context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    // Render PDF page into canvas context
+    var renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+    var renderTask = page.render(renderContext);
+    renderTask.promise.then(function () {
+      console.log('Page rendered');
+    });
+  });
+}, function (reason) {
+  // PDF loading error
+  console.error(reason);
+});
+</script>
+
+
+
+
+
+            {%endif%}
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">Historique</button>
+              </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
+                  <div class="accordion m-3" id="accordionPanelsStayOpenExample">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                            <b>Information de "my.solisart"</b>
+                          </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                          <div class="accordion-body">
+                            <table
+                    data-toolbar="#toolbar"
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                <thead>
+                    <th>Description</th>
+                    <th>Valeur</th>
+                </thead>
+                <tbody>
+                    {% for i in attribut_val %}
+                    <tr>
+                        <td>{{i.attribut_def}}</td>
+                        <td>{%if i.attribut_def.description == "Coordonnées GPS DD" %}
+                            <form>{% csrf_token %}
+                                <div class="input-group mb-3">
+                                    <input type="hidden" value="{{i.id}}" name="GPS_id">
+                                  <input
+                                          type="text"
+                                          class="form-control"
+                                          id="GPS"
+                                          name="CoordonneeGPS"
+                                          value="{{i.valeur}}"
+                                          placeholder="Recipient's username"
+                                          aria-label="Recipient's username"
+                                          aria-describedby="button-addon2"
+                                  >
+                                  <button class="btn btn-outline-secondary" type="button" id="GPSValider" onclick="modifierGPS()">Valider</button>
+                                </div>
+                            </form>
+                            {%else%}
+                            {{i.valeur}}
+                            {%endif%}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                            <b>Autre</b>
+                          </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                          <div class="accordion-body">
+                              {% crispy form %}
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="tab-pane fade m-3" id="historique" role="tabpanel" aria-labelledby="profile-tab">
+                  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket">Ajouter un ticket</button>
+                  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="MES">Ajouter une MES</button>
+                  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="Production">Sortie de production</button>
+
+                    <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header bg-warning">
+                            <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                            <form method="post">
+                          <div class="modal-body">
+                              <input type="hidden" value="" name="nature_form">
+                              <div class="mb-3" id="add_evenement_modal">
+                                {% crispy add_evenement %}
+                              </div>
+                                <div id="ticket_modal" name="modal_form">
+                                {% crispy add_ticket_form %}
+                                </div>
+                                <div id="MES_modal" name="modal_form">
+                                </div>
+                                <div id="production_modal" name="modal_form">
+                                </div>
+                                <div id="add_problem_modal" name="modal_form">
+                                    {% crispy add_problem_form %}
+                                </div>
+                                <script>
+                                    $("button[data-bs-target='#ModalEvenement']").on("click", function(){
+                                        $("#add_evenement_modal").show()
+                                        $("[name='sous_categorie']").val("")
+                                        $("#ModalEvenementLabel").html($(this).text())
+                                        $("div[name='modal_form']").hide()
+                                        if($(this).attr('data-bs-whatever') == 'ticket'){
+                                            $("input[name='nature_form']").val('ticket')
+                                            $("#ticket_modal").show()
+                                        }else if($(this).attr('data-bs-whatever') == 'MES'){
+                                            $("input[name='nature_form']").val('MES')
+                                            $("#MES_modal").show()
+                                        }else if($(this).attr('data-bs-whatever') == 'Production'){
+                                            $("input[name='nature_form']").val('Production')
+                                            $("#production_modal").show()
+                                        }
+                                    })
+                                    $("#add_problem").on("click", function(){
+                                        $("input[name='nature_form']").val('add_problem')
+                                        $("#add_evenement_modal").hide()
+                                        $("#ModalEvenementLabel").html('Ajouter un nouveau problème')
+                                        $("div[name='modal_form']").hide()
+                                        $("#add_problem_modal").show()
+                                    })
+                                </script>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="button" class="btn btn-outline-primary" id="enregister">Enregister</button>
+                            <script>
+                                $("#enregister").on("click", function(){
+                                    var form = $(this).closest("form");
+                                    console.log(form.serialize())
+                                      $.ajax({
+                                        url: window.location.href,
+                                        data: form.serialize(),
+                                        dataType: 'json',
+                                        type: 'Post',
+                                        success: function (data) {
+                                          if (data.hasOwnProperty('probleme')){
+                                            $("#add_evenement_modal").show()
+                                            $("[name='sous_categorie']").val("")
+                                            $("#ModalEvenement").hide()
+                                            $('#id_probleme').append($('<option>', {
+                                                value: data.probleme.id,
+                                                text: 'data.probleme.title'
+                                            }));
+                                            $('#id_probleme').val(data.probleme.id)
+                                          }
+                                          if (data.hasOwnProperty('ticket')){
+                                            console.log("ticket recored")
+                                            location.reload()
+                                          }
+                                        }
+                                      });
+                                })
+                            </script>
+                          </div>
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+                  <div class="accordion m-3 " id="accordionExample">
+                      {%for e in liste_evenements %}
+                      {%if e.ticket%}
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                              <b>{{e.ticket.icon|safe}} {{e.ticket.probleme}} {{e.ticket.utilisateur}}</b>
+                              <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
+                              <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
+                          </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" id="ticket_{{e.ticket.id}}" class="accordion-collapse collapse {% if forloop.first %}show{%endif%} upload-zone" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                          <div class="accordion-body">
+                              <input class="fileupload" type="file" name="fichier" multiple
+                                 style="display: none;"
+                                 data-url="{{ request.get_full_path }}"
+                                 data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_ticket":{{e.ticket.id}}}'>
+                              <p></p>
+                              <div class="row">
+                                  <div class="col-{%if e.ticket.fichier.all.count %}8{%else%}12{%endif%}">
+                                  {%if e.technicien_sav == user %}
+                                  <div class="form-floating">
+                                      <textarea class="form-control" id="ta_ticket_{{e.ticket.id}}">{{e.ticket.detail}}</textarea>
+                                      <button class="btn btn-outline-primary m-1" onclick="$('#upload-zone-documentation').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
+                                  </div>
+                                  {%else%}
+                                  {{e.ticket.detail}}
+                                  {%endif%}
+                                  </div>
+                                  {%if e.ticket.fichier.all.count %}
+                                  <div class="col-4">
+                                      {%for f in e.ticket.fichier.all%}
+                                      <a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.fichier.name}}</a>
+                                      {% if not forloop.last %}<br>{%endif%}
+                                      {%endfor%}
+                                  </div>
+                                  {%endif%}
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                      {%endif%}
+                      {% endfor %}
+                    </div>
+                    <script>
+                        $("textarea").on("input", function(){
+                            $.ajax({
+                                        url: window.location.href,
+                                        data: {"details": $(this).val(), "id": $(this).attr('id')},
+                                        dataType: 'json',
+                                        type: 'Post',
+                                        success: function (data) {
+                                            console.log(data)
+                                        }
+                            })
+                        })
+                    </script>
+              </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function modifierGPS(){
+    console.log("let's go!!!")
+    var form = $('#GPSValider').closest("form");
+    $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+            //todo faire un message de validation
+                console.log(data)
+            }
+    })
+}
+$(document).ready(function() {
+    $('#GPSValider').on('click', function(){
+    console.log("gps valide")
+    var form = $(this).closest("form");
+    console.log(form)
+    $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+            //todo faire un message de validation
+                console.log(data)
+            }
+    })
+});
+});
+</script>
+<script>
+
+
+$(document).on('dragover', function (e) {
+    e.preventDefault();
+    $('.upload-zone').on('dragover', function(event){
+    if(!$(this).find('.todelete').length){
+            $(this).find('p').first().after('<div class="well text-muted text-center todelete" style="padding-top: 4rem; padding-bottom: 4rem;"><i class="fa fa-arrow-down fa-4x" aria-hidden="true"></i><h3>Déposer vos fichiers ici</h3></div>')
+        }
+    });
+    if (!$(event.target).closest('.upload-zone').length){
+        $('.todelete').remove()
+    }
+});
+$('.upload-zone').each(function () {
+    var DropZone = $(this);
+    var DropZone_id = DropZone[0].id.split('_')[1];
+    DropZone.find('input:first').fileupload({
+            dropZone: DropZone,
+            dataType: 'json',
+            sequentialUploads: true,
+
+            start: function (e) {
+              $("#modal-progress").modal("show");
+            },
+
+            stop: function (e) {
+              $("#modal-progress").modal("hide");
+            },
+
+            progressall: function (e, data) {
+              var progress = parseInt(data.loaded / data.total * 100, 10);
+              var strProgress = progress + "%";
+              $(".progress-bar").css({"width": strProgress});
+              $(".progress-bar").text(strProgress);
+              if (progress == 100){
+                setTimeout(function(){
+                    $("#modal-progress").modal("hide");
+                }, 1500);
+              }
+            },
+            done: function (e, data) {
+              $('.todelete').remove()
+              console.log(e, data)
+              location.reload()
+            }
+    });
+});
+</script>
+
+{%endblock%}

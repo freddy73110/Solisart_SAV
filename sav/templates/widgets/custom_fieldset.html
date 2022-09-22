@@ -1,0 +1,6 @@
+<fieldset {% if fieldset.css_id %}id="{{ fieldset.css_id }}"{% endif %}
+    {% if fieldset.css_class or form_style %}class="border p-2 h-100 {{ fieldset.css_class }} {{ form_style }}"{%else%}class="border p-2 h-100"{% endif %}
+    {{ fieldset.flat_attrs|safe }} style = "border-width:3px">
+    {% if legend %}<legend class="w-auto"><b>{{ legend|safe }}</b></legend>{% endif %}
+    {{ fields|safe }}
+</fieldset>

@@ -1,0 +1,39 @@
+{% load my_filter %}
+{% load crispy_forms_tags %}
+<!-- Button trigger modal -->
+<button
+        type="button"
+        class="btn btn-primary m-3"
+        data-bs-toggle="modal"
+        data-bs-target="#{{modal.bouton_laucher|whitoutspace}}"
+        data-bs-whatever={{modal.bouton_laucher}}>
+  {{modal.bouton_laucher}}
+</button>
+{%if modal.bouton_laucher2 %}
+<button type="button"
+        class="btn btn-primary m-3"
+        data-bs-toggle="modal"
+        data-bs-target="#{{modal.bouton_laucher|whitoutspace}}"
+        data-bs-whatever={{modal.bouton_laucher2}}>
+  {{modal.bouton_laucher2}}
+</button>
+{%endif%}
+<form>
+<div class="modal fade" id="{{modal.bouton_laucher|whitoutspace}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog {{modal.size}}">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{modal.modal_title}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{ fields|safe }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" name="{{modal.name_bouton_save}}">{{modal.bouton_save}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>

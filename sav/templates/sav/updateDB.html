@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+
+{%block Titre%}Importer depuis my.solisart{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center">Importer data depuis my.solisart</h1>
+            <form method="post" enctype="multipart/form-data">
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+</div>
+{%endblock%}

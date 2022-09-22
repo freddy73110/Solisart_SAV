@@ -1,0 +1,372 @@
+import base64
+import os
+from datetime import datetime
+from io import BytesIO
+
+from PIL import Image
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+
+def get_first_name(self):
+    return self.first_name[0:1].upper() + self.first_name[1:].lower() + ' ' + self.last_name[0:1].upper() + self.last_name[1:].lower()
+
+User.add_to_class("__str__", get_first_name)
+
+def validate_file_extension_pdf(value):
+    if not value.name.endswith('.pdf'):
+        raise ValidationError(u'Error message')
+
+class Fichiers(models.Model):
+    titre = models.CharField(max_length=255, blank=True)
+    fichier = models.FileField(upload_to='files/')
+    telecharge_a = models.DateTimeField(auto_now_add=True)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not self.titre:
+            self.titre = str(self.fichier.name)
+        super(Fichiers, self).save(force_insert, force_update, using, update_fields)
+
+    def icon(self):
+        name, extension = os.path.splitext(self.fichier.name)
+        if extension == '.pdf':
+            return '<i class="far fa-file-pdf"></i>'
+        if extension == '.doc':
+            return '<i class="far fa-file-word"></i>'
+        if extension == '.zip':
+            return '<i class="far fa-file-archive"></i>'
+        if extension == '.ppt' or extension == '.pptx':
+            return '<i class="far fa-file-powerpoint"></i>'
+        if extension == '.xls' or extension == '.xlsx':
+            return '<i class="far fa-file-excel"></i>'
+        if extension == '.csv':
+            return '<i class="fas fa-file-csv"></i>'
+        if extension == '.jpg' or extension == '.png' or extension == '.PNG' or extension == '.jpeg':
+            return '<i class="far fa-file-image"></i>'
+        if extension == '.deb' or extension == '.exe':
+            return '<i class="far fa-file-code"></i>'
+        return '<span class="fa-layers fa-fw"><i class="far fa-file"></i>'\
+                '<span class="fa-layers-text" data-fa-transform="shrink-11.5 down-2" style="font-weight:600">' +extension.replace('.', '')+'</span>'\
+                '</span>'
+
+    def __str__(self):
+        return self.titre
+
+class profil_user(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    idsa = models.CharField(max_length=50, verbose_name='id solisart')
+    PW = models.CharField(max_length=50, verbose_name='mot de passe my.solisart', default='solaire')
+    telephone1 = models.CharField(max_length=50, verbose_name='téléphone 1', blank=True, null=True)
+    telephone2 = models.CharField(max_length=50, verbose_name='téléphone 2', blank=True, null=True)
+    voie1 = models.CharField(max_length=50, verbose_name='voie 1', blank=True, null=True)
+    voie2 = models.CharField(max_length=50, verbose_name='voie 2', blank=True, null=True)
+    voie3 = models.CharField(max_length=50, verbose_name='voie 3', blank=True, null=True)
+    codepostal = models.CharField(max_length=50, verbose_name='Code postal', blank=True, null=True)
+    commune = models.CharField(max_length=50, verbose_name='Commune', blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    def get_full_name(self):
+        return str(self.user.first_name) + ' ' + str(self.user.last_name)
+
+    def icon(self):
+        return '<i class="far fa-user"></i>'
+
+    def installations(self):
+        return installation.objects.filter(acces__utilisateur=self.user).distinct()
+
+    def geolocalisation(self):
+        if self.latitude and self.longitude:
+            return [float(str(self.latitude).replace(',', '.')), float(str(self.longitude).replace(',', '.'))]
+        else:
+            None
+
+
+    @receiver(post_save, sender=User)
+    def create_user_profil(sender, instance, created, **kwargs):
+        if created:
+            profil_user.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profil_user.save()
+
+class profil_type(models.Model):
+
+    PROFIL_TYPE = (
+        ("admin", "admin"),
+        ("client", "client")
+    )
+
+    name = models.CharField(max_length=50, verbose_name='Nom')
+    type = models.CharField(max_length=50, choices=PROFIL_TYPE, verbose_name='Type')
+    idsa = models.IntegerField(verbose_name='id solisart')
+
+    def __str__(self):
+        return str(self.type) + ' ' + str(self.name)
+
+class installation(models.Model):
+    TYPE_COMMUNICATION=(
+        (0, "Carte de régulation sans échange de données"),
+        (1, ""),
+        (2, "Carte de régulation avec échange de données"),
+        (3, "..."),
+        (4,"Carte de régulation NG avec nano-serveur v3")
+    )
+    idsa = models.CharField(max_length=50, verbose_name='id solisart')
+    type_communication = models.IntegerField(verbose_name="Type de communication", choices=TYPE_COMMUNICATION, blank=True, null=True)
+    version_carte_firmware = models.CharField(max_length=20, verbose_name='Version de carte Firmware', blank=True, null=True)
+    version_carte_interface = models.CharField(max_length=20, verbose_name='Version de carte Interface', blank=True, null=True)
+    version_serveur_appli = models.CharField(max_length=20, verbose_name='Version de carte Application', blank=True, null=True)
+    adresse_ip_wan = models.CharField(max_length=15, verbose_name='Adresse IP WAN', blank=True, null=True)
+    port_tcp_wan = models.IntegerField(verbose_name='Port TCP WAN', blank=True, null=True)
+    schema_installation = models.FileField(verbose_name="Schéma de principe",
+                                           upload_to='Schema_installation/',
+                                           validators=[validate_file_extension_pdf],
+                                           null=True, blank=True)
+
+    def __str__(self):
+        return self.idsa
+
+    def histo(self):
+        return [str(i) for i in historique.objects.filter(installation=self)]
+
+    def schema(self):
+        histo = self.histo()
+        background = Image.open("sav/static/sav/schema_elements/Fond de schema.png")
+        foreground = Image.open("sav/static/sav/schema_elements/CAPT 1 champ capteurs.png")
+        background.paste(foreground, (-4, -4), foreground)
+        if "Zone 1: Plancher" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C1 plancher chauffant.png")
+            background.paste(foreground, (882, 372), foreground)
+        if "Zone 1: Radiateur" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C1 radiateurs.png")
+            background.paste(foreground, (882, 372), foreground)
+        if "Zone 2: Radiateur" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C2 radiateurs.png")
+            background.paste(foreground, (838, 240), foreground)
+        if "Zone 2: Plancher" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C2 plancher chauffant.png")
+            background.paste(foreground, (841, 240), foreground)
+        if "Zone 2: Piscine" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C2 piscine.png")
+            background.paste(foreground, (841, 240), foreground)
+        if "Zone 3: Radiateur" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C3 radiateurs.png")
+            background.paste(foreground, (795, 100), foreground)
+        if "Zone 3: Plancher" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C3 plancher chauffant.png")
+            background.paste(foreground, (795, 100), foreground)
+        if "Zone 3: Piscine" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C3 piscine.png")
+            background.paste(foreground, (790, 100), foreground)
+        if "Zone 4: Plancher" in histo:
+            foreground = Image.open("sav/static/sav/schema_elements/C7 plancher chauffant.png")
+            background.paste(foreground, (707, 86), foreground)
+        if "Type ballon sanitaire: un" in histo or "Type ballon sanitaire: soleil et appoint" in histo:
+            img = Image.open("sav/static/sav/schema_elements/BAL ballon ECS 2 échangeurs.png")
+            basewidth = 647
+            wpercent = (basewidth / float(img.size[0]))
+            hsize = int((float(img.size[1]) * float(wpercent)))
+            img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+            background.paste(img, (130, 58 ), img)
+        if "Appoint1: Electrique" in histo or "Appoint1: Chaudière" in histo:
+            img = Image.open("sav/static/sav/schema_elements/APP AUT appoint simple.png")
+            background.paste(img, (470, 65 ), img)
+        if "Appoint1: Pompe à Chaleur" in histo or "Appoint1: Chaudière condensation" in histo:
+            img = Image.open("sav/static/sav/schema_elements/APP PAC appoint sur casse pression.png")
+            background.paste(img, (470, 71  ), img)
+        if "Appoint1: Bois granulés sur T16" in histo:
+            img = Image.open(
+                "sav/static/sav/schema_elements/APP GRA appoint sur échangeur T16.png")
+            background.paste(img, (470, 71), img)
+        if "Appoint2: Bois granulés sur T16" in histo:
+            img = Image.open(
+                "sav/static/sav/schema_elements/APP GRA Appoint sur casse pression T16.png")
+            background.paste(img, (470, 71), img)
+        if "Appoint2: Bois" in histo:
+            img = Image.open("sav/static/sav/schema_elements/C7 appoint bois.png")
+            background.paste(img, (690, 71  ), img)
+        if "Type ballon tampon: avec ballon tampon" in histo:
+            img = Image.open("sav/static/sav/schema_elements/BT ballon tampon avec échangeur.png")
+            background.paste(img, (180, 55 ), img)
+            img2 = Image.open("sav/static/sav/schema_elements/Circulateur C6.png")
+            background.paste(img2, (69, 417), img2)
+
+
+        thumb_io = BytesIO()
+        background.save(thumb_io, format='png')
+        return base64.b64encode(thumb_io.getvalue()).decode('utf-8')
+
+    def user_acces(self):
+        return acces.objects.filter(installation=self)
+
+    def proprio(self):
+        return User.objects.filter(acces__installation=self, acces__profil_type__name="Propriétaire")
+
+    def coordonnee_GPS(self):
+        try:
+            a = attribut_valeur.objects.get(installation=self,
+                                            attribut_def__description="Coordonnées GPS DD")
+            return a
+        except:
+            return None
+
+
+    class Meta:
+        app_label = 'sav'
+        ordering = ['idsa']
+
+class acces(models.Model):
+
+    utilisateur=models.ForeignKey(User, verbose_name='Utilisateur', on_delete=models.CASCADE)
+    profil_type=models.ForeignKey(profil_type, verbose_name='Type de Profil', on_delete=models.CASCADE)
+    installation=models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
+
+class attribut_def(models.Model):
+
+    description = models.CharField(max_length=100, verbose_name='Description')
+    idsa = models.IntegerField(verbose_name='id solisart')
+
+    def __str__(self):
+        return str(self.description)
+
+class attribut_valeur(models.Model):
+    installation = models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
+    attribut_def = models.ForeignKey(attribut_def, verbose_name='Attribut définition', on_delete=models.CASCADE)
+    valeur = models.TextField(max_length=1500, verbose_name='Valeur')
+
+    def __str__(self):
+        return str(self.attribut_def) + ': ' + str(self.valeur)
+
+class type_probleme(models.IntegerChoices):
+    CONNEXION = 0, 'Connexion'
+    ELECTRONIQUE = 1, 'Electronique'
+    FLUIDIQUE = 2, 'Fluidique'
+
+class probleme(models.Model):
+    categorie = models.IntegerField(default=type_probleme.CONNEXION, choices=type_probleme.choices, verbose_name="Catégorie")
+    sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
+
+    def __str__(self):
+        return str(type_probleme(self.categorie).label) + ' - ' + str(self.sous_categorie)
+
+    class Meta:
+        ordering = ['categorie', 'sous_categorie']
+
+class forme_contact(models.IntegerChoices):
+    TELEPHONE = 0, 'téléphone'
+    EMAIL = 1, 'Email'
+    PHYSIQUEMENT = 2, 'Physiquement'
+
+class etat(models.IntegerChoices):
+    OUVERTURE = 0, 'Ouverture'
+    ENCOURS = 1, 'En cours'
+    CLOTURE = 2, 'Clôturé'
+
+class evenement(models.Model):
+    date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=datetime.now)
+    technicien_sav = models.ForeignKey(User, verbose_name='technicien sav', on_delete=models.CASCADE)
+    installation = models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
+
+    def ticket(self):
+        try:
+            return ticket.objects.get(evenement=self)
+        except:
+            return None
+
+    def icon(self):
+        if self.forme == 0:
+            return '<i class="fas fa-phone-alt"></i>'
+        elif self.forme == 1:
+            return '<i class="fas fa-at"></i>'
+        else:
+            return '<i class="fas fa-people-arrows"></i>'
+
+class ticket(models.Model):
+    evenement = models.ForeignKey('evenement', verbose_name='Ticket', on_delete=models.CASCADE, null=True, blank=True)
+    forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
+    etat = models.IntegerField(default=forme_contact.TELEPHONE, choices=etat.choices, verbose_name='Etat')
+    utilisateur = models.ForeignKey(User, verbose_name='contact', on_delete=models.CASCADE)
+    probleme = models.ForeignKey(probleme, verbose_name='Type de probleme', on_delete=models.CASCADE)
+    detail = models.TextField(verbose_name="Détail", null=True, blank=True)
+    fichier = models.ManyToManyField('Fichiers', verbose_name="fichiers", null=True, blank=True)
+
+class donnee(models.Model):
+    idsa = models.CharField(max_length=50, verbose_name='id solisart')
+    nom_carte = models.CharField(max_length=50, verbose_name="Nom carte")
+    description = models.CharField(max_length=100, verbose_name="Description")
+
+    def __str__(self):
+        return str(self.nom_carte)
+
+class historique(models.Model):
+    installation = models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
+    heure = models.DateTimeField(verbose_name="Date et heure", null=True, blank=True )
+    donnee = models.ForeignKey(donnee, verbose_name='Donnée', on_delete=models.CASCADE)
+    valeur = models.CharField(max_length=50, verbose_name='Valeur')
+
+    def __str__(self):
+
+        if str(self.donnee) == "Type_Ballon_C":
+            if int(self.valeur) == 0:
+                return "Type ballon tampon: sans ballon tampon"
+            elif int(self.valeur) == 1:
+                return "Type ballon tampon: avec ballon tampon"
+        elif str(self.donnee) == "Type_Ballon_S":
+            if int(self.valeur) == 0:
+                return "Type ballon sanitaire: un"
+            elif int(self.valeur) == 1:
+                return "Type ballon sanitaire: soleil et appoint"
+        elif "Type_Appoint" in str(self.donnee):
+            TA = "Appoint1" if "(0)" in str(self.donnee) else "Appoint2"
+            if int(self.valeur) == 0:
+                TA+= ': ' + 'aucun'
+            elif int(self.valeur) == 1:
+                TA+= ': ' + 'Chaudière'
+            elif int(self.valeur) == 2:
+                TA+= ': ' + 'Chaudière condensation'
+            elif int(self.valeur) == 3:
+                TA+= ': ' + 'Electrique'
+            elif int(self.valeur) == 4:
+                TA+= ': ' + 'Pompe à Chaleur'
+            elif int(self.valeur) == 5:
+                TA+= ': ' + 'Bois granulés sur T16'
+            elif int(self.valeur) == 6:
+                TA+= ': ' + 'Bois'
+            return TA
+        elif "Type_Emetteur" in str(self.donnee):
+            TE = "Zone " + str(int(str(self.donnee).replace('Type_Emetteur(','').replace(')', '')) +1)
+            if int(self.valeur) == 0:
+                TE += ': aucun'
+            elif int(self.valeur) == 1:
+                TE += ': Plancher'
+            elif int(self.valeur) == 2:
+                TE += ': Radiateur'
+            elif int(self.valeur) == 3:
+                TE += ': Piscine'
+            elif int(self.valeur) == 4:
+                TE += ': Ventilo-convecteur'
+            elif int(self.valeur) == 5:
+                TE += ': Décharge capteur'
+            elif int(self.valeur) == 6:
+                TE += ': Radiateur en réhausse'
+            return TE
+        else:
+            return str(self.donnee) + ' - ' + str(self.valeur)
+
+
+
+

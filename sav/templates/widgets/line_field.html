@@ -1,0 +1,18 @@
+{% load crispy_forms_field %}
+{% load crispy_forms_tags %}
+{% if not field.is_hidden %}
+<div class="row">
+    {% if field.label%}
+    <div class="col-6">
+        <label for="{{ field.id_for_label }}" class="{% if field.label%}col-sm-6{%endif%} col-form-label">{{ field.label }} {% if field.field.required %}<sup>*</sup>{%endif%}</label>
+    </div>
+    {%endif%}
+    <div class="{% if field.label%}col-6{%else%}col-12{%endif%}">
+        <div class="input-group mb-3 ">
+        {% crispy_field field %}
+        {%if field.help_text %}<small class="form-text text-muted">{{field.help_text}}</small>{%endif%}
+        </div>
+    </div>
+</div>
+</div>
+{%endif%}

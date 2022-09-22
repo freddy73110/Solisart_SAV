@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{% extends "registration/Base_PW.html" %}
+{% load crispy_forms_tags %}
+<html lang="fr">
+<head>
+    {% block Titre %}Créer un utilisateur{% endblock %}
+</head>
+
+{% block frame %}
+<br>
+    <h2>Créer un nouvel utilisateur</h2>
+    <form method="post" action=".">
+        {% csrf_token %}
+        {{ form|crispy}}
+        <input type="submit" value="Create" />
+    </form>
+{% endblock %}
+</html>

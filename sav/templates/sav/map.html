@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form>{% csrf_token %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon1"><i class="fas fa-search-location"></i></span>
+                  <input type="text" name="adresse" class="form-control" id='adresse' placeholder="adresse" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </form>
+            <div id="map" style="height: 800px"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const fontAwesomeIcon = L.divIcon({
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-solar-panel fa-inverse" data-fa-transform="shrink-10"></i></span>',
+    iconSize: [20, 20],
+    className: 'myDivIcon'
+});
+const fontAwesomeIconInstallateur = L.divIcon({
+    html: '<i class="fas fa-map-marker-alt text-success fa-4x"></i>',
+    iconSize: [20, 20],
+    className: 'myDivIcon'
+});
+const mymap = L.map('map').setView([45, 0],6);
+            L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
+                    {% for t in test %}
+                        {%if t.valeur|Coor %}
+                         L.marker([{{t.valeur}}],{ icon: fontAwesomeIcon}).addTo(mymap)
+                        .bindPopup("<a href='{% url 'sav:installation' pk=t.installation.id%}' ><b>{{t.installation}}</b></a>")
+                        {% endif %}
+                    {%endfor%}
+$('#adresse').on('input', function(){
+    if ($(this).val().length>3){
+          var form = $(this).closest("form");
+          $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: form.serialize(),
+            dataType: 'html',
+            success: function (html) {
+                data = JSON.parse(html)
+                mymap.panTo(new L.LatLng(data[0].lat, data[0].lon))
+                mymap.setZoom(12)
+                new L.marker([data[0].lat, data[0].lon],{ icon:  fontAwesomeIcon}).addTo(mymap)
+                }
+          })
+      }
+})
+</script>
+
+
+
+{%endblock%}
