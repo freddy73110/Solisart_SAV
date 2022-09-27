@@ -32,8 +32,16 @@ class Fichiers(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.titre:
-            self.titre = str(self.fichier.name)
+            self.titre = str(self.filename())
         super(Fichiers, self).save(force_insert, force_update, using, update_fields)
+
+    def delete(self, *args, **kwargs):
+        if os.path.isfile(self.fichier.path):
+            os.remove(self.fichier.path)
+        super(Fichiers, self).delete(*args, **kwargs)
+
+    def filename(self):
+        return os.path.basename(self.fichier.name)
 
     def icon(self):
         name, extension = os.path.splitext(self.fichier.name)
@@ -82,7 +90,17 @@ class profil_user(models.Model):
         return str(self.user.first_name) + ' ' + str(self.user.last_name)
 
     def icon(self):
-        return '<i class="far fa-user"></i>'
+        profils = acces.objects.filter(utilisateur=self.user).order_by('profil_type').values_list('profil_type__name', flat=True).distinct()
+        icon=''
+        if 'Administrateur' in profils:
+            icon += '<i class="fas fa-users-cog p-1"></i>'
+        if 'Technicien' in profils:
+            icon += '<i class="fas fa-screwdriver p-1"></i>'
+        if 'Installateur' in profils:
+            icon += '<i class="fas fa-tools p-1" ></i>'
+        if 'Propriétaire' in profils:
+            icon += '<i class="fas fa-house-user p-1"></i>'
+        return icon
 
     def installations(self):
         return installation.objects.filter(acces__utilisateur=self.user).distinct()
@@ -295,6 +313,12 @@ class evenement(models.Model):
         else:
             return '<i class="fas fa-people-arrows"></i>'
 
+    def duree(self):
+        return datetime.now()-self.date.replace(tzinfo=None)
+
+    def __str__(self):
+        return str(self.date) + ' ' + str(self.installation)
+
 class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Ticket', on_delete=models.CASCADE, null=True, blank=True)
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
@@ -303,6 +327,25 @@ class ticket(models.Model):
     probleme = models.ForeignKey(probleme, verbose_name='Type de probleme', on_delete=models.CASCADE)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
     fichier = models.ManyToManyField('Fichiers', verbose_name="fichiers", null=True, blank=True)
+
+    def icon_etat(self):
+        if self.etat == 0:
+            return '<i class="fas fa-play"></i>'
+        if self.etat == 1:
+            return '<i class="fas fa-pause"></i>'
+        if self.etat == 2:
+            return '<i class="fas fa-stop"></i>'
+
+    def icon_forme(self):
+        if self.forme == 0:
+            return '<i class="fas fa-phone-alt"></i>'
+        if self.forme ==1:
+            return '<i class="fas fa-at"></i>'
+        if self.forme ==2:
+            return '<i class="fas fa-comments"></i>'
+
+    def __str__(self):
+        return str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
 
 class donnee(models.Model):
     idsa = models.CharField(max_length=50, verbose_name='id solisart')

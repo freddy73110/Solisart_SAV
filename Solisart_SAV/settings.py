@@ -16,7 +16,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+print(BASE_DIR.parent.parent)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -83,10 +83,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
          'NAME': 'SAV',
          'USER': 'postgres',
-         # 'PASSWORD': 'G2poilOQ!',
-         # 'HOST': '127.0.0.1',
-          'PASSWORD': 'SolisArt',
-          'HOST': '192.168.10.250',
+         'PASSWORD': 'G2poilOQ!',
+         'HOST': '127.0.0.1',
+         #  'PASSWORD': 'SolisArt',
+         #  'HOST': '192.168.10.250',
          'PORT': '5432',
     }
 }
@@ -127,13 +127,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # AUTHENTICATION_BACKENDS = ['sav.backend.EmailBackend']
 
-DEFAULT_FROM_EMAIL = 'freddy.dubouchet@solisart.fr'
-SERVER_EMAIL = 'freddy.dubouchet@solisart.fr'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.webmo.fr'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'freddy.dubouchet@solisart.fr'
-EMAIL_HOST_PASSWORD = 'G2poilOQ!' #il faut créer un mot de passe pour application
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'freddy.solisart@gmail.com'
+EMAIL_HOST_PASSWORD = 'midcvkrhcccoilue'
+
+
+DATETIME_INPUT_FORMATS = ('%d-%m-%Y %H:%M')
+
 '''
 aller sur https://myaccount.microsoft.com/
 se connecter avec son compte (support@apixanalytics.com) serait le mieux
@@ -146,7 +149,7 @@ Récupérer le mot de passe et l'affecter à EMAIL_HOST_PASSWORD
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'C:/Users/FDT/PycharmProjects/pixl_post_processing/static_root/'
+STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')
 STATICFILES_DIRS = ['static']
 
 MEDIA_URL = '/media/'
@@ -161,4 +164,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+if DEBUG == False:
+    STATIC_ROOT = '/home/Solisart_SAV/static/'
+    MEDIA_ROOT = '/home/Solisart_SAV/media/'
 

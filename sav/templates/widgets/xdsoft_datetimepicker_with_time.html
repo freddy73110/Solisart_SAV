@@ -1,14 +1,12 @@
 {% include "django/forms/widgets/input.html" %}
+
 <script>
   $(function () {
     var today = new Date();
     var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
     $("input[name='{{ widget.name }}']").datetimepicker({
-      format: 'd-m-Y H:i',
-      value: date
+      format: 'd-m-Y H:i'
     }
     );
   });
-
-
 </script>

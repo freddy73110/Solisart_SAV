@@ -127,7 +127,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-3" href="" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
+                <a class="dropdown-item mt-3" href="{% url 'sav:ticket' %}" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
@@ -179,7 +179,7 @@ ul.nav li a.active {
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="#"><b>{{user.first_name}} {{user.last_name}}</b></a></li>
-                <li><a class="dropdown-item" href="#"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
+                <li><a class="dropdown-item" href="{% url 'sav:password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                 <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
               </ul>
         </div>

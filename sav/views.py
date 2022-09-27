@@ -5,6 +5,7 @@ import sys
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -22,6 +23,12 @@ class home (View):
     title = 'Recherche'
 
     def get(self, request, *args, **kwargs):
+
+        subject = 'Thank you for registering to our site'
+        message = ' it  means a world to us '
+        email_from = 'sav@solisart.fr'
+        recipient_list = ['freddy.dubouchet@solisart.fr', ]
+        send_mail(subject, message, email_from, recipient_list)
 
         return render(request,
                       self.template_name,
@@ -350,7 +357,6 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
-
         if "file_ticket" in request.POST:
             form = FilesForm(request.POST, request.FILES)
             if form.is_valid():
@@ -371,10 +377,9 @@ class installation_view (View):
             return JsonResponse(data, safe=False)
 
         elif "details" in request.POST:
-            ticket.objects.update(
-                id=int(str(request.POST['id']).replace('ta_ticket_', '')),
-                detail=request.POST['details']
-            )
+            t= ticket.objects.get(pk=int(str(request.POST['id']).replace('ta_ticket_', '')))
+            t.detail=request.POST['details']
+            t.save()
             return JsonResponse({
                 "detail": "ok"
             }, safe=False)
@@ -397,6 +402,21 @@ class installation_view (View):
                 }
             }, safe=False)
 
+        elif request.POST['nature_form'] == "update-ticket":
+            tick=ticket.objects.get(pk=int(request.POST['id']))
+            add_ticket_form = ticket_form(request.POST, instance=tick)
+            add_evenement = add_evenement_form(request.POST, instance=evenement.objects.get(ticket=tick),
+                user=request.user,
+                installation=self.instal)
+
+            if add_evenement.is_valid():
+                add_evenement.save()
+            if add_ticket_form.is_valid():
+                add_ticket_form.save()
+            return JsonResponse({
+                "update_ticket": "done"
+            }, safe=False)
+
         elif request.POST['nature_form'] == "ticket":
 
             self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
@@ -409,6 +429,39 @@ class installation_view (View):
                 tick.save()
             return JsonResponse({
                 "ticket": "ok"
+            }, safe=False)
+
+        elif request.POST['nature_form'] == "update_ticket_init":
+            if request.POST['id']== '0':
+                add_ticket_form = ticket_form()
+                add_evenement = add_evenement_form(
+                    user=request.user,
+                    installation=self.instal)
+            else:
+                add_ticket_form=ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])))
+                add_evenement=add_evenement_form(
+                    instance=evenement.objects.get(ticket__pk=int(request.POST['id'])),
+                    user=request.user,
+                    installation=self.instal)
+
+            return render(request,"widgets/crispy_form.html",
+                          {'add_ticket_form': add_ticket_form,
+                           'add_evenement':add_evenement})
+
+        elif request.POST['nature_form'] == "delete_file":
+            f=Fichiers.objects.get(pk=int(request.POST['delete_file_input'].replace('deletefile_', '')))
+            file_name=f.fichier.name
+            f.delete()
+            return JsonResponse({
+                "deleted":file_name
+            }, safe=False)
+
+        elif request.POST['nature_form'] == "rename_file":
+            f = Fichiers.objects.get(pk=int(request.POST['rename_file_input'].replace('renamefile_', '')))
+            f.titre=request.POST['new_name']
+            f.save()
+            return JsonResponse({
+                "renamed": str(f)
             }, safe=False)
 
 class utilisateur_view (View):
@@ -493,8 +546,24 @@ class carte (View):
     def post(self, request, *args, **kwargs):
 
         import requests
-        url = 'https://nominatim.openstreetmap.org/?q=' + request.POST['adresse'].replace(' ', '%') + '&format=json&limit=1'
+        url = 'https://nominatim.openstreetmap.org/?q=' + request.POST['adresse'].replace(' ', '%') + '&format=json&polygon_geojson=1'
         return HttpResponse(requests.get(url), content_type='application/json; charset=utf-8')
+
+class ticket_view(View):
+    login_url = '/login/'
+    template_name = 'sav/ticket.html'
+    title = 'Tickets ouverts'
+
+    def get(self, request, *args, **kwargs):
+        all_ticket_open=ticket.objects.exclude(etat=0)
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title,
+                          'all_ticket_open':all_ticket_open
+                      }
+                      )
+
 
 class bidouille (View):
     login_url = '/login/'

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+            <table
+                    data-toolbar="#toolbar"
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                <thead>
+                    <th class="text-center">Installation</th>
+                    <th class="text-center">Probleme</th>
+                    <th class="text-center">Date (durée)</th>
+                </thead>
+                <tbody>
+                    {% for ticket in all_ticket_open %}
+                    <tr>
+                        <td class="text-center"><a href="{% url 'sav:installation' pk=ticket.evenement.installation.id %}">{{ticket.evenement.installation}}</a></td>
+                        <td class="text-center">{{ticket.probleme}}</td>
+                        <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
+                    </tr>
+
+                {%endfor%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{%endblock%}

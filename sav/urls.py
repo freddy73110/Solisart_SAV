@@ -10,6 +10,7 @@ urlpatterns = [
     path('updateDB', login_required(views.updateDB.as_view()), name='updateDB'),
     path('installation/<int:pk>', login_required(views.installation_view.as_view()), name='installation'),
     path('utilisateur/<int:pk>', login_required(views.utilisateur_view.as_view()), name='utilisateur'),
+    path('ticket', login_required(views.ticket_view.as_view()), name='ticket'),
     path('map', views.carte.as_view(), name='map'),
     path('bidouille', views.bidouille.as_view(), name='bidouille')
 ]

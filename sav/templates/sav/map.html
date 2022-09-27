@@ -49,6 +49,22 @@ const mymap = L.map('map').setView([45, 0],6);
                         .bindPopup("<a href='{% url 'sav:installation' pk=t.installation.id%}' ><b>{{t.installation}}</b></a>")
                         {% endif %}
                     {%endfor%}
+
+
+function clearMap() {
+    for(i in mymap._layers) {
+        if(mymap._layers[i]._path != undefined) {
+            try {
+                mymap.removeLayer(mymap._layers[i]);
+            }
+            catch(e) {
+                console.log("problem with " + e + mymap._layers[i]);
+            }
+        }
+    }
+}
+
+
 $('#adresse').on('input', function(){
     if ($(this).val().length>3){
           var form = $(this).closest("form");
@@ -59,9 +75,18 @@ $('#adresse').on('input', function(){
             dataType: 'html',
             success: function (html) {
                 data = JSON.parse(html)
+                clearMap()
                 mymap.panTo(new L.LatLng(data[0].lat, data[0].lon))
                 mymap.setZoom(12)
                 new L.marker([data[0].lat, data[0].lon],{ icon:  fontAwesomeIcon}).addTo(mymap)
+                var geojson = data[0].geojson.coordinates[0]
+                if(geojson.length > 0){
+                    var geojsonreverse=[]
+                geojson.forEach(function(i, index){
+                    geojsonreverse.push([i[1], i[0]])
+                })
+                    var polygon = L.polygon(geojsonreverse).addTo(mymap);
+                }
                 }
           })
       }

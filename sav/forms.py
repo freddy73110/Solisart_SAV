@@ -2,7 +2,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import AppendedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
-from django.forms import forms, ModelForm, HiddenInput
+from django.forms import forms, ModelForm, HiddenInput, IntegerField
 from .crispy_layout import *
 
 from .models import *
@@ -10,7 +10,7 @@ from .models import *
 class add_evenement_form(ModelForm):
     class Meta:
         model = evenement
-        exclude = ['ticket',]
+        fields ='__all__'
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -25,7 +25,8 @@ class add_evenement_form(ModelForm):
             self.fields['installation'].initial = installation.objects.get(pk=instal.id)
             self.fields['installation'].widget = HiddenInput()
         self.fields['date'].widget = XDSoftDateTimePickerInput()
-        self.fields['date'].initial = datetime.now()
+        if not self.instance:
+            self.fields['date'].initial = datetime.now()
         self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -44,18 +45,31 @@ class FilesForm(ModelForm):
         fields = ('fichier', )
 
 class ticket_form(ModelForm):
+
+    id=IntegerField(required=False)
+
     class Meta:
         model = ticket
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
         instal = kwargs.pop('installation', None)
+        print(instal)
         super(ticket_form, self).__init__(*args, **kwargs)
+        self.fields['id'].widget=HiddenInput()
         if instal:
+            print(User.objects.filter(acces__installation = instal).distinct())
             self.fields['utilisateur'].queryset = User.objects.filter(acces__installation = instal).distinct()
+        print('queryset',self.fields['utilisateur'].queryset)
+        if self.instance.id:
+            self.fields['id'].initial=self.instance.id
+
+        self.fields['evenement'].widget=HiddenInput()
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
+            "id",
+            "evenement",
             "forme",
             "etat",
             "utilisateur",

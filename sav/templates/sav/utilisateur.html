@@ -11,7 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">{{title}}</h1>
+            <h1 class="text-center m-3">{{title}} {{util.profil_user.icon|safe}}</h1>
         </div>
     </div>
 </div>
@@ -44,7 +44,7 @@
                         <td class="text-center"><a href="{% url 'sav:installation' pk=inst.id %}">{{inst}}</a></td>
                         <td class="text-center">{% if inst.proprio%}
                             {% for p in inst.proprio %}
-                            <a href="{% url 'sav:utilisateur' pk=p.id %}">{{p}}</a>
+                            <a href="{% url 'sav:utilisateur' pk=p.id %}">{{p}}{{p.icon}}</a>
                             {% if not forloop.last %}<br>{%endif%}
                             {%endfor%}
                             {%endif%}
