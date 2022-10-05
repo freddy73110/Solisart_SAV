@@ -15,7 +15,7 @@ class add_evenement_form(ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         instal = kwargs.pop('installation', None)
-
+        print(user,instal)
         super(add_evenement_form, self).__init__(*args, **kwargs)
         self.fields['technicien_sav'].queryset = User.objects.filter(pk=user.id)
         self.fields['technicien_sav'].initial = User.objects.get(pk=user.id)

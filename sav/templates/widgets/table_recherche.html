@@ -39,9 +39,9 @@
     <tbody>
         {% for u in utilisateurs %}
         <tr>
-            <td><a href="{% url 'sav:utilisateur' pk=u.id%}">{{u.first_name}}</a></td>
-            <td>{{u.last_name}}</td>
-            <td>{{u.email}}></td>
+            <td><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.first_name}}</a></td>
+            <td><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.last_name}}</a></td>
+            <td>{{u.email}}</td>
             <td>{{u.profil_user.telephone1|format_tel}}</td>
             <td>{{u.profil_user.telephone2|format_tel}}</td>
         </tr>
@@ -73,13 +73,13 @@
     <tbody>
         {% for i in table %}
         <tr>
-            <td><a href="{% url 'sav:installation' i.id %}">{{i.idsa}}</a></td>
+            <td><a href="{% url 'sav:installation' i.id %}" target="_blank">{{i.idsa}}</a></td>
             <td>{{i.type_communication}}</td>
-            <td>{{i.version_carte_firmware}}></td>
+            <td>{{i.version_carte_firmware}}</td>
             <td>{{i.version_carte_interface}}</td>
             <td>
                 {% for u in i.user_acces %}
-                <li><a href="{% url 'sav:utilisateur' pk=i.id%}">{{u.utilisateur.profil_user.icon|safe}} {{u.utilisateur}} {{u.utilisateur.profil_user.type_acces}}</a></li>
+                <li><a href="{% url 'sav:utilisateur' pk=u.utilisateur.id%}" target="_blank">{{u.utilisateur.profil_user.icon|safe}} {{u.utilisateur}} {{u.utilisateur.profil_user.type_acces}}</a></li>
                 {%endfor%}
             </td>
         </tr>

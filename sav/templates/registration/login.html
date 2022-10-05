@@ -10,12 +10,10 @@
 {% block Titre_Modal %}Authentification{% endblock %}
 {% block frame %}
 
-    {% if error %}
-    <p><strong>Mauvaise mot de passe passe.</strong></p>
-    {% endif %}
+
     {% if user.is_authenticated %}
     Vous êtes connectés {{ user.first_name }} !
-    <a href="/sav/">Cliquer ici pour démarrer</a>
+    <a href="">Cliquer ici pour démarrer</a>
     {% else %}
 {%if not 'Chrome' in request.META.HTTP_USER_AGENT%}
 <h2>Nous garantissons un fonctiennement optinal avec Google Chrome.</h2>
@@ -24,11 +22,13 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
+            {% if error %}
+    <p><strong>Mauvaise mot de passe passe.</strong></p>
+    {% endif %}
             <form method="post">
                 {% csrf_token %}
                 {{ form|crispy }}
-                <button type="button" class="btn btn-success text-right" id="connect">Connecter</button>
-                <button type="submit" class="d-none" id="send">Connecter</button>
+                <button type="submit" class="btn btn-success text-right" id="connect">Connecter</button>
             </form><br>
             <a href="/password_reset/" class="text-right">Mot de passe oublié?</a>
     {% endif %}

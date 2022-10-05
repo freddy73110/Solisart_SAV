@@ -2,7 +2,7 @@ from . import *
 
 DEBUG = False
 ALLOWED_HOSTS = ['192.168.10.250']
-STATIC_ROOT = '/home/Solisart_SAV/static/'
+STATIC_ROOT = '/home/SolisArt_SAV/static/'
 MEDIA_ROOT = '/home/media/'
 
 DATABASES = {

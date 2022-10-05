@@ -149,7 +149,6 @@ Récupérer le mot de passe et l'affecter à EMAIL_HOST_PASSWORD
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')
-STATICFILES_DIRS = ['static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -111,6 +111,7 @@ class updateDB (View):
                 }
             df.replace(dictionary, regex=True, inplace=True)
             if 'utilisateur' in uploaded_file.name:
+                print("avant", User.objects.all().count())
                 df.columns=['id', 'pass', 'nom', 'prenom', 'email', 'telephone1', 'telephone2','voie1', 'voie2', 'voie3', 'codepostal', 'commune']
                 df = df.reset_index()  # make sure indexes pair with number of rows
                 total_created=0
@@ -125,8 +126,8 @@ class updateDB (View):
                         profil = profil_user.objects.get(user=user)
                         profil.idsa = row['id']
                         profil.PW = row['pass']
-                        profil.telephone1 = row['telephone1']
-                        profil.telephone2 = row['telephone2']
+                        profil.telephone1 = row['telephone1'] if row['telephone1'].replace('.', '').replace(' ', '') != profil.telephone1 else profil.telephone1
+                        profil.telephone2 = row['telephone2'] if row['telephone2'].replace('.', '').replace(' ', '') != profil.telephone2 else profil.telephone2
                         profil.voie1 =row['voie1']
                         profil.voie2 = row['voie2']
                         profil.voie3 = row['voie3']
@@ -135,8 +136,10 @@ class updateDB (View):
                         profil.save()
                         if created:
                             total_created += 1
+
                     except:
                         pass
+                print("après", User.objects.all().count())
 
                 messages.success(request, str(total_created) + ' nouveaux utilisateur de créer')
 
@@ -175,14 +178,15 @@ class updateDB (View):
                 for index, row in df.iterrows():
                     try:
                         int, created = installation.objects.get_or_create(
-                            idsa=row['id'],
-                            type_communication=row['type_communication'] if row['type_communication'] != np.nan else None,
-                            version_carte_firmware=row['version_carte_firmware'] if row['version_carte_firmware'] != np.nan else None,
-                            version_carte_interface=row['version_carte_interface'] if row['version_carte_interface'] != np.nan else None,
-                            version_serveur_appli=row['version_serveur_appli'] if row['version_serveur_appli'] != np.nan else None,
-                            adresse_ip_wan=row['adresse_ip_wan'] if row['adresse_ip_wan'] != np.nan else None,
-                            port_tcp_wan=row['port_tcp_wan'] if row['port_tcp_wan'] != np.nan else None
-                        )
+                            idsa=row['id'])
+                        int.type_communication=row['type_communication'] if row['type_communication'] != np.nan else None,
+                        int.version_carte_firmware=row['version_carte_firmware'] if row['version_carte_firmware'] != np.nan else None,
+                        int.version_carte_interface=row['version_carte_interface'] if row['version_carte_interface'] != np.nan else None,
+                        int.version_serveur_appli=row['version_serveur_appli'] if row['version_serveur_appli'] != np.nan else None,
+                        int.adresse_ip_wan=row['adresse_ip_wan'] if row['adresse_ip_wan'] != np.nan else None,
+                        int.port_tcp_wan=row['port_tcp_wan'] if row['port_tcp_wan'] != np.nan else None
+                        int.save()
+
                         if created:
                             total_created += 1
                     except Exception as e:
@@ -225,9 +229,10 @@ class updateDB (View):
                     try:
                         int, created = attribut_valeur.objects.get_or_create(
                             installation=installation.objects.get(idsa=row['installation']),
-                            attribut_def=attribut_def.objects.get(idsa=row['attribut_def']),
-                            valeur=row['valeur']
+                            attribut_def=attribut_def.objects.get(idsa=row['attribut_def'])
                         )
+                        int.valeur=row['valeur']
+                        int.save()
                         if created:
                             total_created += 1
                     except Exception as e:
@@ -294,9 +299,10 @@ class updateDB (View):
                     try:
                         int, created = historique.objects.get_or_create(
                             installation=installation.objects.get(idsa=row['installation']),
-                            donnee=donnee.objects.get(idsa=row['donnee']),
-                            valeur=row['valeur']
+                            donnee=donnee.objects.get(idsa=row['donnee'])
                         )
+                        int.valeur = row['valeur']
+                        int.save()
                         if created:
                             total_created += 1
                     except Exception as e:
@@ -333,7 +339,7 @@ class installation_view (View):
         self.add_problem = add_problem_form()
         self.form_class=installation_form(instance=self.instal)
         self.title = self.title + ' ' + str(self.instal) + ' / '
-        self.title+= str(self.instal.proprio()[0]) if self.instal.proprio() else ''
+        self.title+= str(self.instal.proprio()) if self.instal.proprio() else ''
         self.histo= historique.objects.filter(installation=self.instal)
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
@@ -433,12 +439,12 @@ class installation_view (View):
 
         elif request.POST['nature_form'] == "update_ticket_init":
             if request.POST['id']== '0':
-                add_ticket_form = ticket_form()
+                add_ticket_form = ticket_form(installation=self.instal)
                 add_evenement = add_evenement_form(
                     user=request.user,
                     installation=self.instal)
             else:
-                add_ticket_form=ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])))
+                add_ticket_form=ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])),installation=self.instal)
                 add_evenement=add_evenement_form(
                     instance=evenement.objects.get(ticket__pk=int(request.POST['id'])),
                     user=request.user,
@@ -472,16 +478,18 @@ class utilisateur_view (View):
 
     def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs.pop('pk')
-        self.util = User.objects.get(pk=self.pk)
+        self.util = User.objects.get(pk=int(self.pk))
+        self.profil=profil_user.objects.get(user=self.util)
         return super(utilisateur_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        form_profil= ProfilForm(instance=self.util.profil_user)
+        form_profil= ProfilForm(instance=self.profil)
         return render(request,
                       self.template_name,
                           {
-                              'title': str(self.util.profil_user),
+                              'title': str(self.profil),
                               'util': self.util,
+                              'profil': self.profil,
                               'form': self.form_class(instance=self.util),
                               'form_profil':form_profil
                           }
@@ -490,7 +498,7 @@ class utilisateur_view (View):
     def post(self, request, *args, **kwargs):
         if "modifier_profil" in request.POST:
             form_user = UserForm(request.POST, instance=self.util)
-            form_profil = ProfilForm(request.POST, instance=self.util.profil_user)
+            form_profil = ProfilForm(request.POST, instance=self.profil)
             data={}
             if form_user.is_valid():
                 form_user.save()
@@ -555,14 +563,14 @@ class ticket_view(View):
     title = 'Tickets ouverts'
 
     def get(self, request, *args, **kwargs):
-        all_ticket_open=ticket.objects.exclude(etat=0)
+        all_ticket_open=ticket.objects.exclude(etat=2)
         return render(request,
                       self.template_name,
                       {
                           'title': self.title,
                           'all_ticket_open':all_ticket_open
                       }
-                      )
+        )
 
 
 class bidouille (View):
@@ -571,24 +579,6 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        for u in User.objects.all():
-            if u.profil_user.telephone1 == 'nan':
-                u.profil_user.telephone1 = None
-            if u.profil_user.telephone2 == 'nan':
-                u.profil_user.telephone2 = None
-            if u.profil_user.voie1 == 'nan':
-                u.profil_user.voie1 = None
-            if u.profil_user.voie2 == 'nan':
-                u.profil_user.voie2 = None
-            if u.profil_user.voie3 == 'nan':
-                u.profil_user.voie3 = None
-            if u.profil_user.codepostal == 'nan':
-                u.profil_user.codepostal = None
-            if u.profil_user.commune == 'nan':
-                u.profil_user.commune = None
-            u.save()
-
-
         return render(request,
                       self.template_name,
                           {

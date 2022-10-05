@@ -70,7 +70,7 @@ class Fichiers(models.Model):
 
 class profil_user(models.Model):
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='profil_user')
     idsa = models.CharField(max_length=50, verbose_name='id solisart')
     PW = models.CharField(max_length=50, verbose_name='mot de passe my.solisart', default='solaire')
     telephone1 = models.CharField(max_length=50, verbose_name='téléphone 1', blank=True, null=True)
@@ -82,6 +82,7 @@ class profil_user(models.Model):
     commune = models.CharField(max_length=50, verbose_name='Commune', blank=True, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    entreprise = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='entreprise')
 
     def __str__(self):
         return str(self.user)
@@ -121,6 +122,10 @@ class profil_user(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.profil_user.save()
 
+    class Meta:
+        app_label = 'sav'
+        ordering = ['idsa']
+
 class profil_type(models.Model):
 
     PROFIL_TYPE = (
@@ -141,7 +146,7 @@ class installation(models.Model):
         (1, ""),
         (2, "Carte de régulation avec échange de données"),
         (3, "..."),
-        (4,"Carte de régulation NG avec nano-serveur v3")
+        (4, "Carte de régulation NG avec nano-serveur v3")
     )
     idsa = models.CharField(max_length=50, verbose_name='id solisart')
     type_communication = models.IntegerField(verbose_name="Type de communication", choices=TYPE_COMMUNICATION, blank=True, null=True)
@@ -188,7 +193,7 @@ class installation(models.Model):
             foreground = Image.open("sav/static/sav/schema_elements/C3 plancher chauffant.png")
             background.paste(foreground, (795, 100), foreground)
         if "Zone 3: Piscine" in histo:
-            foreground = Image.open("sav/static/sav/schema_elements/C3 piscine.png")
+            foreground = Image.open("sav/static/sav/schema_elements/C3 Piscine.png")
             background.paste(foreground, (790, 100), foreground)
         if "Zone 4: Plancher" in histo:
             foreground = Image.open("sav/static/sav/schema_elements/C7 plancher chauffant.png")
@@ -232,7 +237,16 @@ class installation(models.Model):
         return acces.objects.filter(installation=self)
 
     def proprio(self):
-        return User.objects.filter(acces__installation=self, acces__profil_type__name="Propriétaire")
+        try:
+            return User.objects.get(acces__installation=self, acces__profil_type__name="Propriétaire")
+        except:
+            return None
+
+    def installateur(self):
+        try:
+            return User.objects.get(acces__installation=self, acces__profil_type__name="Installateur")
+        except:
+            return None
 
     def coordonnee_GPS(self):
         try:
@@ -322,7 +336,7 @@ class evenement(models.Model):
 class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Ticket', on_delete=models.CASCADE, null=True, blank=True)
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
-    etat = models.IntegerField(default=forme_contact.TELEPHONE, choices=etat.choices, verbose_name='Etat')
+    etat = models.IntegerField(default=etat.OUVERTURE, choices=etat.choices, verbose_name='Etat')
     utilisateur = models.ForeignKey(User, verbose_name='contact', on_delete=models.CASCADE)
     probleme = models.ForeignKey(probleme, verbose_name='Type de probleme', on_delete=models.CASCADE)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)

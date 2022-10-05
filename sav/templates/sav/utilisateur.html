@@ -20,7 +20,11 @@
         <div class="col-8">
             <div id="installation_carte" style="height: 500px" class="m-3"></div>
         </div>
-        <div class="col-4">
+        <div class="col-4 text-center">
+            <a href="https://my.solisart.fr/admin/index.php?page=editer_utilisateur&id={{util.profil_user.idsa}}" class="btn btn-outline-primary m-auto" target="_blank">
+                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
+                        lien vers mySolisArt
+            </a>
             <table
                     data-toolbar="#toolbar"
                     data-toggle="table"
@@ -43,7 +47,7 @@
                     <tr>
                         <td class="text-center"><a href="{% url 'sav:installation' pk=inst.id %}">{{inst}}</a></td>
                         <td class="text-center">{% if inst.proprio%}
-                            {% for p in inst.proprio %}
+                            {% for p in inst.profil_user.proprio %}
                             <a href="{% url 'sav:utilisateur' pk=p.id %}">{{p}}{{p.icon}}</a>
                             {% if not forloop.last %}<br>{%endif%}
                             {%endfor%}

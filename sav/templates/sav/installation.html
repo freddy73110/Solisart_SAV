@@ -13,8 +13,11 @@
             <div class="row justify-content-center">
                 {%if instal.histo %}
                 <div class="col-9">
+                    {% if instal.schema_installation %}
+                    <canvas id="the-canvas" style="height:300px" class="m-auto"></canvas>
+                    {% else %}
                     <img src="data:image/png;base64,{{instal.schema}}" class="mw-100 mh-70"/>
-                <!--<canvas id="the-canvas" style="height:300px" class="m-auto"></canvas>-->
+                    {%endif%}
                     </div>
                 <div class="col-3 text-center">
                     <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}" class="btn btn-outline-primary m-auto">
@@ -241,6 +244,7 @@ loadingTask.promise.then(function(pdf) {
                                         $("[name='sous_categorie']").val("")
                                         $("#ModalEvenementLabel").html($(this).text())
                                         $("div[name='modal_form']").hide()
+                                        $("div[name='rename_file_input']").hide()
                                         $("#enregister").html('Enregister')
                                         if($(this).attr('data-bs-whatever') == 'ticket'){
                                             $("input[name='nature_form']").val('ticket')
@@ -396,7 +400,7 @@ function initticketform(me){
             success: function (html) {
                 $("#update_ticket").html()
                 $("#update_ticket").html(html)
-                $("input[name='nature_form']").val('update-ticket')
+                $("input[name='nature_form']").val('ticket')
                 $("#rename_file_modal").hide()
                 $("#add_evenement_modal").show()
                 $("#ModalEvenementLabel").html('Enregister un ticket')
