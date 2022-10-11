@@ -74,7 +74,7 @@ class ticket_form(ModelForm):
             "etat",
             "utilisateur",
             Field("probleme"),
-            HTML('<button id="add_problem" type="button" class="btn btn-outline-primary"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'),
+            HTML('<button id="add_problem" type="button" class="btn btn-outline-primary" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'),
             "detail"
         )
 

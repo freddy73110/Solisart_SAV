@@ -334,7 +334,7 @@ class evenement(models.Model):
         return str(self.date) + ' ' + str(self.installation)
 
 class ticket(models.Model):
-    evenement = models.ForeignKey('evenement', verbose_name='Ticket', on_delete=models.CASCADE, null=True, blank=True)
+    evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
     etat = models.IntegerField(default=etat.OUVERTURE, choices=etat.choices, verbose_name='Etat')
     utilisateur = models.ForeignKey(User, verbose_name='contact', on_delete=models.CASCADE)

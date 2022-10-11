@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+
+{%block Titre%}Statistiques{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">Statistiques</h1>
+            <form id="formVisualiser">
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect02">Champs</label>
+                  <select class="form-select" id="inputGroupSelect02" name="field">
+                    <option value="forme">Téléphone/email</option>
+                    <option value="probleme">Problématique</option>
+                  </select>
+                  <label class="input-group-text" for="inputGroupSelect01">Fréquence</label>
+                  <select class="form-select" id="inputGroupSelect01" name="frequence">
+                    <optgroup label="Répartition">
+                        <option value="heure">journalière</option>
+                        <option value="Rjour">hebdomadaire</option>
+                    </optgroup>
+                    <optgroup label="Répartition par">
+                    <option value="jour" selected>Jour</option>
+                    <option value="semaine">Semaine</option>
+                    <option value="mois">Mois</option>
+                    </optgroup>
+                  </select>
+                  <label class="input-group-text" for="inputGroupSelect03">Période</label>
+                  <input type="number"
+                         id="inputGroupSelect03"
+                         class="form-control"
+                         placeholder="période en jours"
+                         value="365"
+                         min=0
+                         aria-label="Recipient's username"
+                         aria-describedby="button-addon2"
+                        name="periode">
+                  <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser()">Visualiser</button>
+                </div>
+            </form>
+            <div id="tickets_chart">{{tickets_chart|safe}}</div>
+            <div id="sunburst">{{sunburst|safe}}</div>
+
+        </div>
+    </div>
+</div>
+<script>
+    function visualiser(){
+        $("#button-form").html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
+        form= $('#formVisualiser').closest("form");
+        $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: form.serialize()+ '&type=bar',
+            dataType: 'html',
+            success: function (html) {
+                $("#tickets_chart").html()
+                $("#tickets_chart").html(html)
+                $.ajax({
+                    url: window.location.href,
+                        type:'post',
+                        data: form.serialize()+ '&type=sunburst',
+                        dataType: 'html',
+                        success: function (html) {
+                            $("#sunburst").html()
+                            $("#sunburst").html(html)
+                            $("#button-form").html("Visualiser")
+                        }
+                })
+                $("#button-form").html("Visualiser")
+            }
+    })
+
+    }
+</script>
+{%endblock%}

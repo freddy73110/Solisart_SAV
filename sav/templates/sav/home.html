@@ -47,6 +47,16 @@
                                   <input type="text" class="form-control" name="id_instal" id="id_instal" aria-label="Nom client">
                                   <span class="input-group-text"><i class="fas fa-box"></i></span>
                                 </div>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Code postale</span>
+                                  <input type="text" class="form-control" name="code_postale_install" id="id_code_postale_install" aria-label="Nom client">
+                                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                </div>
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text">Ville</span>
+                                  <input type="text" class="form-control" name="ville_install" id="id_ville_install" aria-label="Nom client">
+                                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                </div>
                             </form>
                         </fieldset>
                     </div>
@@ -63,7 +73,7 @@
 <script>
 var timesetvar = ''
 $(document).ready(function(){
-    $("#id_instal, #telephone, #prenom, #nom, #email").on("keyup change", function() {
+    $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install").on("keyup change", function() {
         var t = $(this)
         setTimeout(function(){
             if(t.val() == timesetvar){
@@ -73,7 +83,7 @@ $(document).ready(function(){
             else{
                 timesetvar = t.val()
             }
-        }, 300);
+        }, 500);
 
     })
 

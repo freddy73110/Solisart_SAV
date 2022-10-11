@@ -2,19 +2,27 @@
 import json
 import os
 import sys
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
-from django.db.models import Q
+from django.db.models import Q, Count, F, When, Value, Case, CharField
+from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
+    ExtractWeekDay
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views import View
+from plotly.subplots import make_subplots
+
 from .forms import *
 from .models import *
 
 import pandas as pd
 import numpy as np
+
+import plotly.express as px
+import plotly.offline as opy
 
 
 class home (View):
@@ -23,7 +31,9 @@ class home (View):
     title = 'Recherche'
 
     def get(self, request, *args, **kwargs):
-
+        print(installation.objects.filter(attribut_valeur__attribut_def__description="Code postal",
+              attribut_valeur__valeur__icontains="73800"
+              ))
         return render(request,
                       self.template_name,
                           {
@@ -33,7 +43,16 @@ class home (View):
 
     def post(self, request, *args, **kwargs):
         if 'id_instal' in request.POST :
-            table_list=installation.objects.filter(idsa__icontains=request.POST['id_instal'])
+            print(request.POST)
+            table_list = installation.objects.all()
+            if request.POST['ville_install']:
+                table_list = table_list.filter(attribut_valeur__attribut_def__description="Commune",
+                                               attribut_valeur__valeur__icontains=request.POST['ville_install'])
+            if request.POST['code_postale_install']:
+                table_list=table_list.filter(attribut_valeur__attribut_def__description="Code postal",
+                                             attribut_valeur__valeur__icontains=request.POST['code_postale_install'])
+            if request.POST['id_instal']:
+                table_list=table_list.filter(idsa__icontains=request.POST['id_instal'])
             return render(request,
                       'widgets/table_recherche.html',
                       {
@@ -317,6 +336,112 @@ class updateDB (View):
                       }
                       )
 
+class statistiques(View):
+    login_url = '/login/'
+    template_name = 'sav/statistiques.html'
+    title = 'Statistiques'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        return super(statistiques, self).dispatch(request, *args, **kwargs)
+
+    def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
+
+
+        queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
+
+        if frequence == "semaine":
+            queryset = queryset.annotate(frequence=TruncWeek('evenement__date'))
+        if frequence == "mois":
+            queryset = queryset.annotate(frequence=TruncMonth('evenement__date'))
+        if frequence == "jour":
+            queryset = queryset.annotate(frequence=TruncDay('evenement__date'))
+        if frequence == "heure":
+            queryset = queryset.annotate(frequence=ExtractHour('evenement__date'))
+        if frequence == "Rjour":
+            queryset = queryset.annotate(frequence=ExtractWeekDay('evenement__date'))
+
+        if field =="forme":
+            when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
+            queryset = queryset.order_by('frequence', 'forme').annotate(lien=Case(*when, output_field=CharField())).values(
+            'frequence', 'lien').annotate(count=Count('id'))
+
+        if field =="probleme":
+            when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+            queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
+                'frequence', 'lien').annotate(count=Count('id'))
+
+        df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+        text_auto='s'
+        if frequence == "Rjour":
+            semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+            df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
+            titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
+            titlex="Jour de la semaine"
+        elif frequence == "heure":
+            df=df.sort_values(by=['frequence'], ascending=True)
+            titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
+            titlex="Heure ouverte de ticket"
+        else:
+            df = df.sort_values(by='frequence')
+            df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
+            titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
+            titlex="Date"
+
+        if type=="bar":
+            fig1 = px.bar(df,
+                          x='frequence',
+                          y='count',
+                          color='lien',
+                          text_auto=text_auto,
+                          title=titre
+                          )
+            fig1.update_xaxes(title=titlex)
+            fig1.update_yaxes(title='Nombre')
+            fig1.update_layout(height=600, legend=dict(title="Légende"))
+            if frequence == 'heure':
+                fig1.update_layout(xaxis=dict(
+                    tickvals=df['frequence'],
+                    ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
+                ))
+            return fig1
+        if type=="sunburst":
+
+            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
+                               values='count')
+
+            fig2.update_traces(
+                textinfo="label+value+percent parent + percent entry + text"
+            )
+            return fig2
+
+
+    def get(self, request, *args, **kwargs):
+
+        fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
+        self.tickets_chart = opy.plot(fig1, output_type='div')
+        fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
+        self.sunburst = opy.plot(fig2, output_type='div')
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title,
+                          'tickets_chart':self.tickets_chart,
+                          'sunburst':self.sunburst
+                      }
+                      )
+
+    def post(self, request, *args, **kwargs):
+
+        if "type" in request.POST:
+            fig = self.chart_repartition_temporel(frequence=request.POST['frequence'],
+                                                  periode=request.POST['periode'],
+                                                  field=request.POST['field'],
+                                                  type=request.POST['type'])
+            return HttpResponse(opy.plot(fig, output_type='div'))
+
+
+
 class installation_view (View):
     login_url = '/login/'
     template_name = 'sav/installation.html'
@@ -338,8 +463,6 @@ class installation_view (View):
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-
-
 
         return render(request,
                       self.template_name,
@@ -422,14 +545,24 @@ class installation_view (View):
             self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
             if self.add_evenement.is_valid():
                 even = self.add_evenement.save()
-            self.add_ticket_form = ticket_form(request.POST, installation=self.instal)
+                self.add_ticket_form = ticket_form(request.POST, installation=self.instal)
+            else:
+                return JsonResponse({
+                    "ticket": "nok",
+                    'error':self.add_evenement.errors
+                }, safe=False)
             if self.add_ticket_form.is_valid():
                 tick = self.add_ticket_form.save(commit=False)
                 tick.evenement=even
                 tick.save()
-            return JsonResponse({
-                "ticket": "ok"
-            }, safe=False)
+                return JsonResponse({
+                    "ticket": "ok"
+                }, safe=False)
+            else:
+                return JsonResponse({
+                    "ticket": "nok",
+                    'error':self.add_ticket_form.errors
+                }, safe=False)
 
         elif request.POST['nature_form'] == "update_ticket_init":
             if request.POST['id']== '0':

@@ -257,13 +257,13 @@ loadingTask.promise.then(function(pdf) {
                                             $("#production_modal").show()
                                         }
                                     })
-                                    $("#add_problem").on("click", function(){
+                                    function add_Problem(){
                                         $("input[name='nature_form']").val('add_problem')
                                         $("#add_evenement_modal").hide()
                                         $("#ModalEvenementLabel").html('Ajouter un nouveau problème')
                                         $("div[name='modal_form']").hide()
                                         $("#add_problem_modal").show()
-                                    })
+                                    }
                                 </script>
                           </div>
                           <div class="modal-footer">
@@ -288,8 +288,15 @@ loadingTask.promise.then(function(pdf) {
                                             }));
                                             $('#id_probleme').val(data.probleme.id)
                                           }
-                                          if (data.hasOwnProperty('ticket')){
+                                          if (data.hasOwnProperty('ticket')&&data.ticket=="ok"){
                                             location.reload()
+                                          }else{
+                                            $("#ModalEvenement").show()
+                                            $(".is-invalid").removeClass("is-invalid")
+                                            $("small").remove()
+                                            $.each(data.error, function(index, value){
+                                                $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
+                                            })
                                           }
                                           if(data.hasOwnProperty('deleted')){
                                                 location.reload()
@@ -458,6 +465,7 @@ function modifierGPS(){
             success: function (data) {
             //todo faire un message de validation
                 console.log(data)
+                $('#GPS').addClass("is-valid")
             }
     })
 }
