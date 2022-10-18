@@ -244,7 +244,7 @@ loadingTask.promise.then(function(pdf) {
                                         $("[name='sous_categorie']").val("")
                                         $("#ModalEvenementLabel").html($(this).text())
                                         $("div[name='modal_form']").hide()
-                                        $("div[name='rename_file_input']").hide()
+                                        $("#rename_file_modal").hide()
                                         $("#enregister").html('Enregister')
                                         if($(this).attr('data-bs-whatever') == 'ticket'){
                                             $("input[name='nature_form']").val('ticket')

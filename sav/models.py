@@ -94,13 +94,13 @@ class profil_user(models.Model):
         profils = acces.objects.filter(utilisateur=self.user).order_by('profil_type').values_list('profil_type__name', flat=True).distinct()
         icon=''
         if 'Administrateur' in profils:
-            icon += '<i class="fas fa-users-cog p-1"></i>'
+            icon += '<i class="fas fa-users-cog m-1"></i>'
         if 'Technicien' in profils:
-            icon += '<i class="fas fa-screwdriver p-1"></i>'
+            icon += '<i class="fas fa-screwdriver m-1"></i>'
         if 'Installateur' in profils:
-            icon += '<i class="fas fa-tools p-1" ></i>'
+            icon += '<i class="fas fa-tools m-1" ></i>'
         if 'Propriétaire' in profils:
-            icon += '<i class="fas fa-house-user p-1"></i>'
+            icon += '<i class="fas fa-house-user m-1"></i>'
         return icon
 
     def installations(self):
@@ -161,7 +161,7 @@ class installation(models.Model):
                                            null=True, blank=True)
 
     def __str__(self):
-        return self.idsa
+        return self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
 
     def histo(self):
         return [str(i) for i in historique.objects.filter(installation=self)]
@@ -256,6 +256,8 @@ class installation(models.Model):
         except:
             return None
 
+    def ticketencours(self):
+        return ticket.objects.filter(evenement__installation=self).exclude(etat=2).count()
 
     class Meta:
         app_label = 'sav'
@@ -338,7 +340,7 @@ class ticket(models.Model):
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
     etat = models.IntegerField(default=etat.OUVERTURE, choices=etat.choices, verbose_name='Etat')
     utilisateur = models.ForeignKey(User, verbose_name='contact', on_delete=models.CASCADE)
-    probleme = models.ForeignKey(probleme, verbose_name='Type de probleme', on_delete=models.CASCADE)
+    probleme = models.ForeignKey(probleme, verbose_name='Type de problème', on_delete=models.CASCADE)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
     fichier = models.ManyToManyField('Fichiers', verbose_name="fichiers", null=True, blank=True)
 

@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-print(BASE_DIR.parent.parent)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -132,7 +131,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'freddy.solisart@gmail.com'
 EMAIL_HOST_PASSWORD = 'lmzoieaojsoquowx'
-
+DEFAULT_FROM_EMAIL ='sav@solisart.fr'
 
 DATETIME_INPUT_FORMATS = ('%d-%m-%Y %H:%M')
 

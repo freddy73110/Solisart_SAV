@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import os
 import sys
 from datetime import timedelta
+from email.mime.image import MIMEImage
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,7 +14,12 @@ from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHou
     ExtractWeekDay
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.utils.html import strip_tags
 from django.views import View
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
 from plotly.subplots import make_subplots
 
 from .forms import *
@@ -24,6 +31,68 @@ import numpy as np
 import plotly.express as px
 import plotly.offline as opy
 
+from imap_tools import MailBox, A, AND, OR, NOT
+
+from email.mime.image import MIMEImage
+
+from django.contrib.staticfiles import finders
+from functools import lru_cache
+
+
+@lru_cache()
+def addimg(path, name):
+    with open(path, 'rb') as f:
+        logo_data = f.read()
+    logo = MIMEImage(logo_data)
+    logo.add_header('Content-ID', '<'+name+'>')
+    return logo
+
+class inbox():
+
+    def mailbox(request):
+        email_user = "sav@solisart.fr"
+        email_pass = "AristideBerges218"
+        server = 'imap.webmo.fr'
+
+        return MailBox(server).login(email_user, email_pass)
+
+    def mailbox_search(request, fetch=None):
+        if not fetch:
+            fetch = A(date_gte=(datetime.now() - timedelta(days=1)).date())
+        else:
+            fetch = A(fetch, date_gte=(datetime.now() - timedelta(days=3)).date())
+
+        return inbox.mailbox(request).fetch(fetch)
+
+
+    def list(request, fetch=None):
+
+        mailbox = inbox.mailbox_search(request, fetch=None)
+        list_mail=[]
+        for e in mailbox:
+            try:
+                icon = profil_user.objects.get(user__email=e.from_).icon()
+                t_form = ticket_form(utilisateur=User.objects.get(email=e.from_))
+                e_form = add_evenement_form(user=request.user, user_acces=User.objects.get(email=e.from_), date=e.date)
+            except Exception as ex:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(ex)
+                icon =''
+                t_form=ticket_form()
+                e_form=add_evenement_form(user=request.user, date=e.date)
+            list_mail.append({'date':e.date,
+                                  'from_':e.from_,
+                                  'subject':e.subject,
+                                  'html':e.html,
+                                  'text':e.text,
+                                  'icon':icon,
+                                  'uid':e.uid,
+                                  'ticket_form':t_form,
+                                  'evenement_form':e_form,
+                                    })
+        return list_mail[::-1]
 
 class home (View):
     login_url = '/login/'
@@ -31,9 +100,6 @@ class home (View):
     title = 'Recherche'
 
     def get(self, request, *args, **kwargs):
-        print(installation.objects.filter(attribut_valeur__attribut_def__description="Code postal",
-              attribut_valeur__valeur__icontains="73800"
-              ))
         return render(request,
                       self.template_name,
                           {
@@ -43,7 +109,6 @@ class home (View):
 
     def post(self, request, *args, **kwargs):
         if 'id_instal' in request.POST :
-            print(request.POST)
             table_list = installation.objects.all()
             if request.POST['ville_install']:
                 table_list = table_list.filter(attribut_valeur__attribut_def__description="Commune",
@@ -335,6 +400,159 @@ class updateDB (View):
                           'form': self.form_class
                       }
                       )
+
+class mail(View):
+    login_url = '/login/'
+    template_name = 'sav/mail.html'
+    title = 'Ouvrir un ticket depuis la boîte email sav'
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(mail, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.emails = inbox.list(request)
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title,
+                          'emails': self.emails
+                      }
+                      )
+
+    def post(self, request, *args, **kwargs):
+        try:
+            t_form = ticket_form(request.POST, utilisateur=User.objects.get(email=request.POST['mail_of']))
+            e_form = add_evenement_form(request.POST,user=request.user, user_acces=User.objects.get(email=request.POST['mail_of']), date=request.POST['mail_date'])
+        except:
+            t_form = ticket_form(request.POST)
+            e_form = add_evenement_form(request.POST, user=request.user,
+                                        date=request.POST['mail_date'])
+        json={}
+        if e_form.is_valid():
+            even=e_form.save(commit=False)
+            json['evenement'] = {"form": "ok"}
+
+        else:
+            json['evenement'] = {"form": "nok", "error": e_form.errors}
+            return JsonResponse(json, safe=False)
+
+        if t_form.is_valid():
+            tick=t_form.save(commit=False)
+            tick.evenement=even
+            json['ticket'] = {"form": "ok"}
+        else:
+            json['ticket'] = {"form": "nok", "error": t_form.errors}
+            return JsonResponse(json, safe=False)
+        if request.POST['response']:
+            date= datetime.strptime(request.POST['mail_date'], '%d-%m-%Y %H:%M')
+            msg=inbox.mailbox_search(request, fetch=A(uid=request.POST['uid']
+                                           ))
+            if request.POST['response'] == 'send_response':
+                try:
+                    for m in msg:
+                        subject = m.subject
+
+                        subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                        # subject, from_email, to = m.subject, 'sav@solisart.fr', request.POST['response_email']
+
+                        html_content = render_to_string('email/responsewithsignature.html', {
+                            'oldmail': m.html,
+                            'msg': request.POST['response_text']
+                        })  # render with dynamic value
+                        text_content = strip_tags(
+                            html_content)  # Strip the html tag. So people can see the pure text at least.
+
+                        # create the email, and attach the HTML version as well.
+                        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                        msg.attach_alternative(html_content, "text/html")
+                        msg.send()
+                        json['email'] = {"send": "ok"}
+                except Exception as e:
+
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    print(e)
+                    pass
+                    json['email'] = {"send": "nok"}
+
+            if request.POST['response'] == 'move_response':
+                #todo when i have outlook 365
+                    json['moveemail'] = {"todo": "ok"}
+
+            if request.POST['response'] == 'login_response':
+                try:
+                    subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                    # subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
+                    # utilisateur=User.objects.get(email=request.POST['response_email'])
+                    utilisateur = User.objects.get(email='freddy.dubouchet@solisart.fr')
+                    html_content = render_to_string('email/responseloselogin.html', {
+                        'utilisateur':utilisateur,
+                        'profil':profil_user.objects.get(user=utilisateur)
+                    })  # render with dynamic value
+                    text_content = strip_tags(
+                        html_content)  # Strip the html tag. So people can see the pure text at least.
+
+                    # create the email, and attach the HTML version as well.
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.mixed_subtype = 'related'
+                    from django.templatetags.static import static
+                    img_path=os.path.join(settings.BASE_DIR.parent, 'static', 'image', 'login.png')
+                    msg.mixed_subtype = 'related'
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.attach(addimg(img_path, 'login'))
+                    msg.send(fail_silently=False)
+
+                    json['email'] = {"send": "ok"}
+                except Exception as e:
+
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    print(e)
+                    pass
+                    json['email'] = {"send": "nok"}
+
+            if request.POST['response'] == 'reconnection':
+                try:
+                    subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                    # subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
+
+                    html_content = render_to_string('email/responsehelpconnection.html')  # render with dynamic value
+                    text_content = strip_tags(
+                        html_content)  # Strip the html tag. So people can see the pure text at least.
+
+                    # create the email, and attach the HTML version as well.
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.mixed_subtype = 'related'
+                    from django.templatetags.static import static
+                    img_path=os.path.join(settings.BASE_DIR.parent, 'static', 'image', 'aidereconnexion.jpg')
+                    msg.mixed_subtype = 'related'
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.attach(addimg(img_path, 'aidereconnexion'))
+                    file_path=os.path.join(settings.BASE_DIR.parent, 'static', 'sav', 'fichier', 'procedure_connexion.pdf')
+                    msg.attach_file(file_path)
+                    msg.send(fail_silently=False)
+                    json['email'] = {"send": "ok"}
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    print(e)
+                    pass
+                    json['email'] = {"send": "nok"}
+        else:
+            json['email'] = {"send": "pas demander"}
+
+
+
+
+
+
+        return JsonResponse(json, safe=False)
+
 
 class statistiques(View):
     login_url = '/login/'
@@ -706,6 +924,7 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        sav_email(sav_email, fetch=A(from_='arielle.prunetfoch@solisart.fr'))
         return render(request,
                       self.template_name,
                           {

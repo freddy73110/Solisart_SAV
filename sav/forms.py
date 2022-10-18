@@ -2,6 +2,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import AppendedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
+from django.db.models.functions import Concat
 from django.forms import forms, ModelForm, HiddenInput, IntegerField
 from .crispy_layout import *
 
@@ -14,19 +15,37 @@ class add_evenement_form(ModelForm):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
+        user_acces = kwargs.pop('user_acces', None)
         instal = kwargs.pop('installation', None)
-        print(user,instal)
+        date = kwargs.pop('date', None)
         super(add_evenement_form, self).__init__(*args, **kwargs)
         self.fields['technicien_sav'].queryset = User.objects.filter(pk=user.id)
         self.fields['technicien_sav'].initial = User.objects.get(pk=user.id)
         self.fields['technicien_sav'].widget = HiddenInput()
         if instal:
-            self.fields['installation'].queryset = installation.objects.filter(pk=instal.id)
+            self.fields['installation'].queryset = installation.objects.filter(pk = instal.id)
             self.fields['installation'].initial = installation.objects.get(pk=instal.id)
             self.fields['installation'].widget = HiddenInput()
+        if user_acces:
+            self.fields['installation'].queryset = installation.objects.filter(acces__utilisateur = user_acces)
+            tu=[]
+            for i in installation.objects.filter(acces__utilisateur=user_acces).distinct().annotate(str=str(object)).values('id', 'idsa', 'str'):
+                tu.append((i['id'], i['str']))
+            tu2 = []
+            for i in installation.objects.all().annotate(str=str(object)).values('id', 'idsa', 'str'):
+                tu2.append((i['id'], i['str']))
+
+            choices = (('Installation(s) liée(s)', tuple(tu)
+                        ),
+                       ('Tous les installations', tuple(tu2))
+                       )
+            self.fields['installation'].choices=choices
         self.fields['date'].widget = XDSoftDateTimePickerInput()
+
         if not self.instance:
             self.fields['date'].initial = datetime.now()
+        if date:
+            self.fields['date'].initial = date
         self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -35,7 +54,7 @@ class add_evenement_form(ModelForm):
                                          template='widgets/prepended_appended_text_inline.html',
                                          active=True)),
                   "technicien_sav",
-                  "installation"
+                  FloatingField("installation")
         )
 
 class FilesForm(ModelForm):
@@ -54,13 +73,26 @@ class ticket_form(ModelForm):
 
     def __init__(self, *args, **kwargs):
         instal = kwargs.pop('installation', None)
-        print(instal)
+        util = kwargs.pop('utilisateur', None)
         super(ticket_form, self).__init__(*args, **kwargs)
         self.fields['id'].widget=HiddenInput()
+        html = '<button id="add_problem" type="button" class="btn btn-outline-primary m-1" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'
+        from operator import itemgetter
+        items = probleme.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie', 'sous_categorie')
+        rows = groupby(items, itemgetter('categorie'))
+        di = {str(type_probleme(c_title).label): tuple([(i['id'], i['sous_categorie']) for i in items]) for c_title, items in rows}
+        choices=tuple([(key, value) for key, value in di.items()])
+        self.fields['probleme'].choices = choices
+        self.fields['utilisateur'].queryset = User.objects.all().order_by(
+            'first_name', 'last_name')
         if instal:
-            print(User.objects.filter(acces__installation = instal).distinct())
-            self.fields['utilisateur'].queryset = User.objects.filter(acces__installation = instal).distinct()
-        print('queryset',self.fields['utilisateur'].queryset)
+            self.fields['utilisateur'].queryset = User.objects.filter(acces__installation = instal).distinct().order_by('first_name', 'last_name')
+        if util:
+            self.fields['utilisateur'].initial = util
+            self.fields['utilisateur'].widget = HiddenInput()
+            self.fields['forme'].widget = HiddenInput()
+            html = ''
+
         if self.instance.id:
             self.fields['id'].initial=self.instance.id
 
@@ -69,13 +101,13 @@ class ticket_form(ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             "id",
-            "evenement",
-            "forme",
-            "etat",
-            "utilisateur",
-            Field("probleme"),
-            HTML('<button id="add_problem" type="button" class="btn btn-outline-primary" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'),
-            "detail"
+            FloatingField("evenement"),
+            FloatingField("forme"),
+            FloatingField("etat"),
+            FloatingField("utilisateur"),
+            FloatingField("probleme"),
+            HTML(html),
+            FloatingField("detail")
         )
 
 class add_problem_form(ModelForm):
