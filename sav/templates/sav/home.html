@@ -73,20 +73,14 @@
     </div>
 </div>
 <script>
-var timesetvar = ''
 $(document).ready(function(){
-    $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install").on("keyup change", function() {
-        var t = $(this)
-        setTimeout(function(){
-            if(t.val() == timesetvar){
-                send(t)
-                timesetvar = ''
-            }
-            else{
-                timesetvar = t.val()
-            }
-        }, 500);
-
+    $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install").on("keypress", function(e) {
+         var key = e.which;
+         if(key == 13)  // the enter key code
+          {
+            var t = $(this)
+            send(t)
+          }
     })
 
 })
