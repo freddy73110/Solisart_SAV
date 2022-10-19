@@ -451,9 +451,10 @@ class mail(View):
                 try:
                     for m in msg:
                         subject = m.subject
-
-                        subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                        # subject, from_email, to = m.subject, 'sav@solisart.fr', request.POST['response_email']
+                        if settings.DEBUG:
+                            subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                        else:
+                            subject, from_email, to = m.subject, 'sav@solisart.fr', request.POST['response_email']
 
                         html_content = render_to_string('email/responsewithsignature.html', {
                             'oldmail': m.html,
@@ -482,10 +483,13 @@ class mail(View):
 
             if request.POST['response'] == 'login_response':
                 try:
-                    subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                    # subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
-                    # utilisateur=User.objects.get(email=request.POST['response_email'])
-                    utilisateur = User.objects.get(email='freddy.dubouchet@solisart.fr')
+                    if settings.DEBUG:
+                        subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                        utilisateur = User.objects.get(email='freddy.dubouchet@solisart.fr')
+                    else:
+                        subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
+                        utilisateur=User.objects.get(email=request.POST['response_email'])
+
                     html_content = render_to_string('email/responseloselogin.html', {
                         'utilisateur':utilisateur,
                         'profil':profil_user.objects.get(user=utilisateur)
@@ -516,8 +520,10 @@ class mail(View):
 
             if request.POST['response'] == 'reconnection':
                 try:
-                    subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                    # subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
+                    if settings.DEBUG:
+                        subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+                    else:
+                        subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', request.POST['response_email']
 
                     html_content = render_to_string('email/responsehelpconnection.html')  # render with dynamic value
                     text_content = strip_tags(
@@ -545,11 +551,6 @@ class mail(View):
                     json['email'] = {"send": "nok"}
         else:
             json['email'] = {"send": "pas demander"}
-
-
-
-
-
 
         return JsonResponse(json, safe=False)
 
