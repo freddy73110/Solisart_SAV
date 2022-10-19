@@ -1,0 +1,35 @@
+{% load static %}
+{% load my_filter %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Order received</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin: 0; padding: 0;">
+<p>
+Bonjour M. {{utilisateur.last_name}},
+<br><br>
+Votre installation est maintenant raccordée à notre serveur via une connexion internet, vous pouvez vous connecter à distance à votre installation via le site www.gestion.solisart.fr avec les identifiants suivants :<br>
+ID : {{profil.idsa}}<br>
+Mot de passe : {{profil.PW}}<br>
+<br><br>
+N’hésitez pas à modifier votre mot de passe lors de votre première connexion.
+<br><br>
+En cas d’oubli, vous pouvez réinitialiser vous-même votre mot de passe sur la page de connexion à votre système :<br>
+<img src="cid:login" alt="logo image"><br>
+Je vous invite à visiter notre espace utilisateurs. Vous y trouverez l’ensemble des documents relatifs à votre système : notices, conseils d’utilisation, quiz, etc. :
+<a href="https://www.solisart.fr/espace-utilisateurs/">https://www.solisart.fr/espace-utilisateurs/</a><br>
+Mot de passe : 9876<br>
+<br>
+Vous en souhaitant bonne réception et restant disponible,
+<br>
+Bonne journée
+</p>
+
+{% include "email/signature.html" %}
+<br>
+{{oldmail|safe}}
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% load static %}
+{% load my_filter %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Order received</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin: 0; padding: 0;">
+<p>
+Bonjour,
+<br><br>
+Suite à votre demande, je vous invite à vous rendre sur le site : <br>
+https://www.solisart.fr/sav/<br>
+
+Vous y trouverez un outil d’aide au diagnostic pour votre problème de connexion. <br>
+<img src="cid:aidereconnexion" alt="logo image"><br>
+Si cela ne suffit pas, je vous invite à prendre un rendez-vous téléphonique avec nous afin que nous vous aidions. Pour cela, il faut que vous soyez sur place avec un ordinateur sur lequel nous pourrons prendre la main à distance via le logiciel suivant :
+https://anydesk.com/fr<br>
+
+</p>
+
+{% include "email/signature.html" %}
+<br>
+{{oldmail|safe}}
+</body>
+</html>
