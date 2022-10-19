@@ -108,10 +108,9 @@ ul.nav li a.active {
 
     </div>
     <div class="mx-auto order-0 {% if request.META.HTTP_HOST == '127.0.0.1:8000' %}bg-warning rounded{%endif%}">
-
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="dropdown-item" href="{% url 'sav:home' %}" data-toggle="popover" title='Recherche' data-trigger="hover" data-bs-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
+                <a class="dropdown-item snipperclick" href="{% url 'sav:home' %}" data-toggle="popover" title='Recherche' data-trigger="hover" data-bs-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-search" data-fa-transform="shrink-8"></i>
@@ -119,7 +118,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-2" href="{% url 'sav:updateDB' %}" data-bs-container="body" data-bs-toggle="popover" title='Import depuis MySolisArt' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Importer les datas depuis MySolisArt'>
+                <a class="dropdown-item mt-2 snipperclick" href="{% url 'sav:updateDB' %}" data-bs-container="body" data-bs-toggle="popover" title='Import depuis MySolisArt' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Importer les datas depuis MySolisArt'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-plus-circle" data-fa-transform="shrink-8"></i>
@@ -127,7 +126,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-3" href="{% url 'sav:ticket' %}" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
+                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:ticket' %}" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
@@ -135,7 +134,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-4" href="{% url 'sav:map' %}" data-toggle="popover" title='map' data-trigger="hover" data-placement="bottom" data-content='Localisation de toutes les installations'>
+                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:map' %}" data-toggle="popover" title='map' data-trigger="hover" data-placement="bottom" data-content='Localisation de toutes les installations'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
@@ -143,7 +142,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-3" href="{% url 'sav:statistiques' %}" data-toggle="popover" title='Statistiques' data-trigger="hover" data-placement="bottom" data-content='Statistiques'>
+                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:statistiques' %}" data-toggle="popover" title='Statistiques' data-trigger="hover" data-placement="bottom" data-content='Statistiques'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
@@ -151,7 +150,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-2" href="" data-toggle="popover" title='Outils' data-trigger="hover" data-placement="bottom" data-html="true" data-content='outils' >
+                <a class="dropdown-item mt-2 snipperclick" href="" data-toggle="popover" title='Outils' data-trigger="hover" data-placement="bottom" data-html="true" data-content='outils' >
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fas fa-tools" data-fa-transform="shrink-8"></i>
@@ -159,7 +158,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item" href="{% url 'sav:mail' %}" data-toggle="popover" title='Boîte mail SAV' data-trigger="hover" data-placement="bottom" data-content='Ouvrir un ticket depuis la boîte email sav'>
+                <a class="dropdown-item snipperclick" href="{% url 'sav:mail' %}" data-toggle="popover" title='Boîte mail SAV' data-trigger="hover" data-placement="bottom" data-content='Ouvrir un ticket depuis la boîte email sav'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fas fa-at" data-fa-transform="shrink-8"></i>
@@ -222,6 +221,14 @@ ul.nav li a.active {
         {%endblock%}
 
     </article>
-
+<script>
+    $(".snipperclick").on('click', function(){
+        $("#modal-progress").find(".modal-title").html("<h4>En cours de travail...</h4>")
+        $("#modal-progress").find(".modal-body").css({ opacity: 0.5 })
+        $("#modal-progress").find(".modal-body").addClass("text-center")
+        $("#modal-progress").find(".modal-body").html("<i class='fas fa-spinner fa-pulse fa-10x text-primary'></i>")
+        $("#modal-progress").modal('show')
+    })
+</script>
 </body>
 </html>
