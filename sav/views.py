@@ -8,6 +8,7 @@ from email.mime.image import MIMEImage
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
 from django.db.models import Q, Count, F, When, Value, Case, CharField
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
@@ -555,7 +556,7 @@ class mail(View):
         return JsonResponse(json, safe=False)
 
 
-class statistiques(View):
+class statistiques(View, SuccessMessageMixin):
     login_url = '/login/'
     template_name = 'sav/statistiques.html'
     title = 'Statistiques'
@@ -593,52 +594,56 @@ class statistiques(View):
 
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             text_auto='s'
-            if frequence == "Rjour":
-                semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-                df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
-                titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
-                titlex="Jour de la semaine"
-            elif frequence == "heure":
-                df=df.sort_values(by=['frequence'], ascending=True)
-                titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
-                titlex="Heure ouverte de ticket"
+            if df.empty:
+                return None
             else:
-                df = df.sort_values(by='frequence')
-                df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
-                titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
-                titlex="Date"
+                if frequence == "Rjour":
+                    semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+                    df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
+                    titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
+                    titlex="Jour de la semaine"
+                elif frequence == "heure":
+                    df=df.sort_values(by=['frequence'], ascending=True)
+                    titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
+                    titlex="Heure ouverte de ticket"
+                else:
+                    df = df.sort_values(by='frequence')
+                    df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
+                    titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
+                    titlex="Date"
 
-            if type=="bar":
-                fig1 = px.bar(df,
-                              x='frequence',
-                              y='count',
-                              color='lien',
-                              text_auto=text_auto,
-                              title=titre
-                              )
-                fig1.update_xaxes(title=titlex)
-                fig1.update_yaxes(title='Nombre')
-                fig1.update_layout(height=600, legend=dict(title="Légende"))
-                if frequence == 'heure':
-                    fig1.update_layout(xaxis=dict(
-                        tickvals=df['frequence'],
-                        ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
-                    ))
-                return fig1
-            if type=="sunburst":
+                if type=="bar":
+                    fig1 = px.bar(df,
+                                  x='frequence',
+                                  y='count',
+                                  color='lien',
+                                  text_auto=text_auto,
+                                  title=titre
+                                  )
+                    fig1.update_xaxes(title=titlex)
+                    fig1.update_yaxes(title='Nombre')
+                    fig1.update_layout(height=600, legend=dict(title="Légende"))
+                    if frequence == 'heure':
+                        fig1.update_layout(xaxis=dict(
+                            tickvals=df['frequence'],
+                            ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
+                        ))
+                    return fig1
+                if type=="sunburst":
 
-                fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
-                                   values='count')
+                    fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
+                                       values='count')
 
-                fig2.update_traces(
-                    textinfo="label+value+percent parent + percent entry + text"
-                )
-                return fig2
+                    fig2.update_traces(
+                        textinfo="label+value+percent parent + percent entry + text"
+                    )
+                    return fig2
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(ex)
+
             return None
 
 
@@ -656,13 +661,13 @@ class statistiques(View):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(ex)
+            messages.error(request, "Pas de données avec ses critères")
             return render(request,
                           self.template_name,
                           {
                               'title': self.title
                           }
                           )
-
         return render(request,
                       self.template_name,
                       {
