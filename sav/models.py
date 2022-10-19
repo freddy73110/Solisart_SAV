@@ -330,7 +330,7 @@ class evenement(models.Model):
             return '<i class="fas fa-people-arrows"></i>'
 
     def duree(self):
-        return datetime.now()-self.date.replace(tzinfo=None)
+        return datetime.now()
 
     def __str__(self):
         return str(self.date) + ' ' + str(self.installation)

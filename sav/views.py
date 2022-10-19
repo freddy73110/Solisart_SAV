@@ -566,81 +566,103 @@ class statistiques(View):
 
     def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
 
+        try:
 
-        queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
+            queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
 
-        if frequence == "semaine":
-            queryset = queryset.annotate(frequence=TruncWeek('evenement__date'))
-        if frequence == "mois":
-            queryset = queryset.annotate(frequence=TruncMonth('evenement__date'))
-        if frequence == "jour":
-            queryset = queryset.annotate(frequence=TruncDay('evenement__date'))
-        if frequence == "heure":
-            queryset = queryset.annotate(frequence=ExtractHour('evenement__date'))
-        if frequence == "Rjour":
-            queryset = queryset.annotate(frequence=ExtractWeekDay('evenement__date'))
+            if frequence == "semaine":
+                queryset = queryset.annotate(frequence=TruncWeek('evenement__date'))
+            if frequence == "mois":
+                queryset = queryset.annotate(frequence=TruncMonth('evenement__date'))
+            if frequence == "jour":
+                queryset = queryset.annotate(frequence=TruncDay('evenement__date'))
+            if frequence == "heure":
+                queryset = queryset.annotate(frequence=ExtractHour('evenement__date'))
+            if frequence == "Rjour":
+                queryset = queryset.annotate(frequence=ExtractWeekDay('evenement__date'))
 
-        if field =="forme":
-            when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
-            queryset = queryset.order_by('frequence', 'forme').annotate(lien=Case(*when, output_field=CharField())).values(
-            'frequence', 'lien').annotate(count=Count('id'))
-
-        if field =="probleme":
-            when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
-            queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
+            if field =="forme":
+                when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
+                queryset = queryset.order_by('frequence', 'forme').annotate(lien=Case(*when, output_field=CharField())).values(
                 'frequence', 'lien').annotate(count=Count('id'))
 
-        df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
-        text_auto='s'
-        if frequence == "Rjour":
-            semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-            df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
-            titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
-            titlex="Jour de la semaine"
-        elif frequence == "heure":
-            df=df.sort_values(by=['frequence'], ascending=True)
-            titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
-            titlex="Heure ouverte de ticket"
-        else:
-            df = df.sort_values(by='frequence')
-            df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
-            titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
-            titlex="Date"
+            if field =="probleme":
+                when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+                queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
+                    'frequence', 'lien').annotate(count=Count('id'))
 
-        if type=="bar":
-            fig1 = px.bar(df,
-                          x='frequence',
-                          y='count',
-                          color='lien',
-                          text_auto=text_auto,
-                          title=titre
-                          )
-            fig1.update_xaxes(title=titlex)
-            fig1.update_yaxes(title='Nombre')
-            fig1.update_layout(height=600, legend=dict(title="Légende"))
-            if frequence == 'heure':
-                fig1.update_layout(xaxis=dict(
-                    tickvals=df['frequence'],
-                    ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
-                ))
-            return fig1
-        if type=="sunburst":
+            df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+            text_auto='s'
+            if frequence == "Rjour":
+                semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+                df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
+                titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
+                titlex="Jour de la semaine"
+            elif frequence == "heure":
+                df=df.sort_values(by=['frequence'], ascending=True)
+                titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
+                titlex="Heure ouverte de ticket"
+            else:
+                df = df.sort_values(by='frequence')
+                df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
+                titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
+                titlex="Date"
 
-            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
-                               values='count')
+            if type=="bar":
+                fig1 = px.bar(df,
+                              x='frequence',
+                              y='count',
+                              color='lien',
+                              text_auto=text_auto,
+                              title=titre
+                              )
+                fig1.update_xaxes(title=titlex)
+                fig1.update_yaxes(title='Nombre')
+                fig1.update_layout(height=600, legend=dict(title="Légende"))
+                if frequence == 'heure':
+                    fig1.update_layout(xaxis=dict(
+                        tickvals=df['frequence'],
+                        ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
+                    ))
+                return fig1
+            if type=="sunburst":
 
-            fig2.update_traces(
-                textinfo="label+value+percent parent + percent entry + text"
-            )
-            return fig2
+                fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
+                                   values='count')
+
+                fig2.update_traces(
+                    textinfo="label+value+percent parent + percent entry + text"
+                )
+                return fig2
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            return None
 
 
     def get(self, request, *args, **kwargs):
 
-        fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
-        self.tickets_chart = opy.plot(fig1, output_type='div')
-        fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
-        self.sunburst = opy.plot(fig2, output_type='div')
+        try:
+
+            fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
+            self.tickets_chart = opy.plot(fig1, output_type='div')
+            fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
+            self.sunburst = opy.plot(fig2, output_type='div')
+
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            return render(request,
+                          self.template_name,
+                          {
+                              'title': self.title
+                          }
+                          )
+
         return render(request,
                       self.template_name,
                       {
