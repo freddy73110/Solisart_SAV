@@ -318,7 +318,7 @@ class cause(models.Model):
     sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
 
     def __str__(self):
-        return str(type_probleme(self.categorie).label) + ' - ' + str(self.sous_categorie)
+        return str(type_cause(self.categorie).label) + ' - ' + str(self.sous_categorie)
 
     class Meta:
         ordering = ['categorie', 'sous_categorie']
