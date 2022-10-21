@@ -515,7 +515,7 @@ class mail(View):
                     msg.attach_alternative(html_content, "text/html")
                     msg.mixed_subtype = 'related'
                     from django.templatetags.static import static
-                    img_path=os.path.join(settings.BASE_DIR.parent, 'static', 'image', 'login.png')
+                    img_path=os.path.join(settings.STATIC_ROOT, 'image', 'login.png')
                     msg.mixed_subtype = 'related'
                     msg.attach_alternative(html_content, "text/html")
                     msg.attach(addimg(img_path, 'login'))
@@ -547,11 +547,11 @@ class mail(View):
                     msg.attach_alternative(html_content, "text/html")
                     msg.mixed_subtype = 'related'
                     from django.templatetags.static import static
-                    img_path=os.path.join(settings.BASE_DIR.parent, 'static', 'image', 'aidereconnexion.jpg')
+                    img_path=os.path.join(settings.STATIC_ROOT, 'image', 'aidereconnexion.jpg')
                     msg.mixed_subtype = 'related'
                     msg.attach_alternative(html_content, "text/html")
                     msg.attach(addimg(img_path, 'aidereconnexion'))
-                    file_path=os.path.join(settings.BASE_DIR.parent, 'static', 'sav', 'fichier', 'procedure_connexion.pdf')
+                    file_path=os.path.join(settings.STATIC_ROOT,'sav', 'fichier', 'procedure_connexion.pdf')
                     msg.attach_file(file_path)
                     msg.send(fail_silently=False)
                     json['email'] = {"send": "ok"}
@@ -1008,8 +1008,6 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        for i in installation.objects.all():
-            print(i," - ", i.id," - ", str(i))
         return render(request,
                       self.template_name,
                           {
