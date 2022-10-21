@@ -8,13 +8,14 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">Statistiques</h1>
-            <form id="formVisualiser">
+            <h1 class="text-center m-3">Statistiques temporelles</h1>
+            <form id="formVisualisertempo">
                 <div class="input-group mb-3">
                   <label class="input-group-text" for="inputGroupSelect02">Champs</label>
                   <select class="form-select" id="inputGroupSelect02" name="field">
                     <option value="forme">Téléphone/email</option>
                     <option value="probleme">Problématique</option>
+                    <option value="cause">Cause</option>
                   </select>
                   <label class="input-group-text" for="inputGroupSelect01">Fréquence</label>
                   <select class="form-select" id="inputGroupSelect01" name="frequence">
@@ -43,33 +44,43 @@
             </form>
             <div id="tickets_chart">{{tickets_chart|safe}}</div>
             <div id="sunburst">{{sunburst|safe}}</div>
-
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">Statistiques Symptômes/causes</h1>
+            <form id="formVisualiser">
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect05">Période</label>
+                  <input type="number"
+                         id="inputGroupSelect05"
+                         class="form-control"
+                         placeholder="période en jours"
+                         value="365"
+                         min=0
+                         aria-label="Recipient's username"
+                         aria-describedby="button-addon2"
+                        name="periode">
+                  <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser()">Visualiser</button>
+                </div>
+            </form>
+            <div id="sunburst2">{{sunburst2|safe}}</div>
         </div>
     </div>
 </div>
 <script>
     function visualiser(){
-        $("#button-form").html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
+        $("#button-form2").html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
         form= $('#formVisualiser').closest("form");
         $.ajax({
         url: window.location.href,
             type:'post',
-            data: form.serialize()+ '&type=bar',
+            data: form.serialize(),
             dataType: 'html',
             success: function (html) {
-                $("#tickets_chart").html()
-                $("#tickets_chart").html(html)
-                $.ajax({
-                    url: window.location.href,
-                        type:'post',
-                        data: form.serialize()+ '&type=sunburst',
-                        dataType: 'html',
-                        success: function (html) {
-                            $("#sunburst").html()
-                            $("#sunburst").html(html)
-                            $("#button-form").html("Visualiser")
-                        }
-                })
+                $("#sunburst2").html()
                 $("#button-form").html("Visualiser")
             }
     })

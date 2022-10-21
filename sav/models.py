@@ -287,8 +287,12 @@ class attribut_valeur(models.Model):
 
 class type_probleme(models.IntegerChoices):
     CONNEXION = 0, 'Connexion'
-    ELECTRONIQUE = 1, 'Electronique'
-    FLUIDIQUE = 2, 'Fluidique'
+    PBTECH = 1, 'Problème technique'
+    PIECESSAV = 2, 'Pièces SAV'
+    HELP = 3, 'Aide au paramétrage'
+    INFO = 4, 'Information diverse'
+    PRESTA = 5, 'Demande de prestation'
+    ERROR_PROD = 6, 'Erreur de production'
 
 class probleme(models.Model):
     categorie = models.IntegerField(default=type_probleme.CONNEXION, choices=type_probleme.choices, verbose_name="Catégorie")
@@ -300,15 +304,35 @@ class probleme(models.Model):
     class Meta:
         ordering = ['categorie', 'sous_categorie']
 
+class type_cause(models.IntegerChoices):
+    CONNEXION = 0, 'Connexion'
+    ELECTRONIQUE = 1, 'Electronique'
+    MODULE = 2, 'Module'
+    HORSMODULE = 3, 'Hors Module'
+    BALLON = 4, 'Ballon'
+    CAPTEUR = 5, 'Capteur'
+    PROD = 6, 'Problème en Production'
+
+class cause(models.Model):
+    categorie = models.IntegerField(default=type_cause.CONNEXION, choices=type_cause.choices, verbose_name="Catégorie")
+    sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
+
+    def __str__(self):
+        return str(type_probleme(self.categorie).label) + ' - ' + str(self.sous_categorie)
+
+    class Meta:
+        ordering = ['categorie', 'sous_categorie']
+
 class forme_contact(models.IntegerChoices):
-    TELEPHONE = 0, 'téléphone'
+    TELEPHONE = 0, 'Téléphone'
     EMAIL = 1, 'Email'
     PHYSIQUEMENT = 2, 'Physiquement'
 
 class etat(models.IntegerChoices):
     OUVERTURE = 0, 'Ouverture'
     ENCOURS = 1, 'En cours'
-    CLOTURE = 2, 'Clôturé'
+    ARAPPELER = 2, 'A rappeler'
+    CLOTURE = 3, 'Clôturé'
 
 class evenement(models.Model):
     date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=datetime.now)
@@ -339,10 +363,11 @@ class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
     etat = models.IntegerField(default=etat.OUVERTURE, choices=etat.choices, verbose_name='Etat')
-    utilisateur = models.ForeignKey(User, verbose_name='contact', on_delete=models.CASCADE)
-    probleme = models.ForeignKey(probleme, verbose_name='Type de problème', on_delete=models.CASCADE)
+    utilisateur = models.ForeignKey(User, verbose_name='Contact', on_delete=models.CASCADE)
+    probleme = models.ForeignKey(probleme, verbose_name='Symptômes', on_delete=models.CASCADE)
+    cause = models.ForeignKey(cause, verbose_name='Causes', on_delete=models.CASCADE, null=True, blank=True)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
-    fichier = models.ManyToManyField('Fichiers', verbose_name="fichiers", null=True, blank=True)
+    fichier = models.ManyToManyField('Fichiers', verbose_name="Fichiers", null=True, blank=True)
 
     def icon_etat(self):
         if self.etat == 0:
@@ -350,6 +375,8 @@ class ticket(models.Model):
         if self.etat == 1:
             return '<i class="fas fa-pause"></i>'
         if self.etat == 2:
+            return '<i class="far fa-comment"></i>'
+        if self.etat == 3:
             return '<i class="fas fa-stop"></i>'
 
     def icon_forme(self):

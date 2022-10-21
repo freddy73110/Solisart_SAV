@@ -65,6 +65,12 @@ class inbox():
 
         return inbox.mailbox(request).fetch(fetch)
 
+    def fileattchment(msg):
+        return [{'name':att.filename, 'type':att.content_type} for att in msg.attachments]
+        # for att in msg.attachments:
+        #     print(att.filename, att.content_type)
+        #     with open('C:/1/{}'.format(att.filename), 'wb') as f:
+        #         f.write(att.payload)
 
     def list(request, fetch=None):
 
@@ -73,7 +79,7 @@ class inbox():
         for e in mailbox:
             try:
                 icon = profil_user.objects.get(user__email=e.from_).icon()
-                t_form = ticket_form(utilisateur=User.objects.get(email=e.from_))
+                t_form = ticket_form(utilisateur=User.objects.get(email=e.from_), forme='email')
                 e_form = add_evenement_form(user=request.user, user_acces=User.objects.get(email=e.from_), date=e.date)
             except Exception as ex:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -81,7 +87,7 @@ class inbox():
                 print(exc_type, fname, exc_tb.tb_lineno)
                 print(ex)
                 icon =''
-                t_form=ticket_form()
+                t_form=ticket_form(forme='email')
                 e_form=add_evenement_form(user=request.user, date=e.date)
             list_mail.append({'date':e.date,
                                   'from_':e.from_,
@@ -90,6 +96,7 @@ class inbox():
                                   'text':e.text,
                                   'icon':icon,
                                   'uid':e.uid,
+                                  # 'attachment': inbox.fileattchment(e),
                                   'ticket_form':t_form,
                                   'evenement_form':e_form,
                                     })
@@ -435,15 +442,19 @@ class mail(View):
 
         else:
             json['evenement'] = {"form": "nok", "error": e_form.errors}
-            return JsonResponse(json, safe=False)
 
         if t_form.is_valid():
             tick=t_form.save(commit=False)
-            tick.evenement=even
             json['ticket'] = {"form": "ok"}
         else:
             json['ticket'] = {"form": "nok", "error": t_form.errors}
+
+        if not e_form.is_valid() and t_form.is_valid():
             return JsonResponse(json, safe=False)
+        else:
+            even.save()
+            tick.evenement=even
+            tick.save()
         if request.POST['response']:
             date= datetime.strptime(request.POST['mail_date'], '%d-%m-%Y %H:%M')
             msg=inbox.mailbox_search(request, fetch=A(uid=request.POST['uid']
@@ -565,6 +576,37 @@ class statistiques(View, SuccessMessageMixin):
 
         return super(statistiques, self).dispatch(request, *args, **kwargs)
 
+    def chart_repartition_pb_cause(self, periode=None):
+        try:
+            if not periode:
+                periode=365
+
+            queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by(
+                'evenement__date')
+            when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+            when2 = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
+            queryset = queryset.order_by('probleme').annotate(
+                pb=Case(*when, output_field=CharField())).values(
+                'pb').annotate(count=Count('id')).order_by('cause').annotate(
+                cause=Case(*when2, output_field=CharField())).values(
+                'cause', 'pb').annotate(count=Count('id'))
+
+            df = pd.DataFrame(list(queryset.values('pb', 'cause','count')))
+            df.fillna(value="sans cause", inplace=True)
+            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['pb', 'cause'],
+                               values='count')
+
+            fig2.update_traces(
+                textinfo="label+value+percent parent + percent entry + text"
+            )
+            return fig2
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            return None
+
     def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
 
         try:
@@ -591,6 +633,12 @@ class statistiques(View, SuccessMessageMixin):
                 when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
                 queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
+
+            if field =="cause":
+                when = [When(cause=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+                queryset = queryset.order_by('frequence','cause').annotate(lien=Case(*when, output_field=CharField())).values(
+                    'frequence', 'lien').annotate(count=Count('id'))
+
 
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             text_auto='s'
@@ -643,7 +691,6 @@ class statistiques(View, SuccessMessageMixin):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(ex)
-
             return None
 
 
@@ -655,6 +702,10 @@ class statistiques(View, SuccessMessageMixin):
             self.tickets_chart = opy.plot(fig1, output_type='div')
             fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
+            fig3 = self.chart_repartition_pb_cause(periode=365)
+            self.sunburst2=""
+            if fig3:
+                self.sunburst2 = opy.plot(fig3, output_type='div')
 
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -673,7 +724,8 @@ class statistiques(View, SuccessMessageMixin):
                       {
                           'title': self.title,
                           'tickets_chart':self.tickets_chart,
-                          'sunburst':self.sunburst
+                          'sunburst':self.sunburst,
+                          'sunburst2': self.sunburst2
                       }
                       )
 
@@ -684,6 +736,10 @@ class statistiques(View, SuccessMessageMixin):
                                                   periode=request.POST['periode'],
                                                   field=request.POST['field'],
                                                   type=request.POST['type'])
+            return HttpResponse(opy.plot(fig, output_type='div'))
+
+        if "pbcause" in request.POST:
+            fig = self.chart_repartition_pb_cause(periode=request.POST['periode'])
             return HttpResponse(opy.plot(fig, output_type='div'))
 
 
@@ -703,8 +759,7 @@ class installation_view (View):
         self.add_evenement = add_evenement_form(user=request.user, installation=self.instal)
         self.add_problem = add_problem_form()
         self.form_class=installation_form(instance=self.instal)
-        self.title = self.title + ' ' + str(self.instal) + ' / '
-        self.title+= str(self.instal.proprio()) if self.instal.proprio() else ''
+        self.title = self.title + ' ' + str(self.instal)
         self.histo= historique.objects.filter(installation=self.instal)
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
@@ -936,7 +991,7 @@ class ticket_view(View):
     title = 'Tickets ouverts'
 
     def get(self, request, *args, **kwargs):
-        all_ticket_open=ticket.objects.exclude(etat=2)
+        all_ticket_open=ticket.objects.exclude(etat=3)
         return render(request,
                       self.template_name,
                       {

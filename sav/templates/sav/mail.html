@@ -53,6 +53,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body">
+
                                       <div class="alert alert-success alert-dismissible fade d-none" role="alert" id="message{{forloop.counter}}">
                                           <strong><i class="fas fa-check-circle"></i></strong>
                                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -61,6 +62,9 @@
                                           <div class="col-6">
                                               <fieldset class="border p-2 h-100">
                                                   <legend class="float-none w-auto"><b> Email reçu:</b></legend>
+                                                  {% for file in e.attachment %}
+                                                  {{file}}
+                                                  {%endfor%}
                                               {{e.html|remove_HTML_tag:"img"|safe}}
                                               </fieldset >
                                           </div>
@@ -81,9 +85,7 @@
                                                       <select class="select form-select" id="inputGroupSelect01" name="response" onchange="ResponseChange(this, {{forloop.counter}})">
                                                         <option value="" selected>Pas de réponse par email</option>
                                                         <option value="send_response">Envoi d'une réponse avec historique</option>
-                                                          {%if e.icon %}
                                                         <option value="login_response">Renvoyer les identifiants de connexion</option>
-                                                          {% endif %}
                                                         <option value="reconnection">Renvoyer Procédure de connexion</option>
                                                       </select>
                                                       <label for="inputGroupSelect01">Options</label>
@@ -101,7 +103,7 @@
                                                   <textarea
                                                           name="response_text"
                                                           style="height: 200px"
-                                                          class="textarea form-control response{{forloop.counter}}"
+                                                          class="textarea form-control responsetext{{forloop.counter}}"
                                                           placeholder="Texte de la réponse"></textarea>
                                                   </div>
                                               </fieldset>
@@ -129,12 +131,15 @@
 </div>
 <script>
     function ResponseChange(t, compter){
-    if($(t).val() == "send_response"){
-        $(".response"+compter).prop('disabled', false);
-        $(".response"+compter).removeClass("d-none");
-    }else{
-        $(".response"+compter).prop('disabled', true);
+    if($(t).val() == ""){
         $(".response"+compter).addClass("d-none");
+        $(".responsetext"+compter).addClass("d-none");
+    }else if ($(t).val() == "send_response"){
+        $(".response"+compter).removeClass("d-none");
+        $(".responsetext"+compter).removeClass("d-none");
+    }else{
+        $(".response"+compter).removeClass("d-none");
+        $(".responsetext"+compter).addClass("d-none");
     }
 
     }
@@ -160,7 +165,8 @@
                         $message.removeClass("alert-success").addClass("alert-danger")
                         $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Erreur sur l'évenement<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
                     })
-                }else if(data.ticket.form == 'nok'){
+                }
+                if(data.ticket.form == 'nok'){
                     $.each(data.ticket.error, function(index, element){
                         $("[name="+index+"]").addClass("is-invalid").after("<small>"+element+"</small>")
                         $message.removeClass("alert-success").addClass("alert-danger")
@@ -168,7 +174,7 @@
                     })
                 }else if(data.email.send=='nok'){
                     $message.removeClass("alert-success").addClass("alert-danger")
-                    $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Problème pendant l'envoi du email<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
+                    $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Problème pendant l'envoi de l'²email<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
                 }
                 else if(data.email.send=='pas demander'){
                     $message.removeClass("alert-success").addClass("alert-danger")
@@ -179,7 +185,7 @@
                     $message.html("<strong><i class='fas fa-check-circle'></i></strong> Email envoyé avec succès<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
                     alert("Pensez à mettre cette email dans le dossier '0001 Mails Traités'")
                 }
-                $message.removeClass("d-none").addClass("show")
+                $message.removeClass("d-none").addClass("show").get(0).scrollIntoView()
             }
     })
     }

@@ -26,6 +26,7 @@
                     <th class="text-center">Installation</th>
                     <th class="text-center">Probleme</th>
                     <th class="text-center">Date (durée)</th>
+                    <th class="text-center">Etat</th>
                 </thead>
                 <tbody>
                     {% for ticket in all_ticket_open %}
@@ -33,8 +34,8 @@
                         <td class="text-center"><a href="{% url 'sav:installation' pk=ticket.evenement.installation.id %}">{{ticket.evenement.installation}}</a></td>
                         <td class="text-center">{{ticket.probleme}}</td>
                         <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
+                        <td class="text-center">{{ticket.icon_etat|safe}} {{ticket.get_etat_display}}</td>
                     </tr>
-
                 {%endfor%}
                 </tbody>
             </table>

@@ -2,8 +2,9 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import AppendedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
+from django.db.models import F, Value as V
 from django.db.models.functions import Concat
-from django.forms import forms, ModelForm, HiddenInput, IntegerField
+from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
 from .crispy_layout import *
 
 from .models import *
@@ -29,11 +30,11 @@ class add_evenement_form(ModelForm):
         if user_acces:
             self.fields['installation'].queryset = installation.objects.filter(acces__utilisateur = user_acces)
             tu=[]
-            for i in installation.objects.filter(acces__utilisateur=user_acces).distinct().annotate(str=str(object)).values('id', 'idsa', 'str'):
-                tu.append((i['id'], i['str']))
+            for i in installation.objects.filter(acces__utilisateur=user_acces).distinct():
+                tu.append((i.id, str(i)))
             tu2 = []
-            for i in installation.objects.all().annotate(str=str(object)).values('id', 'idsa', 'str'):
-                tu2.append((i['id'], i['str']))
+            for i in installation.objects.all():
+                tu2.append((i.id, str(i)))
 
             choices = (('Installation(s) liée(s)', tuple(tu)
                         ),
@@ -41,12 +42,12 @@ class add_evenement_form(ModelForm):
                        )
             self.fields['installation'].choices=choices
         self.fields['date'].widget = XDSoftDateTimePickerInput()
-
+        self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
         if not self.instance:
             self.fields['date'].initial = datetime.now()
         if date:
             self.fields['date'].initial = date
-        self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
+
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
@@ -74,15 +75,25 @@ class ticket_form(ModelForm):
     def __init__(self, *args, **kwargs):
         instal = kwargs.pop('installation', None)
         util = kwargs.pop('utilisateur', None)
+        forme = kwargs.pop('forme', None)
         super(ticket_form, self).__init__(*args, **kwargs)
         self.fields['id'].widget=HiddenInput()
-        html = '<button id="add_problem" type="button" class="btn btn-outline-primary m-1" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'
+        # html = '<button id="add_problem" type="button" class="btn btn-outline-primary m-1" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'
+        html=''
         from operator import itemgetter
         items = probleme.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie', 'sous_categorie')
         rows = groupby(items, itemgetter('categorie'))
         di = {str(type_probleme(c_title).label): tuple([(i['id'], i['sous_categorie']) for i in items]) for c_title, items in rows}
         choices=tuple([(key, value) for key, value in di.items()])
         self.fields['probleme'].choices = choices
+
+        items = cause.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie',
+                                                                                            'sous_categorie')
+        rows = groupby(items, itemgetter('categorie'))
+        di = {str(type_cause(c_title).label): tuple([(i['id'], i['sous_categorie']) for i in items]) for
+              c_title, items in rows}
+        choices = tuple([(key, value) for key, value in di.items()])
+        self.fields['cause'].choices = choices
         self.fields['utilisateur'].queryset = User.objects.all().order_by(
             'first_name', 'last_name')
         if instal:
@@ -92,7 +103,9 @@ class ticket_form(ModelForm):
             self.fields['utilisateur'].widget = HiddenInput()
             self.fields['forme'].widget = HiddenInput()
             html = ''
-
+        if forme:
+            self.fields['forme'].initial=forme_contact.EMAIL
+            self.fields['forme'].widget = HiddenInput()
         if self.instance.id:
             self.fields['id'].initial=self.instance.id
 
@@ -107,7 +120,8 @@ class ticket_form(ModelForm):
             FloatingField("utilisateur"),
             FloatingField("probleme"),
             HTML(html),
-            FloatingField("detail")
+            FloatingField("cause"),
+            FloatingField("detail", style='height: 100px')
         )
 
 class add_problem_form(ModelForm):

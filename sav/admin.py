@@ -16,4 +16,5 @@ admin.site.register(evenement)
 admin.site.register(Fichiers)
 admin.site.register(historique)
 admin.site.register(donnee)
+admin.site.register(cause)
 

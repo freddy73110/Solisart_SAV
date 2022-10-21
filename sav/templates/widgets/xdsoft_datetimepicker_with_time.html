@@ -9,4 +9,6 @@
     }
     );
   });
+  $("input[name='{{ widget.name }}']").val($("input[name='{{ widget.name }}']").val().substring(0,16).replace('\/', '-').replace('\/', '-'))
+  console.log($("input[name='{{ widget.name }}']").val())
 </script>
