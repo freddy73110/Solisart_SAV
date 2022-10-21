@@ -92,7 +92,8 @@ class ticket_form(ModelForm):
         rows = groupby(items, itemgetter('categorie'))
         di = {str(type_cause(c_title).label): tuple([(i['id'], i['sous_categorie']) for i in items]) for
               c_title, items in rows}
-        choices = tuple([(key, value) for key, value in di.items()])
+        choices = ([('', '---------')])
+        choices.extend([(key, value) for key, value in di.items()])
         self.fields['cause'].choices = choices
         self.fields['utilisateur'].queryset = User.objects.all().order_by(
             'first_name', 'last_name')
