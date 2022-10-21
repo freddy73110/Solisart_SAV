@@ -153,7 +153,7 @@ class installation(models.Model):
     version_carte_firmware = models.CharField(max_length=20, verbose_name='Version de carte Firmware', blank=True, null=True)
     version_carte_interface = models.CharField(max_length=20, verbose_name='Version de carte Interface', blank=True, null=True)
     version_serveur_appli = models.CharField(max_length=20, verbose_name='Version de carte Application', blank=True, null=True)
-    adresse_ip_wan = models.CharField(max_length=15, verbose_name='Adresse IP WAN', blank=True, null=True)
+    adresse_ip_wan = models.CharField(max_length=20, verbose_name='Adresse IP WAN', blank=True, null=True)
     port_tcp_wan = models.IntegerField(verbose_name='Port TCP WAN', blank=True, null=True)
     schema_installation = models.FileField(verbose_name="Schéma de principe",
                                            upload_to='Schema_installation/',

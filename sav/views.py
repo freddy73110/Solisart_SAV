@@ -178,7 +178,7 @@ class updateDB (View):
     def post(self, request, *args, **kwargs):
         if 'submit' in request.POST:
             uploaded_file = request.FILES['fichier']
-            df = pd.read_csv(uploaded_file, error_bad_lines=False, header=None)
+            df = pd.read_csv(uploaded_file, on_bad_lines='skip', header=None)
             dictionary = {
                 'Ã©': 'é',
                 'Ã¨': 'è',
@@ -197,23 +197,23 @@ class updateDB (View):
                 }
             df.replace(dictionary, regex=True, inplace=True)
             if 'utilisateur' in uploaded_file.name:
-                print("avant", User.objects.all().count())
                 df.columns=['id', 'pass', 'nom', 'prenom', 'email', 'telephone1', 'telephone2','voie1', 'voie2', 'voie3', 'codepostal', 'commune']
                 df = df.reset_index()  # make sure indexes pair with number of rows
                 total_created=0
                 for index, row in df.iterrows():
                     try:
                         user, created = User.objects.get_or_create(
-                            username= row["email"] if row["email"] != np.nan else str(row['prenom']) + '.' + str(row['nom']),
                             first_name=row['prenom'],
                             last_name=row['nom'],
                             email=row["email"]
                         )
+                        user.username= row["id"]
+                        user.save()
                         profil = profil_user.objects.get(user=user)
                         profil.idsa = row['id']
                         profil.PW = row['pass']
-                        profil.telephone1 = row['telephone1'] if row['telephone1'].replace('.', '').replace(' ', '') != profil.telephone1 else profil.telephone1
-                        profil.telephone2 = row['telephone2'] if row['telephone2'].replace('.', '').replace(' ', '') != profil.telephone2 else profil.telephone2
+                        profil.telephone1 = row['telephone1'] if str(row['telephone1']).replace('.', '').replace(' ', '') != profil.telephone1 else profil.telephone1
+                        profil.telephone2 = row['telephone2'] if str(row['telephone2']).replace('.', '').replace(' ', '') != profil.telephone2 else profil.telephone2
                         profil.voie1 =row['voie1']
                         profil.voie2 = row['voie2']
                         profil.voie3 = row['voie3']
@@ -223,9 +223,13 @@ class updateDB (View):
                         if created:
                             total_created += 1
 
-                    except:
+                    except Exception as e:
+
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        print(exc_type, fname, exc_tb.tb_lineno)
+                        print(e)
                         pass
-                print("après", User.objects.all().count())
 
                 messages.success(request, str(total_created) + ' nouveaux utilisateur de créer')
 
@@ -263,15 +267,17 @@ class updateDB (View):
                 total_created = 0
                 for index, row in df.iterrows():
                     try:
-                        int, created = installation.objects.get_or_create(
+                        inst, created = installation.objects.get_or_create(
                             idsa=row['id'])
-                        int.type_communication=row['type_communication'] if row['type_communication'] != np.nan else None,
-                        int.version_carte_firmware=row['version_carte_firmware'] if row['version_carte_firmware'] != np.nan else None,
-                        int.version_carte_interface=row['version_carte_interface'] if row['version_carte_interface'] != np.nan else None,
-                        int.version_serveur_appli=row['version_serveur_appli'] if row['version_serveur_appli'] != np.nan else None,
-                        int.adresse_ip_wan=row['adresse_ip_wan'] if row['adresse_ip_wan'] != np.nan else None,
-                        int.port_tcp_wan=row['port_tcp_wan'] if row['port_tcp_wan'] != np.nan else None
-                        int.save()
+                        # tc= row['type_communication'] if row['type_communication'] != np.nan else None
+
+                        # inst.type_communication= tc,
+                        inst.version_carte_firmware=row['version_carte_firmware'] if row['version_carte_firmware'] != np.nan else None,
+                        inst.version_carte_interface=row['version_carte_interface'] if row['version_carte_interface'] != np.nan else None,
+                        inst.version_serveur_appli=row['version_serveur_appli'] if row['version_serveur_appli'] != np.nan else None,
+                        inst.adresse_ip_wan=row['adresse_ip_wan'] if row['adresse_ip_wan'] != np.nan else None,
+                        inst.port_tcp_wan=row['port_tcp_wan'] if row['port_tcp_wan'] != np.nan else None
+                        inst.save()
 
                         if created:
                             total_created += 1
@@ -345,7 +351,7 @@ class updateDB (View):
                         if created:
                             total_created += 1
                     except Exception as e:
-
+                        print(row)
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                         print(exc_type, fname, exc_tb.tb_lineno)
@@ -1007,7 +1013,9 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        sav_email(sav_email, fetch=A(from_='arielle.prunetfoch@solisart.fr'))
+        print(User.objects.get(email='eric.bertrand.mail@laposte.net').profil_user.idsa)
+        print(acces.objects.filter(utilisateur__email='eric.bertrand.mail@laposte.net'))
+        print('profil', profil_user.objects.filter(idsa='').count())
         return render(request,
                       self.template_name,
                           {
