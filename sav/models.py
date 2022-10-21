@@ -308,10 +308,12 @@ class type_cause(models.IntegerChoices):
     CONNEXION = 0, 'Connexion'
     ELECTRONIQUE = 1, 'Electronique'
     MODULE = 2, 'Module'
-    HORSMODULE = 3, 'Hors Module'
+    APPOINT = 3, 'Appoint'
     BALLON = 4, 'Ballon'
     CAPTEUR = 5, 'Capteur'
     PROD = 6, 'Problème en Production'
+    UTILISATION = 7, 'Utilisation'
+
 
 class cause(models.Model):
     categorie = models.IntegerField(default=type_cause.CONNEXION, choices=type_cause.choices, verbose_name="Catégorie")
