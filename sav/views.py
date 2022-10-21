@@ -434,18 +434,13 @@ class mail(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        try:
-            t_form = ticket_form(request.POST, utilisateur=User.objects.get(email=request.POST['mail_of']))
-            e_form = add_evenement_form(request.POST,user=request.user, user_acces=User.objects.get(email=request.POST['mail_of']), date=request.POST['mail_date'])
-        except:
-            t_form = ticket_form(request.POST)
-            e_form = add_evenement_form(request.POST, user=request.user,
+        t_form = ticket_form(request.POST)
+        e_form = add_evenement_form(request.POST, user=request.user,
                                         date=request.POST['mail_date'])
         json={}
         if e_form.is_valid():
             even=e_form.save(commit=False)
             json['evenement'] = {"form": "ok"}
-
         else:
             json['evenement'] = {"form": "nok", "error": e_form.errors}
 
@@ -1013,9 +1008,8 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        print(User.objects.get(email='eric.bertrand.mail@laposte.net').profil_user.idsa)
-        print(acces.objects.filter(utilisateur__email='eric.bertrand.mail@laposte.net'))
-        print('profil', profil_user.objects.filter(idsa='').count())
+        for i in installation.objects.all():
+            print(i," - ", i.id," - ", str(i))
         return render(request,
                       self.template_name,
                           {

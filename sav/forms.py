@@ -34,6 +34,7 @@ class add_evenement_form(ModelForm):
                 tu.append((i.id, str(i)))
             tu2 = []
             for i in installation.objects.all():
+
                 tu2.append((i.id, str(i)))
 
             choices = (('Installation(s) liée(s)', tuple(tu)
