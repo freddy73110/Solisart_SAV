@@ -578,6 +578,7 @@ class statistiques(View, SuccessMessageMixin):
         return super(statistiques, self).dispatch(request, *args, **kwargs)
 
     def chart_repartition_pb_cause(self, periode=None):
+        from django.db.models import CharField
         try:
             if not periode:
                 periode=365
@@ -609,7 +610,7 @@ class statistiques(View, SuccessMessageMixin):
             return None
 
     def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
-
+        from django.db.models import CharField
         try:
 
             queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
@@ -630,18 +631,20 @@ class statistiques(View, SuccessMessageMixin):
                 queryset = queryset.order_by('frequence', 'forme').annotate(lien=Case(*when, output_field=CharField())).values(
                 'frequence', 'lien').annotate(count=Count('id'))
 
+
             if field =="probleme":
                 when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
                 queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
             if field =="cause":
-                when = [When(cause=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+                when = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
                 queryset = queryset.order_by('frequence','cause').annotate(lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
-
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+            df.fillna(value="sans cause", inplace=True)
+            print(df)
             text_auto='s'
             if df.empty:
                 return None
@@ -731,8 +734,9 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
 
-        if "type" in request.POST:
+        if "field" in request.POST:
             fig = self.chart_repartition_temporel(frequence=request.POST['frequence'],
                                                   periode=request.POST['periode'],
                                                   field=request.POST['field'],

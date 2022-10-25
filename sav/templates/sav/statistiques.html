@@ -39,7 +39,7 @@
                          aria-label="Recipient's username"
                          aria-describedby="button-addon2"
                         name="periode">
-                  <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser()">Visualiser</button>
+                  <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser(this)">Visualiser</button>
                 </div>
             </form>
             <div id="tickets_chart">{{tickets_chart|safe}}</div>
@@ -59,11 +59,12 @@
                          class="form-control"
                          placeholder="période en jours"
                          value="365"
-                         min=0
+                         min=1
                          aria-label="Recipient's username"
                          aria-describedby="button-addon2"
                         name="periode">
-                  <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser()">Visualiser</button>
+                    <input type="hidden" name="pbcause">
+                  <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)">Visualiser</button>
                 </div>
             </form>
             <div id="sunburst2">{{sunburst2|safe}}</div>
@@ -71,17 +72,36 @@
     </div>
 </div>
 <script>
-    function visualiser(){
-        $("#button-form2").html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
-        form= $('#formVisualiser').closest("form");
+    function visualiser(t){
+        var $t =$(t)
+        $t.html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
+        var form= $t.closest("form");
+        data =  form.serialize()
+        if(data.includes('field')){
+            data=data+'&type=bar'
+        }
         $.ajax({
         url: window.location.href,
             type:'post',
-            data: form.serialize(),
+            data: data,
             dataType: 'html',
             success: function (html) {
-                $("#sunburst2").html()
-                $("#button-form").html("Visualiser")
+                if (data.includes("pbcause")){
+                    $("#sunburst2").html(html)
+                    $("#button-form2").html("Visualiser")
+                }else{
+                    $("#tickets_chart").html(html)
+                    $.ajax({
+                        url: window.location.href,
+                            type:'post',
+                            data: form.serialize() + "&type=sunburst",
+                            dataType: 'html',
+                            success: function (html) {
+                                    $("#sunburst").html(html)
+                            }
+                    })
+                    $("#button-form").html("Visualiser")
+                }
             }
     })
 

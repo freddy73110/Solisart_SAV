@@ -332,7 +332,8 @@ loadingTask.promise.then(function(pdf) {
                               <input class="fileupload" type="file" name="fichier" multiple
                                  style="display: none;"
                                  data-url="{{ request.get_full_path }}"
-                                 data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_ticket":{{e.ticket.id}}}'>
+                                 data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_ticket":{{e.ticket.id}}}'
+                              >
                               <p></p>
                               <div class="row">
                                   <div class="col-{%if e.ticket.fichier.all.count %}8{%else%}12{%endif%}">
