@@ -9,6 +9,27 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center m-3">{{title}}</h1>
+            {{at_json|json_script:'at_json' }}
+            <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+                              <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                      <form id="ticket_form">
+                                          {% crispy form_even%}
+                                          {% crispy form_ticket%}
+                                       </form>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    <button type="button" class="btn btn-primary" onclick="submit_ticket()">Sauvegarder changements</button>
+                                  </div>
+                                </div>
+                              </div>
+            </div>
             <table
                     data-toolbar="#toolbar"
                     data-toggle="table"
@@ -25,16 +46,27 @@
                 <thead>
                     <th class="text-center">Installation</th>
                     <th class="text-center">Probleme</th>
+                    <th class="text-center">Causes</th>
                     <th class="text-center">Date (durée)</th>
                     <th class="text-center">Etat</th>
+                    <th class="text-center">Modifier</th>
                 </thead>
                 <tbody>
                     {% for ticket in all_ticket_open %}
                     <tr>
                         <td class="text-center"><a href="{% url 'sav:installation' pk=ticket.evenement.installation.id %}">{{ticket.evenement.installation}}</a></td>
                         <td class="text-center">{{ticket.probleme}}</td>
+                        <td class="text-center">{{ticket.cause}}</td>
                         <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
                         <td class="text-center">{{ticket.icon_etat|safe}} {{ticket.get_etat_display}}</td>
+                        <td>
+                            <i class="fas fa-pen"
+                                data-bs-toggle="modal"
+                                   data-bs-target="#Modal"
+                                   data-bs-whatever="@getbootstrap"
+                                onclick="modaldisplay(this)"
+                                id="ticket_{{forloop.counter}}"></i>
+                        </td>
                     </tr>
                 {%endfor%}
                 </tbody>
@@ -42,4 +74,50 @@
         </div>
     </div>
 </div>
+<script>
+const json_at = JSON.parse(document.getElementById('at_json').textContent);
+function modaldisplay(t){
+    index=$(t)[0].id.replace('ticket_', '') -1
+    console.log(json_at[index])
+    $("#ModalLabel").html("Modifier")
+
+    $("[name=evenement]").val(json_at[index].evenement_id).change()
+    $("[name=installation]").val(json_at[index].even_installation).change()
+    $("[name=technicien_sav]").val(json_at[index].even_techncien_sav).change()
+    $("[name=date]").val(json_at[index].t_date)
+
+    $("[name=id]").val(json_at[index].id).change()
+    $("[name=forme]").val(json_at[index].forme).change()
+    $("[name=etat]").val(json_at[index].etat).change()
+    $("[name=utilisateur]").val(json_at[index].utilisateur_id).change()
+    $("[name=probleme]").val(json_at[index].probleme_id).change()
+    $("[name=cause]").val(json_at[index].cause_id).change()
+    $("[name=detail]").val(json_at[index].detail)
+
+
+}
+function submit_ticket(){
+console.log("send")
+form=$("#ticket_form")
+$.ajax({
+     url: window.location.href,
+     data: form.serialize(),
+     dataType: 'json',
+     type: 'Post',
+     success: function (data) {
+           console.log(data)
+           if(data.even == "ok" && data.ticket=="ok"){
+                location.reload()
+           }else{
+            $.each(data.ticket.error, function(index, value){
+                                                $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
+                                            })
+            $.each(data.even.error, function(index, value){
+                                                $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
+                                            })
+           }
+     }
+})
+}
+</script>
 {%endblock%}

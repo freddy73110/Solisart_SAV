@@ -106,7 +106,13 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">Historique</button>
+                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="growall()">Historique</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="acces-tab" data-bs-toggle="tab" data-bs-target="#acces" type="button" role="tab" aria-controls="profile" aria-selected="false">Accès</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="donnes-tab" data-bs-toggle="tab" data-bs-target="#donnes" type="button" role="tab" aria-controls="profile" aria-selected="false">Données</button>
               </li>
             </ul>
         </div>
@@ -321,7 +327,7 @@ loadingTask.promise.then(function(pdf) {
                       {%if e.ticket%}
                       <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
-                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}" onclick="growall()">
                               <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {{e.ticket.utilisateur}}</b>
                               <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
                               <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
@@ -347,7 +353,7 @@ loadingTask.promise.then(function(pdf) {
                                   ><i class="fas fa-wrench" ></i> Mettre à jour</button>
                                   <button class="btn btn-outline-primary m-1" onclick="$('#upload-zone-documentation').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
                                   <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}">{{e.ticket.detail}}</textarea>
+                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall()">{{e.ticket.detail}}</textarea>
                                   </div>
                                   {%else%}
                                   {{e.ticket.detail}}
@@ -393,7 +399,43 @@ loadingTask.promise.then(function(pdf) {
                         })
                     </script>
               </div>
+              <div class="tab-pane fade m-3" id="acces" role="tabpanel" aria-labelledby="home-tab">
+                  <h1>Acces</h1>
+                  <table
+                    data-toolbar="#toolbar"
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                    <thead>
+                        <th class="text-center">Statut</th>
+                        <th class="text-center">Personne</th>
+                    </thead>
+                      <tbody>
+                        {% for util in acces%}
+                        <tr>
+                            <td>{{util.profil_type}}</td>
+                            <td><a href="{% url 'sav:utilisateur' pk=util.utilisateur.id %}">{{util.utilisateur.profil_user.icon|safe}} {{util.utilisateur}}</a></td>
+                        </tr>
+                      {%endfor%}
 
+                    </tbody>
+                </table>
+
+              </div>
+              <div class="tab-pane fade m-3" id="donnes" role="tabpanel" aria-labelledby="home-tab">
+                  <h1>Données</h1>
+                  <a href="https://my.solisart.fr/admin/export.php?fichier=donnees-{{instal.idsa}}-{% now 'Y' %}-{% now 'm' %}.csv">
+                      <i class="fas fa-cloud-download-alt"></i> données de {% now 'Y' %}-{% now 'm' %}
+                  </a>
+              </div>
             </div>
         </div>
     </div>
@@ -487,6 +529,13 @@ $(document).ready(function() {
 });
 </script>
 <script>
+function auto_grow() {
+    $.each($('textarea'), function(key, value){
+    var element = $(value)[0]
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight)+"px";
+    })
+}
 $(document).on('dragover', function (e) {
     e.preventDefault();
     $('.upload-zone').on('dragover', function(event){
@@ -531,6 +580,13 @@ $('.upload-zone').each(function () {
             }
     });
 });
+auto_grow()
+function growall(){
+    console.log("growall")
+    setTimeout(
+        auto_grow(),
+        1000)
+}
 </script>
 
 {%endblock%}

@@ -10,6 +10,7 @@ from .crispy_layout import *
 from .models import *
 
 class add_evenement_form(ModelForm):
+
     class Meta:
         model = evenement
         fields ='__all__'
@@ -19,6 +20,7 @@ class add_evenement_form(ModelForm):
         user_acces = kwargs.pop('user_acces', None)
         instal = kwargs.pop('installation', None)
         date = kwargs.pop('date', None)
+
         super(add_evenement_form, self).__init__(*args, **kwargs)
         self.fields['technicien_sav'].queryset = User.objects.filter(pk=user.id)
         self.fields['technicien_sav'].initial = User.objects.get(pk=user.id)

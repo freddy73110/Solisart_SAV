@@ -10,7 +10,9 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
-from django.db.models import Q, Count, F, When, Value, Case, CharField
+from django.core.serializers import serialize
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Q, Count, F, When, Value, Case, CharField, Func
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
     ExtractWeekDay
 from django.shortcuts import render
@@ -644,7 +646,6 @@ class statistiques(View, SuccessMessageMixin):
 
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             df.fillna(value="sans cause", inplace=True)
-            print(df)
             text_auto='s'
             if df.empty:
                 return None
@@ -734,7 +735,6 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
 
         if "field" in request.POST:
             fig = self.chart_repartition_temporel(frequence=request.POST['frequence'],
@@ -758,6 +758,7 @@ class installation_view (View):
 
         self.pk = kwargs.pop('pk')
         self.instal = installation.objects.get(pk=self.pk)
+        self.acces = acces.objects.filter(installation=self.instal).order_by('id').distinct()
         self.attribut_val = attribut_valeur.objects.filter(installation=self.instal)
         self.liste_evenements=evenement.objects.filter(installation=self.instal).order_by('-date')
         self.add_ticket_form = ticket_form(installation=self.instal)
@@ -781,7 +782,8 @@ class installation_view (View):
                           'add_evenement': self.add_evenement,
                           'add_ticket_form': self.add_ticket_form,
                           'add_problem_form': self.add_problem,
-                          'form': self.form_class
+                          'form': self.form_class,
+                          'acces': self.acces
                       }
                       )
 
@@ -996,14 +998,49 @@ class ticket_view(View):
     title = 'Tickets ouverts'
 
     def get(self, request, *args, **kwargs):
-        all_ticket_open=ticket.objects.exclude(etat=3)
+        from django.db.models import CharField, Value as V
+        from django.db.models.functions import Concat
+        all_ticket_open=ticket.objects.exclude(etat=3).order_by("-evenement__date").annotate(even_date=F('evenement__date'),
+                                                                even_installation=F('evenement__installation'),
+                                                                even_techncien_sav=F('evenement__technicien_sav'),
+                                                                t_date=Func(F('evenement__date'),
+                                                                            Value('DD-MM-YYYY HH:MM'),
+                                                                            function='to_char',
+                                                                            output_field=CharField()
+                                                                            ))
+        at=all_ticket_open.values()
+        at2=[]
+        for i in at:
+            at2.append(i)
         return render(request,
                       self.template_name,
                       {
                           'title': self.title,
-                          'all_ticket_open':all_ticket_open
+                          'all_ticket_open':all_ticket_open,
+                          'form_even':add_evenement_form(user=User.objects.get(pk=all_ticket_open[0].evenement.technicien_sav.id),
+                                                         ),
+                          'form_ticket':ticket_form,
+                          'at_json': at2
                       }
         )
+
+    def post(self, request, *args, **kwargs):
+        form_evenement=add_evenement_form(request.POST, user=User.objects.get(pk=int(request.POST['technicien_sav'])))
+        form_ticket=ticket_form(request.POST)
+        data={}
+        if form_evenement.is_valid():
+            form_evenement.save()
+            data['even'] = 'ok'
+        else:
+            data['even']=form_evenement.errors
+
+        if form_ticket.is_valid():
+            form_ticket.save()
+            data['ticket']='ok'
+        else:
+            data['ticket'] = form_evenement.errors
+
+        return JsonResponse(data, safe=False)
 
 
 class bidouille (View):

@@ -286,7 +286,7 @@ class attribut_valeur(models.Model):
         return str(self.attribut_def) + ': ' + str(self.valeur)
 
 class type_probleme(models.IntegerChoices):
-    CONNEXION = 0, 'Connexion'
+    CONNEXION = 0, 'Pas de Connexion'
     PBTECH = 1, 'Problème technique'
     PIECESSAV = 2, 'Pièces SAV'
     HELP = 3, 'Aide au paramétrage'
