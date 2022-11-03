@@ -577,6 +577,12 @@ $('.upload-zone').each(function () {
             done: function (e, data) {
               $('.todelete').remove()
               console.log(e, data)
+              if (data.is_valid == false){
+
+              }else{
+                location.reload()
+              }
+
             }
     });
 });
