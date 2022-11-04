@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center m-3">Statistiques temporelles</h1>
-            <form id="formVisualisertempo">
+            <form id="formVisualisertempo" method="post">{% csrf_token %}
                 <div class="input-group mb-3">
                   <label class="input-group-text" for="inputGroupSelect02">Champs</label>
                   <select class="form-select" id="inputGroupSelect02" name="field">
@@ -41,6 +41,7 @@
                         name="periode">
                     <label class="input-group-text" for="inputGroupSelect03">jours</label>
                   <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser(this)">Visualiser</button>
+                  <button class="btn btn-outline-secondary" type="submit" id="button-form-csv" name="download_csv"><i class="fas fa-cloud-download-alt"></i> CSV</button>
                 </div>
             </form>
             <div id="tickets_chart">{{tickets_chart|safe}}</div>
@@ -52,20 +53,21 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center m-3">Statistiques Symptômes/causes</h1>
-            <form id="formVisualiser">
+            <form id="formVisualiser" method="POST">{% csrf_token %}
                 <div class="input-group mb-3">
                   <label class="input-group-text" for="inputGroupSelect05">Période</label>
                   <input type="number"
                          id="inputGroupSelect05"
                          class="form-control"
                          placeholder="période en jours"
-                         value="365"
+                         value="30"
                          min=1
                          aria-label="Recipient's username"
                          aria-describedby="button-addon2"
                         name="periode">
                     <input type="hidden" name="pbcause">
                   <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)">Visualiser</button>
+                  <button class="btn btn-outline-secondary" type="submit" id="button-form2-csv" name="download_csv2"><i class="fas fa-cloud-download-alt"></i> CSV</button>
                 </div>
             </form>
             <div id="sunburst2">{{sunburst2|safe}}</div>

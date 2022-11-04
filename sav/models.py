@@ -106,6 +106,15 @@ class profil_user(models.Model):
     def installations(self):
         return installation.objects.filter(acces__utilisateur=self.user).distinct()
 
+    def ticket(self):
+        return ticket.objects.filter(utilisateur=self.user)
+
+    def ticket_count(self):
+        return ticket.objects.filter(utilisateur=self.user).count()
+
+    def ticket_open_count(self):
+        return ticket.objects.filter(utilisateur=self.user).exclude(etat=3).count()
+
     def geolocalisation(self):
         if self.latitude and self.longitude:
             return [float(str(self.latitude).replace(',', '.')), float(str(self.longitude).replace(',', '.'))]
@@ -162,6 +171,12 @@ class installation(models.Model):
 
     def __str__(self):
         return self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
+
+    def ticket_count(self):
+        return ticket.objects.filter(evenement__installation=self).distinct().count()
+
+    def ticket_open_count(self):
+        return ticket.objects.filter(evenement__installation=self).distinct().exclude(etat=3).count()
 
     def histo(self):
         return [str(i) for i in historique.objects.filter(installation=self)]

@@ -62,23 +62,35 @@
 </div>
 
 <div class="container">
-<!--    <div class="row">-->
-<!--        <div class="col">-->
-<!--            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">-->
-<!--              <li class="nav-item" role="presentation">-->
-<!--                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>-->
-<!--              </li>-->
-<!--              <li class="nav-item" role="presentation">-->
-<!--                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#installation" type="button" role="tab" aria-controls="profile" aria-selected="false">Installation</button>-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--        </div>-->
-<!--    </div>-->
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#ticket" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    <span class="m-3">
+                        Ticket{% if util.profil_user.ticket_count > 1 %}s{% endif %}
+                        <span class="badge rounded-pill bg-warning" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets ouverts" data-bs-content="Tickets réglés">
+                        {{ util.profil_user.ticket_count }}
+                        </span>
+                        <span class="badge rounded-pill bg-danger" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets en cours" data-bs-content="Tickets qui restent à régler">
+                        {{ util.profil_user.ticket_open_count }}
+                        </span>
+
+                    </span>
+
+                </button>
+              </li>
+            </ul>
+        </div>
+    </div>
     <div class="row">
         <div class="col">
             <div class="tab-content" id="myTabContent">
               <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
-<!--                  <h2>Description:</h2>-->
+                  <h2>Description:</h2>
                   <form id="profil_id">{% csrf_token %}
                       <input type="hidden" name="modifier_profil">
                       <button type="button"
@@ -121,13 +133,54 @@
                       </script>
                   </form>
               </div>
-              <div class="tab-pane fade" id="installation" role="tabpanel" aria-labelledby="home-tab">
-                  <h2>Installation</h2>
+              <div class="tab-pane fade" id="ticket" role="tabpanel" aria-labelledby="home-tab">
+                  <h2>Ticket{% if util.profil_user.ticket_count > 1 %}s{% endif %}</h2>
+                  <table
+        id="ticket_table"
+        data-toolbar="#toolbar"
+        data-toggle="table"
+        data-search="true"
+        data-show-columns="true"
+        data-show-columns-toggle-all="true"
+        data-show-refresh="false"
+        data-show-fullscreen="true"
+        data-show-export="true"
+        data-page-list="[10, 25, 50, 100, all]"
+        data-pagination="true"
+        data-filter-control="true"
+        data-show-search-clear-button="true">
+    <thead>
+        <th class="text-center">Date</th>
+        <th class="text-center">Installation</th>
+        <th class="text-center">Etat</th>
+        <th class="text-center">Problèmes</th>
+        <th class="text-center">Causes</th>
+        <th class="text-center">Détails</th>
+    </thead>
+    <tbody>
+        {% for t in util.profil_user.ticket%}
+        <tr>
+            <td class="text-center">{{t.evenement.date}}</td>
+            <td class="text-center"><a href="{% url 'sav:installation' t.evenement.installation.id %}" target="_blank">{{t.evenement.installation}}</a></td>
+            <td class="text-center">{{t.icon_etat|safe}} {{t.get_etat_display}}</td>
+            <td class="text-center">{{t.probleme}}</td>
+            <td class="text-center">{{t.cause}}</td>
+            <td class="text-center">{{t.detail}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
               </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
+</script>
 <script>
 const fontAwesomeIcon = L.divIcon({
     html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-solar-panel fa-inverse" data-fa-transform="shrink-10"></i></span>',

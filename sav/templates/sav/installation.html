@@ -106,10 +106,25 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="growall()">Historique</button>
+                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="growall()">
+                    <span onchange="growall()">Historique
+                        <span class="badge rounded-pill bg-warning" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets ouverts" data-bs-content="Tickets réglés">
+                        {{ instal.ticket_count }}
+                        </span>
+                        <span class="badge rounded-pill bg-danger" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets en cours" data-bs-content="Tickets qui restent à régler">
+                        {{ instal.ticket_open_count }}
+                        </span>
+                    </span>
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="acces-tab" data-bs-toggle="tab" data-bs-target="#acces" type="button" role="tab" aria-controls="profile" aria-selected="false">Accès</button>
+                <button class="nav-link" id="acces-tab" data-bs-toggle="tab" data-bs-target="#acces" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    <span>Accès
+                        <span class="badge rounded-pill bg-success" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Accès" data-bs-content="Nombre de personne à pouvoir accéder à l'installation">
+                        {{ acces|length }}
+                        </span>
+                    </span>
+                </button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="donnes-tab" data-bs-toggle="tab" data-bs-target="#donnes" type="button" role="tab" aria-controls="profile" aria-selected="false">Données</button>
@@ -593,6 +608,12 @@ function growall(){
         auto_grow(),
         1000)
 }
+</script>
+<script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
 </script>
 
 {%endblock%}

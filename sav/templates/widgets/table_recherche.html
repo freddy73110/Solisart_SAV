@@ -16,6 +16,7 @@
     <script src="{% static 'bootstrap-table-master/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/dist/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/ajax_lib/jquery.tablednd.min.js' %}"></script>
+{%if utilisateurs %}
 <h2>Utilisateur{% if utilisateurs|length > 1 %}s{%endif%}</h2>
 <table id="utilisateur"
         data-toggle="table"
@@ -30,24 +31,31 @@
         data-filter-control="true"
         data-show-search-clear-button="true">
     <thead>
-        <th>Prenom</th>
-        <th>Nom</th>
-        <th>adresse mail</th>
-        <th>Téléphone 1</th>
-        <th>Téléphone 2</th>
+        <th class="text-center">Prenom</th>
+        <th class="text-center">Nom</th>
+        <th class="text-center">adresse mail</th>
+        <th class="text-center">Téléphone 1</th>
+        <th class="text-center">Téléphone 2</th>
+        <th class="text-center">Tickets(en cours/total)</th>
     </thead>
     <tbody>
         {% for u in utilisateurs %}
         <tr>
-            <td><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.first_name}}</a></td>
-            <td><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.last_name}}</a></td>
-            <td>{{u.email}}</td>
-            <td>{{u.profil_user.telephone1|format_tel}}</td>
-            <td>{{u.profil_user.telephone2|format_tel}}</td>
+            <td class="text-center"><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.first_name}}</a></td>
+            <td class="text-center"><a href="{% url 'sav:utilisateur' pk=u.id%}" target="_blank">{{u.last_name}}</a></td>
+            <td class="text-center">{{u.email}}</td>
+            <td class="text-center">{{u.profil_user.telephone1|format_tel}}</td>
+            <td class="text-center">{{u.profil_user.telephone2|format_tel}}</td>
+            <td class="text-center">{{u.profil_user.ticket_open_count}}/{{u.profil_user.ticket_count}}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+{%else%}
+<h2 class="text-danger">Pas d'utilisateur trouvé</h2>
+{%endif%}
+
+{% if table %}
 <h2>Installation{% if table|length > 1 %}s{%endif%}</h2>
 <table
         id="installation"
@@ -64,25 +72,30 @@
         data-filter-control="true"
         data-show-search-clear-button="true">
     <thead>
-        <th>ID SA</th>
-        <th>Type communication</th>
-        <th>Version carte firmware</th>
-        <th>version carte interface</th>
-        <th>Utilisateurs</th>
+        <th class="text-center">ID SA</th>
+        <th class="text-center">Type communication</th>
+        <th class="text-center">Version carte firmware</th>
+        <th class="text-center">version carte interface</th>
+        <th class="text-center">Utilisateurs</th>
+        <th class="text-center">Tickets(en cours/total)</th>
     </thead>
     <tbody>
         {% for i in table %}
         <tr>
-            <td><a href="{% url 'sav:installation' i.id %}" target="_blank">{{i.idsa}}</a></td>
-            <td>{{i.type_communication}}</td>
-            <td>{{i.version_carte_firmware}}</td>
-            <td>{{i.version_carte_interface}}</td>
-            <td>
+            <td class="text-center"><a href="{% url 'sav:installation' i.id %}" target="_blank">{{i.idsa}}</a></td>
+            <td class="text-center">{{i.type_communication}}</td>
+            <td class="text-center">{{i.version_carte_firmware}}</td>
+            <td class="text-center">{{i.version_carte_interface}}</td>
+            <td class="text-center">
                 {% for u in i.user_acces %}
                 <li><a href="{% url 'sav:utilisateur' pk=u.utilisateur.id%}" target="_blank">{{u.utilisateur.profil_user.icon|safe}} {{u.utilisateur}} {{u.utilisateur.profil_user.type_acces}}</a></li>
                 {%endfor%}
             </td>
+            <td class="text-center">{{i.ticket_open_count}}/{{i.ticket_count}}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+{%else%}
+<h2 class="text-danger">Pas d'installation trouvée</h2>
+{%endif%}

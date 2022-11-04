@@ -149,7 +149,8 @@ class home (View):
                 installation_list=installation_list.filter(acces__utilisateur__first_name__icontains=request.POST['prenom'])
             if request.POST['nom']:
                 utilisateurs = utilisateurs.filter(last_name__icontains=request.POST['nom'])
-                installation_list = installation_list.filter(acces__utilisateur__last_name__icontains=request.POST['nom'])
+                installation_list = (installation_list.filter(acces__utilisateur__last_name__icontains=request.POST['nom'])|\
+                installation.objects.filter(idsa__icontains=request.POST['nom'])).distinct()
             if request.POST['email']:
                 utilisateurs = utilisateurs.filter(email__icontains=request.POST['email'])
                 installation_list = installation_list.filter(acces__utilisateur__email__icontains=request.POST['email'])
@@ -580,11 +581,20 @@ class statistiques(View, SuccessMessageMixin):
 
         return super(statistiques, self).dispatch(request, *args, **kwargs)
 
-    def chart_repartition_pb_cause(self, periode=None):
+    def titre_graph(self, frequence=None, periode=None):
+
+        if frequence == "Rjour":
+            titre = 'Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
+        elif frequence == "heure":
+            titre = 'Répartition de journalière des tickets sur ' + periode + ' jours'
+        else:
+            titre = 'Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
+        return titre
+    def chart_repartition_pb_cause_df(self, periode=None):
         from django.db.models import CharField
         try:
             if not periode:
-                periode=365
+                periode=30
 
             queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by(
                 'evenement__date')
@@ -598,6 +608,18 @@ class statistiques(View, SuccessMessageMixin):
 
             df = pd.DataFrame(list(queryset.values('pb', 'cause','count')))
             df.fillna(value="sans cause", inplace=True)
+            return df
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            return None
+
+    def chart_repartition_pb_cause(self, periode=None):
+        from django.db.models import CharField
+        try:
+            df=self.chart_repartition_pb_cause_df(periode=periode)
             fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['pb', 'cause'],
                                values='count')
 
@@ -612,11 +634,11 @@ class statistiques(View, SuccessMessageMixin):
             print(ex)
             return None
 
-    def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
+    def chart_repartition_temporel_df(self, frequence=None, periode=None, field=None, type=None):
         from django.db.models import CharField
         try:
-
-            queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
+            queryset = ticket.objects.filter(
+                evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
 
             if frequence == "semaine":
                 queryset = queryset.annotate(frequence=TruncWeek('evenement__date'))
@@ -629,24 +651,40 @@ class statistiques(View, SuccessMessageMixin):
             if frequence == "Rjour":
                 queryset = queryset.annotate(frequence=ExtractWeekDay('evenement__date'))
 
-            if field =="forme":
+            if field == "forme":
                 when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
-                queryset = queryset.order_by('frequence', 'forme').annotate(lien=Case(*when, output_field=CharField())).values(
-                'frequence', 'lien').annotate(count=Count('id'))
-
-
-            if field =="probleme":
-                when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
-                queryset = queryset.order_by('frequence','probleme').annotate(lien=Case(*when, output_field=CharField())).values(
+                queryset = queryset.order_by('frequence', 'forme').annotate(
+                    lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
-            if field =="cause":
+            if field == "probleme":
+                when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
+                queryset = queryset.order_by('frequence', 'probleme').annotate(
+                    lien=Case(*when, output_field=CharField())).values(
+                    'frequence', 'lien').annotate(count=Count('id'))
+
+            if field == "cause":
                 when = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
-                queryset = queryset.order_by('frequence','cause').annotate(lien=Case(*when, output_field=CharField())).values(
+                queryset = queryset.order_by('frequence', 'cause').annotate(
+                    lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             df.fillna(value="sans cause", inplace=True)
+
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            return None
+
+        return df
+
+    def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
+        try:
+
+            df=self.chart_repartition_temporel_df(frequence=frequence, periode=periode, field=field, type=type)
             text_auto='s'
             if df.empty:
                 return None
@@ -662,7 +700,6 @@ class statistiques(View, SuccessMessageMixin):
                     titlex="Heure ouverte de ticket"
                 else:
                     df = df.sort_values(by='frequence')
-                    # df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
                     titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
                     titlex="Date"
 
@@ -703,7 +740,6 @@ class statistiques(View, SuccessMessageMixin):
     def get(self, request, *args, **kwargs):
 
         try:
-
             fig1=self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="bar")
             self.tickets_chart = opy.plot(fig1, output_type='div')
             fig2 = self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="sunburst")
@@ -736,6 +772,23 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
     def post(self, request, *args, **kwargs):
+        if "download_csv2" in request.POST:
+            df = self.chart_repartition_pb_cause_df(periode=request.POST['periode'])
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=Statistiques Symptômes/causes sur ' + request.POST['periode']+ 'jours.csv'
+            df.to_csv(path_or_buf=response)  # with other applicable parameters
+            return response
+
+        if "download_csv" in request.POST:
+            df = self.chart_repartition_temporel_df(frequence=request.POST['frequence'],
+                                                  periode=request.POST['periode'],
+                                                  field=request.POST['field'])
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename='+self.titre_graph(frequence=request.POST['frequence'],
+                                                  periode=request.POST['periode'])+'.csv'
+            df.to_csv(path_or_buf=response)  # with other applicable parameters
+            return response
+
 
         if "field" in request.POST:
             fig = self.chart_repartition_temporel(frequence=request.POST['frequence'],
