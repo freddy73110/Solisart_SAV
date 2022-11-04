@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import sys
+import time
 from datetime import timedelta
 from email.mime.image import MIMEImage
 
@@ -661,7 +662,7 @@ class statistiques(View, SuccessMessageMixin):
                     titlex="Heure ouverte de ticket"
                 else:
                     df = df.sort_values(by='frequence')
-                    df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
+                    # df["frequence"] = df["frequence"].dt.strftime('%d-%m-%Y')
                     titre='Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
                     titlex="Date"
 
@@ -703,11 +704,11 @@ class statistiques(View, SuccessMessageMixin):
 
         try:
 
-            fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
+            fig1=self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="bar")
             self.tickets_chart = opy.plot(fig1, output_type='div')
-            fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
+            fig2 = self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
-            fig3 = self.chart_repartition_pb_cause(periode=365)
+            fig3 = self.chart_repartition_pb_cause(periode=30)
             self.sunburst2=""
             if fig3:
                 self.sunburst2 = opy.plot(fig3, output_type='div')
@@ -1049,6 +1050,89 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        from bs4 import BeautifulSoup
+        import requests
+
+        username = 'freddy.dubouchet@solisart.fr'
+        password = 'uM(ij9ojEV'
+
+        # headers = {
+        #     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        #
+        # data = {'id': login,
+        #         'pass': password, 'js-webauthn-support': 'supported', 'js-webauthn-iuvpaa-support': 'unsupported',
+        #         'connexion': 'Se connecter'}
+        #
+        # with requests.session() as sess:
+        #     post_data = sess.get('https://my.solisart.fr/')
+        #     html = BeautifulSoup(post_data.text, 'html.parser')
+        #     print(html)
+        #
+        #     # Update data
+        #     # data.update(timestamp_secret=html.find("input", {'name': 'timestamp_secret'}).get('value'))
+        #     # data.update(authenticity_token=html.find("input", {'name': 'authenticity_token'}).get('value'))
+        #     # data.update(timestamp=html.find("input", {'name': 'timestamp'}).get('value'))
+        #     # Login
+        #     res = sess.post("https://my.solisart.fr/", data=data, headers=headers)
+        #
+        #     # Check login
+        #     res = sess.get('https://my.solisart.fr/admin/?page=installations')
+        #     try:
+        #         username = BeautifulSoup(res.text, 'html.parser').find('meta', {'name': 'user-login'}).get('content')
+        #     except:
+        #         print('Your username or password is incorrect')
+        #     else:
+        #         print("You have successfully logged in as", username)
+
+        link = 'https://my.solisart.fr/'
+
+        with requests.Session() as s:
+            s.headers[
+                'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
+            res = s.get(link)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            payload = {i['name']: i.get('value', '') for i in soup.select('input[name]')}
+            # what the above line does is parse the keys and valuse available in the login form
+            payload['id'] = username
+            payload['pass'] = password
+
+            print(payload)  # when you print this, you should see the required parameters within payload
+
+            s.post(link, data=payload)
+            # as we have laready logged in, the login cookies are stored within the session
+            # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
+            r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+            time.sleep(5)
+            r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+            print(r.status_code)
+            print(BeautifulSoup(r.text, 'html.parser').find("div", {"id":"pages-contenu"}))
+            # from selenium import webdriver
+            # driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
+            # driver.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+            # p_element = driver.find_element_by_id(id_='pages-contenu')
+            # print(p_element.text)
+            #
+            # from selenium import webdriver
+            # from selenium.webdriver.common.by import By
+            # from selenium.webdriver.support.ui import WebDriverWait
+            # from selenium.webdriver.support import expected_conditions as EC
+            # from webdriver_manager.chrome import ChromeDriverManager
+            #
+            # driver = webdriver.Chrome(ChromeDriverManager().install())
+            # url = 'https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905'
+            # driver.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+            # p_element = driver.find_element(By.ID, 'pages-contenu')
+            # print(p_element.text)
+            #
+            # # Please wait until the page will be ready:
+            # # element = WebDriverWait(driver, 10).until(
+            # #     EC.presence_of_element_located((By.CSS_SELECTOR, "div.some_placeholder")))
+            # # element.text = 'Some text on the page :)'  # <-- Here it is! I got what I wanted :)
+
+
+
+
+
         return render(request,
                       self.template_name,
                           {

@@ -73,7 +73,7 @@ class ticket_form(ModelForm):
 
     class Meta:
         model = ticket
-        fields = "__all__"
+        exclude = ("fichier",)
 
     def __init__(self, *args, **kwargs):
         instal = kwargs.pop('installation', None)
