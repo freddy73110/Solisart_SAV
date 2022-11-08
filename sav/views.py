@@ -1079,8 +1079,8 @@ class ticket_view(View):
         )
 
     def post(self, request, *args, **kwargs):
-        form_evenement=add_evenement_form(request.POST, user=User.objects.get(pk=int(request.POST['technicien_sav'])))
-        form_ticket=ticket_form(request.POST)
+        form_evenement=add_evenement_form(request.POST, instance=evenement.objects.get(pk=request.POST['evenement']), user=User.objects.get(pk=int(request.POST['technicien_sav'])))
+        form_ticket=ticket_form(request.POST, instance=ticket.objects.get(pk=request.POST['id']))
         data={}
         if form_evenement.is_valid():
             form_evenement.save()
@@ -1090,6 +1090,7 @@ class ticket_view(View):
 
         if form_ticket.is_valid():
             form_ticket.save()
+
             data['ticket']='ok'
         else:
             data['ticket'] = form_evenement.errors
@@ -1155,32 +1156,56 @@ class bidouille (View):
             # as we have laready logged in, the login cookies are stored within the session
             # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
             r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
-            time.sleep(5)
-            r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
             print(r.status_code)
             print(BeautifulSoup(r.text, 'html.parser').find("div", {"id":"pages-contenu"}))
-            # from selenium import webdriver
-            # driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
-            # driver.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
-            # p_element = driver.find_element_by_id(id_='pages-contenu')
-            # print(p_element.text)
-            #
-            # from selenium import webdriver
-            # from selenium.webdriver.common.by import By
-            # from selenium.webdriver.support.ui import WebDriverWait
-            # from selenium.webdriver.support import expected_conditions as EC
-            # from webdriver_manager.chrome import ChromeDriverManager
-            #
-            # driver = webdriver.Chrome(ChromeDriverManager().install())
-            # url = 'https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905'
-            # driver.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
-            # p_element = driver.find_element(By.ID, 'pages-contenu')
-            # print(p_element.text)
-            #
-            # # Please wait until the page will be ready:
-            # # element = WebDriverWait(driver, 10).until(
-            # #     EC.presence_of_element_located((By.CSS_SELECTOR, "div.some_placeholder")))
-            # # element.text = 'Some text on the page :)'  # <-- Here it is! I got what I wanted :)
+
+            # from requests_html import HTMLSession, AsyncHTMLSession
+            # session = HTMLSession()
+            # # url to make a post request to
+            # response = session.post(link, data=payload)
+            # response.text
+            # print(f'Content of Request:{response.html.render()} ')
+            # print(f'URL : {response.url}')
+            # # res= await asession.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+            # # await print(f'Content of Request:{res.text}')
+            # #
+            # # await print(f'URL : {res.url}')
+
+
+
+            from selenium import webdriver
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
+            driver.get(link)
+            driver.find_element(By.ID, 'id').send_keys(username)
+            driver.find_element(By.ID, 'pass').send_keys(password)
+            driver.find_element(By.ID, 'connexion').click()
+            time.sleep(10)
+            soup = BeautifulSoup(driver.page_source,'html.parser')
+            tables = soup.find('table', {'class':'liste'})
+            all_td = tables.find_all("tr")
+            passed=0
+            for row in all_td:
+                table_row=[r for r in row.find_all('td')]
+                try:
+                    print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
+                except:
+                    passed+=1
+                    pass
+            print(passed)
+            # print(len(all_td))
+            driver.get('https://my.solisart.fr/admin/index.php?page=utilisateurs')
+            time.sleep(10)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            tables = soup.find('table', {'class': 'liste'})
+            all_td = tables.find_all("tr")
+            for row in all_td:
+                table_row=[r for r in row.find_all('td')]
+                print(table_row[0].text)
+            driver.close()
+
 
 
 
