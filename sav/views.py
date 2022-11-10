@@ -1028,23 +1028,48 @@ class carte (View):
         return super(carte, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        test = attribut_valeur.objects.filter(attribut_def__description="Coordonnées GPS DD")\
-                                    .exclude(valeur="nan")
-        installateur = User.objects.filter(acces__profil_type__name='Installateur').distinct()
 
         return render(request,
                       self.template_name,
                           {
                               'title': self.title,
-                              'test':test
+                              'install_total':attribut_valeur.objects.filter(attribut_def__description="Coordonnées GPS DD") \
+                                                .exclude(valeur="nan").count()
                           }
                       )
 
     def post(self, request, *args, **kwargs):
 
-        import requests
-        url = 'https://nominatim.openstreetmap.org/?q=' + request.POST['adresse'].replace(' ', '%') + '&format=json&polygon_geojson=1'
-        return HttpResponse(requests.get(url), content_type='application/json; charset=utf-8')
+        if "adresse" in request.POST:
+            import requests
+            url = 'https://nominatim.openstreetmap.org/?q=' + request.POST['adresse'].replace(' ', '%') + '&format=json&polygon_geojson=1'
+            return HttpResponse(requests.get(url), content_type='application/json; charset=utf-8')
+
+        test = attribut_valeur.objects.filter(attribut_def__description="Coordonnées GPS DD") \
+            .exclude(valeur="nan")[int(request.POST['start']):int(request.POST['stop'])]
+        from .templatetags.my_filter import Coor
+        list_install=[]
+        for t in test:
+            popup='<b>Installation : </b><a href="/installation/'+ str(t.installation.id) +'">' + str(t.installation) + '</a>'
+            if t.installation.proprio():
+                popup+='<br><b>Propriétaire: </b><a href="/utilisateur/'+ str(t.installation.proprio().id) +'">'+ str(t.installation.proprio()) +'</a>'
+            if t.installation.installateur():
+                popup+='<br><b>Installateur: </b><a href="/utilisateur/'+ str(t.installation.installateur().id) +'">'+ str(t.installation.installateur()) +'</a>'
+            list_install.append(
+            {'type':'Feature',
+             "properties": {
+                 "name": str(t.installation),
+                 "show_on_map": True if Coor(t.valeur) else False,
+                 "popupContent": popup
+
+             },
+             "geometry": {
+                 "type": "Point",
+                 "coordinates": [float(i) for i in t.valeur.split(',')[::-1]] if Coor(t.valeur) else None
+             }
+             } )
+
+        return HttpResponse(json.dumps(list_install), content_type="application/json")
 
 class ticket_view(View):
     login_url = '/login/'

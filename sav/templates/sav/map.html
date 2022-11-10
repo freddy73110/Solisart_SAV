@@ -5,6 +5,16 @@
 {% load my_filter %}
 {%block Titre%}{{title}}{%endblock%}
 
+{% block javascript %}
+<!--lien pour leaflet -->
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<!--lien pour leaflet regroup marker-->
+<link rel="stylesheet" href="{% static 'Leaflet.markercluster-1.4.1/dist/MarkerCluster.css' %}" />
+<link rel="stylesheet" href="{% static 'Leaflet.markercluster-1.4.1/dist/MarkerCluster.Default.css' %}" />
+<script src="{% static 'Leaflet.markercluster-1.4.1/dist/leaflet.markercluster.js' %}"></script>
+{%endblock%}
+
 {%block article%}
 <div class="container">
     <div class="row">
@@ -14,8 +24,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
-<script src="{% static 'leaflet/leaflet.js' %}"></script>
+
 <div class="container">
     <div class="row">
         <div class="col-9">
@@ -58,18 +67,8 @@ const fontAwesomeIconInstallateur = L.divIcon({
 });
 const mymap = L.map('map').setView([45, 0],6);
             L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
-                    {% for t in test %}
-                        {%if t.valeur|Coor %}
-                         L.marker([{{t.valeur}}],{ icon: fontAwesomeIcon}).addTo(mymap)
-                        .bindPopup("<a href='{% url 'sav:installation' pk=t.installation.id%}' ><b>{{t.installation}}{% if t.installation.proprio%}/{{t.installation.proprio}}{%endif%}</b></a>{%if t.installation.installateur %}<br>installateur:<br><a href='{% url 'sav:utilisateur' pk=t.installation.installateur.id %}'>{{t.installation.installateur}}</a>{%endif%}")
-                        {% endif %}
-                    {%endfor%}
-                    {% for t in installateur %}
-                        {%if t.valeur|Coor %}
-                         L.marker([{{t.valeur}}],{ icon: fontAwesomeIconInstallateur}).addTo(mymap)
-                        .bindPopup("<a href='{% url 'sav:utilisateur' pk=t.entreprise.id%}' ><b>{{t.entreprise}}</b></a><br>{")
-                        {% endif %}
-                    {%endfor%}
+
+var markersCluster = new L.MarkerClusterGroup();
 
 function ajoutDepartement(value, color){
     myStyle={'color':color}
@@ -77,8 +76,44 @@ function ajoutDepartement(value, color){
         style:myStyle
     }).addTo(mymap)
 }
+function onEachFeature(feature, layer) {
+    // does this feature have a property named popupContent?
+    if (feature.properties && feature.properties.popupContent) {
+        layer.bindPopup(feature.properties.popupContent);
+    }
+}
+function generate_marker(start, stop){
+$.ajax({
+            url: window.location.href,
+            type:'post',
+            dataType: 'json',
+            data: 'start=' + start + '&stop=' + stop,
+            success: function (json) {
+                    L.geoJSON(json, {
+                        onEachFeature: onEachFeature,
+                        pointToLayer: function (feature, latlng) {
+                            return L.marker(latlng, { icon: fontAwesomeIcon});
+                        },
+                        filter: function(feature, layer) {
+                            return feature.properties.show_on_map;
+                        }
+                    }).addTo(markersCluster);
+                }
+          })
+
+mymap.addLayer(markersCluster);
+
+}
 
 async function load() {
+        var install_total = {{install_total}}
+        var compter=0
+        var start =0
+        while(install_total>compter){
+            compter=compter+100
+            generate_marker(start, compter)
+            start=compter
+        }
         let url = '{% static "sav/geojson/geojsonFrance.json" %}';
         let geojsonFrance = await (await fetch(url)).json();
         $.each( geojsonFrance.features, function( key, value ) {
@@ -93,7 +128,7 @@ async function load() {
           }else if(["69", "38", "26", "05"].includes(value.properties.code)){
             ajoutDepartement(value, "orange")
           }else if(["17", "16", "33", "24", "40", "47", "46", "64", "32", "82", "12", "31", "81", "09", "11", "34", "66", "65"].includes(value.properties.code)){
-             ajoutDepartement(value, "yellow")
+             ajoutDepartement(value, "pink")
           }else if(["29", "22", "56", "35", "53", "72", "44", "49", "37", "85", "79", "86"].includes(value.properties.code)){
             ajoutDepartement(value, "cyan")
           }else if(["41", "45", "36", "18", "08", "51", "10", "55", "52", "57", "54", "88", "67", "68", "90", "07", "30", "84", "13", "04", "83", "06"].includes(value.properties.code)){
@@ -107,7 +142,8 @@ async function load() {
             ajoutDepartement(geojsonBelgique, "purple")
 
 }
-load();
+
+window.onload = load();
 
 function search(){
     var form = $('#adresse').closest("form");
@@ -136,9 +172,6 @@ $('#adresse').keypress(function (e) {
     return false;
   }
 });
-
-
-
 </script>
 
 

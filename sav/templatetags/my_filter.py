@@ -6,7 +6,6 @@ register = template.Library()
 
 @register.filter
 def sautdeligne(value):
-    print(str(value))
     return str(value).replace('\n', '<br>')
 
 @register.filter
