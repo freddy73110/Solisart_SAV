@@ -8,69 +8,89 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">Statistiques temporelles</h1>
-            <form id="formVisualisertempo" method="post">{% csrf_token %}
-                <div class="input-group mb-3">
-                  <label class="input-group-text" for="inputGroupSelect02">Champs</label>
-                  <select class="form-select" id="inputGroupSelect02" name="field">
-                    <option value="forme">Téléphone/email</option>
-                    <option value="probleme">Problématique</option>
-                    <option value="cause">Cause</option>
-                  </select>
-                  <label class="input-group-text" for="inputGroupSelect01">Fréquence</label>
-                  <select class="form-select" id="inputGroupSelect01" name="frequence">
-                    <optgroup label="Répartition">
-                        <option value="heure">journalière</option>
-                        <option value="Rjour">hebdomadaire</option>
-                    </optgroup>
-                    <optgroup label="Répartition par">
-                    <option value="jour" selected>Jour</option>
-                    <option value="semaine">Semaine</option>
-                    <option value="mois">Mois</option>
-                    </optgroup>
-                  </select>
-                  <label class="input-group-text" for="inputGroupSelect03">Période</label>
-                  <input type="number"
-                         id="inputGroupSelect03"
-                         class="form-control"
-                         placeholder="période en jours"
-                         value="30"
-                         min=0
-                         aria-label="Recipient's username"
-                         aria-describedby="button-addon2"
-                        name="periode">
-                    <label class="input-group-text" for="inputGroupSelect03">jours</label>
-                  <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser(this)">Visualiser</button>
-                  <button class="btn btn-outline-secondary" type="submit" id="button-form-csv" name="download_csv"><i class="fas fa-cloud-download-alt"></i> CSV</button>
-                </div>
-            </form>
-            <div id="tickets_chart">{{tickets_chart|safe}}</div>
-            <div id="sunburst">{{sunburst|safe}}</div>
+            <h1 class="text-center m-3">Statistiques - Analyses</h1>
+            <ul class="nav nav-pills nav-justified" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#stat_temp" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><i class="far fa-chart-bar"></i><br> Statistiques temporelles</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#stat_corre" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-chart-pie"></i><br> Statistiques Symptômes/causes</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pill-tableau" type="button" role="tab" aria-controls="pills-contact" aria-selected="false"><i class="fas fa-table"></i><br> Extraction base de données</button>
+              </li>
+            </ul>
         </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h1 class="text-center m-3">Statistiques Symptômes/causes</h1>
-            <form id="formVisualiser" method="POST">{% csrf_token %}
-                <div class="input-group mb-3">
-                  <label class="input-group-text" for="inputGroupSelect05">Période</label>
-                  <input type="number"
-                         id="inputGroupSelect05"
-                         class="form-control"
-                         placeholder="période en jours"
-                         value="30"
-                         min=1
-                         aria-label="Recipient's username"
-                         aria-describedby="button-addon2"
-                        name="periode">
-                    <input type="hidden" name="pbcause">
-                  <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)">Visualiser</button>
-                  <button class="btn btn-outline-secondary" type="submit" id="button-form2-csv" name="download_csv2"><i class="fas fa-cloud-download-alt"></i> CSV</button>
-                </div>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="stat_temp" role="tabpanel" aria-labelledby="pills-home-tab">
+                <h1 class="m-3">Statistiques temporelles</h1>
+                <form id="formVisualisertempo" method="post">{% csrf_token %}
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="inputGroupSelect02">Champs</label>
+                      <select class="form-select" id="inputGroupSelect02" name="field">
+                        <option value="forme">Téléphone/email</option>
+                        <option value="probleme">Problématique</option>
+                        <option value="cause">Cause</option>
+                      </select>
+                      <label class="input-group-text" for="inputGroupSelect01">Fréquence</label>
+                      <select class="form-select" id="inputGroupSelect01" name="frequence">
+                        <optgroup label="Répartition">
+                            <option value="heure">journalière</option>
+                            <option value="Rjour">hebdomadaire</option>
+                        </optgroup>
+                        <optgroup label="Répartition par">
+                        <option value="jour" selected>Jour</option>
+                        <option value="semaine">Semaine</option>
+                        <option value="mois">Mois</option>
+                        </optgroup>
+                      </select>
+                      <label class="input-group-text" for="inputGroupSelect03">Période</label>
+                      <input type="number"
+                             id="inputGroupSelect03"
+                             class="form-control"
+                             placeholder="période en jours"
+                             value="30"
+                             min=0
+                             aria-label="Recipient's username"
+                             aria-describedby="button-addon2"
+                            name="periode">
+                        <label class="input-group-text" for="inputGroupSelect03">jours</label>
+                      <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser(this)">Visualiser</button>
+                      <button class="btn btn-outline-secondary" type="submit" id="button-form-csv" name="download_csv"><i class="fas fa-cloud-download-alt"></i> CSV</button>
+                    </div>
+                </form>
+                <div id="tickets_chart">{{tickets_chart|safe}}</div>
+                <div id="sunburst">{{sunburst|safe}}</div>
+            </div>
+            <div class="tab-pane fade" id="stat_corre" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <h1 class="m-3">Statistiques Symptômes/causes</h1>
+                <form id="formVisualiser" method="POST">{% csrf_token %}
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="inputGroupSelect05">Période</label>
+                      <input type="number"
+                             id="inputGroupSelect05"
+                             class="form-control"
+                             placeholder="période en jours"
+                             value="30"
+                             min=1
+                             aria-label="Recipient's username"
+                             aria-describedby="button-addon2"
+                            name="periode">
+                        <input type="hidden" name="pbcause">
+                      <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)">Visualiser</button>
+                      <button class="btn btn-outline-secondary" type="submit" id="button-form2-csv" name="download_csv2"><i class="fas fa-cloud-download-alt"></i> CSV</button>
+                    </div>
+                </form>
+                <div id="sunburst2">{{sunburst2|safe}}</div>
+            </div>
+            <div class="tab-pane fade" id="pill-tableau" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <h1 class="m-3">Liste ticket</h1>
+            <form id="formtableau" method="POST">{% csrf_token %}
+                {% crispy stattableauform %}
+                <button type="button" id="buttongeneretableau" class="btn btn-outline-primary" onclick="genetableau(this)">Executer</button>
             </form>
-            <div id="sunburst2">{{sunburst2|safe}}</div>
+            <div id="tableau"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -107,7 +127,42 @@
                 }
             }
     })
+}
 
+function genetableau(t){
+        var $t =$(t)
+        $t.html('<i class="fas fa-spinner fa-pulse"></i> Executer')
+        var form= $t.closest("form");
+        data =  form.serialize()
+        $("#tableau").html()
+        $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: data,
+            dataType: 'html',
+            success: function (html) {
+                $("#tableau").html(html).attr("tabindex",-1).focus()
+                $("#buttongeneretableau").html("Visualiser")
+            }
+    })
+    }
+    function Actionbouton_problem(t){
+    if($(t).html()== 'Tout sélectionner'){
+        $("input[name=probleme]").prop('checked', true)
+        $(t).html('Tout déselectionner')
+    }else{
+        $("input[name=probleme]").prop('checked', false)
+        $(t).html('Tout sélectionner')
+    }
+    }
+        function Actionbouton_cause(t){
+    if($(t).html()== 'Tout sélectionner'){
+        $("input[name=cause]").prop('checked', true)
+        $(t).html('Tout déselectionner')
+    }else{
+        $("input[name=cause]").prop('checked', false)
+        $(t).html('Tout sélectionner')
+    }
     }
 </script>
 {%endblock%}

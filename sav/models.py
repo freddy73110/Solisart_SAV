@@ -386,6 +386,22 @@ class ticket(models.Model):
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
     fichier = models.ManyToManyField('Fichiers', verbose_name="Fichiers", null=True, blank=True)
 
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "date": self.evenement.date.strftime('%d/%m/%Y %H:%M'),
+            "installation":str(self.evenement.installation),
+            "installation_link": '<a href="/installation/' + str(self.evenement.installation.id) + '">'+ str(self.evenement.installation) + '</a>',
+            "forme": str(self.icon_forme()) + ' ' + str(forme_contact(self.forme).name),
+            "etat": str(self.icon_etat()) + ' ' + str(etat(self.etat).name),
+            "installeur": str(self.utilisateur),
+            "installateur_link": '<a href="/utilisateur/' + str(self.utilisateur.id) + '">'+ str(self.utilisateur) + '</a>',
+            "probleme": str(self.probleme),
+            "cause": str(self.cause) if self.cause else '',
+            "detail": str(self.detail),
+            "fichier": [f.titre for f in self.fichier.all()]
+        }
+
     def icon_etat(self):
         if self.etat == 0:
             return '<i class="fas fa-play"></i>'
@@ -403,6 +419,7 @@ class ticket(models.Model):
             return '<i class="fas fa-at"></i>'
         if self.forme ==2:
             return '<i class="fas fa-comments"></i>'
+
 
     def __str__(self):
         return str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)

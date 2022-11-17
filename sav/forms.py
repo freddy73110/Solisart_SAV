@@ -1,11 +1,15 @@
+from datetime import timedelta
+
 from crispy_bootstrap5.bootstrap5 import FloatingField
-from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion, TabHolder, Tab, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
 from django.db.models import F, Value as V
 from django.db.models.functions import Concat
 from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
 from .crispy_layout import *
+
+from django import forms
 
 from .models import *
 
@@ -100,8 +104,20 @@ class ticket_form(ModelForm):
         self.fields['cause'].choices = choices
         self.fields['utilisateur'].queryset = User.objects.all().order_by(
             'first_name', 'last_name')
+
         if instal:
-            self.fields['utilisateur'].queryset = User.objects.filter(acces__installation = instal).distinct().order_by('first_name', 'last_name')
+            tu = []
+            for i in User.objects.filter(acces__installation = instal).distinct().order_by('first_name', 'last_name'):
+                tu.append((i.id, str(i)))
+            tu2 = []
+            for i in User.objects.all().order_by('first_name', 'last_name'):
+                tu2.append((i.id, str(i)))
+
+            choices = (('Utilisateur(s) lié(s)', tuple(tu)
+                        ),
+                       ('Tous les utilisateur', tuple(tu2))
+                       )
+            self.fields['utilisateur'].choices = choices
         if util:
             self.fields['utilisateur'].initial = util
             self.fields['utilisateur'].widget = HiddenInput()
@@ -222,3 +238,100 @@ class ProfilForm(ModelForm):
             )
         )
 
+class Stattableauform(forms.Form):
+
+    date_start=forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=XDSoftDateTimePickerInput(),
+        label = 'Date de Départ',
+        initial=(datetime.now()- timedelta(days=30)).date()
+    )
+    date_end = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=XDSoftDateTimePickerInput(),
+        label='Date de fin',
+        initial=datetime.now().date()
+    )
+
+    probleme = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                         choices=tuple([(p.id, str(p))for p in probleme.objects.all()]),
+                                         required=False,
+                                         initial=[p.id for p in probleme.objects.all()]
+                                         )
+
+    cause = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                         choices=tuple([(p.id, str(p))for p in cause.objects.all()]),
+                                         required=False,
+                                      initial=[p.id for p in cause.objects.all()]
+                                         )
+
+    fichier_joint = forms.BooleanField(
+        required=False,
+        help_text="Cocher si fichier relié au ticket"
+    )
+    fichier=forms.CharField(widget=forms.TextInput(),
+                             help_text='séparer vos critères de sélection par une virgule',
+                             required=False,
+                            label="Nom du fichier contient")
+
+    detail = forms.CharField(widget=forms.TextInput(),
+                             help_text='séparer vos critères de sélection par une virgule',
+                             label='Mot contenu dans le détail/explication du ticket',
+                             required=False)
+
+    annee = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                      choices=(("sans", "sans année"), ) +tuple([(i, i) for i in range(2015, datetime.now().year + 1, 1)]),
+                                      required=False,
+                                      initial=["sans"] + [*range(2015, int(datetime.now().year) + 1, 1)],
+                                      help_text="Sans année correspond à toutes lesa installation sans année dans son numéro de série"
+                                      )
+    type = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                      choices=(
+                                               ("Z", "type Z"),
+                                               ("M", "SC"),
+                                               ("H", "Hydrobox"),
+                                               ),
+                                      required=False,
+                                      initial=["Z", "H", "M"],
+                                      help_text="En fonction de son numéro de série"
+                                      )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    'date_start',
+                    css_class='col-6'
+                ),
+                Column(
+                    'date_end',
+                    css_class='col-6'
+                )
+            ),
+            Row(
+                Column(
+                    TabHolder(
+                        Tab('Problemes',
+                                       Field('probleme',size=10, template='widgets/multiselect3colonne.html'),
+                                       HTML('<button type="button" id="button_problem" class="btn btn-outline-primary" onclick="Actionbouton_problem(this)">Tout désélectionner</button>')
+                                       ),
+                        Tab('Causes',
+                                       Field('cause',size=10, template='widgets/multiselect3colonne.html'),
+                                       HTML(
+            '<button type="button" id="button_cause" class="btn btn-outline-primary" onclick="Actionbouton_cause(this)">Tout désélectionner</button>')
+                                       ),
+                        Tab('Installation',
+                            InlineCheckboxes('annee'),
+                            InlineCheckboxes('type')
+                        ),
+                        Tab('Autre',
+                            FloatingField('detail'),
+                            FloatingField('fichier')
+                            )
+                    )
+                )
+            )
+        )

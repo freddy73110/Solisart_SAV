@@ -736,8 +736,9 @@ class statistiques(View, SuccessMessageMixin):
             print(ex)
             return None
 
-
     def get(self, request, *args, **kwargs):
+
+        stattableauform=Stattableauform()
 
         try:
             fig1=self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="bar")
@@ -758,7 +759,8 @@ class statistiques(View, SuccessMessageMixin):
             return render(request,
                           self.template_name,
                           {
-                              'title': self.title
+                              'title': self.title,
+                              'stattableauform':stattableauform
                           }
                           )
         return render(request,
@@ -767,7 +769,8 @@ class statistiques(View, SuccessMessageMixin):
                           'title': self.title,
                           'tickets_chart':self.tickets_chart,
                           'sunburst':self.sunburst,
-                          'sunburst2': self.sunburst2
+                          'sunburst2': self.sunburst2,
+                          'stattableauform':stattableauform
                       }
                       )
 
@@ -788,6 +791,55 @@ class statistiques(View, SuccessMessageMixin):
                                                   periode=request.POST['periode'])+'.csv'
             df.to_csv(path_or_buf=response)  # with other applicable parameters
             return response
+
+        if "fichier" in request.POST:
+            tickets = ticket.objects.filter(Q(cause__id__in=request.POST.getlist('cause') if 'cause' in request.POST else [])|\
+                                            Q(cause=None),
+                                            evenement__date__gte=datetime.strptime(request.POST['date_start'], "%d-%m-%Y %H:%M"),
+                                            evenement__date__lte=datetime.strptime(request.POST['date_end'], "%d-%m-%Y %H:%M"),
+                                            probleme__id__in= request.POST.getlist('probleme') if 'probleme' in request.POST else [])
+            if 'annee' in request.POST:
+                conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
+                for tag in request.POST.getlist('annee'):
+                    if tag == 'sans':
+                        conditions |= ~Q(evenement__installation__idsa__icontains='20')
+                    else:
+                        conditions |= Q(evenement__installation__idsa__icontains=tag)
+                tickets = tickets.filter(conditions)
+
+            if 'type' in request.POST:
+                print(request.POST.getlist('type'))
+                conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
+                if 'Z' in request.POST.getlist('type'):
+                    conditions |= Q(evenement__installation__idsa__icontains="Z")
+                if 'H' in request.POST.getlist('type'):
+                    conditions |= Q(evenement__installation__idsa__icontains="HYDRO")
+                if 'M' in request.POST.getlist('type'):
+                    conditions |= Q(evenement__installation__idsa__icontains="SC")
+
+                tickets = tickets.filter(conditions)
+
+            if 'detail' in request.POST:
+                conditions = Q(detail__icontains='xxxxxxxx')
+                for tag in request.POST['detail'].replace(' ', '').split(','):
+                    conditions |= Q(detail__icontains=tag)
+                tickets = tickets.filter(conditions)
+
+            if 'fichier' in request.POST and request.POST['fichier'] != '':
+                conditions = Q(fichier__titre__icontains='xxxxxxxx')
+                for tag in request.POST['detail'].replace(' ', '').split(','):
+                    conditions |= Q(fichier__titre__icontains=tag)
+                tickets = tickets.filter(conditions)
+
+            ticket_dict=[t.as_dict() for t in tickets]
+
+            return render(request,
+                      'widgets/table_stat.html',
+                      {
+                            'ticket':tickets,
+                            'ticket_json': ticket_dict
+                      }
+                      )
 
 
         if "field" in request.POST:

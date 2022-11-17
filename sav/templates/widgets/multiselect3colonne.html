@@ -1,0 +1,17 @@
+{% load crispy_forms_field %}
+{% load crispy_forms_tags %}
+{% load my_filter %}
+<div class="container">
+    <div class="row">
+        {% for f in field%}
+            {% if forloop.counter0 == 0 or forloop.counter0 == field|length|div:3 or forloop.counter0 == field|length|multiplie:2|div:3 %}
+            <div class="col-sm-4">
+            {% endif %}
+               {{f}}<br>
+            {% if forloop.counter0 == field|length|div:3|add:"-1" or forloop.counter0 == field|length|multiplie:2|div:3|add:"-1" or forloop.counter0 == field|length|multiplie:3|div:3|add:"-1" %}
+            </div>
+            {% endif %}
+        {%endfor%}
+    </div>
+</div>
+

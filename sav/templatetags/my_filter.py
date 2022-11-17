@@ -3,6 +3,13 @@ import re
 
 register = template.Library()
 
+@register.filter
+def div(obj, div):
+    return obj//div + obj % div
+
+@register.filter
+def multiplie(obj, value):
+    return obj * value
 
 @register.filter
 def sautdeligne(value):
