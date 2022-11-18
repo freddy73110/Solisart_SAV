@@ -50,10 +50,11 @@ class add_evenement_form(ModelForm):
             self.fields['installation'].choices=choices
         self.fields['date'].widget = XDSoftDateTimePickerInput()
         self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
-        if not self.instance:
-            self.fields['date'].initial = datetime.now()
+
         if date:
             self.fields['date'].initial = date
+        else:
+            self.fields['date'].initial = datetime.now()
 
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -250,7 +251,7 @@ class Stattableauform(forms.Form):
         input_formats=['%d/%m/%Y'],
         widget=XDSoftDateTimePickerInput(),
         label='Date de fin',
-        initial=datetime.now().date()
+        initial=datetime.now()
     )
 
     probleme = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
@@ -287,12 +288,13 @@ class Stattableauform(forms.Form):
                                       )
     type = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                       choices=(
+                                               ("sans", "sans annee"),
                                                ("Z", "type Z"),
-                                               ("M", "SC"),
+                                               ("SC", "SC"),
                                                ("H", "Hydrobox"),
                                                ),
                                       required=False,
-                                      initial=["Z", "H", "M"],
+                                      initial=["sans", "Z", "H", "SC"],
                                       help_text="En fonction de son numéro de série"
                                       )
 

@@ -600,13 +600,16 @@ class statistiques(View, SuccessMessageMixin):
                 'evenement__date')
             when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
             when2 = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
-            queryset = queryset.order_by('probleme').annotate(
-                pb=Case(*when, output_field=CharField())).values(
-                'pb').annotate(count=Count('id')).order_by('cause').annotate(
-                cause=Case(*when2, output_field=CharField())).values(
-                'cause', 'pb').annotate(count=Count('id'))
+            when3 = [When(evenement__installation__idsa__icontains=str(v), then=Value(v)) for v in range(2015, datetime.now().year, 1)]
 
-            df = pd.DataFrame(list(queryset.values('pb', 'cause','count')))
+            queryset = queryset.annotate(
+                annee=Case(*when3,default=Value("2000"), output_field=CharField())).values(
+                'annee').order_by('probleme').annotate(
+                pb=Case(*when, output_field=CharField())).values(
+                'pb', 'annee').order_by('cause').annotate(
+                cause=Case(*when2, output_field=CharField())).values(
+                'cause', 'pb', 'annee').annotate(count=Count('id'))
+            df = pd.DataFrame(list(queryset.values('pb', 'cause','count', 'annee')))
             df.fillna(value="sans cause", inplace=True)
             return df
         except Exception as ex:
@@ -620,8 +623,9 @@ class statistiques(View, SuccessMessageMixin):
         from django.db.models import CharField
         try:
             df=self.chart_repartition_pb_cause_df(periode=periode)
-            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['pb', 'cause'],
-                               values='count')
+            print(df)
+            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['annee','pb', 'cause'],
+                               values='count',height=400)
 
             fig2.update_traces(
                 textinfo="label+value+percent parent + percent entry + text"
@@ -808,13 +812,14 @@ class statistiques(View, SuccessMessageMixin):
                 tickets = tickets.filter(conditions)
 
             if 'type' in request.POST:
-                print(request.POST.getlist('type'))
                 conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
+                if 'sans' in request.POST.getlist('type'):
+                    conditions |= ~Q(evenement__installation__idsa__icontains='20')
                 if 'Z' in request.POST.getlist('type'):
                     conditions |= Q(evenement__installation__idsa__icontains="Z")
                 if 'H' in request.POST.getlist('type'):
                     conditions |= Q(evenement__installation__idsa__icontains="HYDRO")
-                if 'M' in request.POST.getlist('type'):
+                if 'SC' in request.POST.getlist('type'):
                     conditions |= Q(evenement__installation__idsa__icontains="SC")
 
                 tickets = tickets.filter(conditions)
