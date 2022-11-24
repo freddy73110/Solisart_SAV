@@ -150,7 +150,8 @@ class home (View):
             if request.POST['nom']:
                 utilisateurs = utilisateurs.filter(last_name__icontains=request.POST['nom'])
                 installation_list = (installation_list.filter(acces__utilisateur__last_name__icontains=request.POST['nom'])|\
-                installation.objects.filter(idsa__icontains=request.POST['nom'])).distinct()
+                installation.objects.filter(idsa__icontains=request.POST['nom']) |\
+                installation.objects.filter(attribut_valeur__valeur__icontains=request.POST['nom'])).distinct()
             if request.POST['email']:
                 utilisateurs = utilisateurs.filter(email__icontains=request.POST['email'])
                 installation_list = installation_list.filter(acces__utilisateur__email__icontains=request.POST['email'])
@@ -228,7 +229,7 @@ class updateDB (View):
                             total_created += 1
 
                     except Exception as e:
-
+                        print(row)
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                         print(exc_type, fname, exc_tb.tb_lineno)
@@ -276,17 +277,18 @@ class updateDB (View):
                         # tc= row['type_communication'] if row['type_communication'] != np.nan else None
 
                         # inst.type_communication= tc,
-                        inst.version_carte_firmware=row['version_carte_firmware'] if row['version_carte_firmware'] != np.nan else None,
-                        inst.version_carte_interface=row['version_carte_interface'] if row['version_carte_interface'] != np.nan else None,
-                        inst.version_serveur_appli=row['version_serveur_appli'] if row['version_serveur_appli'] != np.nan else None,
-                        inst.adresse_ip_wan=row['adresse_ip_wan'] if row['adresse_ip_wan'] != np.nan else None,
-                        inst.port_tcp_wan=row['port_tcp_wan'] if row['port_tcp_wan'] != np.nan else None
+
+                        inst.version_carte_firmware=row['version_carte_firmware'] if 'version_carte_firmware' in row and row['version_carte_firmware'] != np.nan else None,
+                        inst.version_carte_interface=row['version_carte_interface'] if 'version_carte_interface' in row and row['version_carte_interface'] != np.nan else None,
+                        inst.version_serveur_appli=row['version_serveur_appli'] if 'version_serveur_appli' in row and row['version_serveur_appli'] != np.nan else None,
+                        inst.adresse_ip_wan=row['adresse_ip_wan'] if 'adresse_ip_wan' in row and row['adresse_ip_wan'] != np.nan else None,
+                        inst.port_tcp_wan=row['port_tcp_wan'] if 'port_tcp_wan' in row and row['port_tcp_wan'] != np.nan else None
                         inst.save()
 
                         if created:
                             total_created += 1
                     except Exception as e:
-
+                        print(row)
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                         print(exc_type, fname, exc_tb.tb_lineno)
@@ -1186,107 +1188,80 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from bs4 import BeautifulSoup
-        import requests
+        list_id=[]
+        for u in User.objects.all():
+            uu=User.objects.filter(
+                first_name=u.first_name,
+                last_name=u.last_name,
+                email=u.email
+            )
+            if uu.count() > 1:
+                list_id.append(u)
+                print(uu.values('id','username', 'profil_user__idsa'), max(list(uu.values_list('id', flat=True))))
+                User.objects.get(id=max(list(uu.values_list('id', flat=True)))).delete()
 
-        username = 'freddy.dubouchet@solisart.fr'
-        password = 'uM(ij9ojEV'
 
-        # headers = {
-        #     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        print(len(list_id))
+        # from bs4 import BeautifulSoup
+        # import requests
         #
-        # data = {'id': login,
-        #         'pass': password, 'js-webauthn-support': 'supported', 'js-webauthn-iuvpaa-support': 'unsupported',
-        #         'connexion': 'Se connecter'}
+        # username = 'freddy.dubouchet@solisart.fr'
+        # password = 'uM(ij9ojEV'
+        # link = 'https://my.solisart.fr/'
         #
-        # with requests.session() as sess:
-        #     post_data = sess.get('https://my.solisart.fr/')
-        #     html = BeautifulSoup(post_data.text, 'html.parser')
-        #     print(html)
+        # with requests.Session() as s:
+        #     s.headers[
+        #         'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
+        #     res = s.get(link)
+        #     soup = BeautifulSoup(res.text, 'html.parser')
+        #     payload = {i['name']: i.get('value', '') for i in soup.select('input[name]')}
+        #     # what the above line does is parse the keys and valuse available in the login form
+        #     payload['id'] = username
+        #     payload['pass'] = password
         #
-        #     # Update data
-        #     # data.update(timestamp_secret=html.find("input", {'name': 'timestamp_secret'}).get('value'))
-        #     # data.update(authenticity_token=html.find("input", {'name': 'authenticity_token'}).get('value'))
-        #     # data.update(timestamp=html.find("input", {'name': 'timestamp'}).get('value'))
-        #     # Login
-        #     res = sess.post("https://my.solisart.fr/", data=data, headers=headers)
+        #     print(payload)  # when you print this, you should see the required parameters within payload
         #
-        #     # Check login
-        #     res = sess.get('https://my.solisart.fr/admin/?page=installations')
-        #     try:
-        #         username = BeautifulSoup(res.text, 'html.parser').find('meta', {'name': 'user-login'}).get('content')
-        #     except:
-        #         print('Your username or password is incorrect')
-        #     else:
-        #         print("You have successfully logged in as", username)
-
-        link = 'https://my.solisart.fr/'
-
-        with requests.Session() as s:
-            s.headers[
-                'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
-            res = s.get(link)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            payload = {i['name']: i.get('value', '') for i in soup.select('input[name]')}
-            # what the above line does is parse the keys and valuse available in the login form
-            payload['id'] = username
-            payload['pass'] = password
-
-            print(payload)  # when you print this, you should see the required parameters within payload
-
-            s.post(link, data=payload)
-            # as we have laready logged in, the login cookies are stored within the session
-            # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
-            r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
-            print(r.status_code)
-            print(BeautifulSoup(r.text, 'html.parser').find("div", {"id":"pages-contenu"}))
-
-            # from requests_html import HTMLSession, AsyncHTMLSession
-            # session = HTMLSession()
-            # # url to make a post request to
-            # response = session.post(link, data=payload)
-            # response.text
-            # print(f'Content of Request:{response.html.render()} ')
-            # print(f'URL : {response.url}')
-            # # res= await asession.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
-            # # await print(f'Content of Request:{res.text}')
-            # #
-            # # await print(f'URL : {res.url}')
-
-
-
-            from selenium import webdriver
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
-            driver.get(link)
-            driver.find_element(By.ID, 'id').send_keys(username)
-            driver.find_element(By.ID, 'pass').send_keys(password)
-            driver.find_element(By.ID, 'connexion').click()
-            time.sleep(10)
-            soup = BeautifulSoup(driver.page_source,'html.parser')
-            tables = soup.find('table', {'class':'liste'})
-            all_td = tables.find_all("tr")
-            passed=0
-            for row in all_td:
-                table_row=[r for r in row.find_all('td')]
-                try:
-                    print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
-                except:
-                    passed+=1
-                    pass
-            print(passed)
-            # print(len(all_td))
-            driver.get('https://my.solisart.fr/admin/index.php?page=utilisateurs')
-            time.sleep(10)
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-            tables = soup.find('table', {'class': 'liste'})
-            all_td = tables.find_all("tr")
-            for row in all_td:
-                table_row=[r for r in row.find_all('td')]
-                print(table_row[0].text)
-            driver.close()
+        #     s.post(link, data=payload)
+        #     # as we have laready logged in, the login cookies are stored within the session
+        #     # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
+        #     r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+        #     print(r.status_code)
+        #     print(BeautifulSoup(r.text, 'html.parser').find("div", {"id":"pages-contenu"}))
+        #
+        #
+        #
+        #     from selenium import webdriver
+        #     from selenium.webdriver.common.by import By
+        #     from selenium.webdriver.support.ui import WebDriverWait
+        #     from selenium.webdriver.support import expected_conditions as EC
+        #     driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
+        #     driver.get(link)
+        #     driver.find_element(By.ID, 'id').send_keys(username)
+        #     driver.find_element(By.ID, 'pass').send_keys(password)
+        #     driver.find_element(By.ID, 'connexion').click()
+        #     time.sleep(10)
+        #     soup = BeautifulSoup(driver.page_source,'html.parser')
+        #     tables = soup.find('table', {'class':'liste'})
+        #     all_td = tables.find_all("tr")
+        #     passed=0
+        #     for row in all_td:
+        #         table_row=[r for r in row.find_all('td')]
+        #         try:
+        #             print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
+        #         except:
+        #             passed+=1
+        #             pass
+        #     print(passed)
+        #     # print(len(all_td))
+        #     driver.get('https://my.solisart.fr/admin/index.php?page=utilisateurs')
+        #     time.sleep(10)
+        #     soup = BeautifulSoup(driver.page_source, 'html.parser')
+        #     tables = soup.find('table', {'class': 'liste'})
+        #     all_td = tables.find_all("tr")
+        #     for row in all_td:
+        #         table_row=[r for r in row.find_all('td')]
+        #         print(table_row[0].text)
+        #     driver.close()
 
 
 

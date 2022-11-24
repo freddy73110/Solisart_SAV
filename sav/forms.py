@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import pytz
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion, TabHolder, Tab, InlineCheckboxes
 from crispy_forms.helper import FormHelper
@@ -54,7 +55,7 @@ class add_evenement_form(ModelForm):
         if date:
             self.fields['date'].initial = date
         else:
-            self.fields['date'].initial = datetime.now()
+            self.fields['date'].initial = datetime.now(pytz.timezone("Europe/Paris"))
 
         self.helper = FormHelper()
         self.helper.form_tag = False
