@@ -402,6 +402,23 @@ class ticket(models.Model):
             "fichier": [f.titre for f in self.fichier.all()]
         }
 
+    def icon_technicien_sav(self):
+        try:
+
+            initial=(self.evenement.technicien_sav.first_name[0] + self.evenement.technicien_sav.last_name[0]).upper()
+        except:
+            initial = 'Inconnu'
+
+        html='<div class="fa-2x">\
+                              <span class="fa-layers fa-fw">\
+                                  <i class="fas fa-user-md"></i>\
+                                  <span class="fa-layers-text badge rounded-pill bg-danger" data-fa-transform="shrink-10 up-10 right-12 grow-2" style="{background:Tomato}">'+initial+'</span>\
+                                </span>\
+                              </div>'
+        return html
+
+
+
     def icon_etat(self):
         if self.etat == 0:
             return '<i class="fas fa-play"></i>'

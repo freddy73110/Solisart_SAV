@@ -49,6 +49,7 @@
                     <th class="text-center">Causes</th>
                     <th class="text-center">Date (durée)</th>
                     <th class="text-center">Etat</th>
+                    <th class="text-center">Technicen SAV</th>
                     <th class="text-center">Modifier</th>
                 </thead>
                 <tbody>
@@ -59,6 +60,7 @@
                         <td class="text-center">{{ticket.cause}}</td>
                         <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
                         <td class="text-center">{{ticket.icon_etat|safe}} {{ticket.get_etat_display}}</td>
+                        <td class="text-center">{{ticket.icon_technicien_sav|safe}}</td>
                         <td>
                             <i class="fas fa-pen"
                                 data-bs-toggle="modal"

@@ -153,6 +153,7 @@
         <th class="text-center">Date</th>
         <th class="text-center">Installation</th>
         <th class="text-center">Etat</th>
+        <th class="text-center">Techncien SAV</th>
         <th class="text-center">Problèmes</th>
         <th class="text-center">Causes</th>
         <th class="text-center">Détails</th>
@@ -163,6 +164,7 @@
             <td class="text-center">{{t.evenement.date}}</td>
             <td class="text-center"><a href="{% url 'sav:installation' t.evenement.installation.id %}" target="_blank">{{t.evenement.installation}}</a></td>
             <td class="text-center">{{t.icon_etat|safe}} {{t.get_etat_display}}</td>
+            <td class="text-center">{{t.icon_technicien_sav|safe}}</td>
             <td class="text-center">{{t.probleme}}</td>
             <td class="text-center">{{t.cause}}</td>
             <td class="text-center">{{t.detail}}</td>

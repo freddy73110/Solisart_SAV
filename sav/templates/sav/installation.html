@@ -346,6 +346,7 @@ loadingTask.promise.then(function(pdf) {
                               <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {{e.ticket.utilisateur}}</b>
                               <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
                               <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
+                              <b>{{e.ticket.icon_technicien_sav|safe}}</b>
                           </button>
                         </h2>
                         <div id="collapse{{ forloop.counter }}" id="ticket_{{e.ticket.id}}" class="accordion-collapse collapse {% if forloop.first %}show{%endif%} upload-zone" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
