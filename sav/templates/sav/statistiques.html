@@ -16,9 +16,6 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#stat_corre" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-chart-pie"></i><br> Statistiques Symptômes/causes</button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pill-tableau" type="button" role="tab" aria-controls="pills-contact" aria-selected="false"><i class="fas fa-table"></i><br> Extraction base de données</button>
-              </li>
             </ul>
         </div>
         <div class="tab-content" id="pills-tabContent">
@@ -63,38 +60,35 @@
                 <div id="sunburst">{{sunburst|safe}}</div>
             </div>
             <div class="tab-pane fade" id="stat_corre" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <h1 class="m-3">Statistiques Symptômes/causes en fonction de l'année de fabrication</h1>
-                <form id="formVisualiser" method="POST">{% csrf_token %}
-                    <div class="input-group mb-3">
-                      <label class="input-group-text" for="inputGroupSelect05">Période</label>
-                      <input type="number"
-                             id="inputGroupSelect05"
-                             class="form-control"
-                             placeholder="période en jours"
-                             value="30"
-                             min=1
-                             aria-label="Recipient's username"
-                             aria-describedby="button-addon2"
-                            name="periode">
-                        <input type="hidden" name="pbcause">
-                      <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)">Visualiser</button>
-                      <button class="btn btn-outline-secondary" type="submit" id="button-form2-csv" name="download_csv2"><i class="fas fa-cloud-download-alt"></i> CSV</button>
+                <div class="container">
+                    <div class="row">
+                        <h1 class="m-3">Statistiques Symptômes/causes en fonction de l'année de fabrication</h1>
+                        <form id="formVisualiser" method="POST">{% csrf_token %}
+                            {% crispy stattableauform %}
+                            <div class="float-end">
+                            <div class="input-group mb-3">
+                                <input type="hidden" name="pbcause">
+                                <label class="input-group-text" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="hover focus" data-bs-content="Tous les résultats sont multipliés par le nombre total d'installation et divisé par le nombre d'installation monté dans l'année en question" title="Pondéré">Pondéré <input type="checkbox" name="ponder" checked value="True" class="form-check-input m-2">
+                                </label>
+                              <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)"><i class="fas fa-chart-pie"></i> Graphique</button>
+                              <button type="button" id="buttongeneretableau" class="btn btn-outline-secondary" onclick="genetableau(this)"><i class="fas fa-table"></i> Tableau</button>
+                            </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
-                <div id="sunburst2" style="height: 500px;">{{sunburst2|safe}}</div>
-            </div>
-            <div class="tab-pane fade" id="pill-tableau" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <h1 class="m-3">Liste ticket</h1>
-            <form id="formtableau" method="POST">{% csrf_token %}
-                {% crispy stattableauform %}
-                <button type="button" id="buttongeneretableau" class="btn btn-outline-primary" onclick="genetableau(this)">Executer</button>
-            </form>
-            <div id="tableau"></div>
+                    <div class="row">
+                        <div id="sunburst2" style="height: 500px;">{{sunburst2|safe}}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
     function visualiser(t){
         var $t =$(t)
         $t.html('<i class="fas fa-spinner fa-pulse"></i> Visualiser')
@@ -131,18 +125,18 @@
 
 function genetableau(t){
         var $t =$(t)
-        $t.html('<i class="fas fa-spinner fa-pulse"></i> Executer')
+        $t.html('<i class="fas fa-spinner fa-pulse"></i> <i class="fas fa-table"></i> Tableau')
         var form= $t.closest("form");
-        data =  form.serialize()
-        $("#tableau").html()
+        data =  form.serialize() + '&tableau=True'
+        $("#sunburst2").html()
         $.ajax({
         url: window.location.href,
             type:'post',
             data: data,
             dataType: 'html',
             success: function (html) {
-                $("#tableau").html(html).attr("tabindex",-1).focus()
-                $("#buttongeneretableau").html("Visualiser")
+                $("#sunburst2").html(html).attr("tabindex",-1).focus()
+                $("#buttongeneretableau").html('<i class="fas fa-table"></i> Tableau')
             }
     })
     }

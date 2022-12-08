@@ -58,5 +58,7 @@ data-buttons-align="right">
   })
 </script>
 {%else%}
-<h1 class="text-warning">Pas de ticket avec ses critères</h1>
+<div class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle"></i> Pas de donnée disponible avec ses critères de recherche
+</div>
 {%endif%}

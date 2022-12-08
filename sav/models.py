@@ -243,7 +243,6 @@ class installation(models.Model):
             img2 = Image.open("sav/static/sav/schema_elements/Circulateur C6.png")
             background.paste(img2, (69, 417), img2)
 
-
         thumb_io = BytesIO()
         background.save(thumb_io, format='png')
         return base64.b64encode(thumb_io.getvalue()).decode('utf-8')

@@ -13,7 +13,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count, F, When, Value, Case, CharField, Func
+from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
     ExtractWeekDay
 from django.shortcuts import render
@@ -592,26 +592,43 @@ class statistiques(View, SuccessMessageMixin):
         else:
             titre = 'Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
         return titre
-    def chart_repartition_pb_cause_df(self, periode=None):
+
+    def chart_repartition_pb_cause_df(self, ponder=True, periode=None, P=None):
         from django.db.models import CharField
         try:
             if not periode:
                 periode=30
 
-            queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by(
+            if P:
+                queryset =self.filter_ticket(P)
+            else:
+                queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by(
                 'evenement__date')
             when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
             when2 = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
-            when3 = [When(evenement__installation__idsa__icontains=str(v), then=Value(v)) for v in range(2015, datetime.now().year, 1)]
-
+            when3 = [When(evenement__installation__idsa__icontains=str(v), then=Value(v)) for v in range(2014, datetime.now().year+ 1, 1)]
+            nb_install=installation.objects.all().count()
+            from functools import reduce
+            from operator import or_
+            query= reduce(or_, (Q(idsa__icontains=t) for t in range(2015, datetime.now().year, 1)))
+            ponde_before_2015= nb_install/installation.objects.exclude(query).count()
+            when4 = [When(evenement__installation__idsa__icontains=str(v), then=nb_install/installation.objects.filter(idsa__icontains=str(v)).count()) for v in
+                     range(2014, datetime.now().year + 1, 1)]
             queryset = queryset.annotate(
                 annee=Case(*when3,default=Value("2000"), output_field=CharField())).values(
-                'annee').order_by('probleme').annotate(
+                'annee').annotate(
+                ponder=Case(*when4,default=ponde_before_2015, output_field=FloatField())).values('annee',
+                'ponder').order_by('probleme').annotate(
                 pb=Case(*when, output_field=CharField())).values(
-                'pb', 'annee').order_by('cause').annotate(
+                'pb', 'annee','ponder').order_by('cause').annotate(
                 cause=Case(*when2, output_field=CharField())).values(
-                'cause', 'pb', 'annee').annotate(count=Count('id'))
-            df = pd.DataFrame(list(queryset.values('pb', 'cause','count', 'annee')))
+                'cause', 'pb', 'annee', 'ponder')
+            if ponder:
+                queryset=queryset.annotate(count=Count('id')*F('ponder'))
+            else:
+                queryset = queryset.annotate(count=Count('id'))
+
+            df = pd.DataFrame(list(queryset.order_by('annee', 'pb', 'cause').values('pb', 'cause','count', 'annee')))
             df.fillna(value="sans cause", inplace=True)
             return df
         except Exception as ex:
@@ -621,14 +638,12 @@ class statistiques(View, SuccessMessageMixin):
             print(ex)
             return None
 
-    def chart_repartition_pb_cause(self, periode=None):
+    def chart_repartition_pb_cause(self, periode=None, ponder=True, P=None):
         from django.db.models import CharField
         try:
-            df=self.chart_repartition_pb_cause_df(periode=periode)
-            print(df)
+            df=self.chart_repartition_pb_cause_df(periode=periode, ponder=ponder, P=P)
             fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['annee','pb', 'cause'],
-                               values='count',height=400)
-
+                               values='count', height=1000)
             fig2.update_traces(
                 textinfo="label+value+percent parent + percent entry + text"
             )
@@ -689,8 +704,7 @@ class statistiques(View, SuccessMessageMixin):
 
     def chart_repartition_temporel(self, frequence=None, periode=None, field=None, type=None):
         try:
-
-            df=self.chart_repartition_temporel_df(frequence=frequence, periode=periode, field=field, type=type)
+            df = self.chart_repartition_temporel_df(frequence=frequence, periode=periode, field=field, type=type)
             text_auto='s'
             if df.empty:
                 return None
@@ -723,13 +737,12 @@ class statistiques(View, SuccessMessageMixin):
                     if frequence == 'heure':
                         fig1.update_layout(xaxis=dict(
                             tickvals=df['frequence'],
-                            ticktext=[str(i)+ ':00' for i in list(df['frequence'])]
+                            ticktext=[str(i) + ':00' for i in list(df['frequence'])]
                         ))
                     return fig1
-                if type=="sunburst":
-
+                if type == "sunburst":
                     fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['frequence', 'lien'],
-                                       values='count')
+                                       values='count', height=600)
 
                     fig2.update_traces(
                         textinfo="label+value+percent parent + percent entry + text"
@@ -742,6 +755,49 @@ class statistiques(View, SuccessMessageMixin):
             print(ex)
             return None
 
+    def filter_ticket(self, P):
+        tickets = ticket.objects.filter(
+            Q(cause__id__in=P.getlist('cause') if 'cause' in P else []) | \
+            Q(cause=None if "0" in P.getlist('cause') else "0"),
+            evenement__date__gte=datetime.strptime(P['date_start'], "%d-%m-%Y %H:%M"),
+            evenement__date__lte=datetime.strptime(P['date_end'], "%d-%m-%Y %H:%M"),
+            probleme__id__in=P.getlist('probleme') if 'probleme' in P else [])
+        if 'annee' in P:
+            conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
+            for tag in P.getlist('annee'):
+                if tag == 'sans':
+                    conditions |= ~Q(evenement__installation__idsa__icontains='20')
+                else:
+                    conditions |= Q(evenement__installation__idsa__icontains=tag)
+            tickets = tickets.filter(conditions)
+
+        if 'type' in P:
+            conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
+            if 'sans' in P.getlist('type'):
+                conditions |= ~Q(evenement__installation__idsa__icontains='20')
+            if 'Z' in P.getlist('type'):
+                conditions |= Q(evenement__installation__idsa__icontains="Z")
+            if 'H' in P.getlist('type'):
+                conditions |= Q(evenement__installation__idsa__icontains="HYDRO")
+            if 'SC' in P.getlist('type'):
+                conditions |= Q(evenement__installation__idsa__icontains="SC")
+
+            tickets = tickets.filter(conditions)
+
+        if 'detail' in P:
+            conditions = Q(detail__icontains='xxxxxxxx')
+            for tag in P['detail'].replace(' ', '').split(','):
+                conditions |= Q(detail__icontains=tag)
+            tickets = tickets.filter(conditions)
+
+        if 'fichier' in P and P['fichier'] != '':
+            conditions = Q(fichier__titre__icontains='xxxxxxxx')
+            for tag in P['detail'].replace(' ', '').split(','):
+                conditions |= Q(fichier__titre__icontains=tag)
+            tickets = tickets.filter(conditions)
+
+        return tickets
+
     def get(self, request, *args, **kwargs):
 
         stattableauform=Stattableauform()
@@ -751,7 +807,7 @@ class statistiques(View, SuccessMessageMixin):
             self.tickets_chart = opy.plot(fig1, output_type='div')
             fig2 = self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
-            fig3 = self.chart_repartition_pb_cause(periode=30)
+            fig3 = self.chart_repartition_pb_cause(periode=30, ponder=True)
             self.sunburst2=""
             if fig3:
                 self.sunburst2 = opy.plot(fig3, output_type='div')
@@ -781,11 +837,13 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
     def post(self, request, *args, **kwargs):
+
         if "download_csv2" in request.POST:
-            df = self.chart_repartition_pb_cause_df(periode=request.POST['periode'])
+
+            df = self.chart_repartition_pb_cause_df(ponder='ponder' in request.POST, P=request.POST)
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename=Statistiques Symptômes/causes sur ' + request.POST['periode']+ 'jours.csv'
-            df.to_csv(path_or_buf=response)  # with other applicable parameters
+            response['Content-Disposition'] = 'attachment; filename=Statistiques Symptômes/causes.csv'
+            df.to_csv(path_or_buf=response, index=False, encoding="utf-8")  # with other applicable parameters
             return response
 
         if "download_csv" in request.POST:
@@ -798,45 +856,9 @@ class statistiques(View, SuccessMessageMixin):
             df.to_csv(path_or_buf=response)  # with other applicable parameters
             return response
 
-        if "fichier" in request.POST:
-            tickets = ticket.objects.filter(Q(cause__id__in=request.POST.getlist('cause') if 'cause' in request.POST else [])|\
-                                            Q(cause=None),
-                                            evenement__date__gte=datetime.strptime(request.POST['date_start'], "%d-%m-%Y %H:%M"),
-                                            evenement__date__lte=datetime.strptime(request.POST['date_end'], "%d-%m-%Y %H:%M"),
-                                            probleme__id__in= request.POST.getlist('probleme') if 'probleme' in request.POST else [])
-            if 'annee' in request.POST:
-                conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
-                for tag in request.POST.getlist('annee'):
-                    if tag == 'sans':
-                        conditions |= ~Q(evenement__installation__idsa__icontains='20')
-                    else:
-                        conditions |= Q(evenement__installation__idsa__icontains=tag)
-                tickets = tickets.filter(conditions)
+        if "tableau" in request.POST:
 
-            if 'type' in request.POST:
-                conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
-                if 'sans' in request.POST.getlist('type'):
-                    conditions |= ~Q(evenement__installation__idsa__icontains='20')
-                if 'Z' in request.POST.getlist('type'):
-                    conditions |= Q(evenement__installation__idsa__icontains="Z")
-                if 'H' in request.POST.getlist('type'):
-                    conditions |= Q(evenement__installation__idsa__icontains="HYDRO")
-                if 'SC' in request.POST.getlist('type'):
-                    conditions |= Q(evenement__installation__idsa__icontains="SC")
-
-                tickets = tickets.filter(conditions)
-
-            if 'detail' in request.POST:
-                conditions = Q(detail__icontains='xxxxxxxx')
-                for tag in request.POST['detail'].replace(' ', '').split(','):
-                    conditions |= Q(detail__icontains=tag)
-                tickets = tickets.filter(conditions)
-
-            if 'fichier' in request.POST and request.POST['fichier'] != '':
-                conditions = Q(fichier__titre__icontains='xxxxxxxx')
-                for tag in request.POST['detail'].replace(' ', '').split(','):
-                    conditions |= Q(fichier__titre__icontains=tag)
-                tickets = tickets.filter(conditions)
+            tickets = self.filter_ticket(request.POST)
 
             ticket_dict=[t.as_dict() for t in tickets]
 
@@ -848,16 +870,20 @@ class statistiques(View, SuccessMessageMixin):
                       }
                       )
 
+        if "pbcause" in request.POST:
+            fig = self.chart_repartition_pb_cause(ponder='ponder' in request.POST, P=request.POST)
+            if fig:
+                return HttpResponse(opy.plot(fig, output_type='div'))
+            else:
+                return HttpResponse('<div class="alert alert-danger" role="alert"><i class="fas fa-exclamation-triangle"></i>\
+                          Pas de donnée disponible avec ses critères de recherche\
+                        </div>')
 
         if "field" in request.POST:
             fig = self.chart_repartition_temporel(frequence=request.POST['frequence'],
                                                   periode=request.POST['periode'],
                                                   field=request.POST['field'],
                                                   type=request.POST['type'])
-            return HttpResponse(opy.plot(fig, output_type='div'))
-
-        if "pbcause" in request.POST:
-            fig = self.chart_repartition_pb_cause(periode=request.POST['periode'])
             return HttpResponse(opy.plot(fig, output_type='div'))
 
 

@@ -262,9 +262,9 @@ class Stattableauform(forms.Form):
                                          )
 
     cause = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                         choices=tuple([(p.id, str(p))for p in cause.objects.all()]),
+                                         choices=tuple([(p.id, str(p))for p in cause.objects.all()]) + (('0', "sans cause"), ),
                                          required=False,
-                                      initial=[p.id for p in cause.objects.all()]
+                                        initial=[p.id for p in cause.objects.all()] + ["0"]
                                          )
 
     fichier_joint = forms.BooleanField(
@@ -306,11 +306,11 @@ class Stattableauform(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column(
-                    'date_start',
+                    FloatingField('date_start'),
                     css_class='col-6'
                 ),
                 Column(
-                    'date_end',
+                    FloatingField('date_end'),
                     css_class='col-6'
                 )
             ),
