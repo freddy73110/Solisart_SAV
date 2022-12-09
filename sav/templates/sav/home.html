@@ -14,53 +14,68 @@
                     <div class="col-6">
                         <form method="post" enctype="multipart/form-data">{% csrf_token %}
                         <fieldset class="border p-2 h-100">
-
                                 <legend class="float-none w-auto"><b>Recherche par Utilisateur</b></legend>
                                 <div class="input-group mb-3">
-                                  <span class="input-group-text">Téléphone</span>
-                                  <input type="text" class="form-control" name="telephone" id="telephone" aria-label="telephone">
+                                  <div class="form-floating flex-grow-1">
+                                    <input type="text" class="form-control" name="telephone" id="telephone" aria-label="telephone" placeholder="tutu">
+                                    <label for="telephone">Téléphone</label>
+                                  </div>
                                   <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
                                 </div>
                                 <div class="input-group mb-3">
-                                  <span class="input-group-text">Prénom</span>
-                                  <input type="text" class="form-control" name="prenom" id="prenom" aria-label="prenom">
+                                    <div class="form-floating flex-grow-1">
+                                        <input type="text" class="form-control" name="prenom" id="prenom" aria-label="prenom" placeholder="tutu">
+                                        <label for="prenom">Prénom</label>
+                                    </div>
                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 </div>
                                 <div class="input-group mb-3">
-                                  <span class="input-group-text">Nom</span>
-                                  <input type="text" class="form-control" name="nom" id="nom" aria-label="nom">
+                                    <div class="form-floating flex-grow-1">
+                                        <input type="text" class="form-control" name="nom" id="nom" aria-label="nom" placeholder="tutu">
+                                        <label for="nom">Nom</label>
+                                    </div>
                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 </div>
                                 <div class="input-group mb-3">
-                                  <span class="input-group-text">Email</span>
-                                  <input type="text" class="form-control" name="email" id="email" aria-label="email">
+                                    <div class="form-floating flex-grow-1">
+                                        <input type="text" class="form-control" name="email" id="email" aria-label="email" placeholder="tutu">
+                                        <label for="email">Email</label>
+                                    </div>
                                     <span class="input-group-text"><i class="fas fa-at"></i></span>
                                 </div>
-                            </form>
+
                         </fieldset>
+                        </form>
                     </div>
                     <div class="col-6">
-                        <form method="post" enctype="multipart/form-data">{% csrf_token %}
-                        <fieldset class="border p-2 h-100">
+                        <div class="row">
+                            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                                <fieldset class="border p-2 h-100">
+                                        <legend class="float-none w-auto"><b>Recherche par Installation</b></legend>
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                                <input type="text" class="form-control" name="id_instal" id="id_instal" aria-label="Nom client" placeholder="tutu">
+                                                <label for="id_instal">Module</label>
+                                            </div>
+                                          <span class="input-group-text"><i class="fas fa-box"></i></span>
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                                <input type="text" class="form-control" name="code_postale_install" id="id_code_postale_install" aria-label="Nom client" placeholder="tutu">
+                                                <label for="id_code_postale_install">Code postale</label>
+                                            </div>
+                                          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                          <input type="text" class="form-control" name="ville_install" id="id_ville_install" aria-label="Nom client" placeholder="tutu">
+                                                <label for="id_ville_install">Ville</label>
+                                            </div>
+                                          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        </div>
 
-                                <legend class="float-none w-auto"><b>Recherche par Installation</b></legend>
-                                <div class="input-group mb-3">
-                                  <span class="input-group-text">Module</span>
-                                  <input type="text" class="form-control" name="id_instal" id="id_instal" aria-label="Nom client">
-                                  <span class="input-group-text"><i class="fas fa-box"></i></span>
-                                </div>
-                                <div class="input-group mb-3">
-                                  <span class="input-group-text">Code postale</span>
-                                  <input type="text" class="form-control" name="code_postale_install" id="id_code_postale_install" aria-label="Nom client">
-                                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                </div>
-                                <div class="input-group mb-3">
-                                  <span class="input-group-text">Ville</span>
-                                  <input type="text" class="form-control" name="ville_install" id="id_ville_install" aria-label="Nom client">
-                                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                </div>
+                                </fieldset>
                             </form>
-                        </fieldset>
                     </div>
                 </div>
             </form>

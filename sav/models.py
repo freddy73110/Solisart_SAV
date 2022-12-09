@@ -172,6 +172,9 @@ class installation(models.Model):
     def __str__(self):
         return self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
 
+    def MES_count(self):
+        return MES.objects.filter(evenement__installation=self).distinct().count()
+
     def ticket_count(self):
         return ticket.objects.filter(evenement__installation=self).distinct().count()
 
@@ -361,6 +364,12 @@ class evenement(models.Model):
         except:
             return None
 
+    def MES(self):
+        try:
+            return MES.objects.get(evenement=self)
+        except:
+            return None
+
     def icon(self):
         if self.forme == 0:
             return '<i class="fas fa-phone-alt"></i>'
@@ -374,6 +383,26 @@ class evenement(models.Model):
 
     def __str__(self):
         return str(self.date) + ' ' + str(self.installation)
+
+class MES(models.Model):
+    evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)
+    detail = models.TextField(verbose_name="Détail", null=True, blank=True)
+    fichier = models.ManyToManyField('Fichiers', verbose_name="Fichiers", null=True, blank=True)
+
+    def icon_technicien_sav(self):
+        try:
+
+            initial=(self.evenement.technicien_sav.first_name[0] + self.evenement.technicien_sav.last_name[0]).upper()
+        except:
+            initial = 'Inconnu'
+
+        html='<div class="fa-2x">\
+                              <span class="fa-layers fa-fw">\
+                                  <i class="fas fa-user-md"></i>\
+                                  <span class="fa-layers-text badge rounded-pill bg-danger" data-fa-transform="shrink-10 up-10 right-12 grow-2" style="{background:Tomato}">'+initial+'</span>\
+                                </span>\
+                              </div>'
+        return html
 
 class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)

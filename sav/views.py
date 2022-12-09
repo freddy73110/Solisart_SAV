@@ -189,7 +189,6 @@ class updateDB (View):
                 'Ã¨': 'è',
                 'Ã«':'ë',
                 'Ã§':'ç',
-                'Ã§':'ï',
                 'Ã´':'ô',
                 'Ã ':'à',
                 'Ã¢':'â',
@@ -208,11 +207,14 @@ class updateDB (View):
                 for index, row in df.iterrows():
                     try:
                         user, created = User.objects.get_or_create(
-                            first_name=row['prenom'],
-                            last_name=row['nom'],
-                            email=row["email"]
+                            username = row["id"]
                         )
-                        user.username= row["id"]
+                        user.first_name = row['prenom'],
+                        user.last_name = row['nom'],
+                        user.email = row["email"]
+                        #Comprend pas cette ligne mais çà marche
+                        user.first_name = user.first_name[0]
+                        user.last_name = user.last_name[0]
                         user.save()
                         profil = profil_user.objects.get(user=user)
                         profil.idsa = row['id']
@@ -901,6 +903,7 @@ class installation_view (View):
         self.attribut_val = attribut_valeur.objects.filter(installation=self.instal)
         self.liste_evenements=evenement.objects.filter(installation=self.instal).order_by('-date')
         self.add_ticket_form = ticket_form(installation=self.instal)
+        self.add_MES_form = MES_form()
         self.add_evenement = add_evenement_form(user=request.user, installation=self.instal)
         self.add_problem = add_problem_form()
         self.form_class=installation_form(instance=self.instal)
@@ -920,6 +923,7 @@ class installation_view (View):
                           'histo': self.histo,
                           'add_evenement': self.add_evenement,
                           'add_ticket_form': self.add_ticket_form,
+                          'add_MES_form': self.add_MES_form,
                           'add_problem_form': self.add_problem,
                           'form': self.form_class,
                           'acces': self.acces
@@ -939,6 +943,18 @@ class installation_view (View):
                 data = {'is_valid': False}
             return JsonResponse(data, safe=False)
 
+        elif "file_MES" in request.POST:
+            form = FilesForm(request.POST, request.FILES)
+            if form.is_valid():
+                files = form.save()
+                mes = MES.objects.get(pk=int(request.POST["file_MES"]))
+                mes.fichier.add(files)
+                data = {'is_valid': True, 'name': files.fichier.name, 'url': files.fichier.url, 'file_id': files.id,
+                        'size': files.fichier.size}
+            else:
+                data = {'is_valid': False}
+            return JsonResponse(data, safe=False)
+
         elif "GPS_id" in request.POST:
             a = attribut_valeur.objects.get(pk=request.POST['GPS_id'])
             a.valeur = request.POST['CoordonneeGPS']
@@ -947,12 +963,20 @@ class installation_view (View):
             return JsonResponse(data, safe=False)
 
         elif "details" in request.POST:
-            t= ticket.objects.get(pk=int(str(request.POST['id']).replace('ta_ticket_', '')))
-            t.detail=request.POST['details']
-            t.save()
-            return JsonResponse({
-                "detail": "ok"
-            }, safe=False)
+            if "ta_ticket" in str(request.POST['id']):
+                t= ticket.objects.get(pk=int(str(request.POST['id']).replace('ta_ticket_', '')))
+                t.detail=request.POST['details']
+                t.save()
+                return JsonResponse({
+                    "detail": "ok"
+                }, safe=False)
+            elif "ta_MES" in str(request.POST['id']):
+                m= MES.objects.get(pk=int(str(request.POST['id']).replace('ta_MES_', '')))
+                m.detail=request.POST['details']
+                m.save()
+                return JsonResponse({
+                    "detail": "ok"
+                }, safe=False)
 
         elif "submit" in request.POST:
             self.form_class=installation_form(request.POST, request.FILES, instance=self.instal)
@@ -960,6 +984,7 @@ class installation_view (View):
                 self.form_class.save()
                 return HttpResponseRedirect(reverse('sav:installation', kwargs={'pk':int(self.instal.id)}))
 
+        #n'est plus proposé hidden
         elif request.POST['nature_form'] == "add_problem":
             pb, created = probleme.objects.get_or_create(
                 categorie=request.POST['categorie'],
@@ -1004,6 +1029,30 @@ class installation_view (View):
                 tick.save()
                 return JsonResponse({
                     "ticket": "ok"
+                }, safe=False)
+            else:
+                return JsonResponse({
+                    "ticket": "nok",
+                    'error':self.add_ticket_form.errors
+                }, safe=False)
+
+        elif request.POST['nature_form'] == "MES":
+
+            self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
+            if self.add_evenement.is_valid():
+                even = self.add_evenement.save()
+                self.add_MES_form = MES_form(request.POST)
+            else:
+                return JsonResponse({
+                    "mes": "nok",
+                    'error':self.add_evenement.errors
+                }, safe=False)
+            if self.add_MES_form.is_valid():
+                tick = self.add_MES_form.save(commit=False)
+                tick.evenement=even
+                tick.save()
+                return JsonResponse({
+                    "mes": "ok"
                 }, safe=False)
             else:
                 return JsonResponse({

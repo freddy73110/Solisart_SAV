@@ -73,6 +73,26 @@ class FilesForm(ModelForm):
         model = Fichiers
         fields = ('fichier', )
 
+class MES_form(ModelForm):
+
+    id=IntegerField(required=False)
+
+    class Meta:
+        model = MES
+        exclude = ("fichier",)
+
+    def __init__(self, *args, **kwargs):
+        super(MES_form, self).__init__(*args, **kwargs)
+        self.fields['evenement'].widget = HiddenInput()
+        self.fields['id'].widget = HiddenInput()
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            "id",
+            FloatingField("evenement"),
+            FloatingField("detail", style='height: 100px', row="5")
+        )
+
 class ticket_form(ModelForm):
 
     id=IntegerField(required=False)
