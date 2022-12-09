@@ -903,7 +903,7 @@ class installation_view (View):
         self.attribut_val = attribut_valeur.objects.filter(installation=self.instal)
         self.liste_evenements=evenement.objects.filter(installation=self.instal).order_by('-date')
         self.add_ticket_form = ticket_form(installation=self.instal)
-        self.add_MES_form = MES_form()
+        self.add_MES_form = MES_form(prefix="MES")
         self.add_evenement = add_evenement_form(user=request.user, installation=self.instal)
         self.add_problem = add_problem_form()
         self.form_class=installation_form(instance=self.instal)
@@ -931,6 +931,8 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+
+        print(request.POST)
         if "file_ticket" in request.POST:
             form = FilesForm(request.POST, request.FILES)
             if form.is_valid():
@@ -963,6 +965,7 @@ class installation_view (View):
             return JsonResponse(data, safe=False)
 
         elif "details" in request.POST:
+
             if "ta_ticket" in str(request.POST['id']):
                 t= ticket.objects.get(pk=int(str(request.POST['id']).replace('ta_ticket_', '')))
                 t.detail=request.POST['details']
@@ -972,7 +975,7 @@ class installation_view (View):
                 }, safe=False)
             elif "ta_MES" in str(request.POST['id']):
                 m= MES.objects.get(pk=int(str(request.POST['id']).replace('ta_MES_', '')))
-                m.detail=request.POST['details']
+                m.detail = request.POST['details']
                 m.save()
                 return JsonResponse({
                     "detail": "ok"
@@ -1013,7 +1016,7 @@ class installation_view (View):
             }, safe=False)
 
         elif request.POST['nature_form'] == "ticket":
-
+            print(request.POST, request.POST['detail'])
             self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
             if self.add_evenement.is_valid():
                 even = self.add_evenement.save()
@@ -1026,6 +1029,7 @@ class installation_view (View):
             if self.add_ticket_form.is_valid():
                 tick = self.add_ticket_form.save(commit=False)
                 tick.evenement=even
+                tick.detail=request.POST['detail']
                 tick.save()
                 return JsonResponse({
                     "ticket": "ok"
@@ -1041,7 +1045,7 @@ class installation_view (View):
             self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
             if self.add_evenement.is_valid():
                 even = self.add_evenement.save()
-                self.add_MES_form = MES_form(request.POST)
+                self.add_MES_form = MES_form(request.POST,prefix="MES")
             else:
                 return JsonResponse({
                     "mes": "nok",
