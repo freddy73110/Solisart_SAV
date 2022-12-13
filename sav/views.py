@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import datetime
+import io
 import json
 import os
 import sys
 import time
 from datetime import timedelta
 from email.mime.image import MIMEImage
+from io import StringIO
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -931,8 +933,34 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
-
         print(request.POST)
+
+        if "rotation" in request.POST:
+            img=Fichiers.objects.get(pk=int(request.POST["id"]))
+            original_photo = io.BytesIO(img.fichier.read())
+            rotated_photo = io.BytesIO()
+
+            image = Image.open(original_photo)
+            image = image.rotate(int(request.POST["angle"]), expand=1)
+            if img.extension().replace(".", '') == 'png':
+                extention="PNG"
+            else:
+                extention="JPEG"
+            image.save(rotated_photo, extention)
+            img.fichier.save(img.fichier.name, ContentFile(rotated_photo.getvalue()))
+            img.save()
+            data={'rotation': 'ok'}
+            return JsonResponse(data, safe=False)
+
+        if "ticket_id" in request.POST or "MES_id" in request.POST:
+            if "ticket_id" in request.POST:
+                tic = ticket.objects.get(pk=int(request.POST["ticket_id"]))
+            else:
+                tic = MES.objects.get(pk=int(request.POST["MES_id"]))
+            return render(request, "widgets/carouselImage.html",
+                          {'tic': tic,
+                           'photo_id': int(request.POST["photoid"])})
+
         if "file_ticket" in request.POST:
             form = FilesForm(request.POST, request.FILES)
             if form.is_valid():

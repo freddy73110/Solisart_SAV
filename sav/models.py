@@ -27,8 +27,12 @@ def validate_file_extension_pdf(value):
 
 class Fichiers(models.Model):
     titre = models.CharField(max_length=255, blank=True)
-    fichier = models.FileField(upload_to='files/')
+    fichier = models.FileField(upload_to='files/',max_length=300)
     telecharge_a = models.DateTimeField(auto_now_add=True)
+
+    def extension(self):
+        name, extension = os.path.splitext(self.fichier.name)
+        return extension
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.titre:

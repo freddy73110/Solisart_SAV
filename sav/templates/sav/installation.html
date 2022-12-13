@@ -217,14 +217,22 @@ loadingTask.promise.then(function(pdf) {
                           data-bs-toggle="modal"
                           data-bs-target="#ModalEvenement"
                           data-bs-whatever="ticket"
-                          onclick="initticketform(this)"  ><i class="fas fa-tag"></i> Ajouter un ticket</button>
+                          onclick="initticketform(this)"  ><i class="fas fa-tag"></i> Ajouter un ticket
+                  </button>
                   <button type="button"
                           class="btn btn-outline-primary"
                           data-bs-toggle="modal"
                           data-bs-target="#ModalEvenement"
                           data-bs-whatever="MES"
-                          onclick="initMESform(this)" ><i class="fas fa-rocket"></i> Ajouter une MES</button>
-                  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="Production"><i class="fas fa-truck-loading"></i> Sortie de production</button>
+                          ><i class="fas fa-rocket"></i> Ajouter une MES
+                  </button>
+                  <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#ModalEvenement"
+                          data-bs-whatever="Production"><i class="fas fa-truck-loading"></i> Sortie de production
+                  </button>
 
                     <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
                       <div class="modal-dialog modal-lg">
@@ -237,54 +245,62 @@ loadingTask.promise.then(function(pdf) {
                           <div class="modal-body">
                               <input type="hidden" value="" name="nature_form">
                               <div id="update_ticket">
-                              <div class="mb-3" id="add_evenement_modal">
-                                {% crispy add_evenement %}
-                              </div>
-                                <div id="ticket_modal" name="modal_form">
-                                {% crispy add_ticket_form %}
-                                </div>
+                                  <div class="mb-3" id="add_evenement_modal">
+                                    {% crispy add_evenement %}
+                                  </div>
+                                    <div id="ticket_modal" name="modal_form">
+                                    {% crispy add_ticket_form %}
+                                    </div>
                               </div>
                                 <div id="MES_modal" name="modal_form">
                                     {%crispy add_MES_form %}
                                 </div>
                                 <div id="production_modal" name="modal_form">
                                 </div>
-                                <div id="add_problem_modal" name="modal_form" class="d-none">
-                                    {% crispy add_problem_form %}
-                                </div>
+                                <div id="photos" ></div>
+<!--                                <div id="add_problem_modal" name="modal_form" class="d-none">-->
+<!--                                    {% crispy add_problem_form %}-->
+<!--                                </div>-->
                               <div id="delete_file_modal">
                                 <input type="hidden" id="delete_file_input" name="delete_file_input">
                               </div>
                               <div id="rename_file_modal">
                                 <input type="hidden" id="rename_file_input" name="rename_file_input">
                                 <div class="input-group mb-3">
-                                  <span class="input-group-text" id="basic-addon1">Nouveau nom du fichier</span>
-                                  <input type="text"
+                                    <div class="form-floating flex-grow-1">
+                                        <input type="text"
                                          class="form-control"
                                          name='new_name'
                                          id="new_name"
                                          placeholder="Nouveau nom du fichier"
                                          aria-label="Username"
                                          aria-describedby="basic-addon1">
+                                        <label for="new_name">Nouveau nom du fichier</label>
+                                    </div>
+
                                 </div>
                               </div>
                                 <script>
                                     $("button[data-bs-target='#ModalEvenement']").on("click", function(){
+                                        $(".modal-body").find("div").hide()
                                         $("#add_evenement_modal").show()
+                                        $("#add_evenement_modal").find('div').show()
                                         $("[name='sous_categorie']").val("")
                                         $("#ModalEvenementLabel").html($(this).text())
-                                        $("div[name='modal_form']").hide()
-                                        $("#rename_file_modal").hide()
                                         $("#enregister").html('Enregister')
                                         if($(this).attr('data-bs-whatever') == 'ticket'){
                                             $("input[name='nature_form']").val('ticket')
-                                            $("#ticket_modal").show()
+                                            $("#ticket_modal").show("show")
+                                            $("#ticket_modal").find('div').show("show")
                                         }else if($(this).attr('data-bs-whatever') == 'MES'){
+                                            console.log("in MES")
                                             $("input[name='nature_form']").val('MES')
-                                            $("#MES_modal").show()
+                                            $("#MES_modal").show("show")
+                                            $("#update_ticket").show("show")
+                                            $("#MES_modal").find('div').show("show")
                                         }else if($(this).attr('data-bs-whatever') == 'Production'){
                                             $("input[name='nature_form']").val('Production')
-                                            $("#production_modal").show()
+                                            $("#production_modal").show("show")
                                         }
                                     })
                                     function add_Problem(){
@@ -393,6 +409,21 @@ loadingTask.promise.then(function(pdf) {
                                   {%if e.ticket.fichier.all.count %}
                                   <div class="col-4">
                                       {%for f in e.ticket.fichier.all%}
+                                        {%if '.jpeg' in f.fichier.name or '.png' in f.fichier.name  or 'jpg' in f.fichier.name %}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.ticket.id}}, {{f.id}}, 'ticket')">{{f.icon|safe}} {{f.titre}}</a> (<i
+                                              class="far fa-trash-alt deletefile"
+                                              id="deletefile_{{f.id}}"
+                                              onclick="deletefile(this)"
+                                              file_name="{{f.titre}}"
+                                            data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
+                                              class="fas fa-pen renamefile"
+                                              id="renamefile_{{f.id}}"
+                                              onclick="renamefile(this)"
+                                              file_name="{{f.titre}}"
+                                              data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
+                                      ></i>)
+                                          {% if not forloop.last %}<br>{%endif%}
+                                        {% else %}
                                       <a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a> (<i
                                           class="far fa-trash-alt deletefile"
                                           id="deletefile_{{f.id}}"
@@ -406,6 +437,8 @@ loadingTask.promise.then(function(pdf) {
                                           data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
                                   ></i>)
                                       {% if not forloop.last %}<br>{%endif%}
+
+                                      {% endif %}
                                       {%endfor%}
                                   </div>
                                   {%endif%}
@@ -442,19 +475,36 @@ loadingTask.promise.then(function(pdf) {
                                   {%if e.MES.fichier.all.count %}
                                   <div class="col-4">
                                       {%for f in e.MES.fichier.all%}
+                                      {%if '.jpeg' in f.fichier.name or '.png' in f.fichier.name  or 'jpg' in f.fichier.name %}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.MES.id}}, {{f.id}}, 'MES')">{{f.icon|safe}} {{f.titre}}</a> (<i
+                                              class="far fa-trash-alt deletefile"
+                                              id="deletefile_{{f.id}}"
+                                              onclick="deletefile(this)"
+                                              file_name="{{f.titre}}"
+                                            data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
+                                              class="fas fa-pen renamefile"
+                                              id="renamefile_{{f.id}}"
+                                              onclick="renamefile(this)"
+                                              file_name="{{f.titre}}"
+                                              data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
+                                      ></i>)
+                                          {% if not forloop.last %}<br>{%endif%}
+                                        {% else %}
                                       <a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a> (<i
                                           class="far fa-trash-alt deletefile"
                                           id="deletefile_{{f.id}}"
                                           onclick="deletefile(this)"
                                           file_name="{{f.titre}}"
-                                        data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="MES"></i> - <i
+                                        data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
                                           class="fas fa-pen renamefile"
                                           id="renamefile_{{f.id}}"
                                           onclick="renamefile(this)"
                                           file_name="{{f.titre}}"
-                                          data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="MES"
+                                          data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
                                   ></i>)
                                       {% if not forloop.last %}<br>{%endif%}
+
+                                      {% endif %}
                                       {%endfor%}
                                   </div>
                                   {%endif%}
@@ -528,35 +578,36 @@ function initticketform(me){
             data: {'nature_form': 'update_ticket_init', 'id':0},
             dataType: 'html',
             success: function (html) {
+                $(".modal-body").find("div").hide()
                 $("#update_ticket").html()
                 $("#update_ticket").html(html)
                 $("input[name='nature_form']").val('ticket')
-                $("#rename_file_modal").hide()
-                $("#add_evenement_modal").show()
+                $("#add_evenement_modal").show("slow")
+                $("#update_ticket").show("slow")
                 $("#ModalEvenementLabel").html('Enregister un ticket')
                 $("#enregister").html('Enregister')
             }
     })
 }
 function deletefile(me){
+    $(".modal-body").find("div").hide()
     $("input[name='nature_form']").val('delete_file')
-    $("#add_evenement_modal").hide()
-    $("#rename_file_modal").hide()
     $("#ModalEvenementLabel").html('Supprimer définitivement le fichier "' + $(me).attr('file_name') + '"')
     $("#delete_file_input").val($(me)[0].id)
     $("div[name='modal_form']").hide()
-    $("#delete_file_modal").show()
+    $("#delete_file_modal").show("slow" )
     $("#enregister").html('Supprimer')
+    console.log("show")
 }
 function renamefile(me){
+    console.log(me, $(this))
+    $(".modal-body").find("div").hide()
     $("input[name='nature_form']").val('rename_file')
-    $("#add_evenement_modal").hide()
-    $("#delete_file_modal").hide()
     $("#ModalEvenementLabel").html('Renommer le fichier "' + $(me).attr('file_name')+'"')
     $("#rename_file_input").val($(me)[0].id)
     $("#new_name").val($(me).attr('file_name'))
-    $("div[name='modal_form']").hide()
-    $("#rename_file_modal").show()
+    $("#rename_file_modal").show("slow")
+    $("#rename_file_modal").find('div').show("slow")
     $("#enregister").html('Renommer')
 }
 function updateTicket(id){
@@ -566,12 +617,13 @@ function updateTicket(id){
             data: {'nature_form': 'update_ticket_init', 'id':id},
             dataType: 'html',
             success: function (html) {
+            $(".modal-body").find("div").hide()
             $("#update_ticket").html()
             //todo faire un message de validation
                 $("#update_ticket").html(html)
                 $("input[name='nature_form']").val('update-ticket')
-                $("#rename_file_modal").hide()
-                $("#add_evenement_modal").show()
+                $("#add_evenement_modal").show("slow" )
+                $("#update_ticket").show("slow" )
                 $("#ModalEvenementLabel").html('Mettre à jour le ticket')
                 $("#enregister").html('Mettre à jour')
             }
@@ -674,6 +726,25 @@ function growall(){
 }
 </script>
 <script>
+function ShowModalImage(id, photo_id, type){
+    var data = type + "_id=" + id + "&photoid=" + photo_id
+    $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: data,
+            dataType: 'html',
+            success: function (html) {
+            //todo faire un message de validation
+                $(".modal-body").find("div").hide()
+                $("#ModalEvenementLabel").html("<h2>Photos</h2>")
+                $("#photos").html(html)
+                $("#photos").show("show")
+
+            }
+    })
+
+}
+
 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)

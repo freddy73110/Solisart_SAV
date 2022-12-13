@@ -1,0 +1,66 @@
+
+
+<div id="carouselExampleControls" class="carousel slide carousel-dark" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for t in tic.fichier.all %}
+              {% if '.jpeg' in t.fichier.name or '.png' in t.fichier.name or 'jpg' in t.fichier.name %}
+            <div class="carousel-item {%if photo_id == t.id %}active {%endif%}">
+              <img src="{{t.fichier.url}}" class="rounded img-fluid mx-auto d-block img-responsive" alt="{{t.titre}}" style="max-height: 500px;">
+              <div class="input-group mb-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="rotation({{t.id}},90)"><i class="fas fa-undo-alt"></i></button>
+                <div class="form-floating flex-grow-1">
+                  <input class="form-control" type="text" value="{{t.titre}}" disabled>
+                  <label class="form-label">Changer le nom de fichier</label>
+                </div>
+                  <button type="button" class="btn btn-outline-secondary">
+                    <a href="{{t.fichier.url}}" class="text-secondary" download><i class="fas fa-cloud-download-alt"></i>
+                </a>
+                </button>
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-toggle="modal"
+                        id="renamefile_{{t.id}}"
+                        onclick="renamefile(this)"
+                        file_name="{{t.titre}}"
+                         data-bs-whatever="ticket"
+                ><i class="fas fa-pen"></i></button>
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        onclick="rotation({{t.id}},-90)"
+                ><i class="fas fa-redo-alt"></i></button>
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        onclick="deletefile(this)"
+                        file_name="{{t.titre}}"
+                        id="deletefile_{{t.id}}"
+                         data-bs-whatever="ticket"
+                ><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+              {% endif %}
+            {% endfor%}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+<script>
+function rotation(id, angle){
+    $.ajax({
+                                        url: window.location.href,
+                                        data: {"rotation":"","id": id, "angle": angle},
+                                        dataType: 'json',
+                                        type: 'Post',
+                                        success: function (data) {
+                                            console.log(data)
+                                        }
+                            })
+
+
+}
+</script>
