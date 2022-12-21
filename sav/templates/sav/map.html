@@ -38,19 +38,11 @@
             <div id="map" style="height: 800px"></div>
         </div>
         <div class="col-3">
-            <li style="color:blue">Sébastien Nonglaton 06 04 59 51 47</li>
-            <li style="color:gray">Eric Delangre 06 62 46 52 13</li>
-            <li style="color:green">Hervé Durand 06 35 55 10 95</li>
-            <li style="color:red">Valentin Le Corre 06 61 81 07 01 (208)</li>
-            <li style="color:orange">Maxime Maisonneuve 07 60 61 83 70 (211)</li>
-            <li style="color:pink">Vistor Péré 07 62 67 38 13(205)</li>
-            <li style="color:yellow">Franck Foissey 06 82 89 69 18</li>
-            <li style="color:cyan">Yvan Peneau 07 88 37 32 68</li>
-            <li style="color:purple">Claude Clavareau 06 12 64 20 72</li>
+            <ul id="list_profil"></ul>
         </div>
     </div>
 </div>
-
+{{ profils|json_script:'profils' }}
 <script>
 
 const fontAwesomeIcon = L.divIcon({
@@ -116,27 +108,19 @@ async function load() {
         }
         let url = '{% static "sav/geojson/geojsonFrance.json" %}';
         let geojsonFrance = await (await fetch(url)).json();
+        color=["blue", "gray", "green", "red", "orange", "pink", "cyan", "red", "orange"]
+        const profils = JSON.parse(document.getElementById('profils').textContent);
+        $.each(JSON.parse(profils), function(k, v){
+            $("#list_profil").append('<li style="color:' + v.color + '">'+v.user+ ' '+ v.telephone1 + '</li>')
+        })
         $.each( geojsonFrance.features, function( key, value ) {
-          if(["73", "74", "01"].includes(value.properties.code)){
-            ajoutDepartement(value, "blue")
-          }else if(["95", "78", "91", "92", "75", "94", "93", "77", "50", "14", "61", "76", "27", "62", "80", "60", "59", "02", "28", "60"].includes(value.properties.code)){
-            ajoutDepartement(value, "gray")
-          }else if(["87", "23", "19", "03", "63", "15", "48", "43", "42"].includes(value.properties.code)){
-            ajoutDepartement(value, "green")
-          }else if(["41", "45", "36", "18", "08", "51", "10", "55", "52", "57", "54", "88", "67", "68", "90", "07", "30", "84", "13", "04", "83", "06", "2B", "2A"].includes(value.properties.code)){
-            ajoutDepartement(value, "red")
-          }else if(["69", "38", "26", "05"].includes(value.properties.code)){
-            ajoutDepartement(value, "orange")
-          }else if(["17", "16", "33", "24", "40", "47", "46", "64", "32", "82", "12", "31", "81", "09", "11", "34", "66", "65"].includes(value.properties.code)){
-             ajoutDepartement(value, "pink")
-          }else if(["29", "22", "56", "35", "53", "72", "44", "49", "37", "85", "79", "86"].includes(value.properties.code)){
-            ajoutDepartement(value, "cyan")
-          }else if(["41", "45", "36", "18", "08", "51", "10", "55", "52", "57", "54", "88", "67", "68", "90", "07", "30", "84", "13", "04", "83", "06"].includes(value.properties.code)){
-            ajoutDepartement(value, "red")
-          }else if(["89", "58", "21", "71", "70", "25", "39"].includes(value.properties.code)){
-            ajoutDepartement(value, "orange")
-          }
+          $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes(value.properties.code)){
+                ajoutDepartement(value, v.color)
+            }
+          })
         });
+
         let url2 = '{% static "sav/geojson/geojsonbelgique.json" %}';
         let geojsonBelgique = await (await fetch(url2)).json();
             ajoutDepartement(geojsonBelgique, "purple")

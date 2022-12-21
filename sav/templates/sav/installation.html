@@ -408,6 +408,7 @@ loadingTask.promise.then(function(pdf) {
                                   </div>
                                   {%if e.ticket.fichier.all.count %}
                                   <div class="col-4">
+                                        <button type="button" class="btn btn-outline-primary" onclick="alldownload({{e.ticket.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
                                       {%for f in e.ticket.fichier.all%}
                                         {%if '.jpeg' in f.fichier.name or '.png' in f.fichier.name  or 'jpg' in f.fichier.name %}
                                                 <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.ticket.id}}, {{f.id}}, 'ticket')">{{f.icon|safe}} {{f.titre}}</a> (<i
@@ -726,6 +727,26 @@ function growall(){
 }
 </script>
 <script>
+function alldownload(ticket_id){
+    var data = "ticket_id=" + ticket_id + "&alldownload=all"
+    $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: data,
+            xhrFields:{
+                responseType: 'blob'
+            },
+            success: function (response) {
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(response)
+                    link.download = 'Ticket.zip';
+                    document.body.appendChild(link);
+                    link.click();
+            }
+
+    })
+}
+
 function ShowModalImage(id, photo_id, type){
     var data = type + "_id=" + id + "&photoid=" + photo_id
     $.ajax({

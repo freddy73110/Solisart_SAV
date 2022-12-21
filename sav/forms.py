@@ -240,7 +240,7 @@ class UserForm(ModelForm):
 class ProfilForm(ModelForm):
     class Meta:
         model = profil_user
-        fields = ('telephone1', 'telephone2', 'voie1', 'voie2', 'voie3', 'codepostal', 'commune')
+        fields = ('telephone1', 'telephone2', 'voie1', 'voie2', 'voie3', 'codepostal', 'commune', 'departement', 'color')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -255,7 +255,10 @@ class ProfilForm(ModelForm):
                     FloatingField('voie2'),
                     FloatingField('voie3'),
                     FloatingField('codepostal'),
-                    FloatingField('commune')
+                    FloatingField('commune'),
+                    FloatingField("departement"),
+                    HTML('<label for="exampleColorInput" class="form-label">Couleur sur la carte</label>'\
++'<input type="color" class="form-control form-control-color" id="id_color" name="color" value="{{profil.color}}" title="Choose your color">')
                 )
             )
         )

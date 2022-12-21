@@ -933,7 +933,39 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
+
+        if "alldownload" in request.POST:
+            import zipfile
+            tick = ticket.objects.get(pk=int(request.POST['ticket_id']))
+            filenames = [ str(f.fichier.path) for f in tick.fichier.all()]
+            # Folder name in ZIP archive which contains the above files
+            # E.g [thearchive.zip]/somefiles/file2.txt
+            zip_subdir = str(tick).replace("/", " ")
+            zip_filename = "%s.zip" % zip_subdir
+
+            # Open StringIO to grab in-memory ZIP contents
+            s = BytesIO()
+
+            # The zip compressor
+
+            zf = zipfile.ZipFile(s, "w")
+
+            for fpath in filenames:
+                # Calculate path for file in zip
+                fdir, fname = os.path.split(fpath)
+                zip_path = os.path.join(zip_subdir, fname)
+
+                # Add file, at correct path
+                zf.write(fpath, zip_path)
+
+            # Must close zip for all contents to be written
+            zf.close()
+
+            # Grab ZIP file from in-memory, make response with correct MIME-type
+            resp = HttpResponse(s.getvalue(), content_type='application/zip')
+            # ..and correct content-disposition
+            resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+            return resp
 
         if "rotation" in request.POST:
             img=Fichiers.objects.get(pk=int(request.POST["id"]))
@@ -1044,7 +1076,6 @@ class installation_view (View):
             }, safe=False)
 
         elif request.POST['nature_form'] == "ticket":
-            print(request.POST, request.POST['detail'])
             self.add_evenement = add_evenement_form(request.POST,user=request.user, installation=self.instal)
             if self.add_evenement.is_valid():
                 even = self.add_evenement.save()
@@ -1191,14 +1222,17 @@ class carte (View):
     title = 'Répartition des installations'
 
     def dispatch(self, request, *args, **kwargs):
+
         return super(carte, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-
+        data = profil_user.objects.filter(departement__isnull=False).order_by('user__first_name')
+        dictionaries = [obj.as_dict() for obj in data]
         return render(request,
                       self.template_name,
                           {
                               'title': self.title,
+                              'profils': json.dumps(dictionaries),
                               'install_total':attribut_valeur.objects.filter(attribut_def__description="Coordonnées GPS DD") \
                                                 .exclude(valeur="nan").count()
                           }
@@ -1295,27 +1329,14 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        list_id=[]
-        for u in User.objects.all():
-            uu=User.objects.filter(
-                first_name=u.first_name,
-                last_name=u.last_name,
-                email=u.email
-            )
-            if uu.count() > 1:
-                list_id.append(u)
-                print(uu.values('id','username', 'profil_user__idsa'), max(list(uu.values_list('id', flat=True))))
-                User.objects.get(id=max(list(uu.values_list('id', flat=True)))).delete()
 
+        from bs4 import BeautifulSoup
+        import requests
 
-        print(len(list_id))
-        # from bs4 import BeautifulSoup
-        # import requests
-        #
-        # username = 'freddy.dubouchet@solisart.fr'
-        # password = 'uM(ij9ojEV'
-        # link = 'https://my.solisart.fr/'
-        #
+        username = 'freddy.dubouchet@solisart.fr'
+        password = 'uM(ij9ojEV'
+        link = 'https://my.solisart.fr/'
+
         # with requests.Session() as s:
         #     s.headers[
         #         'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
@@ -1331,44 +1352,49 @@ class bidouille (View):
         #     s.post(link, data=payload)
         #     # as we have laready logged in, the login cookies are stored within the session
         #     # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
-        #     r = s.get('https://my.solisart.fr/admin/?page=installation&id=SC1Z20183905')
+        #     r = s.get('https://my.solisart.fr/admin/?page=installation&id=GODIN')
         #     print(r.status_code)
-        #     print(BeautifulSoup(r.text, 'html.parser').find("div", {"id":"pages-contenu"}))
+        #     print(BeautifulSoup(r.text, 'html.parser').find("img", {"id":"schema-image"}))
         #
         #
         #
-        #     from selenium import webdriver
-        #     from selenium.webdriver.common.by import By
-        #     from selenium.webdriver.support.ui import WebDriverWait
-        #     from selenium.webdriver.support import expected_conditions as EC
-        #     driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
-        #     driver.get(link)
-        #     driver.find_element(By.ID, 'id').send_keys(username)
-        #     driver.find_element(By.ID, 'pass').send_keys(password)
-        #     driver.find_element(By.ID, 'connexion').click()
-        #     time.sleep(10)
-        #     soup = BeautifulSoup(driver.page_source,'html.parser')
-        #     tables = soup.find('table', {'class':'liste'})
-        #     all_td = tables.find_all("tr")
-        #     passed=0
-        #     for row in all_td:
-        #         table_row=[r for r in row.find_all('td')]
-        #         try:
-        #             print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
-        #         except:
-        #             passed+=1
-        #             pass
-        #     print(passed)
-        #     # print(len(all_td))
-        #     driver.get('https://my.solisart.fr/admin/index.php?page=utilisateurs')
-        #     time.sleep(10)
-        #     soup = BeautifulSoup(driver.page_source, 'html.parser')
-        #     tables = soup.find('table', {'class': 'liste'})
-        #     all_td = tables.find_all("tr")
-        #     for row in all_td:
-        #         table_row=[r for r in row.find_all('td')]
-        #         print(table_row[0].text)
-        #     driver.close()
+        if True:
+            from selenium import webdriver
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
+            driver.get(link)
+            driver.find_element(By.ID, 'id').send_keys(username)
+            driver.find_element(By.ID, 'pass').send_keys(password)
+            driver.find_element(By.ID, 'connexion').click()
+            time.sleep(10)
+            soup = BeautifulSoup(driver.page_source,'html.parser')
+            tables = soup.find('table', {'class':'liste'})
+            all_td = tables.find_all("tr")
+            # passed=0
+            # for row in all_td:
+            #     table_row=[r for r in row.find_all('td')]
+            #     try:
+            #         print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
+            #     except:
+            #         passed+=1
+            #         pass
+            # print(passed)
+            # print(len(all_td))
+            driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=GODIN')
+            time.sleep(10)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            radio =driver.find_element(By.ID, 'input-pages-installateur')
+            radio[0].click()
+            # tables = soup.find('table', {'class': 'liste'})
+            # all_td = tables.find_all("tr")
+            # for row in all_td:
+            #     table_row=[r for r in row.find_all('td')]
+            #     print(table_row[0].text)
+            time.sleep(10)
+            print(soup.find('img', {'id':'schema-image'}))
+            driver.close()
 
 
 

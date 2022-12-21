@@ -3,7 +3,7 @@
 <div id="carouselExampleControls" class="carousel slide carousel-dark" data-bs-ride="carousel">
           <div class="carousel-inner">
             {% for t in tic.fichier.all %}
-              {% if '.jpeg' in t.fichier.name or '.png' in t.fichier.name or 'jpg' in t.fichier.name %}
+              {% if '.jpeg' in t.fichier.name|lower or '.png' in t.fichier.name|lower or 'jpg' in t.fichier.name|lower %}
             <div class="carousel-item {%if photo_id == t.id %}active {%endif%}">
               <img src="{{t.fichier.url}}" class="rounded img-fluid mx-auto d-block img-responsive" alt="{{t.titre}}" style="max-height: 500px;">
               <div class="input-group mb-3">

@@ -87,9 +87,20 @@ class profil_user(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     entreprise = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='entreprise')
+    departement = models.JSONField(verbose_name="liste de département", blank=True, null=True, help_text='la liste doit être du format:["XX", "XX", ...]')
+    color = models.CharField(verbose_name="couleur sur la carte", blank=True, null=True, default="#000000", max_length=10)
 
     def __str__(self):
         return str(self.user)
+
+    def as_dict(self):
+        return {
+            "idsa": self.idsa,
+            "user": self.get_full_name(),
+            "telephone1": self.telephone1,
+            "departement": self.departement,
+            "color": self.color
+        }
 
     def get_full_name(self):
         return str(self.user.first_name) + ' ' + str(self.user.last_name)
