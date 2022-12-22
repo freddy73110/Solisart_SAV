@@ -410,7 +410,7 @@ loadingTask.promise.then(function(pdf) {
                                   <div class="col-4">
                                         <button type="button" class="btn btn-outline-primary" onclick="alldownload({{e.ticket.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
                                       {%for f in e.ticket.fichier.all%}
-                                        {%if '.jpeg' in f.fichier.name or '.png' in f.fichier.name  or 'jpg' in f.fichier.name %}
+                                        {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
                                                 <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.ticket.id}}, {{f.id}}, 'ticket')">{{f.icon|safe}} {{f.titre}}</a> (<i
                                               class="far fa-trash-alt deletefile"
                                               id="deletefile_{{f.id}}"
@@ -476,7 +476,7 @@ loadingTask.promise.then(function(pdf) {
                                   {%if e.MES.fichier.all.count %}
                                   <div class="col-4">
                                       {%for f in e.MES.fichier.all%}
-                                      {%if '.jpeg' in f.fichier.name or '.png' in f.fichier.name  or 'jpg' in f.fichier.name %}
+                                      {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
                                                 <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.MES.id}}, {{f.id}}, 'MES')">{{f.icon|safe}} {{f.titre}}</a> (<i
                                               class="far fa-trash-alt deletefile"
                                               id="deletefile_{{f.id}}"

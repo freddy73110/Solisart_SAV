@@ -123,7 +123,11 @@ async function load() {
 
         let url2 = '{% static "sav/geojson/geojsonbelgique.json" %}';
         let geojsonBelgique = await (await fetch(url2)).json();
-            ajoutDepartement(geojsonBelgique, "purple")
+            $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("100")){
+                ajoutDepartement(geojsonBelgique, v.color)
+            }
+          })
 
 }
 

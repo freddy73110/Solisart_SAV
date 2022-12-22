@@ -87,7 +87,7 @@ class profil_user(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     entreprise = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='entreprise')
-    departement = models.JSONField(verbose_name="liste de département", blank=True, null=True, help_text='la liste doit être du format:["XX", "XX", ...]')
+    departement = models.JSONField(verbose_name="liste de département", blank=True, null=True, help_text='la liste doit être du format:["XX", "XX", ...], mettre 100 pour la Belgique')
     color = models.CharField(verbose_name="couleur sur la carte", blank=True, null=True, default="#000000", max_length=10)
 
     def __str__(self):

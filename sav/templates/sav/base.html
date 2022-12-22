@@ -178,7 +178,7 @@ ul.nav li a.active {
                 <i class="far fa-user x-2"></i>
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="#"><b>{{user.first_name}} {{user.last_name}}</b></a></li>
+                <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
                 <li><a class="dropdown-item" href="{% url 'sav:password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                 <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
               </ul>
@@ -230,6 +230,10 @@ ul.nav li a.active {
         $("#modal-progress").find(".modal-body").html("<i class='fas fa-spinner fa-pulse fa-10x text-primary'></i>")
         $("#modal-progress").modal('show')
     })
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
 </script>
 </body>
 </html>

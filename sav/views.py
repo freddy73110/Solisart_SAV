@@ -12,6 +12,7 @@ from io import StringIO
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.files import File
 from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
@@ -796,7 +797,7 @@ class statistiques(View, SuccessMessageMixin):
 
         if 'fichier' in P and P['fichier'] != '':
             conditions = Q(fichier__titre__icontains='xxxxxxxx')
-            for tag in P['detail'].replace(' ', '').split(','):
+            for tag in P['fichier'].replace(' ', '').split(','):
                 conditions |= Q(fichier__titre__icontains=tag)
             tickets = tickets.filter(conditions)
 
@@ -933,6 +934,8 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+
+        print(request.POST)
 
         if "alldownload" in request.POST:
             import zipfile
@@ -1336,28 +1339,7 @@ class bidouille (View):
         username = 'freddy.dubouchet@solisart.fr'
         password = 'uM(ij9ojEV'
         link = 'https://my.solisart.fr/'
-
-        # with requests.Session() as s:
-        #     s.headers[
-        #         'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
-        #     res = s.get(link)
-        #     soup = BeautifulSoup(res.text, 'html.parser')
-        #     payload = {i['name']: i.get('value', '') for i in soup.select('input[name]')}
-        #     # what the above line does is parse the keys and valuse available in the login form
-        #     payload['id'] = username
-        #     payload['pass'] = password
-        #
-        #     print(payload)  # when you print this, you should see the required parameters within payload
-        #
-        #     s.post(link, data=payload)
-        #     # as we have laready logged in, the login cookies are stored within the session
-        #     # in our subsequesnt requests we are reusing the same session we have been using from the very beginning
-        #     r = s.get('https://my.solisart.fr/admin/?page=installation&id=GODIN')
-        #     print(r.status_code)
-        #     print(BeautifulSoup(r.text, 'html.parser').find("img", {"id":"schema-image"}))
-        #
-        #
-        #
+        idsa = "GODIN"
         if True:
             from selenium import webdriver
             from selenium.webdriver.common.by import By
@@ -1368,10 +1350,10 @@ class bidouille (View):
             driver.find_element(By.ID, 'id').send_keys(username)
             driver.find_element(By.ID, 'pass').send_keys(password)
             driver.find_element(By.ID, 'connexion').click()
-            time.sleep(10)
-            soup = BeautifulSoup(driver.page_source,'html.parser')
-            tables = soup.find('table', {'class':'liste'})
-            all_td = tables.find_all("tr")
+            time.sleep(6)
+            # soup = BeautifulSoup(driver.page_source,'html.parser')
+            # tables = soup.find('table', {'class':'liste'})
+            # all_td = tables.find_all("tr")
             # passed=0
             # for row in all_td:
             #     table_row=[r for r in row.find_all('td')]
@@ -1382,24 +1364,37 @@ class bidouille (View):
             #         pass
             # print(passed)
             # print(len(all_td))
-            driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=GODIN')
-            time.sleep(10)
+
+            driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+idsa)
+            time.sleep(8)
+            tt= driver.find_element(By.XPATH, '//label[@for="input-pages-visualisation"]')
+            tt.click()
             soup = BeautifulSoup(driver.page_source, 'html.parser')
-            radio =driver.find_element(By.ID, 'input-pages-installateur')
-            radio[0].click()
-            # tables = soup.find('table', {'class': 'liste'})
-            # all_td = tables.find_all("tr")
-            # for row in all_td:
-            #     table_row=[r for r in row.find_all('td')]
-            #     print(table_row[0].text)
-            time.sleep(10)
-            print(soup.find('img', {'id':'schema-image'}))
+            time.sleep(8)
+            src=soup.find('img', {'id':'schema-image'})['src']
+            driver.get(
+                'https://my.solisart.fr/admin/'+src)
+            #Enregistrement du fichier à la racine
+            driver.save_screenshot("schema.png")
+
+            #Creation Fichiers
+            file=Fichiers.objects.create(
+                titre=idsa+'.png'
+            )
+            # driver.save_screenshot(idsa+'.png')
+            namefile=idsa+'.png'
+
+            image = Image.open("schema.png")
+            # image = Image.open(namefile) #fonctionne avec un fichier exitant
+
+            photo = io.BytesIO()
+            image.save(photo, "png")
+            #Sauvegarde de image
+            file.fichier.save(namefile, ContentFile(photo.getvalue()))
+            #supprimer le fichier à la racine
+            os.remove("schema.png")
+            #Fermer le navigateur firefox
             driver.close()
-
-
-
-
-
 
         return render(request,
                       self.template_name,
