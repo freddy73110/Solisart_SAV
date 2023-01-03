@@ -114,6 +114,9 @@ class home (View):
     title = 'Recherche'
 
     def get(self, request, *args, **kwargs):
+        from .tasks import rapport_ticket
+        rapport_ticket()
+
         return render(request,
                       self.template_name,
                           {
@@ -902,6 +905,10 @@ class installation_view (View):
 
         self.pk = kwargs.pop('pk')
         self.instal = installation.objects.get(pk=self.pk)
+
+        print(str(attribut_valeur.objects.get(installation=self.instal,
+                                    attribut_def__description="Code postal").valeur)[0:2])
+
         self.acces = acces.objects.filter(installation=self.instal).order_by('id').distinct()
         self.attribut_val = attribut_valeur.objects.filter(installation=self.instal)
         self.liste_evenements=evenement.objects.filter(installation=self.instal).order_by('-date')
@@ -934,8 +941,6 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
-
-        print(request.POST)
 
         if "alldownload" in request.POST:
             import zipfile
@@ -1169,6 +1174,8 @@ class utilisateur_view (View):
         self.pk = kwargs.pop('pk')
         self.util = User.objects.get(pk=int(self.pk))
         self.profil=profil_user.objects.get(user=self.util)
+
+
         return super(utilisateur_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -1185,6 +1192,9 @@ class utilisateur_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+        if "ticket_commercial" in request.POST:
+            tickets = self.profil.commercial_ticket(duree = int(request.POST['ticket_commercial']))
+            return JsonResponse([t.as_dict() for t in tickets], safe=False)
         if "modifier_profil" in request.POST:
             form_user = UserForm(request.POST, instance=self.util)
             form_profil = ProfilForm(request.POST, instance=self.profil)
@@ -1215,6 +1225,7 @@ class utilisateur_view (View):
             return JsonResponse(data, safe=False)
         else:
             return JsonResponse({'data':'error'}, safe=False)
+
 
 
 

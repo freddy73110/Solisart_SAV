@@ -1,6 +1,6 @@
 import base64
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 
 from PIL import Image
@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
+from django.db.models.functions import Lower, Substr
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -130,6 +131,19 @@ class profil_user(models.Model):
     def ticket_open_count(self):
         return ticket.objects.filter(utilisateur=self.user).exclude(etat=3).count()
 
+    def commercial_ticket(self, duree=None):
+        if not duree:
+            duree = 15
+        try:
+            tickets = ticket.objects.filter(
+                evenement__date__gte=datetime.today() - timedelta(days=duree),
+                evenement__installation__attribut_valeur__attribut_def__description="Code postal",
+            ).order_by('-evenement__date').annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(
+                num_departement__in=list(self.departement))
+            return tickets
+        except:
+            return None
+
     def geolocalisation(self):
         if self.latitude and self.longitude:
             return [float(str(self.latitude).replace(',', '.')), float(str(self.longitude).replace(',', '.'))]
@@ -185,7 +199,9 @@ class installation(models.Model):
                                            null=True, blank=True)
 
     def __str__(self):
-        return self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
+        text = self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
+        text+= " (" + str(self.departement()) +')' if self.departement() else ''
+        return text
 
     def MES_count(self):
         return MES.objects.filter(evenement__installation=self).distinct().count()
@@ -285,6 +301,13 @@ class installation(models.Model):
             a = attribut_valeur.objects.get(installation=self,
                                             attribut_def__description="Coordonnées GPS DD")
             return a
+        except:
+            return ''
+
+    def departement(self):
+        try:
+            return str(attribut_valeur.objects.get(installation=self,
+                                    attribut_def__description="Code postal").valeur)[0:2]
         except:
             return None
 

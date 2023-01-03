@@ -26,18 +26,14 @@
                         lien vers mySolisArt
             </a>
             <table
-                    data-toolbar="#toolbar"
+                    data-toolbar="#toolbar1"
                     data-toggle="table"
                     data-search="true"
                     data-show-columns="true"
                     data-show-columns-toggle-all="true"
-                    data-show-refresh="false"
                     data-show-fullscreen="true"
-                    data-show-export="true"
                     data-page-list="[10, 25, 50, 100, all]"
-                    data-pagination="true"
-                    data-filter-control="true"
-                    data-show-search-clear-button="true">
+                    data-pagination="true">
                 <thead>
                     <th class="text-center">Installation</th>
                     <th class="text-center">Propriétaire</th>
@@ -78,11 +74,20 @@
                         <span class="badge rounded-pill bg-danger" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets en cours" data-bs-content="Tickets qui restent à régler">
                         {{ util.profil_user.ticket_open_count }}
                         </span>
-
                     </span>
-
                 </button>
               </li>
+                {% if util.profil_user.commercial_ticket.count > 1 %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ticket_commercial-tab" data-bs-toggle="tab" data-bs-target="#ticket_commercial" type="button" role="tab" aria-controls="home" aria-selected="true">Bilan SAV
+                    <span class="m-3">
+                        <span class="badge rounded-pill bg-warning" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets ouverts" id="bagde-ticket_commercial">
+                        {{ util.profil_user.commercial_ticket.count }}
+                        </span>
+                    </span>
+                    </button>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -173,12 +178,81 @@
     </tbody>
 </table>
               </div>
+              <div class="tab-pane fade" id="ticket_commercial" role="tabpanel" aria-labelledby="home-tab">
+                  <div class="row g-3 align-items-center m-3">
+                      <div class="col-auto">
+                        <h2>Bilan SAV sur les derniers </h2>
+                      </div>
+                      <div class="col-auto">
+                          <form>{% csrf_token %}
+                          <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fas fa-stopwatch"></i></span>
+                              <div class="form-floating flex-grow-1">
+                                  <input type="number" class="form-control" name="ticket_commercial" id="id_ticket_commercial" value="15" aria-label="Nom client" placeholder="tutu">
+                                  <label for="id_ticket_commercial">Jours</label>
+                              </div>
+                              <span class="input-group-text">Jours</span>
+                              <button class="btn btn-outline-secondary" type="button" id="button-ticket_commercial" >Visualiser</button>
+                          </div>
+                          </form>
+                      </div>
+                  </div>
+                  <table id="table"
+        data-toggle="table"
+        data = t_json
+        data-search="true"
+        data-show-fullscreen="true"
+        data-show-export="true"
+        data-export-types="['csv']"
+        data-export-data-type="all"
+        data-sortable="true"
+        data-pagination="true"
+        data-page-list="[10, 25, 50, 100, 200, All]"
+        data-filter-control="true"
+  data-show-search-clear-button="true"
+data-sort-table="true"
+data-buttons-align="right">
+
+    <thead>
+        <th class="text-center" data-field="date" data-filter-control="select" data-sortable="true">Date</th>
+        <th class="text-center" data-field="installation_link" data-filter-control="input" data-sortable="true">Installation</th>
+        <th class="text-center" data-field="forme" data-filter-control="input" data-sortable="true">Forme</th>
+        <th class="text-center" data-field="etat" data-filter-control="input" data-sortable="true">Etat</th>
+        <th class="text-center" data-field="installateur_link" data-filter-control="select" data-sortable="true">Utilisateur</th>
+        <th class="text-center" data-field="probleme" data-filter-control="select" data-sortable="true">Problèmes</th>
+        <th class="text-center" data-field="cause" data-filter-control="select" data-sortable="true">Causes</th>
+        <th class="text-center" data-field="detail" data-filter-control="input" data-sortable="true">Details</th>
+        <th class="text-center" data-field="fichier" data-filter-control="input" data-sortable="true">Fichiers</th>
+    </thead>
+
+</table>
+
+              </div>
             </div>
         </div>
     </div>
 </div>
 <script>
-
+var t_json=[]
+$("#button-ticket_commercial").on("click", function(){
+    var form = $(this).closest("form");
+    $.ajax({
+        url: window.location.href,
+        type:'post',
+        data: form.serialize(),
+        dataType: 'html',
+        success: function (data) {
+             t_json= JSON.parse(data)
+             var ticket_commercial_count = t_json.length
+             $("#bagde-ticket_commercial").html(ticket_commercial_count )
+              $('#table').bootstrapTable('load',  t_json )
+                $(function() {
+    $('#table').bootstrapTable()
+  })
+        }
+    })
+})
+$("#button-ticket_commercial").click()
 </script>
 <script>
 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
