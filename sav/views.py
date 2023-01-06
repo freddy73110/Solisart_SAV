@@ -16,7 +16,7 @@ from django.core.files import File
 from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField
+from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, OuterRef
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
     ExtractWeekDay
 from django.shortcuts import render
@@ -698,8 +698,21 @@ class statistiques(View, SuccessMessageMixin):
                     lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
-            df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
-            df.fillna(value="sans cause", inplace=True)
+            if field =="profil_type":
+                when = [When(utilisateur__acces__profil_type=v.id, then=Value(str(v))) for v in profil_type.objects.all()]
+                df = pd.DataFrame(columns=['frequence', 'lien'])
+                for q in queryset:
+                    try:
+                        q.profil=str(profil_type.objects.get(acces__installation=q.evenement.installation, acces__utilisateur=q.utilisateur))
+                    except:
+                        q.profil="sans profil"
+                    df = pd.concat([df, pd.Series({'frequence':str(q.frequence), 'lien':str(q.profil)}).to_frame().T], ignore_index=True)
+
+                df = df.groupby(['frequence', 'lien'])['lien'].size().reset_index(name='count')
+
+            if not 'df' in locals():
+                df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+            df.fillna(value="sans profil", inplace=True)
 
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()

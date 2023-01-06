@@ -144,6 +144,12 @@ class profil_user(models.Model):
         except:
             return None
 
+    def commercial_ticket_open(self, duree=None):
+        if self.commercial_ticket(duree=duree):
+            return self.commercial_ticket(duree=duree).exclude(etat=3)
+        else:
+            return None
+
     def geolocalisation(self):
         if self.latitude and self.longitude:
             return [float(str(self.latitude).replace(',', '.')), float(str(self.longitude).replace(',', '.'))]
