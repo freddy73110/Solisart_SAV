@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models.functions import Lower, Substr
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -511,6 +512,9 @@ class ticket(models.Model):
 
 
     def __str__(self):
+        str=str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
+        if self.cause:
+            str+= " - " + str(self.cause)
         return str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
 
 class donnee(models.Model):
@@ -575,6 +579,66 @@ class historique(models.Model):
             return TE
         else:
             return str(self.donnee) + ' - ' + str(self.valeur)
+
+class etat_document(models.IntegerChoices):
+
+    VALIDE = 0, 'Valide'
+    OBSOLETE = 1, 'Obsolète'
+    AREFONDRE = 2, 'A refondre'
+
+class dossier(models.IntegerChoices):
+
+    INSTALLATION = 0, 'Installation'
+    DEPANNAGE = 1, 'Dépannage'
+    INTERNE = 2, 'Interne'
+    LOGICIEL = 3, 'Logiciel'
+
+class classification(models.Model):
+
+    dossier=models.IntegerField(default=dossier.INSTALLATION, choices=dossier.choices, verbose_name='Dossier')
+    titre=models.CharField(verbose_name='Titre de la procédure', max_length=100)
+
+def group_based_upload_to(instance, filename):
+
+    return "documentation/{}/{}/{}".format(
+        str(instance.classification.dossier),
+        str(instance.classification.sous_dossier),
+        filename
+    )
+
+class documentation(models.Model):
+
+    fichier = models.FileField(upload_to=group_based_upload_to, verbose_name="Fichier", validators=[FileExtensionValidator(allowed_extensions=["doc","docx", "pdf", "mp4", "mpeg", "avi", "wav"])])
+    version = models.CharField(verbose_name="Version du document", max_length=10)
+    date = models.DateField(verbose_name="Date de mise en application")
+    classification = models.ForeignKey(classification, verbose_name="Classification du document", on_delete=models.CASCADE)
+    etat = models.IntegerField(default=etat_document.VALIDE, choices=etat_document.choices, verbose_name='Etat du document')
+    commentaire =models.TextField(verbose_name="Commentaire évolution", max_length=500, null=True, blank=True)
+    a_ameliorer=models.TextField(verbose_name="Point à améliorer", max_length=500, null=True, blank=True)
+
+    def icon(self):
+        name, extension = os.path.splitext(self.fichier.name)
+        if extension == '.pdf':
+            return '<i class="far fa-file-pdf"></i>'
+        if extension == '.doc':
+            return '<i class="far fa-file-word"></i>'
+        if extension == '.zip':
+            return '<i class="far fa-file-archive"></i>'
+        if extension == '.ppt' or extension == '.pptx':
+            return '<i class="far fa-file-powerpoint"></i>'
+        if extension == '.xls' or extension == '.xlsx':
+            return '<i class="far fa-file-excel"></i>'
+        if extension == '.csv':
+            return '<i class="fas fa-file-csv"></i>'
+        if extension == '.jpg' or extension == '.png' or extension == '.PNG' or extension == '.jpeg':
+            return '<i class="far fa-file-image"></i>'
+        if extension == '.deb' or extension == '.exe':
+            return '<i class="far fa-file-code"></i>'
+        if extension =='.mp4' or extension =="mpeg" or extension == "avi" or extension =="wav":
+            return '<i class="far fa-file-video"></i>'
+        return '<span class="fa-layers fa-fw"><i class="far fa-file"></i>'\
+                '<span class="fa-layers-text" data-fa-transform="shrink-11.5 down-2" style="font-weight:600">' +extension.replace('.', '')+'</span>'\
+                '</span>'
 
 
 

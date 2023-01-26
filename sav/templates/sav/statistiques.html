@@ -23,26 +23,30 @@
                 <h1 class="m-3">Statistiques temporelles</h1>
                 <form id="formVisualisertempo" method="post">{% csrf_token %}
                     <div class="input-group mb-3">
-                      <label class="input-group-text" for="inputGroupSelect02">Champs</label>
-                      <select class="form-select" id="inputGroupSelect02" name="field">
-                        <option value="forme">Téléphone/email</option>
-                        <option value="probleme">Problématique</option>
-                        <option value="cause">Cause</option>
-                        <option value="profil_type">Proprio/Installateur</option>
-                      </select>
-                      <label class="input-group-text" for="inputGroupSelect01">Fréquence</label>
-                      <select class="form-select" id="inputGroupSelect01" name="frequence">
-                        <optgroup label="Répartition">
-                            <option value="heure">journalière</option>
-                            <option value="Rjour">hebdomadaire</option>
-                        </optgroup>
-                        <optgroup label="Répartition par">
-                        <option value="jour" selected>Jour</option>
-                        <option value="semaine">Semaine</option>
-                        <option value="mois">Mois</option>
-                        </optgroup>
-                      </select>
-                      <label class="input-group-text" for="inputGroupSelect03">Période</label>
+                        <div class="form-floating flex-grow-1">
+                            <select class="form-select" id="inputGroupSelect02" name="field">
+                                <option value="forme">Téléphone/email</option>
+                                <option value="probleme">Problématique</option>
+                                <option value="cause">Cause</option>
+                                <option value="profil_type">Proprio/Installateur</option>
+                            </select>
+                            <label for="inputGroupSelect02">Champs</label>
+                        </div>
+                        <div class="form-floating flex-grow-1">
+                              <select class="form-select" id="inputGroupSelect01" name="frequence">
+                                <optgroup label="Répartition">
+                                    <option value="heure">journalière</option>
+                                    <option value="Rjour">hebdomadaire</option>
+                                </optgroup>
+                                <optgroup label="Répartition par">
+                                <option value="jour" selected>Jour</option>
+                                <option value="semaine">Semaine</option>
+                                <option value="mois">Mois</option>
+                                </optgroup>
+                              </select>
+                            <label for="inputGroupSelect01">Fréquence</label>
+                        </div>
+                        <div class="form-floating flex-grow-1">
                       <input type="number"
                              id="inputGroupSelect03"
                              class="form-control"
@@ -52,7 +56,9 @@
                              aria-label="Recipient's username"
                              aria-describedby="button-addon2"
                             name="periode">
-                        <label class="input-group-text" for="inputGroupSelect03">jours</label>
+                            <label for="inputGroupSelect03">Période</label>
+                        </div>
+                        <span class="input-group-text" for="inputGroupSelect03">jours</span>
                       <button class="btn btn-outline-secondary" type="button" id="button-form" onclick="visualiser(this)">Visualiser</button>
                       <button class="btn btn-outline-secondary" type="submit" id="button-form-csv" name="download_csv"><i class="fas fa-cloud-download-alt"></i> CSV</button>
                     </div>
@@ -63,17 +69,27 @@
             <div class="tab-pane fade" id="stat_corre" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <div class="container">
                     <div class="row">
-                        <h1 class="m-3">Statistiques Symptômes/causes en fonction de l'année de fabrication</h1>
+                        <h1 class="m-3">Statistiques Symptômes/causes</h1>
                         <form id="formVisualiser" method="POST">{% csrf_token %}
                             {% crispy stattableauform %}
                             <div class="float-end">
-                            <div class="input-group mb-3">
-                                <input type="hidden" name="pbcause">
-                                <label class="input-group-text" data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="hover focus" data-bs-content="Tous les résultats sont multipliés par le nombre total d'installation et divisé par le nombre d'installation monté dans l'année en question" title="Pondéré">Pondéré <input type="checkbox" name="ponder" checked value="True" class="form-check-input m-2">
-                                </label>
-                              <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)"><i class="fas fa-chart-pie"></i> Graphique</button>
-                              <button type="button" id="buttongeneretableau" class="btn btn-outline-secondary" onclick="genetableau(this)"><i class="fas fa-table"></i> Tableau</button>
-                            </div>
+                                <div class="input-group mb-3">
+                                    <div class="form-floating flex-grow-1">
+                                        <select class="form-select" id="inputGroupSelect04" name="repartition">
+                                            <optgroup label="Répartition annuelle">
+                                                <option value="annuel"> Annuelle Non pondéré</option>
+                                                <option value="annuelP">Annuelle Pondéré</option>
+                                            </optgroup>
+                                            <optgroup label="Répartition par type de profil">
+                                                <option value="acces">Propriétaire/installateur</option>
+                                            </optgroup>
+                                        </select>
+                                        <label for="inputGroupSelect04">Répartition</label>
+                                    </div>
+                                    <input type="hidden" name="pbcause">
+                                  <button class="btn btn-outline-secondary" type="button" id="button-form2" name="pbcause" onclick="visualiser(this)"><i class="fas fa-chart-pie"></i> Graphique</button>
+                                  <button type="button" id="buttongeneretableau" class="btn btn-outline-secondary" onclick="genetableau(this)"><i class="fas fa-table"></i> Tableau</button>
+                                </div>
                             </div>
                         </form>
                     </div>

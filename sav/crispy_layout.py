@@ -113,6 +113,9 @@ class Modal(LayoutObject):
 class XDSoftDateTimePickerInput(DateTimeInput):
     template_name = 'widgets/xdsoft_datetimepicker_with_time.html'
 
+class XDSoftDatePickerInput(DateTimeInput):
+    template_name = 'widgets/xdsoft_datetimepicker_without_time.html'
+
 class crispy_HTML(LayoutObject):
     """
     Layout object. It can contain pure HTML and it has access to the whole
@@ -189,30 +192,30 @@ class LineField(Field):
 #     def groupby(self):
 #         return self.choices_groupby
 #
-# class RelatedFieldWidgetCanAdd(widgets.Select):
-#     def __init__(self, related_model, related_url=None,comment=None, link_object=None, link_object_name=None,*args, **kw):
-#         super(RelatedFieldWidgetCanAdd, self).__init__(*args, **kw)
-#         if not related_url:
-#             rel_to = related_model
-#             info = (rel_to._meta.app_label, rel_to._meta.object_name.lower())
-#             related_url = 'admin:%s_%s_add' % info
-#         # Be careful that here "reverse" is not allowed
-#         self.related_url = related_url
-#         self.comment = comment
-#         self.link_object = link_object if link_object else ''
-#         self.link_object_name = link_object_name if link_object_name else 'link'
-#
-#     def render(self, name, value, *args, **kwargs):
-#         self.related_url = reverse(self.related_url)
-#         output = [super(RelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs)]
-#         link='<a href="%s" class="btn btn-outline-info m-2" id="add_id_%s" onclick="return showAddAnotherPopup(this);" target="_blank">' \
-#              '<i class="fa fa-plus-circle" aria-hidden="true"></i> '+str(self.comment) +'</a>  '
-#         if self.link_object != '':
-#             link+= '<br><a href="' + str(self.link_object) +'" class="text-info m-2"><i class="fa fa-chevron-circle-right x-2"></i> '+str(self.link_object_name)+'</a>'
-#         output.append(link % \
-#             (self.related_url, name))
-#         return mark_safe(''.join(output))
-#
+class RelatedFieldWidgetCanAdd(widgets.Select):
+    def __init__(self, related_model, related_url=None,comment=None, link_object=None, link_object_name=None,*args, **kw):
+        super(RelatedFieldWidgetCanAdd, self).__init__(*args, **kw)
+        if not related_url:
+            rel_to = related_model
+            info = (rel_to._meta.app_label, rel_to._meta.object_name.lower())
+            related_url = 'admin:%s_%s_add' % info
+        # Be careful that here "reverse" is not allowed
+        self.related_url = related_url
+        self.comment = comment
+        self.link_object = link_object if link_object else ''
+        self.link_object_name = link_object_name if link_object_name else 'link'
+
+    def render(self, name, value, *args, **kwargs):
+        self.related_url = reverse(self.related_url)
+        output = [super(RelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs)]
+        link='<a href="%s" class="btn btn-outline-info m-2" id="add_id_%s" onclick="return showAddAnotherPopup(this);" target="_blank">' \
+             '<i class="fa fa-plus-circle" aria-hidden="true"></i> '+str(self.comment) +'</a>  '
+        if self.link_object != '':
+            link+= '<br><a href="' + str(self.link_object) +'" class="text-info m-2"><i class="fa fa-chevron-circle-right x-2"></i> '+str(self.link_object_name)+'</a>'
+        output.append(link % \
+            (self.related_url, name))
+        return mark_safe(''.join(output))
+
 # class RelatedFieldMultipleWidgetCanAdd(widgets.Select):
 #     def __init__(self, related_model, related_url=None,comment=None, *args, **kw):
 #

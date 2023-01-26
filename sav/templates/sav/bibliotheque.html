@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Ajouter une procédure</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <form method="post">{% csrf_token %}
+      <div class="modal-body">
+              {% crispy classification_form %}
+              {% crispy form %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="submit" class="btn btn-primary" name="nouvelle_procedure">Enregistrer</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+<h1 class="text-center m-3">Bibliothèque documentaire</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <form>{% csrf_token %}
+                <div class="input-group mb-3">
+                    <div class="form-floating flex-grow-1">
+                        <select class="form-select" id="dossier" name="dossier">
+                            {% for procedure in classification %}
+                            {% ifchanged procedure.dossier%}<optgroup label="{{procedure.dossier}}">{% endifchanged %}
+                            {% ifchanged procedure.titre%}<option value="{{procedure.titre}}"> {{procedure.titre}}</option>{% endifchanged %}
+                            {% ifchanged procedure.dossier%}</optgroup>{% endifchanged %}
+                            {%endfor%}
+                        </select>
+                        <label for="dossier">Procédures</label>
+                    </div>
+                    <button class="btn btn-outline-secondary" type="button" id="button-form2" name="dossier" onclick="visualiser(this)"><i class="fas fa-book-reader"></i> Charger</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">
+                      <i class="fas fa-plus-circle"></i> Ajouter procédure
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+function ajout_autre(){
+        if ($("#id_titre").val() == "0"){
+            $("#id_autre").removeClass("d-none")
+            $("#id_autre").parent().removeClass("d-none")
+        }else{
+            $("#id_autre").addClass("d-none")
+            $("#id_autre").parent().addClass("d-none")
+        }
+
+}
+$("#id_titre").on("click", ajout_autre())
+ajout_autre()
+function visualiser(t){
+        var $t =$(t)
+        $t.html('<i class="fas fa-spinner fa-pulse"></i> Changer')
+        var form= $t.closest("form");
+        data =  form.serialize()
+        $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: data,
+            dataType: 'html',
+            success: function (html) {
+                console.log(html)
+                $("#button-form2").html('<i class="fas fa-book-reader"></i> Charger')
+            }
+    })
+}
+</script>
+{%endblock%}

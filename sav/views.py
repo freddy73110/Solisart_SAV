@@ -601,37 +601,66 @@ class statistiques(View, SuccessMessageMixin):
             titre = 'Répartition des tickets par ' + str(frequence) + ' sur ' + periode + ' jours'
         return titre
 
-    def chart_repartition_pb_cause_df(self, ponder=True, periode=None, P=None):
+    def chart_repartition_pb_cause_df(self, periode=None, P=None):
         from django.db.models import CharField
+        from django.db.models import OuterRef, Subquery, Count
+
         try:
             if not periode:
                 periode=30
 
             if P:
                 queryset =self.filter_ticket(P)
+
             else:
                 queryset = ticket.objects.filter(evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by(
                 'evenement__date')
+
             when = [When(probleme=v.id, then=Value(str(v))) for v in probleme.objects.all()]
             when2 = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
             when3 = [When(evenement__installation__idsa__icontains=str(v), then=Value(v)) for v in range(2014, datetime.now().year+ 1, 1)]
-            nb_install=installation.objects.all().count()
-            from functools import reduce
-            from operator import or_
-            query= reduce(or_, (Q(idsa__icontains=t) for t in range(2015, datetime.now().year, 1)))
-            ponde_before_2015= nb_install/installation.objects.exclude(query).count()
-            when4 = [When(evenement__installation__idsa__icontains=str(v), then=nb_install/installation.objects.filter(idsa__icontains=str(v)).count()) for v in
-                     range(2014, datetime.now().year + 1, 1)]
-            queryset = queryset.annotate(
-                annee=Case(*when3,default=Value("2000"), output_field=CharField())).values(
-                'annee').annotate(
-                ponder=Case(*when4,default=ponde_before_2015, output_field=FloatField())).values('annee',
-                'ponder').order_by('probleme').annotate(
-                pb=Case(*when, output_field=CharField())).values(
-                'pb', 'annee','ponder').order_by('cause').annotate(
-                cause=Case(*when2, output_field=CharField())).values(
-                'cause', 'pb', 'annee', 'ponder')
-            if ponder:
+
+            if P and P["repartition"] == 'acces':
+                queryset = queryset.annotate(
+                    installation_id=F('evenement__installation')
+                ).values("installation_id", "utilisateur").annotate(profil_type_id=Subquery(
+                    acces.objects.filter(installation__id=OuterRef("installation_id"),
+                                         utilisateur__id=OuterRef("utilisateur")).values('profil_type')[:1]))
+                when4 = [When(profil_type_id=v.id, then=Value(str(v))) for v in
+                         profil_type.objects.all()]
+                queryset = queryset.order_by('profil_type_id').annotate(
+                    annee=Case(*when4, output_field=CharField())
+                ).values('annee')
+                queryset=queryset.annotate(
+                    pb=Case(*when, output_field=CharField())).values(
+                    'pb', 'annee').order_by('cause').annotate(
+                    cause=Case(*when2, output_field=CharField())).values(
+                    'cause', 'pb', 'annee')
+                queryset = queryset.annotate(count=Count('id'))
+                df = pd.DataFrame(
+                    list(queryset.order_by('annee', 'pb', 'cause').values('pb', 'cause', 'count', 'annee')))
+                df.fillna(value="sans cause", inplace=True)
+                return df
+            else:
+                nb_install=installation.objects.all().count()
+                from functools import reduce
+                from operator import or_
+                query= reduce(or_, (Q(idsa__icontains=t) for t in range(2015, datetime.now().year, 1)))
+                ponde_before_2015= nb_install/installation.objects.exclude(query).count()
+                when5 = [When(evenement__installation__idsa__icontains=str(v), then=nb_install/installation.objects.filter(idsa__icontains=str(v)).count()) for v in
+                         range(2014, datetime.now().year + 1, 1)]
+
+                queryset = queryset.annotate(
+                    annee=Case(*when3,default=Value("2000"), output_field=CharField())).values(
+                    'annee').annotate(
+                    ponder=Case(*when5,default=ponde_before_2015, output_field=FloatField())).values('annee',
+                    'ponder').order_by('probleme').annotate(
+                    pb=Case(*when, output_field=CharField())).values(
+                    'pb', 'annee','ponder').order_by('cause').annotate(
+                    cause=Case(*when2, output_field=CharField())).values(
+                    'cause', 'pb', 'annee', 'ponder')
+
+            if P and P["repartition"] == "annuelP":
                 queryset=queryset.annotate(count=Count('id')*F('ponder'))
             else:
                 queryset = queryset.annotate(count=Count('id'))
@@ -646,10 +675,10 @@ class statistiques(View, SuccessMessageMixin):
             print(ex)
             return None
 
-    def chart_repartition_pb_cause(self, periode=None, ponder=True, P=None):
+    def chart_repartition_pb_cause(self, periode=None, P=None):
         from django.db.models import CharField
         try:
-            df=self.chart_repartition_pb_cause_df(periode=periode, ponder=ponder, P=P)
+            df=self.chart_repartition_pb_cause_df(periode=periode, P=P)
             fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['annee','pb', 'cause'],
                                values='count', height=1000)
             fig2.update_traces(
@@ -699,19 +728,22 @@ class statistiques(View, SuccessMessageMixin):
                     'frequence', 'lien').annotate(count=Count('id'))
 
             if field =="profil_type":
-                when = [When(utilisateur__acces__profil_type=v.id, then=Value(str(v))) for v in profil_type.objects.all()]
-                df = pd.DataFrame(columns=['frequence', 'lien'])
-                for q in queryset:
-                    try:
-                        q.profil=str(profil_type.objects.get(acces__installation=q.evenement.installation, acces__utilisateur=q.utilisateur))
-                    except:
-                        q.profil="sans profil"
-                    df = pd.concat([df, pd.Series({'frequence':str(q.frequence), 'lien':str(q.profil)}).to_frame().T], ignore_index=True)
+                queryset = queryset.order_by('frequence').annotate(
+                    installation_id=F('evenement__installation')
+                ).values("installation_id", "utilisateur", "frequence").annotate(profil_type_id=Subquery(
+                    acces.objects.filter(installation__id=OuterRef("installation_id"),
+                                         utilisateur__id=OuterRef("utilisateur")).values('profil_type')[:1]))
 
-                df = df.groupby(['frequence', 'lien'])['lien'].size().reset_index(name='count')
+                when4 = [When(profil_type_id=v.id, then=Value(str(v))) for v in
+                         profil_type.objects.all()]
 
-            if not 'df' in locals():
-                df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+                queryset = queryset.order_by('frequence','profil_type_id').annotate(
+                    lien=Case(*when4, output_field=CharField())
+                )
+
+                queryset= queryset.values('frequence', 'lien').order_by("frequence", "lien").annotate(count=Count('id'))
+
+            df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             df.fillna(value="sans profil", inplace=True)
 
         except Exception as ex:
@@ -828,7 +860,7 @@ class statistiques(View, SuccessMessageMixin):
             self.tickets_chart = opy.plot(fig1, output_type='div')
             fig2 = self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
-            fig3 = self.chart_repartition_pb_cause(periode=30, ponder=True)
+            fig3 = self.chart_repartition_pb_cause()
             self.sunburst2=""
             if fig3:
                 self.sunburst2 = opy.plot(fig3, output_type='div')
@@ -858,10 +890,9 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
     def post(self, request, *args, **kwargs):
-
         if "download_csv2" in request.POST:
 
-            df = self.chart_repartition_pb_cause_df(ponder='ponder' in request.POST, P=request.POST)
+            df = self.chart_repartition_pb_cause_df(P=request.POST)
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename=Statistiques Symptômes/causes.csv'
             df.to_csv(path_or_buf=response, index=False, encoding="utf-8")  # with other applicable parameters
@@ -892,7 +923,7 @@ class statistiques(View, SuccessMessageMixin):
                       )
 
         if "pbcause" in request.POST:
-            fig = self.chart_repartition_pb_cause(ponder='ponder' in request.POST, P=request.POST)
+            fig = self.chart_repartition_pb_cause(P=request.POST)
             if fig:
                 return HttpResponse(opy.plot(fig, output_type='div'))
             else:
@@ -956,6 +987,7 @@ class installation_view (View):
             import zipfile
             tick = ticket.objects.get(pk=int(request.POST['ticket_id']))
             filenames = [ str(f.fichier.path) for f in tick.fichier.all()]
+            print(filenames)
             # Folder name in ZIP archive which contains the above files
             # E.g [thearchive.zip]/somefiles/file2.txt
             zip_subdir = str(tick).replace("/", " ")
@@ -971,6 +1003,7 @@ class installation_view (View):
             for fpath in filenames:
                 # Calculate path for file in zip
                 fdir, fname = os.path.split(fpath)
+
                 zip_path = os.path.join(zip_subdir, fname)
 
                 # Add file, at correct path
@@ -1353,69 +1386,82 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        from django.db.models import OuterRef, Subquery, Count
+        queryset = ticket.objects.filter(evenement__date__gte=datetime.today()+timedelta(days=-3))
+        print(queryset.count())
+        print(queryset.annotate(
+            installation_id=F('evenement__installation')
+        ).values("installation_id", "utilisateur").annotate(profil_type_id=Subquery(acces.objects.filter(installation__id=OuterRef("installation_id"), utilisateur__id=OuterRef("utilisateur")).values('profil_type')[:1]))
+        )
+        # queryfilter=(
+        #     profil_type.objects.filter()
+        # )
+        # print(queryset.annotate(count_profil=Subquery(queryfilter)))
 
-        from bs4 import BeautifulSoup
-        import requests
 
-        username = 'freddy.dubouchet@solisart.fr'
-        password = 'uM(ij9ojEV'
-        link = 'https://my.solisart.fr/'
-        idsa = "GODIN"
-        if True:
-            from selenium import webdriver
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
-            driver.get(link)
-            driver.find_element(By.ID, 'id').send_keys(username)
-            driver.find_element(By.ID, 'pass').send_keys(password)
-            driver.find_element(By.ID, 'connexion').click()
-            time.sleep(6)
-            # soup = BeautifulSoup(driver.page_source,'html.parser')
-            # tables = soup.find('table', {'class':'liste'})
-            # all_td = tables.find_all("tr")
-            # passed=0
-            # for row in all_td:
-            #     table_row=[r for r in row.find_all('td')]
-            #     try:
-            #         print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
-            #     except:
-            #         passed+=1
-            #         pass
-            # print(passed)
-            # print(len(all_td))
 
-            driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+idsa)
-            time.sleep(8)
-            tt= driver.find_element(By.XPATH, '//label[@for="input-pages-visualisation"]')
-            tt.click()
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-            time.sleep(8)
-            src=soup.find('img', {'id':'schema-image'})['src']
-            driver.get(
-                'https://my.solisart.fr/admin/'+src)
-            #Enregistrement du fichier à la racine
-            driver.save_screenshot("schema.png")
-
-            #Creation Fichiers
-            file=Fichiers.objects.create(
-                titre=idsa+'.png'
-            )
-            # driver.save_screenshot(idsa+'.png')
-            namefile=idsa+'.png'
-
-            image = Image.open("schema.png")
-            # image = Image.open(namefile) #fonctionne avec un fichier exitant
-
-            photo = io.BytesIO()
-            image.save(photo, "png")
-            #Sauvegarde de image
-            file.fichier.save(namefile, ContentFile(photo.getvalue()))
-            #supprimer le fichier à la racine
-            os.remove("schema.png")
-            #Fermer le navigateur firefox
-            driver.close()
+        # from bs4 import BeautifulSoup
+        # import requests
+        #
+        # username = 'freddy.dubouchet@solisart.fr'
+        # password = 'uM(ij9ojEV'
+        # link = 'https://my.solisart.fr/'
+        # idsa = "GODIN"
+        # if True:
+        #     from selenium import webdriver
+        #     from selenium.webdriver.common.by import By
+        #     from selenium.webdriver.support.ui import WebDriverWait
+        #     from selenium.webdriver.support import expected_conditions as EC
+        #     driver = webdriver.Firefox(executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe")
+        #     driver.get(link)
+        #     driver.find_element(By.ID, 'id').send_keys(username)
+        #     driver.find_element(By.ID, 'pass').send_keys(password)
+        #     driver.find_element(By.ID, 'connexion').click()
+        #     time.sleep(6)
+        #     # soup = BeautifulSoup(driver.page_source,'html.parser')
+        #     # tables = soup.find('table', {'class':'liste'})
+        #     # all_td = tables.find_all("tr")
+        #     # passed=0
+        #     # for row in all_td:
+        #     #     table_row=[r for r in row.find_all('td')]
+        #     #     try:
+        #     #         print(table_row[0].find_all("a")[1].text) #.find('span').text, table_row[1].text, table_row[2], table_row[3], table_row[4], table_row[5])
+        #     #     except:
+        #     #         passed+=1
+        #     #         pass
+        #     # print(passed)
+        #     # print(len(all_td))
+        #
+        #     driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+idsa)
+        #     time.sleep(8)
+        #     tt= driver.find_element(By.XPATH, '//label[@for="input-pages-visualisation"]')
+        #     tt.click()
+        #     soup = BeautifulSoup(driver.page_source, 'html.parser')
+        #     time.sleep(8)
+        #     src=soup.find('img', {'id':'schema-image'})['src']
+        #     driver.get(
+        #         'https://my.solisart.fr/admin/'+src)
+        #     #Enregistrement du fichier à la racine
+        #     driver.save_screenshot("schema.png")
+        #
+        #     #Creation Fichiers
+        #     file=Fichiers.objects.create(
+        #         titre=idsa+'.png'
+        #     )
+        #     # driver.save_screenshot(idsa+'.png')
+        #     namefile=idsa+'.png'
+        #
+        #     image = Image.open("schema.png")
+        #     # image = Image.open(namefile) #fonctionne avec un fichier exitant
+        #
+        #     photo = io.BytesIO()
+        #     image.save(photo, "png")
+        #     #Sauvegarde de image
+        #     file.fichier.save(namefile, ContentFile(photo.getvalue()))
+        #     #supprimer le fichier à la racine
+        #     os.remove("schema.png")
+        #     #Fermer le navigateur firefox
+        #     driver.close()
 
         return render(request,
                       self.template_name,
@@ -1423,4 +1469,62 @@ class bidouille (View):
                               'title':self.title
                           }
                       )
+
+class bibliotheque(View):
+    login_url = '/login/'
+    template_name = 'sav/bibliotheque.html'
+    title = 'Bibliothèque documentaire'
+    form = ajouter_procedure_form()
+
+    def get(self, request, *args, **kwargs):
+        self.classification = classification.objects.all().order_by("dossier", "titre")
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title,
+                          'classification': self.classification,
+                          'form':self.form,
+                          'classification_form': classification_form()
+
+                      }
+                      )
+
+    def post(self, request, *args, **kwargs):
+
+        if "fichier" in request.POST:
+            print(request.POST)
+            class_form=classification_form(request.POST)
+            if class_form.is_valid():
+                class_form.save(commit=False)
+                form = ajouter_procedure_form(request.POST, request.FILES)
+                print("classification valide")
+                if form.is_valid():
+                    form.save(commit=False)
+                    form.classification = class_form
+                    print("procedure valide")
+                else:
+                    render(request,
+                           self.template_name,
+                           {
+                               'title': self.title,
+                               'form': form,
+                               'classification_form': class_form
+
+                           }
+                           )
+            else:
+                render(request,
+                       self.template_name,
+                       {
+                           'title': self.title,
+                           'classification': self.classification,
+                           'form': self.form(request.POST),
+                           'classification_form': classification_form(request.POST)
+
+                       }
+                       )
+            return HttpResponse('<h1>coucou</h1>')
+        else:
+            print(request.POST)
+            return HttpResponse('<h1>coucou</h1>')
 

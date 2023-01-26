@@ -378,7 +378,7 @@ loadingTask.promise.then(function(pdf) {
                       <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
                           <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}" onclick="growall()">
-                              <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {{e.ticket.utilisateur}}</b>
+                              <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {% if e.ticket.cause %}{{e.ticket.cause}} {%endif%}{{e.ticket.utilisateur}}</b>
                               <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
                               <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
                               <b>{{e.ticket.icon_technicien_sav|safe}}</b>
@@ -712,7 +712,7 @@ $('.upload-zone').each(function () {
               if (data.is_valid == false){
 
               }else{
-                location.reload()
+
               }
 
             }

@@ -1,7 +1,7 @@
 from . import *
 
 DEBUG = False
-ALLOWED_HOSTS = ['192.168.10.250']
+ALLOWED_HOSTS = ['192.168.10.250', 'solistool.fr']
 STATIC_ROOT = '/home/SolisArt_SAV/static/'
 MEDIA_ROOT = '/home/SolisArt_SAV/media/'
 

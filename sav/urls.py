@@ -13,6 +13,7 @@ urlpatterns = [
     path('utilisateur/<int:pk>', login_required(views.utilisateur_view.as_view()), name='utilisateur'),
     path('ticket', login_required(views.ticket_view.as_view()), name='ticket'),
     path('map', login_required(views.carte.as_view()), name='map'),
+    path('bibliotheque', login_required(views.bibliotheque.as_view()), name='bibliotheque'),
     path('statistiques', login_required(views.statistiques.as_view()), name='statistiques'),
     path('mail', login_required(views.mail.as_view()), name='mail'),
     path('bidouille', views.bidouille.as_view(), name='bidouille')

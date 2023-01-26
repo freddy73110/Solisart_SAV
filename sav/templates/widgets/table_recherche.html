@@ -82,7 +82,7 @@
     <tbody>
         {% for i in table %}
         <tr>
-            <td class="text-center"><a href="{% url 'sav:installation' i.id %}" target="_blank">{{i.idsa}}</a></td>
+            <td class="text-center"><a href="{% url 'sav:installation' i.id %}" target="_blank">{{i.idsa}} {%if i.departement %}({{i.departement}}){%endif%}</a></td>
             <td class="text-center">{{i.type_communication}}</td>
             <td class="text-center">{{i.version_carte_firmware}}</td>
             <td class="text-center">{{i.version_carte_interface}}</td>

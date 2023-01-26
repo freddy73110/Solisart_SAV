@@ -1,0 +1,14 @@
+{% include "django/forms/widgets/input.html" %}
+
+<script>
+  $(function () {
+    var today = new Date();
+    var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear();
+    $("input[name='{{ widget.name }}']").datetimepicker({
+      timepicker:false,
+      format: 'd-m-Y'
+    }
+    );
+  });
+  $("input[name='{{ widget.name }}']").val($("input[name='{{ widget.name }}']").val().substring(0,8).replace('\/', '-').replace('\/', '-'))
+</script>

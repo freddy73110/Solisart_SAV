@@ -361,3 +361,60 @@ class Stattableauform(forms.Form):
                 )
             )
         )
+
+class ajouter_procedure_form(ModelForm):
+    class Meta:
+        model = documentation
+        exclude = ('classificatoin',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget = XDSoftDatePickerInput()
+        self.fields['date'].input_formats = ['%d-%m-%Y']
+        self.fields['fichier'].label=''
+        self.fields['fichier'].widget = forms.FileInput(attrs={'accept':".doc,.docx, .pdf, .mp4, .mpeg, .avi, .wav"})
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    'fichier',
+                    FloatingField('version'),
+                    FloatingField('date'),
+                    FloatingField('etat'),
+                    FloatingField('commentaire'),
+                    FloatingField('a_ameliorer')
+                )
+            )
+        )
+
+    def clean(self):
+        import re
+        print(self.cleaned_data)
+        if not re.findall(r'(?:(\d+\.[.\d]*\d+))',self.cleaned_data['version']):
+            raise forms.ValidationError("Format de version non approprié")
+
+class classification_form(ModelForm):
+
+    autre=forms.CharField(max_length=100, label="Autre titre de procédure")
+    class Meta:
+        model = classification
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['titre']=forms.ChoiceField(
+        required=False,
+        choices=[("0", "Autre")] + [(c, c) for c in classification.objects.all().values('titre')],
+    )
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    FloatingField('dossier'),
+                    FloatingField('titre'),
+                    FloatingField('autre', css_class="d-none", wrapper_class="d-none")
+            )
+        )
+        )

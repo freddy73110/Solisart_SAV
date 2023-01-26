@@ -25,9 +25,9 @@ SECRET_KEY = 'django-insecure-v!t0pw34)pdu6&rda86ll_c8c9y0e1s3d^y+5%jz5o)-52(4!3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.10.250"]
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.10.250", "solistools.fr"]
 
-# Application definition
+# Application definition    
 
 INSTALLED_APPS = [
     'sav',
@@ -150,7 +150,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if DEBUG:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    MEDIA_ROOT = '/home/SolisArt_SAV/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
