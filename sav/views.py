@@ -1477,7 +1477,7 @@ class bibliotheque(View):
     form = ajouter_procedure_form()
 
     def get(self, request, *args, **kwargs):
-        self.c = classification.objects.all().order_by("dossier", "titre")
+        self.classification = classification.objects.all().order_by("dossier", "titre")
         if  'pk' in kwargs:
             self.pk = kwargs.pop('pk')
         else:
@@ -1486,7 +1486,7 @@ class bibliotheque(View):
                       self.template_name,
                       {
                           'title': self.title,
-                          'classification': self.c,
+                          'classification': self.classification,
                           'form':self.form,
                           'classification_form': classification_form(),
                           'pk':self.pk
@@ -1526,7 +1526,7 @@ class bibliotheque(View):
                        self.template_name,
                        {
                            'title': self.title,
-                           'classification': self.c,
+                           'classification': self.classification,
                            'form': self.form(request.POST),
                            'classification_form': classification_form(request.POST)
                        }
@@ -1635,7 +1635,7 @@ class bibliotheque(View):
                                   self.template_name,
                                   {
                                       'title': self.title,
-                                      'classification': self.c,
+                                      'classification': self.classification,
                                       'form': self.form(request.POST),
                                       'classification_form': classification_form(request.POST)
                                   }
@@ -1651,7 +1651,7 @@ class bibliotheque(View):
                               self.template_name,
                               {
                                   'title': self.title,
-                                  'classification': self.c,
+                                  'classification': self.classification,
                                   'form': self.form(request.POST),
                                   'classification_form': classification_form(request.POST)
                               }
