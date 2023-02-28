@@ -1,0 +1,50 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<link rel="stylesheet" type="text/css" href="{% static 'XDSoft-DateTimePicker/jquery.datetimepicker.css' %}">
+<script src="{% static 'XDSoft-DateTimePicker/jquery.datetimepicker.full.min.js' %}"></script>
+{{id_input|safe}}
+<fieldset class="border p-2 h-100">
+    <legend class="float-none w-auto">Classification</legend>
+    {% crispy classification_form %}
+</fieldset>
+<fieldset class="border p-2 h-100">
+    <legend class="float-none w-auto">Fichier</legend>
+    {% crispy form %}
+</fieldset>
+<script>
+function AutreDisplay2(){
+        if ($("#id_update-titre").val() == "0"){
+            $("#id_update-autre").removeClass("d-none")
+            $("#id_update-autre").parent().removeClass("d-none")
+        }else{
+            $("#id_update-autre").addClass("d-none")
+            $("#id_update-autre").parent().addClass("d-none")
+        }
+}
+
+$("#id_update-titre").on('change', function(){
+    if ($("#id_update-titre").val() == "0"){
+            $("#id_update-autre").removeClass("d-none")
+            $("#id_update-autre").parent().removeClass("d-none")
+        }else{
+            $("#id_update-autre").addClass("d-none")
+            $("#id_update-autre").parent().addClass("d-none")
+        }
+    }
+)
+$('.refreshOption').on('change', function(){
+        var form= $("#formModalModif_id");
+        data =  form.serialize() + '&refresh='
+        $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: data,
+            dataType: 'html',
+            success: function (html) {
+                $("#id_update-titre").html('')
+                $("#id_update-titre").html(html)
+                AutreDisplay2()
+            }
+    })
+})
+</script>

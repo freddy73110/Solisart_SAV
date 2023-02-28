@@ -19,7 +19,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, OuterRef
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
     ExtractWeekDay
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils.html import strip_tags
 from django.views import View
@@ -1477,54 +1477,203 @@ class bibliotheque(View):
     form = ajouter_procedure_form()
 
     def get(self, request, *args, **kwargs):
-        self.classification = classification.objects.all().order_by("dossier", "titre")
+        self.c = classification.objects.all().order_by("dossier", "titre")
+        if  'pk' in kwargs:
+            self.pk = kwargs.pop('pk')
+        else:
+            self.pk=None
         return render(request,
                       self.template_name,
                       {
                           'title': self.title,
-                          'classification': self.classification,
+                          'classification': self.c,
                           'form':self.form,
-                          'classification_form': classification_form()
-
+                          'classification_form': classification_form(),
+                          'pk':self.pk
                       }
                       )
 
     def post(self, request, *args, **kwargs):
 
-        if "fichier" in request.POST:
-            print(request.POST)
+        #Permet  d'enregister les nouvelles procédures
+        if "nouvelle_procedure" in request.POST:
             class_form=classification_form(request.POST)
             if class_form.is_valid():
                 class_form.save(commit=False)
-                form = ajouter_procedure_form(request.POST, request.FILES)
-                print("classification valide")
-                if form.is_valid():
-                    form.save(commit=False)
-                    form.classification = class_form
-                    print("procedure valide")
+                classif = class_form.save()
+                if request.POST['titre'] == str(0):
+                    classif.titre = request.POST['autre']
+                    classif.save()
+                form2 = ajouter_procedure_form(request.POST, request.FILES)
+                if form2.is_valid():
+                    form2.save(commit=False)
+                    doc = form2.save()
+                    doc.classification = classif
+                    doc.save()
+                    return HttpResponseRedirect(reverse('sav:bibliotheque'))
                 else:
-                    render(request,
+                    return render(request,
                            self.template_name,
                            {
                                'title': self.title,
-                               'form': form,
+                               'form': form2,
                                'classification_form': class_form
 
                            }
                            )
             else:
-                render(request,
+                return render(request,
                        self.template_name,
                        {
                            'title': self.title,
-                           'classification': self.classification,
+                           'classification': self.c,
                            'form': self.form(request.POST),
                            'classification_form': classification_form(request.POST)
-
                        }
                        )
-            return HttpResponse('<h1>coucou</h1>')
-        else:
-            print(request.POST)
-            return HttpResponse('<h1>coucou</h1>')
+
+        #Charger tous l'historique avec duagramme de gantt et tableau de tous les versions
+        if "charger" in request.POST:
+            from django.db.models.functions import StrIndex
+            fichiers = documentation.objects.filter(classification__id=request.POST['charger']).\
+                annotate(split=StrIndex(F('fichier'), V('.')))\
+                .annotate(extension=Substr(F('fichier'), F('split')+1))\
+                .order_by('extension','date')
+            list=[]
+            extension=''
+            for f in fichiers:
+                if f != fichiers[0] and extension == f.extension:
+                    dictionary = dict(Extention=extension, Start=start, Finish=f.date.strftime('%Y-%m-%d'), Version=version + ' ' + extension)
+                    list.append(dictionary)
+                    start = f.date.strftime('%Y-%m-%d')
+                    version=f.version
+                elif f != fichiers[0] and extension != f.extension:
+                    dictionary = dict(Extention=extension, Start=start, Finish=datetime.today().strftime('%Y-%m-%d'), Version=version + ' ' + extension)
+                    list.append(dictionary)
+                    start = f.date.strftime('%Y-%m-%d')
+                    version=f.version
+                    extension = f.extension
+                else:
+                    start = f.date.strftime('%Y-%m-%d')
+                    version=f.version
+                    extension=f.extension
+                if f == fichiers.reverse()[0]:
+                    finish = datetime.today().strftime('%Y-%m-%d')
+                    dictionary = dict(Extention=extension, Start=start, Finish=finish, Version=f.version  + ' ' + extension)
+                    list.append(dictionary)
+            fig = px.timeline(pd.DataFrame(list),
+                              x_start="Start",
+                              x_end="Finish",
+                              y="Version",
+                              color="Extention",
+                              title='Chronologie pour ' + str(fichiers[0].classification)
+                              )
+            return render(request,
+                       'widgets/table_documentation.html',
+                       {
+                           'fichiers': fichiers,
+                           'graph':opy.plot(fig, output_type='div')
+                       }
+                       )
+
+        #Rend dynamique le form de création de procédure
+        if "refresh" in request.POST:
+            from .models import classification
+            if 'categorie' in request.POST:
+                docs = classification.objects.filter(
+                categorie=request.POST['categorie'],
+                dossier=request.POST['dossier'],
+                sous_dossier = request.POST['sous_dossier']
+            )
+            else:
+                docs = classification.objects.filter(
+                    categorie=request.POST['update-categorie'],
+                    dossier=request.POST['update-dossier'],
+                    sous_dossier=request.POST['update-sous_dossier']
+                )
+            html=''
+            for doc in docs:
+                html+='<option value='+str(doc.titre)+'>' + str(doc.titre) + '</option>'
+            html+='<option value="0">Autre</option>'
+            return HttpResponse(html)
+
+        if "Confirm" in request.POST:
+            id_input = '<input type=hidden name="id" value=' + request.POST['id'] + '>'
+            if request.POST['mode']== 'Supprimer':
+                doc = documentation.objects.get(pk=request.POST['id'])
+                return HttpResponse(id_input + str(doc) + '<br><a href='+ doc.fichier.url + '>'+ doc.icon()+str (doc.fichier)+'</a>')
+            else:
+                return render(request,
+                       'widgets/UpdateDocModalBody.html',
+                       {
+                           'id_input':id_input,
+                           'classification_form': classification_form(
+                               instance=documentation.objects.get(pk=request.POST['id']).classification,
+                               prefix='update'
+                           ),
+                           'form': ajouter_procedure_form(
+                               instance=documentation.objects.get(pk=request.POST['id']),
+                               prefix='update'
+                           ),
+                       }
+                       )
+
+        if "Supprimer" in request.POST:
+            documentation.objects.get(pk=request.POST['id']).delete()
+            return redirect(request.META['HTTP_REFERER'])
+
+        if "Modifier" in request.POST:
+            class_form = classification_form(request.POST, prefix='update', instance=documentation.objects.get(pk=request.POST['id']).classification)
+            if class_form.is_valid():
+                class_form.save(commit=False)
+                classifi = class_form.save()
+                if request.POST['update-titre'] == str(0):
+                    classifi.titre = request.POST['update-autre']
+                    classifi.save()
+            else:
+                return render(request,
+                                  self.template_name,
+                                  {
+                                      'title': self.title,
+                                      'classification': self.c,
+                                      'form': self.form(request.POST),
+                                      'classification_form': classification_form(request.POST)
+                                  }
+                                  )
+            form2 = ajouter_procedure_form(request.POST, request.FILES, prefix='update', instance=documentation.objects.get(pk=request.POST['id']))
+            if form2.is_valid():
+                form2.save(commit=False)
+                doc = form2.save()
+                doc.classification = classifi
+                doc.save()
+            else:
+                return render(request,
+                              self.template_name,
+                              {
+                                  'title': self.title,
+                                  'classification': self.c,
+                                  'form': self.form(request.POST),
+                                  'classification_form': classification_form(request.POST)
+                              }
+                              )
+            return HttpResponseRedirect(reverse('sav:bibliotheque' , kwargs={'pk':documentation.objects.get(pk=request.POST['id']).classification.id}))
+
+        if "key" in request.POST:
+            filter= ~Q(titre__icontains="XXXXXXXX")
+            for word in request.POST['key'].replace(' ', '').split(','):
+                filter &= Q(titre__icontains=word)
+            from .models import classification
+            classi=classification.objects.filter(filter)
+            html=''
+            procedure=''
+            for c in classi:
+                if not c.dossier == procedure:
+                    html+='<optgroup label="{}">'.format(c.sigle_toutelettre())
+                html+= '<option value="{}"> {}</option>'.format(c.id, c.titre)
+                if not c.dossier == procedure:
+                    html+='</optgroup>'
+            return  HttpResponse(html)
+
+
+
 

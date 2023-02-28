@@ -108,7 +108,7 @@ ul.nav li a.active {
     <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
 
     </div>
-    <div class="mx-auto order-0 {% if request.META.HTTP_HOST == '127.0.0.1:8000' %}bg-warning rounded{%endif%}">
+    <div class="mx-auto order-0 {% if debug %}bg-warning rounded{%endif%}">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <a class="dropdown-item snipperclick" href="{% url 'sav:home' %}" data-toggle="popover" title='Recherche' data-trigger="hover" data-bs-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>

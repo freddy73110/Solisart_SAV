@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from io import BytesIO
 
+import django.db.models
 from PIL import Image
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -16,6 +17,11 @@ from django.core.validators import FileExtensionValidator
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+
+from django.db.models import F, Value
+from django.db.models.functions import StrIndex
+
+from Solisart_SAV import settings
 
 
 def get_first_name(self):
@@ -588,21 +594,55 @@ class etat_document(models.IntegerChoices):
 
 class dossier(models.IntegerChoices):
 
-    INSTALLATION = 0, 'Installation'
-    DEPANNAGE = 1, 'Dépannage'
-    INTERNE = 2, 'Interne'
-    LOGICIEL = 3, 'Logiciel'
+    CAP = 0, 'Capteur'
+    MOD = 1, 'Module'
+    LOG = 2, 'Logiciel'
+    ENS= 3, 'Ensemble'
+
+class sous_dossier(models.IntegerChoices):
+
+    INTERNE = 0, 'Interne'
+    EXTERNE = 1, 'Externe'
+
+class fichier_categorie(models.IntegerChoices):
+
+    PS = 0, 'Processus'
+    PD = 1, 'Procédure'
+    MO = 2, 'Mode opératoire'
+    MU = 3, "Manuel d'utilisation"
 
 class classification(models.Model):
 
-    dossier=models.IntegerField(default=dossier.INSTALLATION, choices=dossier.choices, verbose_name='Dossier')
+    categorie=models.IntegerField(default=fichier_categorie.MO, choices=fichier_categorie.choices, verbose_name='Catégorie')
+    dossier=models.IntegerField(default=dossier.MOD, choices=dossier.choices, verbose_name='Dossier')
+    sous_dossier=models.IntegerField(default=sous_dossier.INTERNE, choices=sous_dossier.choices, verbose_name='Interne-Externe')
     titre=models.CharField(verbose_name='Titre de la procédure', max_length=100)
+
+    class Meta:
+        app_label = 'sav'
+        ordering = ['categorie', 'dossier', 'titre']
+
+    def sigle(self):
+        return "{}-{}-{}".format(
+        str(fichier_categorie(self.categorie).name),
+        str(dossier(self.dossier).name),
+        str(sous_dossier(self.sous_dossier).name)
+    )
+
+    def sigle_toutelettre(self):
+        return "{} - {}".format(
+            str(fichier_categorie(self.categorie).label),
+            str(dossier(self.dossier).label)
+        )
+
+    def __str__(self):
+        return self.sigle() +'/' +str(self.titre)
+
+
 
 def group_based_upload_to(instance, filename):
 
-    return "documentation/{}/{}/{}".format(
-        str(instance.classification.dossier),
-        str(instance.classification.sous_dossier),
+    return "documentation/{}".format(
         filename
     )
 
@@ -611,7 +651,7 @@ class documentation(models.Model):
     fichier = models.FileField(upload_to=group_based_upload_to, verbose_name="Fichier", validators=[FileExtensionValidator(allowed_extensions=["doc","docx", "pdf", "mp4", "mpeg", "avi", "wav"])])
     version = models.CharField(verbose_name="Version du document", max_length=10)
     date = models.DateField(verbose_name="Date de mise en application")
-    classification = models.ForeignKey(classification, verbose_name="Classification du document", on_delete=models.CASCADE)
+    classification = models.ForeignKey(classification, verbose_name="Classification du document", on_delete=models.CASCADE, null=True, blank=True)
     etat = models.IntegerField(default=etat_document.VALIDE, choices=etat_document.choices, verbose_name='Etat du document')
     commentaire =models.TextField(verbose_name="Commentaire évolution", max_length=500, null=True, blank=True)
     a_ameliorer=models.TextField(verbose_name="Point à améliorer", max_length=500, null=True, blank=True)
@@ -640,6 +680,38 @@ class documentation(models.Model):
                 '<span class="fa-layers-text" data-fa-transform="shrink-11.5 down-2" style="font-weight:600">' +extension.replace('.', '')+'</span>'\
                 '</span>'
 
+    def extensionfile(self):
+        name, extension = os.path.splitext(self.fichier.name)
+        return str(extension)[1:]
+
+    def sigle(self):
+        return self.classification.sigle()
+
+    def __str__(self):
+        return self.sigle() + '/' +str(self.version) + ' ' + str(self.extensionfile())
+
+    def validite(self):
+        i = 0
+        docs = documentation.objects.filter(classification=self.classification).\
+                annotate(split=StrIndex(F('fichier'), Value('.')))\
+                .annotate(extension=Substr(F('fichier'), F('split')+1))\
+                .order_by('extension','date')
+        for doc in docs:
+            i+=1
+            if doc == self:
+                try:
+                    if doc.extensionfile()==docs[i].extensionfile():
+                        return docs[i].date
+                        break
+                    else:
+                        return datetime.today().date()
+                        break
+                except:
+                    return datetime.today().date()
+
+    class Meta:
+         app_label = 'sav'
+         ordering = ['date']
 
 
 

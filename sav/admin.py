@@ -18,4 +18,5 @@ admin.site.register(historique)
 admin.site.register(donnee)
 admin.site.register(cause)
 admin.site.register(MES)
-
+admin.site.register(documentation)
+admin.site.register(classification)

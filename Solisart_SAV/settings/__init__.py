@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "192.168.10.250", "solistools.fr"]
 
+INTERNAL_IPS = (
+    '127.0.0.1',
+)
+
 # Application definition    
 
 INSTALLED_APPS = [
@@ -150,10 +154,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')
 
 MEDIA_URL = '/media/'
-if DEBUG:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-else:
-    MEDIA_ROOT = '/home/SolisArt_SAV/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

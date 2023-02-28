@@ -12,10 +12,16 @@
         <h5 class="modal-title" id="exampleModalLabel">Ajouter une procédure</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-        <form method="post">{% csrf_token %}
+        <form method="post" enctype="multipart/form-data" id="formId">{% csrf_token %}
       <div class="modal-body">
+          <fieldset class="border p-2 h-100">
+              <legend class="float-none w-auto">Classification</legend>
               {% crispy classification_form %}
+          </fieldset>
+          <fieldset class="border p-2 h-100">
+              <legend class="float-none w-auto">Fichier</legend>
               {% crispy form %}
+          </fieldset>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
@@ -28,20 +34,24 @@
 <h1 class="text-center m-3">Bibliothèque documentaire</h1>
 <div class="container">
     <div class="row">
-        <div class="col-6">
+        <div class="col-10">
             <form>{% csrf_token %}
                 <div class="input-group mb-3">
+                    <div class="form-floating flex-grow-1" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" title="Mots clés" data-bs-content="Séparer les mots clés par une virgule.Sans mot clé, tous les documents sont proposés">
+                        <input type="text" class='form-control' value="" id="motCle" placeholder="Mots clés séparés par une virgule" onkeyup="keyword()">
+                        <label for="motCle">Mots clés</label>
+                    </div>
                     <div class="form-floating flex-grow-1">
-                        <select class="form-select" id="dossier" name="dossier">
+                        <select class="form-select" id="dossier" name="charger">
                             {% for procedure in classification %}
-                            {% ifchanged procedure.dossier%}<optgroup label="{{procedure.dossier}}">{% endifchanged %}
-                            {% ifchanged procedure.titre%}<option value="{{procedure.titre}}"> {{procedure.titre}}</option>{% endifchanged %}
+                            {% ifchanged procedure.dossier%}<optgroup label="{{procedure.get_categorie_display}} - {{procedure.get_dossier_display}}">{% endifchanged %}
+                            {% ifchanged procedure.titre%}<option value="{{procedure.id}}"> {{procedure.titre}}</option>{% endifchanged %}
                             {% ifchanged procedure.dossier%}</optgroup>{% endifchanged %}
                             {%endfor%}
                         </select>
                         <label for="dossier">Procédures</label>
                     </div>
-                    <button class="btn btn-outline-secondary" type="button" id="button-form2" name="dossier" onclick="visualiser(this)"><i class="fas fa-book-reader"></i> Charger</button>
+                    <button class="btn btn-outline-secondary" type="button" id="button-form2" name="changer" onclick="visualiser(this)"><i class="fas fa-book-reader"></i> Charger</button>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">
                       <i class="fas fa-plus-circle"></i> Ajouter procédure
                     </button>
@@ -49,20 +59,34 @@
             </form>
         </div>
     </div>
+    <div class="row">
+        <div class="col-12">
+            <div id="gantt"></div>
+        </div>
+    </div>
 </div>
 <script>
-function ajout_autre(){
-        if ($("#id_titre").val() == "0"){
+function AutreDisplay(){
+    if ($("#id_titre").val() == "0"){
             $("#id_autre").removeClass("d-none")
             $("#id_autre").parent().removeClass("d-none")
         }else{
             $("#id_autre").addClass("d-none")
             $("#id_autre").parent().addClass("d-none")
         }
-
 }
-$("#id_titre").on("click", ajout_autre())
-ajout_autre()
+
+$("#id_titre").on('change', function(){
+    if ($("#id_titre").val() == "0"){
+            $("#id_autre").removeClass("d-none")
+            $("#id_autre").parent().removeClass("d-none")
+        }else{
+            $("#id_autre").addClass("d-none")
+            $("#id_autre").parent().addClass("d-none")
+        }
+}
+)
+AutreDisplay()
 function visualiser(t){
         var $t =$(t)
         $t.html('<i class="fas fa-spinner fa-pulse"></i> Changer')
@@ -74,8 +98,41 @@ function visualiser(t){
             data: data,
             dataType: 'html',
             success: function (html) {
-                console.log(html)
                 $("#button-form2").html('<i class="fas fa-book-reader"></i> Charger')
+                $("#gantt").html(html)
+            }
+    })
+}
+$('.refreshOption').on('change', function(){
+        var form= $("#formId");
+        data =  form.serialize() + '&refresh='
+        $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: data,
+            dataType: 'html',
+            success: function (html) {
+                $("#id_titre").html('')
+                $("#id_titre").html(html)
+                AutreDisplay()
+            }
+    })
+})
+var pk='{{pk}}'
+if( pk != 'None'){
+    $("#dossier").val({{pk}})
+    $("#button-form2").click()
+}
+function keyword(){
+    $.ajax({
+        url: window.location.href,
+            type:'post',
+            headers: {'X-CSRFToken': csrftoken},
+            data: 'key='+ $("#motCle").val(),
+            dataType: 'html',
+            success: function (html) {
+                $("#dossier").html()
+                $("#dossier").html(html)
             }
     })
 }

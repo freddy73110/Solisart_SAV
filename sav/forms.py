@@ -371,8 +371,8 @@ class ajouter_procedure_form(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['date'].widget = XDSoftDatePickerInput()
         self.fields['date'].input_formats = ['%d-%m-%Y']
-        self.fields['fichier'].label=''
-        self.fields['fichier'].widget = forms.FileInput(attrs={'accept':".doc,.docx, .pdf, .mp4, .mpeg, .avi, .wav"})
+        # self.fields['fichier'].label=''
+        # self.fields['fichier'].widget = forms.FileInput(attrs={'accept':".doc,.docx, .pdf, .mp4, .mpeg, .avi, .wav"})
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
@@ -390,13 +390,12 @@ class ajouter_procedure_form(ModelForm):
 
     def clean(self):
         import re
-        print(self.cleaned_data)
         if not re.findall(r'(?:(\d+\.[.\d]*\d+))',self.cleaned_data['version']):
             raise forms.ValidationError("Format de version non approprié")
 
 class classification_form(ModelForm):
 
-    autre=forms.CharField(max_length=100, label="Autre titre de procédure")
+    autre=forms.CharField(max_length=100, label="Autre titre de procédure", required=False)
     class Meta:
         model = classification
         fields = "__all__"
@@ -405,14 +404,16 @@ class classification_form(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['titre']=forms.ChoiceField(
         required=False,
-        choices=[("0", "Autre")] + [(c, c) for c in classification.objects.all().values('titre')],
+        choices=[(c['titre'], c['titre']) for c in classification.objects.all().values('titre')] + [("0", "Autre")],
     )
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Row(
                 Column(
-                    FloatingField('dossier'),
+                    FloatingField('categorie', css_class="refreshOption"),
+                    FloatingField('dossier', css_class="refreshOption"),
+                    FloatingField('sous_dossier', css_class="refreshOption"),
                     FloatingField('titre'),
                     FloatingField('autre', css_class="d-none", wrapper_class="d-none")
             )
