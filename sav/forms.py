@@ -404,7 +404,9 @@ class classification_form(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['titre']=forms.ChoiceField(
         required=False,
-        choices=[(c['titre'], c['titre']) for c in classification.objects.all().values('titre')] + [("0", "Autre")],
+        choices=[(c['id'], c['titre']) for c in classification.objects.all().values('titre', 'id')] + [("0", "Autre")],
+        initial=self.instance.id if self.instance else 0
+
     )
         self.helper = FormHelper()
         self.helper.form_tag = False

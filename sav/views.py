@@ -1477,7 +1477,7 @@ class bibliotheque(View):
     form = ajouter_procedure_form()
 
     def get(self, request, *args, **kwargs):
-        self.classification = classification.objects.all().order_by("dossier", "titre")
+        self.c = classification.objects.all().order_by("dossier", "titre")
         if  'pk' in kwargs:
             self.pk = kwargs.pop('pk')
         else:
@@ -1486,7 +1486,7 @@ class bibliotheque(View):
                       self.template_name,
                       {
                           'title': self.title,
-                          'classification': self.classification,
+                          'classification': self.c,
                           'form':self.form,
                           'classification_form': classification_form(),
                           'pk':self.pk
@@ -1494,16 +1494,18 @@ class bibliotheque(View):
                       )
 
     def post(self, request, *args, **kwargs):
-
+        from .models import classification
+        self.c = classification.objects.all().order_by("dossier", "titre")
         #Permet  d'enregister les nouvelles procédures
         if "nouvelle_procedure" in request.POST:
             class_form=classification_form(request.POST)
             if class_form.is_valid():
-                class_form.save(commit=False)
-                classif = class_form.save()
                 if request.POST['titre'] == str(0):
-                    classif.titre = request.POST['autre']
-                    classif.save()
+                    class_form.save(commit=False)
+                    class_form.titre = request.POST['autre']
+                    classif = class_form.save()
+                else:
+                    classif=classification.objects.get(pk=request.POST['titre'])
                 form2 = ajouter_procedure_form(request.POST, request.FILES)
                 if form2.is_valid():
                     form2.save(commit=False)
@@ -1518,7 +1520,6 @@ class bibliotheque(View):
                                'title': self.title,
                                'form': form2,
                                'classification_form': class_form
-
                            }
                            )
             else:
@@ -1526,7 +1527,7 @@ class bibliotheque(View):
                        self.template_name,
                        {
                            'title': self.title,
-                           'classification': self.classification,
+                           'classification': self.c,
                            'form': self.form(request.POST),
                            'classification_form': classification_form(request.POST)
                        }
@@ -1593,10 +1594,11 @@ class bibliotheque(View):
                 )
             html=''
             for doc in docs:
-                html+='<option value='+str(doc.titre)+'>' + str(doc.titre) + '</option>'
+                html+='<option value='+str(doc.id)+'>' + str(doc.titre) + '</option>'
             html+='<option value="0">Autre</option>'
             return HttpResponse(html)
 
+        #Message de confirmation de suppression ou page de modification
         if "Confirm" in request.POST:
             id_input = '<input type=hidden name="id" value=' + request.POST['id'] + '>'
             if request.POST['mode']== 'Supprimer':
@@ -1618,24 +1620,27 @@ class bibliotheque(View):
                        }
                        )
 
+        #Suppression d'un fichier
         if "Supprimer" in request.POST:
             documentation.objects.get(pk=request.POST['id']).delete()
             return redirect(request.META['HTTP_REFERER'])
 
+        #Modification d'un fichier
         if "Modifier" in request.POST:
             class_form = classification_form(request.POST, prefix='update', instance=documentation.objects.get(pk=request.POST['id']).classification)
             if class_form.is_valid():
-                class_form.save(commit=False)
-                classifi = class_form.save()
                 if request.POST['update-titre'] == str(0):
-                    classifi.titre = request.POST['update-autre']
-                    classifi.save()
+                    class_form.save(commit=False)
+                    class_form.titre = request.POST['autre']
+                    classif = class_form.save()
+                else:
+                    classif = classification.objects.get(pk=request.POST['update-titre'])
             else:
                 return render(request,
                                   self.template_name,
                                   {
                                       'title': self.title,
-                                      'classification': self.classification,
+                                      'classification': self.c,
                                       'form': self.form(request.POST),
                                       'classification_form': classification_form(request.POST)
                                   }
@@ -1644,20 +1649,21 @@ class bibliotheque(View):
             if form2.is_valid():
                 form2.save(commit=False)
                 doc = form2.save()
-                doc.classification = classifi
+                doc.classification = classif
                 doc.save()
             else:
                 return render(request,
                               self.template_name,
                               {
                                   'title': self.title,
-                                  'classification': self.classification,
+                                  'classification': self.c,
                                   'form': self.form(request.POST),
                                   'classification_form': classification_form(request.POST)
                               }
                               )
             return HttpResponseRedirect(reverse('sav:bibliotheque' , kwargs={'pk':documentation.objects.get(pk=request.POST['id']).classification.id}))
 
+        #Recherche documentation
         if "key" in request.POST:
             filter= ~Q(titre__icontains="XXXXXXXX")
             for word in request.POST['key'].replace(' ', '').split(','):
