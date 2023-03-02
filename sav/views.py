@@ -1386,13 +1386,7 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from django.db.models import OuterRef, Subquery, Count
-        queryset = ticket.objects.filter(evenement__date__gte=datetime.today()+timedelta(days=-3))
-        print(queryset.count())
-        print(queryset.annotate(
-            installation_id=F('evenement__installation')
-        ).values("installation_id", "utilisateur").annotate(profil_type_id=Subquery(acces.objects.filter(installation__id=OuterRef("installation_id"), utilisateur__id=OuterRef("utilisateur")).values('profil_type')[:1]))
-        )
+
         # queryfilter=(
         #     profil_type.objects.filter()
         # )
