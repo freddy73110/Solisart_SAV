@@ -9,6 +9,17 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 app.autodiscover_tasks()
 app.conf.timezone = 'UTC'
 
+import sav
+
+# @app.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+#
+#     sender.add_periodic_task(
+#         10.0,
+#         sav.tasks.refresh_mailbox(),
+#     )
+
+
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))

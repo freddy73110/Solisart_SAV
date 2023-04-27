@@ -5,7 +5,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion, TabHolder, Tab, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
-from django.db.models import F, Value as V
+from django.db.models import F, Value as V, Subquery, OuterRef
 from django.db.models.functions import Concat
 from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
 from .crispy_layout import *
@@ -25,24 +25,24 @@ class add_evenement_form(ModelForm):
         user_acces = kwargs.pop('user_acces', None)
         instal = kwargs.pop('installation', None)
         date = kwargs.pop('date', None)
-
         super(add_evenement_form, self).__init__(*args, **kwargs)
-        self.fields['technicien_sav'].queryset = User.objects.filter(pk=user.id)
-        self.fields['technicien_sav'].initial = User.objects.get(pk=user.id)
-        self.fields['technicien_sav'].widget = HiddenInput()
+        if user:
+            self.fields['technicien_sav'].queryset = User.objects.filter(pk=user.id)
+            self.fields['technicien_sav'].initial = User.objects.get(pk=user.id)
+            self.fields['technicien_sav'].widget = HiddenInput()
         if instal:
             self.fields['installation'].queryset = installation.objects.filter(pk = instal.id)
             self.fields['installation'].initial = installation.objects.get(pk=instal.id)
             self.fields['installation'].widget = HiddenInput()
         if user_acces:
             self.fields['installation'].queryset = installation.objects.filter(acces__utilisateur = user_acces)
-            tu=[]
-            for i in installation.objects.filter(acces__utilisateur=user_acces).distinct():
-                tu.append((i.id, str(i)))
-            tu2 = []
-            for i in installation.objects.all():
-
-                tu2.append((i.id, str(i)))
+            tu = [(i.id, str(i)) for i in installation.objects.filter(acces__utilisateur=user_acces).distinct()]
+            tu2 = installation.objects.all().annotate(
+                firstname=Subquery(
+                User.objects.filter(acces__installation__id=OuterRef("pk"), acces__profil_type__name="Propriétaire").values('first_name')[:1]),
+                lastname=Subquery(
+                User.objects.filter(acces__installation__id=OuterRef("pk"), acces__profil_type__name="Propriétaire").values('last_name')[:1])
+            ).distinct().values('id','idsa', 'firstname', 'lastname').annotate(str=Concat('idsa', Value(' / '), 'firstname', Value(' '), 'lastname')).values_list('id', 'str')
 
             choices = (('Installation(s) liée(s)', tuple(tu)
                         ),
@@ -51,7 +51,6 @@ class add_evenement_form(ModelForm):
             self.fields['installation'].choices=choices
         self.fields['date'].widget = XDSoftDateTimePickerInput()
         self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
-
         if date:
             self.fields['date'].initial = date
         else:

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-v!t0pw34)pdu6&rda86ll_c8c9y0e1s3d^y+5%jz5o)-52(4!3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.10.250", "solistools.fr"]
+ALLOWED_HOSTS = ["127.0.0.1","localhost", "192.168.10.250", "solistools.fr"]
 
 INTERNAL_IPS = (
     '127.0.0.1',
@@ -35,6 +35,8 @@ INTERNAL_IPS = (
 
 INSTALLED_APPS = [
     'sav',
+    'daphne',
+    "channels",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    "crispy_bootstrap5",
+    "crispy_bootstrap5"#,
+    # 'django_celery_beat'
 ]
 
 
@@ -76,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Solisart_SAV.wsgi.application'
+
 
 
 # Database
@@ -134,8 +138,16 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'freddy.solisart@gmail.com'
-EMAIL_HOST_PASSWORD = 'lmzoieaojsoquowx'
+EMAIL_HOST_PASSWORD = 'tmmacqqpahpvzrpi'
 DEFAULT_FROM_EMAIL ='sav@solisart.fr'
+
+# DEFAULT_FROM_EMAIL = 'freddy.dubouchet@solisart.fr'
+# SERVER_EMAIL = 'freddy.dubouchet@solisart.fr'
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.office365.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'freddy.dubouchet@solisart.fr'
+# EMAIL_HOST_PASSWORD = 'flgghhbdtjlcckmg' #il faut créer un mot de passe pour application lmzoieaojsoquowx
 
 DATETIME_INPUT_FORMATS = ('%d-%m-%Y %H:%M')
 
@@ -167,6 +179,19 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+# CELERY_BROKER_URL = "redis://localhost:6379"
+# CELERY_RESULT_BACKEND = "redis://localhost:6379"
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+#
+ASGI_APPLICATION = "Solisart_SAV.asgi.application"
+# #channels settings
+# CHANNEL_LAYERS = {
+#     'default': {
+#         # "BACKEND": "channels.layers.InMemoryChannelLayer",
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#     }
+# }
 

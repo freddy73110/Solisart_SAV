@@ -9,6 +9,7 @@ from datetime import timedelta
 from email.mime.image import MIMEImage
 from io import StringIO
 
+from asgiref.sync import async_to_sync
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -55,21 +56,22 @@ def addimg(path, name):
     return logo
 
 class inbox():
-
-    def mailbox(request):
+    def mailbox():
         email_user = "sav@solisart.fr"
         email_pass = "AristideBerges218"
         server = 'imap.webmo.fr'
 
         return MailBox(server).login(email_user, email_pass)
 
-    def mailbox_search(request, fetch=None):
+    def mailbox_search(fetch=None, days=None):
+        if not days:
+            days = 3
         if not fetch:
-            fetch = A(date_gte=(datetime.now() - timedelta(days=1)).date())
+            fetch = A(date_gte=(datetime.now() - timedelta(days=days)).date())
         else:
-            fetch = A(fetch, date_gte=(datetime.now() - timedelta(days=3)).date())
+            fetch = A(fetch, date_gte=(datetime.now() - timedelta(days=days)).date())
 
-        return inbox.mailbox(request).fetch(fetch)
+        return inbox.mailbox().fetch(fetch)
 
     def fileattchment(msg):
         return [{'name':att.filename, 'type':att.content_type} for att in msg.attachments]
@@ -80,7 +82,7 @@ class inbox():
 
     def list(request, fetch=None):
 
-        mailbox = inbox.mailbox_search(request, fetch=None)
+        mailbox = inbox.mailbox_search(fetch=None, days=3)
         list_mail=[]
         for e in mailbox:
             try:
@@ -438,7 +440,8 @@ class mail(View):
         return super(mail, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.emails = inbox.list(request)
+        self.emails = emailbox.objects.all()
+
         return render(request,
                       self.template_name,
                       {
@@ -448,6 +451,18 @@ class mail(View):
                       )
 
     def post(self, request, *args, **kwargs):
+
+
+        print(request.POST)
+        if 'createticket' in request.POST:
+            msg = emailbox.objects.get(pk=request.POST['id'])
+            return render(request, 'widgets/ticketSinceEmail.html',
+                          {
+                              'e':msg,
+                              'add_evenement_form': add_evenement_form(user=request.user, user_acces=msg.from_user)
+                          })
+
+
         t_form = ticket_form(request.POST)
         e_form = add_evenement_form(request.POST, user=request.user,
                                         date=request.POST['mail_date'])
@@ -467,17 +482,15 @@ class mail(View):
         if not e_form.is_valid() and t_form.is_valid():
             return JsonResponse(json, safe=False)
         else:
-            even.save()
-            tick.evenement=even
+            e = even.save()
+            tick.evenement=e
             tick.save()
         if request.POST['response']:
             date= datetime.strptime(request.POST['mail_date'], '%d-%m-%Y %H:%M')
-            msg=inbox.mailbox_search(request, fetch=A(uid=request.POST['uid']
-                                           ))
+            msg=emailbox.objects.filter(pk=request.POST['mail_id'])
             if request.POST['response'] == 'send_response':
                 try:
                     for m in msg:
-                        subject = m.subject
                         if settings.DEBUG:
                             subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
                         else:
@@ -512,10 +525,10 @@ class mail(View):
                 try:
                     if settings.DEBUG:
                         subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                        utilisateur = User.objects.get(email='freddy.dubouchet@solisart.fr')
+                        utilisateur = User.objects.filter(email='freddy.dubouchet@solisart.fr')[0]
                     else:
                         subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
-                        utilisateur=User.objects.get(email=request.POST['response_email'])
+                        utilisateur=User.objects.filter(email=request.POST['response_email'])[0]
 
                     html_content = render_to_string('email/responseloselogin.html', {
                         'utilisateur':utilisateur,
@@ -740,9 +753,7 @@ class statistiques(View, SuccessMessageMixin):
                 queryset = queryset.order_by('frequence','profil_type_id').annotate(
                     lien=Case(*when4, output_field=CharField())
                 )
-
                 queryset= queryset.values('frequence', 'lien').order_by("frequence", "lien").annotate(count=Count('id'))
-
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             df.fillna(value="sans profil", inplace=True)
 
@@ -1334,8 +1345,9 @@ class ticket_view(View):
     title = 'Tickets ouverts'
 
     def get(self, request, *args, **kwargs):
-        from django.db.models import CharField, Value as V
-        from django.db.models.functions import Concat
+
+        t = datetime.now()
+        from django.db.models import CharField
         all_ticket_open=ticket.objects.exclude(etat=3).order_by("-evenement__date").annotate(even_date=F('evenement__date'),
                                                                 even_installation=F('evenement__installation'),
                                                                 even_techncien_sav=F('evenement__technicien_sav'),
@@ -1348,36 +1360,54 @@ class ticket_view(View):
         at2=[]
         for i in at:
             at2.append(i)
+        form_even = add_evenement_form(user=User.objects.get(pk=all_ticket_open[0].evenement.technicien_sav.id))
         return render(request,
                       self.template_name,
                       {
                           'title': self.title,
                           'all_ticket_open':all_ticket_open,
-                          'form_even':add_evenement_form(user=User.objects.get(pk=all_ticket_open[0].evenement.technicien_sav.id),
-                                                         ),
+                          'form_even':form_even,
                           'form_ticket':ticket_form,
                           'at_json': at2
                       }
         )
 
     def post(self, request, *args, **kwargs):
-        form_evenement=add_evenement_form(request.POST, instance=evenement.objects.get(pk=request.POST['evenement']), user=User.objects.get(pk=int(request.POST['technicien_sav'])))
-        form_ticket=ticket_form(request.POST, instance=ticket.objects.get(pk=request.POST['id']))
-        data={}
-        if form_evenement.is_valid():
-            form_evenement.save()
-            data['even'] = 'ok'
+
+        if "nature_form" in request.POST:
+            add_ticket_form = ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])), installation=ticket.objects.get(pk=int(request.POST['id'])).evenement.installation)
+            add_evenement = add_evenement_form(
+                instance=evenement.objects.get(ticket__pk=int(request.POST['id'])),
+                user=ticket.objects.get(pk=int(request.POST['id'])).evenement.technicien_sav,
+                installation=ticket.objects.get(pk=int(request.POST['id'])).evenement.installation)
+
+            return render(request, "widgets/crispy_form.html",
+                      {'add_ticket_form': add_ticket_form,
+                       'add_evenement': add_evenement})
         else:
-            data['even']=form_evenement.errors
+            form_evenement=add_evenement_form(request.POST, instance=evenement.objects.get(pk=request.POST['evenement']), user=User.objects.get(pk=int(request.POST['technicien_sav'])))
+            form_ticket=ticket_form(request.POST, instance=ticket.objects.get(pk=request.POST['id']))
+            data={}
+            if form_evenement.is_valid():
+                form_evenement.save()
+                data['even'] = 'ok'
+            else:
+                data['even']=form_evenement.errors
 
-        if form_ticket.is_valid():
-            form_ticket.save()
+            if form_ticket.is_valid():
+                form_ticket.save()
+                data['ticket']='ok'
+            else:
+                data['ticket'] = form_evenement.errors
 
-            data['ticket']='ok'
-        else:
-            data['ticket'] = form_evenement.errors
+            if data['even']=='ok' and data['ticket']=='ok':
+                data['ticketChanged']=ticket.objects.filter(pk=request.POST['id']).order_by("-evenement__date").annotate(even_date=F('evenement__date'),
+                                                                                     even_installation=F(
+                                                                                         'evenement__installation'),
+                                                                                     even_techncien_sav=F(
+                                                                                         'evenement__technicien_sav')).values()[0]
 
-        return JsonResponse(data, safe=False)
+            return JsonResponse(data, safe=False)
 
 
 class bidouille (View):
@@ -1386,6 +1416,10 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        from sav.tasks import refresh_mailbox
+        refresh_mailbox()
+
+
 
         # queryfilter=(
         #     profil_type.objects.filter()

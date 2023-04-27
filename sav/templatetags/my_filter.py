@@ -3,6 +3,15 @@ import re
 
 register = template.Library()
 
+@register.filter(name='has_group')
+def has_group(user, group_name):
+    return user.groups.filter(name=group_name).exists()
+
+@register.filter
+def add_evenement_form(user):
+    print(user)
+    return object.add_evenement_form(user)
+
 @register.filter
 def div(obj, div):
     return obj//div + obj % div

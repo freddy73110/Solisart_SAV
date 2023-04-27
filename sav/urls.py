@@ -6,7 +6,6 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    url('^', include('django.contrib.auth.urls')),
     path('', login_required(views.home.as_view()), name='home'),
     path('updateDB', login_required(views.updateDB.as_view()), name='updateDB'),
     path('installation/<int:pk>', login_required(views.installation_view.as_view()), name='installation'),
@@ -16,6 +15,6 @@ urlpatterns = [
     path('bibliotheque', login_required(views.bibliotheque.as_view()), name='bibliotheque'),
     path('bibliotheque/<int:pk>', login_required(views.bibliotheque.as_view()), name='bibliotheque'),
     path('statistiques', login_required(views.statistiques.as_view()), name='statistiques'),
-    path('mail', login_required(views.mail.as_view()), name='mail'),
+    # path('mail', login_required(views.mail.as_view()), name='mail'),
     path('bidouille', views.bidouille.as_view(), name='bidouille')
 ]

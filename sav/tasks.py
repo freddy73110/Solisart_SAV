@@ -1,8 +1,12 @@
 import datetime
 
+from asgiref.sync import async_to_sync
 from celery import shared_task
 from django.core.files.base import ContentFile
+from django.core.mail import EmailMultiAlternatives
 from django.db.models.functions import Substr, Lower
+from django.shortcuts import render
+from django.template.loader import render_to_string
 
 from .models import profil_user, ticket, Fichiers, installation
 import time
@@ -13,8 +17,56 @@ from PIL import Image
 def add(x, y):
     time.sleep(10)
     print(x, y)
-
     return str(x + y) + "Hello World"
+
+# @shared_task
+# def refresh_mailbox():
+    # print("in refresh mailbox")
+    # from .views import inbox
+    # mailbox = inbox.mailbox_search(fetch=None, days=10)
+    # for e in mailbox:
+    #     print({'date':e.date,
+    #                               'from_':e.from_,
+    #                               'subject':e.subject,
+    #                               # 'html':e.html,
+    #                               # 'text':e.text,
+    #                               'uid':e.uid,
+    #                               # 'attachment': inbox.fileattchment(e),
+    #                                 })
+    #     try:
+    #         msg = emailbox.objects.get(uid=e.uid)
+    #     except:
+    #         msg = emailbox.objects.create(
+    #             uid=e.uid,
+    #             subject = e.subject,
+    #             de = e.from_,
+    #             to = e.to,
+    #             cc = e.cc,
+    #             date = e.date,
+    #             html = e.html,
+    #             text = e.text
+    #         )
+    #         #envoi notification de mail entrant
+    #     html_message = render_to_string(
+    #                'widgets/toast_message.html',
+    #                {
+    #                    'msg':msg,
+    #                    'now':datetime.datetime.now()
+    #                })
+    #     from channels.layers import get_channel_layer
+    #     layer = get_channel_layer()
+    #     async_to_sync(layer.group_send)('all',{'type':'chatroom_message','message':html_message, 'username':'moi'}
+    #                                         )
+    # msg = EmailMultiAlternatives("rapport des mails", "C'est fait!", "sav@solisart.fr", ["freddy.dubouchet@gmail.com"])
+    # msg.send()
+
+    # mailbox = inbox.mailbox_search(days=30)
+    # i = 0
+    # print("pourquoi?", mailbox)
+    # for msg in mailbox:
+    #     i+=1
+    #     print('message ', i, ' :' ,msg.subject, msg.from_)
+    # print("nb d'mail: ", i)
 
 @shared_task
 def rapport_ticket():

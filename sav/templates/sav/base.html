@@ -59,7 +59,22 @@ function getCookie(name) {
 }
 var csrftoken = getCookie('csrftoken');
 $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
+
+
+<!--const socketmail = new WebSocket('ws://' + window.location.host +-->
+<!--        '/ws/mails/all/');-->
+<!--        socketmail.onmessage = (e) => {-->
+<!--            result = JSON.parse(e.data);-->
+<!--            if(result.hasOwnProperty('message')){-->
+<!--                $("div.toast-container").prepend(result.message)-->
+<!--            }-->
+<!--            if(result.hasOwnProperty('nbmail')){-->
+<!--                $("#nbmail").html(result.nbmail)-->
+<!--            }-->
+<!--        }-->
+
 </script>
+
 {% block javascript %}
 {%endblock%}
 
@@ -67,6 +82,9 @@ $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
     <title>{%block Titre%}SolisArt{%endblock%}</title>
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
     <style>
+.fade {
+  transition-duration: 0.5s;
+}
 
 .not-allowed{
  cursor: not-allowed! important;
@@ -111,7 +129,7 @@ ul.nav li a.active {
     <div class="mx-auto order-0 {% if debug %}bg-warning rounded{%endif%}">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="dropdown-item snipperclick" href="{% url 'sav:home' %}" data-toggle="popover" title='Recherche' data-trigger="hover" data-bs-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
+                <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:home' %}" data-bs-container="body" data-toggle="popover" title='Recherche' data-trigger="hover" data-bs-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-search" data-fa-transform="shrink-8"></i>
@@ -119,7 +137,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-2 snipperclick" href="{% url 'sav:updateDB' %}" data-bs-container="body" data-bs-toggle="popover" title='Import depuis MySolisArt' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Importer les datas depuis MySolisArt'>
+                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:updateDB' %}" data-bs-container="body" data-bs-toggle="popover" title='Import depuis MySolisArt' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Importer les datas depuis MySolisArt'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-plus-circle" data-fa-transform="shrink-8"></i>
@@ -127,7 +145,7 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:ticket' %}" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
+                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:ticket' %}" data-toggle="popover" title='Suivi des tickets' data-trigger="hover" data-placement="bottom" data-content='Suivi des tickets'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
@@ -151,18 +169,10 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-2 snipperclick" href="{% url 'sav:bibliotheque' %}" data-toggle="popover" title='Bibliothèque documentaire' data-trigger="hover" data-placement="bottom" data-html="true" data-content='Bibliothèque' >
+                <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:bibliotheque' %}" data-toggle="popover" title='Bibliothèque documentaire' data-trigger="hover" data-placement="bottom" data-html="true" data-content='Bibliothèque' >
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
                         <i class="fas fa-book" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item snipperclick" href="{% url 'sav:mail' %}" data-toggle="popover" title='Boîte mail SAV' data-trigger="hover" data-placement="bottom" data-content='Ouvrir un ticket depuis la boîte email sav'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
-                        <i class="fas fa-at" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
             </li>
@@ -179,7 +189,7 @@ ul.nav li a.active {
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
-                <li><a class="dropdown-item" href="{% url 'sav:password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
+                <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                 <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
               </ul>
         </div>
@@ -220,6 +230,10 @@ ul.nav li a.active {
         {%endblock%}
         {%block content %}
         {%endblock%}
+
+<div class="toast-container position-absolute bottom-0 end-0 p-3">
+
+</div>
 
     </article>
 <script>

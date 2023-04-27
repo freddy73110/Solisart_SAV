@@ -57,7 +57,7 @@ const fontAwesomeIconInstallateur = L.divIcon({
     iconAnchor: [30, 40],
     className: 'myDivIcon'
 });
-const mymap = L.map('map').setView([45, 0],6);
+const mymap = L.map('map').setView([45, 0],5);
             L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
 
 var markersCluster = new L.MarkerClusterGroup();
@@ -126,6 +126,14 @@ async function load() {
             $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes("100")){
                 ajoutDepartement(geojsonBelgique, v.color)
+            }
+          })
+
+         let url3 = '{% static "sav/geojson/geojsonSuisse.json" %}';
+        let geojsonSuisse = await (await fetch(url3)).json();
+            $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("200")){
+                ajoutDepartement(geojsonSuisse, v.color)
             }
           })
 

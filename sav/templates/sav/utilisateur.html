@@ -77,7 +77,7 @@
                     </span>
                 </button>
               </li>
-                {% if util.profil_user.commercial_ticket.count > 1 %}
+                {% if util.profil_user.commercial_ticket.count > 0 %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="ticket_commercial-tab" data-bs-toggle="tab" data-bs-target="#ticket_commercial" type="button" role="tab" aria-controls="home" aria-selected="true">Bilan SAV
                     <span class="m-3">
@@ -180,10 +180,10 @@
               </div>
               <div class="tab-pane fade" id="ticket_commercial" role="tabpanel" aria-labelledby="home-tab">
                   <div class="row g-3 align-items-center m-3">
-                      <div class="col-auto">
+                      <div class="col-12">
                         <h2>Bilan SAV sur les derniers </h2>
                       </div>
-                      <div class="col-auto">
+                      <div class="col-12">
                           <form>{% csrf_token %}
                           <div class="input-group mb-3">
                               <span class="input-group-text"><i class="fas fa-stopwatch"></i></span>

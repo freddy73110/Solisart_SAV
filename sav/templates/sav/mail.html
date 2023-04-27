@@ -5,6 +5,12 @@
 {%block Titre%}Email{%endblock%}
 
 {%block article%}
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" id="modal-content">
+        </div>
+    </div>
+</div>
 <div class="container">
     <div class="row">
         <div class="col">
@@ -33,93 +39,13 @@
                     {% for e in emails %}
                     <tr>
                         <td>{{e.date|date:"d-m-Y"}} {{e.date|time:"H:i"}}</td>
-                        <td>{% if e.icon %}{{e.icon|safe}} {% endif %}{{e.from_}}</td>
+                        <td>{% if e.from_user %}{{e.from_user.icon|safe}} {% endif %}{{e.de}}</td>
                         <td>{{e.subject}}</td>
                         <td>{{e.text|safe|make_list|slice:'0:200'|join:''}} ...</td>
                         <td>
-
                             <div class="text-center">
-                                <i class="fas fa-reply" data-bs-toggle="modal" data-bs-target="#modal{{ forloop.counter }}"></i>
+                                <i class="fas fa-reply" data-bs-toggle="modal" data-bs-target="#modal" onclick="modalbody({{e.id}})"></i>
                             </div>
-                            <div class="modal fade" id="modal{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                              <div class="modal-dialog modal-xl">
-                                <div class="modal-content">
-                                  <div class="modal-header bg-warning">
-                                      <h6 class="modal-title" id="exampleModalLabel"><b>Envoyé à </b>{{e.date|date:"d-m-Y"}} {{e.date|time:"H:i"}}<br>
-                                          <b>De:</b> {{e.from_}}<br>
-                                          <b>Objet:</b> {{e.subject}}
-                                    </h6>
-
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-
-                                      <div class="alert alert-success alert-dismissible fade d-none" role="alert" id="message{{forloop.counter}}">
-                                          <strong><i class="fas fa-check-circle"></i></strong>
-                                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                        </div>
-                                      <div class="row">
-                                          <div class="col-6">
-                                              <fieldset class="border p-2 h-100">
-                                                  <legend class="float-none w-auto"><b> Email reçu:</b></legend>
-                                                  {% for file in e.attachment %}
-                                                  {{file}}
-                                                  {%endfor%}
-                                              {{e.html|remove_HTML_tag:"img"|safe}}
-                                              </fieldset >
-                                          </div>
-
-                                          <div class="col-6">
-                                              <form method="post" enctype="multipart/form-data" id="form{{forloop.counter}}">{% csrf_token %}
-                                              <input type="hidden" name="mail_date" value='{{e.date|date:"d-m-Y"}} {{e.date|time:"H:i"}}'>
-                                              <input type="hidden" name="mail_of" value='{{e.from_}}'>
-                                              <input type="hidden" name="uid" value='{{e.uid}}'>
-                                              <fieldset class="border p-2">
-                                                  <legend class="float-none w-auto"><b>Création d'un ticket</b></legend>
-                                                  {%crispy e.evenement_form%}
-                                                  {%crispy e.ticket_form%}
-                                              </fieldset>
-                                              <fieldset class="border p-2 h-100">
-                                                  <legend class="float-none w-auto"><b>Réponse par mail</b></legend>
-                                                  <div class="form-floating mb-3">
-                                                      <select class="select form-select" id="inputGroupSelect01" name="response" onchange="ResponseChange(this, {{forloop.counter}})">
-                                                        <option value="" selected>Pas de réponse par email</option>
-                                                        <option value="send_response">Envoi d'une réponse avec historique</option>
-                                                        <option value="login_response">Renvoyer les identifiants de connexion</option>
-                                                        <option value="reconnection">Renvoyer Procédure de connexion</option>
-                                                      </select>
-                                                      <label for="inputGroupSelect01">Options</label>
-                                                    </div>
-                                                  <div class="mb-3 response{{forloop.counter}} d-none">
-                                                      <input type="text"
-                                                             name="response_email"
-                                                             class="form-control response{{forloop.counter}}"
-                                                             value="{{e.from_}}"
-                                                             placeholder="Destinataire(s)"
-                                                      >
-                                                      <small>Séparer les destinataires par une virgule</small>
-                                                  </div>
-                                                  <div class="mb-3 response{{forloop.counter}} d-none" >
-                                                  <textarea
-                                                          name="response_text"
-                                                          style="height: 200px"
-                                                          class="textarea form-control responsetext{{forloop.counter}}"
-                                                          placeholder="Texte de la réponse"></textarea>
-                                                  </div>
-                                              </fieldset>
-                                                  <button class="btn btn-outline-primary m-1" type="button" onclick="executer(this, {{forloop.counter}})">Executer</button>
-                                              </form>
-                                          </div>
-                                      </div>
-
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Close</button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
                         </td>
                     </tr>
                 {%endfor%}
@@ -130,64 +56,18 @@
     </div>
 </div>
 <script>
-    function ResponseChange(t, compter){
-    if($(t).val() == ""){
-        $(".response"+compter).addClass("d-none");
-        $(".responsetext"+compter).addClass("d-none");
-    }else if ($(t).val() == "send_response"){
-        $(".response"+compter).removeClass("d-none");
-        $(".responsetext"+compter).removeClass("d-none");
-    }else{
-        $(".response"+compter).removeClass("d-none");
-        $(".responsetext"+compter).addClass("d-none");
-    }
-
-    }
-    function executer(t, count){
-        var $t = $(t)
-        var $message = $("#message"+count)
-        $t.html('<i class="fas fa-spinner fa-pulse"></i> En cours d execution')
-        form=$('#form'+count)
-        $.ajax({
+function modalbody(id){
+    $('#modal-content').html()
+    $('#modal-content').html('<h1 class="text-center m-3" style="font-size: 8em; color:yellow"><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
+    $.ajax({
         url: window.location.href,
             type:'post',
-            data: form.serialize(),
-            dataType: 'json',
-            success: function (data) {
-                console.log(data)
-                $t.html('Executer')
-                $t.closest("form").find("input").removeClass("is-invalid").addClass("is-valid")
-                $t.closest("form").find("select").removeClass("is-invalid").addClass("is-valid")
-                $t.closest("form").find("textarea").removeClass("is-invalid").addClass("is-valid")
-                if(data.evenement.form == 'nok'){
-                    $.each(data.evenement.error, function(index, element){
-                        $("[name="+index+"]").addClass("is-invalid").after("<small>"+element+"</small>")
-                        $message.removeClass("alert-success").addClass("alert-danger")
-                        $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Erreur sur l'évenement<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
-                    })
-                }
-                if(data.ticket.form == 'nok'){
-                    $.each(data.ticket.error, function(index, element){
-                        $("[name="+index+"]").addClass("is-invalid").after("<small>"+element+"</small>")
-                        $message.removeClass("alert-success").addClass("alert-danger")
-                        $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Erreur sur le ticket<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
-                    })
-                }else if(data.email.send=='nok'){
-                    $message.removeClass("alert-success").addClass("alert-danger")
-                    $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Problème pendant l'envoi de l'²email<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
-                }
-                else if(data.email.send=='pas demander'){
-                    $message.removeClass("alert-success").addClass("alert-danger")
-                    $message.html("<strong><i class='fas fa-exclamation-circle'></i></strong> Pas d'envoi d'email<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
-                }
-                else{
-                    $message.removeClass("alert-danger").addClass("alert-success")
-                    $message.html("<strong><i class='fas fa-check-circle'></i></strong> Email envoyé avec succès<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>")
-                    alert("Pensez à mettre cette email dans le dossier '0001 Mails Traités'")
-                }
-                $message.removeClass("d-none").addClass("show").get(0).scrollIntoView()
+            data: {id:id, 'createticket':'ok'},
+            dataType: 'html',
+            success: function (html) {
+                $('#modal-content').html(html)
             }
     })
-    }
+}
 </script>
 {%endblock%}

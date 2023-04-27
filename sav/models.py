@@ -518,10 +518,14 @@ class ticket(models.Model):
 
 
     def __str__(self):
-        str=str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
-        if self.cause:
-            str+= " - " + str(self.cause)
-        return str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
+        try:
+            strl=str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
+            if self.cause:
+                strl+= " - " + str(self.cause)
+            return strl
+
+        except:
+            return str(self.evenement) + ' ' + str(etat(self.etat).name)
 
 class donnee(models.Model):
     idsa = models.CharField(max_length=50, verbose_name='id solisart')
@@ -715,3 +719,72 @@ class documentation(models.Model):
 
 
 
+# class emailbox(models.Model):
+#
+#     uid =  models.CharField(verbose_name="uid", max_length=100)
+#     subject = models.CharField(verbose_name="subject", max_length=100, blank=True)
+#     de = models.CharField(verbose_name="from_", max_length=100)
+#     to = models.CharField(verbose_name="to", max_length=100, null=True, blank=True)
+#     cc = models.CharField(verbose_name="cc", max_length=100, null=True, blank=True)
+#     date = models.DateTimeField(verbose_name="date")
+#     html = models.TextField(verbose_name="html", max_length=5000, null=True, blank=True)
+#     text = models.TextField(verbose_name="text", max_length=5000, null=True, blank=True)
+#     from_user = models.ForeignKey(User, verbose_name="Utilisateur", on_delete=models.CASCADE, null=True, blank=True)
+#     from_installation = models.ManyToManyField('installation', verbose_name="installation correspondante", blank=True)
+#
+#
+#     def from_user_function(self):
+#         try:
+#             return User.objects.get(email=self.de)
+#         except:
+#             return None
+#
+#     def from_installation_function(self):
+#         try:
+#             return installation.objects.filter(acces__utilisateur=self.from_user).distinct()
+#         except Exception as e:
+#             import sys
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+#             print(exc_type, fname, exc_tb.tb_lineno)
+#             print(e)
+#             return None
+#
+#     def ticket_form(self):
+#         from .forms import ticket_form
+#         if self.from_user:
+#             return ticket_form(utilisateur=User.objects.get(email=self.de), forme='email')
+#         else:
+#             return ticket_form(forme='email')
+#
+#     def add_evenement_form(self):
+#         from .forms import add_evenement_form
+#         if self.from_user:
+#             return add_evenement_form(user=self.from_user, user_acces=User.objects.get(email=self.de), date=self.date)
+#         else:
+#             return add_evenement_form(user=self.from_user, date=self.date)
+#
+#     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+#
+#         self.from_user = self.from_user_function()
+#         super(emailbox, self).save(force_insert, force_update, using, update_fields)
+#
+#     @receiver(post_save)
+#     def affect_installation(sender, **kwargs):
+#         try:
+#             if not kwargs['instance'].from_installation.exists():
+#                 for instal in kwargs['instance'].from_installation_function():
+#                     kwargs['instance'].from_installation.add(instal)
+#         except:
+#             pass
+#
+#
+#
+#
+# class attachement(models.Model):
+#
+#     email = models.ForeignKey('emailbox', verbose_name='email', on_delete=models.CASCADE)
+#     filename = models.CharField(verbose_name="Filename", max_length=100)
+#     content_type = models.CharField(verbose_name="Type content", max_length=100)
+#     payload = models.BinaryField(verbose_name="payload", max_length=100)
+#

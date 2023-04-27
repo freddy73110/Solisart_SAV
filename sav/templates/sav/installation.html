@@ -598,7 +598,6 @@ function deletefile(me){
     $("div[name='modal_form']").hide()
     $("#delete_file_modal").show("slow" )
     $("#enregister").html('Supprimer')
-    console.log("show")
 }
 function renamefile(me){
     console.log(me, $(this))
@@ -703,6 +702,7 @@ $('.upload-zone').each(function () {
               if (progress == 100){
                 setTimeout(function(){
                     $("#modal-progress").modal("hide");
+                    location.reload()
                 }, 1500);
               }
             },
