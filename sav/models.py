@@ -226,7 +226,10 @@ class installation(models.Model):
         return ticket.objects.filter(evenement__installation=self).distinct().exclude(etat=3).count()
 
     def histo(self):
-        return [str(i) for i in historique.objects.filter(installation=self)]
+        try:
+            return [str(i) for i in historique.objects.filter(installation=self)] if historique.objects.filter(installation=self) else None
+        except Exception as ex:
+            return None
 
     def schema(self):
         histo = self.histo()
@@ -542,53 +545,55 @@ class historique(models.Model):
     valeur = models.CharField(max_length=50, verbose_name='Valeur')
 
     def __str__(self):
-
-        if str(self.donnee) == "Type_Ballon_C":
-            if int(self.valeur) == 0:
-                return "Type ballon tampon: sans ballon tampon"
-            elif int(self.valeur) == 1:
-                return "Type ballon tampon: avec ballon tampon"
-        elif str(self.donnee) == "Type_Ballon_S":
-            if int(self.valeur) == 0:
-                return "Type ballon sanitaire: un"
-            elif int(self.valeur) == 1:
-                return "Type ballon sanitaire: soleil et appoint"
-        elif "Type_Appoint" in str(self.donnee):
-            TA = "Appoint1" if "(0)" in str(self.donnee) else "Appoint2"
-            if int(self.valeur) == 0:
-                TA+= ': ' + 'aucun'
-            elif int(self.valeur) == 1:
-                TA+= ': ' + 'Chaudière'
-            elif int(self.valeur) == 2:
-                TA+= ': ' + 'Chaudière condensation'
-            elif int(self.valeur) == 3:
-                TA+= ': ' + 'Electrique'
-            elif int(self.valeur) == 4:
-                TA+= ': ' + 'Pompe à Chaleur'
-            elif int(self.valeur) == 5:
-                TA+= ': ' + 'Bois granulés sur T16'
-            elif int(self.valeur) == 6:
-                TA+= ': ' + 'Bois'
-            return TA
-        elif "Type_Emetteur" in str(self.donnee):
-            TE = "Zone " + str(int(str(self.donnee).replace('Type_Emetteur(','').replace(')', '')) +1)
-            if int(self.valeur) == 0:
-                TE += ': aucun'
-            elif int(self.valeur) == 1:
-                TE += ': Plancher'
-            elif int(self.valeur) == 2:
-                TE += ': Radiateur'
-            elif int(self.valeur) == 3:
-                TE += ': Piscine'
-            elif int(self.valeur) == 4:
-                TE += ': Ventilo-convecteur'
-            elif int(self.valeur) == 5:
-                TE += ': Décharge capteur'
-            elif int(self.valeur) == 6:
-                TE += ': Radiateur en réhausse'
-            return TE
-        else:
-            return str(self.donnee) + ' - ' + str(self.valeur)
+        try:
+            if str(self.donnee) == "Type_Ballon_C":
+                if int(self.valeur) == 0:
+                    return "Type ballon tampon: sans ballon tampon"
+                elif int(self.valeur) == 1:
+                    return "Type ballon tampon: avec ballon tampon"
+            elif str(self.donnee) == "Type_Ballon_S":
+                if int(self.valeur) == 0:
+                    return "Type ballon sanitaire: un"
+                elif int(self.valeur) == 1:
+                    return "Type ballon sanitaire: soleil et appoint"
+            elif "Type_Appoint" in str(self.donnee):
+                TA = "Appoint1" if "(0)" in str(self.donnee) else "Appoint2"
+                if int(self.valeur) == 0:
+                    TA+= ': ' + 'aucun'
+                elif int(self.valeur) == 1:
+                    TA+= ': ' + 'Chaudière'
+                elif int(self.valeur) == 2:
+                    TA+= ': ' + 'Chaudière condensation'
+                elif int(self.valeur) == 3:
+                    TA+= ': ' + 'Electrique'
+                elif int(self.valeur) == 4:
+                    TA+= ': ' + 'Pompe à Chaleur'
+                elif int(self.valeur) == 5:
+                    TA+= ': ' + 'Bois granulés sur T16'
+                elif int(self.valeur) == 6:
+                    TA+= ': ' + 'Bois'
+                return TA
+            elif "Type_Emetteur" in str(self.donnee):
+                TE = "Zone " + str(int(str(self.donnee).replace('Type_Emetteur(','').replace(')', '')) +1)
+                if int(self.valeur) == 0:
+                    TE += ': aucun'
+                elif int(self.valeur) == 1:
+                    TE += ': Plancher'
+                elif int(self.valeur) == 2:
+                    TE += ': Radiateur'
+                elif int(self.valeur) == 3:
+                    TE += ': Piscine'
+                elif int(self.valeur) == 4:
+                    TE += ': Ventilo-convecteur'
+                elif int(self.valeur) == 5:
+                    TE += ': Décharge capteur'
+                elif int(self.valeur) == 6:
+                    TE += ': Radiateur en réhausse'
+                return TE
+            else:
+                return str(self.donnee) + ' - ' + str(self.valeur)
+        except Exception as ex:
+            return 'error'
 
 class etat_document(models.IntegerChoices):
 
