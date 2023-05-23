@@ -1,0 +1,16 @@
+  <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto"><i class="fas fa-envelope text-primary"></i> {{msg.de}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      <b>Objet: {{msg.subject}}</b><br>
+      {{msg.text|make_list|slice:'0:50'|join:''}}...
+    </div>
+  </div>
+<script>
+    $(".toast").toast("show")
+$("button[data-bs-dismiss='toast']").on("click", function(){
+    $(this).closest("div.toast").remove()
+})
+</script>

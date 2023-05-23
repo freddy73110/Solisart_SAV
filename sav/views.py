@@ -1506,6 +1506,7 @@ class bibliotheque(View):
 
     def get(self, request, *args, **kwargs):
         self.c = classification.objects.all().order_by("dossier", "titre")
+        print(kwargs)
         if  'pk' in kwargs:
             self.pk = kwargs.pop('pk')
         else:
@@ -1528,10 +1529,10 @@ class bibliotheque(View):
         if "nouvelle_procedure" in request.POST:
             class_form=classification_form(request.POST)
             if class_form.is_valid():
-                if request.POST['titre'] == str(0):
-                    class_form.save(commit=False)
-                    class_form.titre = request.POST['autre']
+                if request.POST['titre'] == str('0'):
                     classif = class_form.save()
+                    classif.titre = request.POST['autre']
+                    classif.save()
                 else:
                     classif=classification.objects.get(pk=request.POST['titre'])
                 form2 = ajouter_procedure_form(request.POST, request.FILES)
@@ -1551,6 +1552,7 @@ class bibliotheque(View):
                            }
                            )
             else:
+                print(class_form.errors)
                 return render(request,
                        self.template_name,
                        {
@@ -1631,7 +1633,7 @@ class bibliotheque(View):
             id_input = '<input type=hidden name="id" value=' + request.POST['id'] + '>'
             if request.POST['mode']== 'Supprimer':
                 doc = documentation.objects.get(pk=request.POST['id'])
-                return HttpResponse(id_input + str(doc) + '<br><a href='+ doc.fichier.url + '>'+ doc.icon()+str (doc.fichier)+'</a>')
+                return HttpResponse(id_input + 'Etes-vous vraiment sûr de vouloir supprimer:<br><b>'+ str(doc) + '</b><br> avec le document: <br><a href='+ doc.fichier.url + '>'+ doc.icon()+str (doc.fichier)+'</a>')
             else:
                 return render(request,
                        'widgets/UpdateDocModalBody.html',
@@ -1650,7 +1652,11 @@ class bibliotheque(View):
 
         #Suppression d'un fichier
         if "Supprimer" in request.POST:
+            classif = documentation.objects.get(pk=request.POST['id']).classification
             documentation.objects.get(pk=request.POST['id']).delete()
+            #Si la classification n'a plus de fichier , elle est supprimée
+            if documentation.objects.filter(classification=classif).count() == 0:
+                classif.delete()
             return redirect(request.META['HTTP_REFERER'])
 
         #Modification d'un fichier
@@ -1700,12 +1706,15 @@ class bibliotheque(View):
             classi=classification.objects.filter(filter)
             html=''
             procedure=''
+            i = 0
             for c in classi:
                 if not c.dossier == procedure:
                     html+='<optgroup label="{}">'.format(c.sigle_toutelettre())
                 html+= '<option value="{}"> {}</option>'.format(c.id, c.titre)
-                if not c.dossier == procedure:
+                if not c.dossier == procedure and i !=0:
                     html+='</optgroup>'
+                i+=1
+                procedure = c.dossier
             return  HttpResponse(html)
 
 

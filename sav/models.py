@@ -645,7 +645,7 @@ class classification(models.Model):
         )
 
     def __str__(self):
-        return self.sigle() +'/' +str(self.titre)
+        return self.sigle() +' ' +str(self.titre)
 
 
 
@@ -697,7 +697,7 @@ class documentation(models.Model):
         return self.classification.sigle()
 
     def __str__(self):
-        return self.sigle() + '/' +str(self.version) + ' ' + str(self.extensionfile())
+        return  str(self.classification) + ' version ' +str(self.version) + ' ' + str(self.extensionfile())
 
     def validite(self):
         i = 0

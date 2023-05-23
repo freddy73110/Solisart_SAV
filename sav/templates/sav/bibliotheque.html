@@ -44,9 +44,11 @@
                     <div class="form-floating flex-grow-1">
                         <select class="form-select" id="dossier" name="charger">
                             {% for procedure in classification %}
+                            {% if forloop.counter != 0 %}
+                            {% ifchanged procedure.dossier%}</optgroup>{% endifchanged %}
+                            {%endif%}
                             {% ifchanged procedure.dossier%}<optgroup label="{{procedure.get_categorie_display}} - {{procedure.get_dossier_display}}">{% endifchanged %}
                             {% ifchanged procedure.titre%}<option value="{{procedure.id}}"> {{procedure.titre}}</option>{% endifchanged %}
-                            {% ifchanged procedure.dossier%}</optgroup>{% endifchanged %}
                             {%endfor%}
                         </select>
                         <label for="dossier">Procédures</label>
@@ -123,6 +125,7 @@ if( pk != 'None'){
     $("#dossier").val({{pk}})
     $("#button-form2").click()
 }
+
 function keyword(){
     $.ajax({
         url: window.location.href,
