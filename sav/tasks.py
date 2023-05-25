@@ -1,14 +1,16 @@
 import datetime
+import sys
 
 from asgiref.sync import async_to_sync
 from celery import shared_task
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMultiAlternatives
 from django.db.models.functions import Substr, Lower
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from .models import profil_user, ticket, Fichiers, installation
+from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def
 import time
 import io, os
 from PIL import Image
@@ -167,3 +169,89 @@ def Recuperation_schema_my_solisart():
         # Fermer le navigateur firefox
 
     driver.close()
+
+@shared_task
+def trouvercoordonneeGPS():
+    """
+    Cherche toutes les inatallation qui n'ont pas de coordonnées GPS pour lui en affecter une
+    1. via l'adresse de l'install
+    2.via la commune de l'install
+    3. via l'adresse du priprio de l'install
+    4. sinon pas d'affectation
+    :return:
+    """
+    #liste de toutes les installation sans coordonnées GPS
+    install_whitout_GPS = installation.objects.exclude(
+        id__in=attribut_valeur.objects.filter(attribut_def__description='Coordonnées GPS DD').values_list(
+            'installation__id', flat=True)
+    )
+    import requests
+    counter = 0
+    for install in install_whitout_GPS:
+        try:
+            atts = attribut_valeur.objects.filter(installation = install)
+            url = 'https://nominatim.openstreetmap.org/?q=France'
+            for at in atts:
+                if at.attribut_def.description in ["Voie 1", "Code postal", "Commune"] :
+                    url += '+' + at.valeur.replace(' ','%')
+            url += '&format=json'
+
+            resp = requests.get(url).json()
+            if not resp or not 'lon' in resp[0]:
+                url = 'https://nominatim.openstreetmap.org/?q=France'
+                for at in atts:
+                    if at.attribut_def.description in ["Code postal", "Commune"]:
+                        url += '+' + at.valeur.replace(' ', '%')
+                url += '&format=json'
+                resp = requests.get(url).json()
+                if resp and 'lon' in resp[0]:
+                    GPS = resp[0]['lat'] + ',' + resp[0]['lon']
+                else:
+                    GPS = None
+                    pass
+            else:
+                GPS= resp[0]['lat'] + ',' + resp[0]['lon']
+
+            if GPS == '46.603354,1.8883335' and install.proprio():
+                url = 'https://nominatim.openstreetmap.org/?q=France'
+                if install.proprio().profil_user.voie1 != 'nan':
+                    url+= '+'+str(install.proprio().profil_user.voie1)
+                if install.proprio().profil_user.voie1 != 'nan':
+                    url+= '+'+str(install.proprio().profil_user.codepostal)
+                if install.proprio().profil_user.voie1 != 'nan':
+                    url+= '+'+str(install.proprio().profil_user.commune)
+                url += '&format=json'
+                resp = requests.get(url).json()
+                if resp and 'lon' in resp[0]:
+                    GPS = resp[0]['lat'] + ',' + resp[0]['lon']
+                else:
+                    GPS = None
+                    pass
+            #Si localiser en France ne pas données de coordonnées GPS
+            if GPS == '46.603354,1.8883335':
+                GPS = None
+            if GPS:
+                attribut_valeur.objects.create(
+                    installation = install,
+                    attribut_def = attribut_def.objects.get(description = 'Coordonnées GPS DD'),
+                    valeur = GPS
+                )
+                counter += 1
+
+        except Exception as ex:
+
+            print(install, resp, url)
+
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+            print(exc_type, fname, exc_tb.tb_lineno)
+
+            print(ex)
+
+    print(counter, 'instal localisé sur ', install_whitout_GPS.count())
+
+
+
+

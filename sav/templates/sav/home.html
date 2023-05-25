@@ -100,6 +100,7 @@ $(document).ready(function(){
 
 })
 function send(t){
+    $("#resultat").html('<h1 class="text-center m-3" style="font-size: 8em; color:yellow"><i class="far fa-sun fa-spin" style="{color:yellow}"></i></h1>')
     if (t.val().length>2){
           var form = t.closest("form");
           $.ajax({

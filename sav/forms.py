@@ -194,7 +194,7 @@ class updateDBForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column(
-                    FloatingField("fichier")
+                    "fichier"
                 )
             )
         )
