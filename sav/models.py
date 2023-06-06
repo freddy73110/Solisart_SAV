@@ -97,6 +97,7 @@ class profil_user(models.Model):
     entreprise = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='entreprise')
     departement = models.JSONField(verbose_name="liste de département", blank=True, null=True, help_text='la liste doit être du format:["XX", "XX", ...], mettre 100 pour la Belgique')
     color = models.CharField(verbose_name="couleur sur la carte", blank=True, null=True, default="#000000", max_length=10)
+    mailOcommercial = models.BooleanField(default=True, verbose_name="Recevoir rapport des tickets hebdomadaires ")
 
     def __str__(self):
         return str(self.user)
@@ -498,9 +499,6 @@ class ticket(models.Model):
                                 </span>\
                               </div>'
         return html
-
-
-
     def icon_etat(self):
         if self.etat == 0:
             return '<i class="fas fa-play"></i>'
@@ -510,7 +508,6 @@ class ticket(models.Model):
             return '<i class="far fa-comment"></i>'
         if self.etat == 3:
             return '<i class="fas fa-stop"></i>'
-
     def icon_forme(self):
         if self.forme == 0:
             return '<i class="fas fa-phone-alt"></i>'
@@ -518,7 +515,6 @@ class ticket(models.Model):
             return '<i class="fas fa-at"></i>'
         if self.forme ==2:
             return '<i class="fas fa-comments"></i>'
-
 
     def __str__(self):
         try:

@@ -1,0 +1,98 @@
+{% load static %}
+{% load my_filter %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+body {
+ font-family: Arial, Helvetica, sans-serif;
+ margin: 0;
+ padding: 0;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    vertical-align: top;
+    border-color: #dee2e6;
+    border : 1px solid;
+    border-collapse: collapse
+
+}
+th{
+  background-color: gray;
+  color: white;
+  border: 1px solid;
+  text-align: center;
+}
+td {
+   border : 1px solid;
+   vertical-align: middle;
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
+  </style>
+</head>
+<body>
+<div style="overflow-x:auto;">
+{% if ticketscree %}
+ <p> Bonjour {{commercial.user}},</p>
+<h2>Liste des tickets ouverts ses 10 derniers jours:</h2>
+<table>
+ <thead>
+  <th>Installation</th>
+  <th>Propriétaire</th>
+  <th>Installateur</th>
+  <th>Ouvert par</th>
+  <th>Problème</th>
+  <th>Cause</th>
+  <th>Détails</th>
+ </thead>
+ <tbody>
+  {% for t in ticketscree %}
+  <tr>
+   <td>{{t.evenement.installation}}</td>
+   <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
+   <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
+   <td>{{t.utilisateur}}</td>
+   <td>{{t.probleme}}</td>
+   <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
+   <td>{{t.detail}}</td>
+  </tr>
+ {%endfor%}
+ </tbody>
+</table>
+{%endif%}
+{% if ticketsencours %}
+<h2>Liste des tickets encore ouverts:</h2>
+<table>
+ <thead>
+  <th>Installation</th>
+  <th>Propriétaire</th>
+  <th>Installateur</th>
+  <th>Ouvert par</th>
+  <th>Problème</th>
+  <th>Cause</th>
+  <th>détails</th>
+ </thead>
+ <tbody>
+  {% for t in ticketsencours %}
+  <tr>
+   <td>{{t.evenement.installation}}</td>
+   <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
+   <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
+   <td>{{t.utilisateur}}</td>
+   <td>{{t.probleme}}</td>
+   <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
+   <td>{{t.detail}}</td>
+  </tr>
+ {%endfor%}
+ </tbody>
+</table>
+{%endif%}
+ <p>Si vous ne souhaitez plus recevoir ce courrier hebdomadaire, décocher le rapport hebdomadaire sur votre profil dans le Solistools ou contactez l'administrateur du site.</p>
+ <div>
+</body>
+</html>

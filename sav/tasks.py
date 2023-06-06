@@ -1,4 +1,5 @@
 import datetime
+import json
 import sys
 
 from asgiref.sync import async_to_sync
@@ -72,23 +73,35 @@ def add(x, y):
 
 @shared_task
 def rapport_ticket():
+    try:
+        commerciaux = profil_user.objects.filter(departement__isnull=False, mailOcommercial=True)
+        result = {}
+        for commercial in commerciaux:
+            #list des tickets par affectation commerciale
+            ticketscree = ticket.objects.filter(
+                evenement__date__gte=datetime.date.today() - datetime.timedelta(days=10),
+                evenement__installation__attribut_valeur__attribut_def__description="Code postal",
+            ).annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(num_departement__in=list(commercial.departement))
+            ticketsencours = ticket.objects.filter(
+                etat__in =[0, 1, 2],
+                evenement__installation__attribut_valeur__attribut_def__description="Code postal",
+            ).annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(
+                num_departement__in=list(commercial.departement))
+            html_content = render_to_string('email/mailPourCommerciaux.html', {
+                'ticketscree': ticketscree,
+                'ticketsencours': ticketsencours,
+                'commercial': commercial
+            })
+            if ticketscree or ticketsencours:
+                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", [commercial.user.email])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+            result[commercial]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
 
-    commerciaux = profil_user.objects.filter(departement__isnull=False)
-    tickets =ticket.objects.filter(
-        evenement__date__gte = datetime.date.today() - datetime.timedelta(days = 30),
-        evenement__installation__attribut_valeur__attribut_def__description = "Code postal",
-    )
+        return json.dumps(result)
 
-    for commercial in commerciaux:
-        #list des tickets par affectation commerciale
-        tickets = ticket.objects.filter(
-            evenement__date__gte=datetime.date.today() - datetime.timedelta(days=10),
-            evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-        ).annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(num_departement__in=list(commercial.departement))
-
-
-    return None
-
+    except Exception:
+        return "Error"
 @shared_task
 def Recuperation_schema_my_solisart():
     '''

@@ -42,8 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    "crispy_bootstrap5"#,
-    # 'django_celery_beat'
+    "crispy_bootstrap5",
+    'django_celery_beat',
+    'django_celery_results'
 ]
 
 
@@ -177,11 +178,18 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Celery settings
-# CELERY_BROKER_URL = "redis://localhost:6379"
-# CELERY_RESULT_BACKEND = "redis://localhost:6379"
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+broker_url = 'redis://localhost:6379'
+result_backend = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+
+# this allows you to schedule items in the Django admin.
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 #
-ASGI_APPLICATION = "Solisart_SAV.asgi.application"
+# ASGI_APPLICATION = "Solisart_SAV.asgi.application"
 # #channels settings
 # CHANNEL_LAYERS = {
 #     'default': {

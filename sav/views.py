@@ -1416,8 +1416,8 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from .tasks import trouvercoordonneeGPS
-        trouvercoordonneeGPS()
+        from .tasks import rapport_ticket
+        print(request.user.email)
 
 
         return render(request,
