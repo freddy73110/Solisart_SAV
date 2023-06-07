@@ -116,9 +116,6 @@ class home (View):
     title = 'Recherche'
 
     def get(self, request, *args, **kwargs):
-        from .tasks import rapport_ticket
-        rapport_ticket()
-
         return render(request,
                       self.template_name,
                           {
@@ -1416,9 +1413,6 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from .tasks import rapport_ticket
-        print(request.user.email)
-
 
         return render(request,
                       self.template_name,
