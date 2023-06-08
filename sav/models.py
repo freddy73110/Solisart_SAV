@@ -29,6 +29,22 @@ def get_first_name(self):
 
 User.add_to_class("__str__", get_first_name)
 
+def icon4email(self):
+    profils = acces.objects.filter(utilisateur=self).order_by('profil_type').values_list('profil_type__name',
+                                                                                              flat=True).distinct()
+    icon = ''
+    if 'Administrateur' in profils:
+        icon += '&#129332; '
+    if 'Technicien' in profils:
+        icon += '&#128736; '
+    if 'Installateur' in profils:
+        icon += '&#128295; '
+    if 'Propriétaire' in profils:
+        icon += '&#127968; '
+    return icon
+
+User.add_to_class("icon4email", icon4email)
+
 def validate_file_extension_pdf(value):
     if not value.name.endswith('.pdf'):
         raise ValidationError(u'Error message')
@@ -125,6 +141,20 @@ class profil_user(models.Model):
             icon += '<i class="fas fa-tools m-1" ></i>'
         if 'Propriétaire' in profils:
             icon += '<i class="fas fa-house-user m-1"></i>'
+        return icon
+
+    def icon4email(self):
+        profils = acces.objects.filter(utilisateur=self.user).order_by('profil_type').values_list('profil_type__name',
+                                                                                                  flat=True).distinct()
+        icon = ''
+        if 'Administrateur' in profils:
+            icon += '&#129332; '
+        if 'Technicien' in profils:
+            icon += '&#128736; '
+        if 'Installateur' in profils:
+            icon += '&#128295; '
+        if 'Propriétaire' in profils:
+            icon += '&#127968; '
         return icon
 
     def installations(self):
@@ -323,8 +353,14 @@ class installation(models.Model):
 
     def departement(self):
         try:
-            return str(attribut_valeur.objects.get(installation=self,
-                                    attribut_def__description="Code postal").valeur)[0:2]
+            CP = attribut_valeur.objects.get(installation=self,
+                                    attribut_def__description="Code postal").valeur
+            if len(CP)==5:
+                return CP[0:2]
+            elif len(CP)==4:
+                return 100
+            else:
+                None
         except:
             return None
 

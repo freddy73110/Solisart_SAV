@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Solisart_SAV.settings")
 app = Celery("Solisart_SAV" )
 app.config_from_object("django.conf:settings", namespace='CELERY')
 app.autodiscover_tasks()
-# app.conf.timezone = 'UTC'
+app.conf.timezone = 'UTC'
 
 import sav
 

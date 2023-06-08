@@ -17,7 +17,7 @@ from django.core.files import File
 from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, OuterRef
+from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, OuterRef, TextField
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
     ExtractWeekDay
 from django.shortcuts import render, redirect
@@ -1413,7 +1413,26 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        from .tasks import rapport_ticket
+        rapport_ticket()
 
+        # from django.db.models import CharField
+        # from django.db.models.functions import Length
+        # TextField.register_lookup(Length, 'length')
+        # instal = installation.objects.filter(
+        #     attribut_valeur__attribut_def__description="Code postal"
+        # ).annotate(
+        #     num_departement1=Subquery(
+        #     attribut_valeur.objects.filter(installation__pk=OuterRef("id"), attribut_def__description="Code postal").values('valeur')[:1]
+        #     ),
+        #     num_departement2 = Substr('num_departement1', 1, 2),
+        #     num_departement=Case(
+        #         When(num_departement1__length=4, then=Value(str(100))),
+        #         When(num_departement1__length=5, then='num_departement2'),
+        #         output_field=CharField())
+        # ).filter(num_departement__in=list(['100']))
+        # for i in instal:
+        #     print(i, i.num_departement)
         return render(request,
                       self.template_name,
                           {

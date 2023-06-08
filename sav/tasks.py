@@ -6,7 +6,10 @@ from asgiref.sync import async_to_sync
 from celery import shared_task
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Subquery, OuterRef, When, Value, CharField, TextField, Case
 from django.db.models.functions import Substr, Lower
+from django.db.models.functions import Length
+TextField.register_lookup(Length, 'length')
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -15,6 +18,27 @@ from .models import profil_user, ticket, Fichiers, installation, attribut_valeur
 import time
 import io, os
 from PIL import Image
+
+def save_result_celery(args, kwargs, status, result):
+
+    # for current func name, specify 0 or no argument.
+    # for name of caller of current func, specify 1.
+    # for name of caller of caller of current func, specify 2. etc.
+    currentFuncName = lambda n=1: sys._getframe(n + 1).f_code.co_name
+    from django_celery_results.models import TaskResult
+    import uuid
+    task = TaskResult.objects.create(
+                    task_id = uuid.uuid4(),
+                    task_name = currentFuncName(),
+                    task_args = args,
+                    task_kwargs = kwargs,
+                    status = status,
+                    content_type ="application/json",
+                    content_encoding = "utf-8",
+                    result = result,
+                    traceback ="-",
+                    meta={"children": []}
+                )
 
 @shared_task
 def add(x, y):
@@ -81,27 +105,66 @@ def rapport_ticket():
             ticketscree = ticket.objects.filter(
                 evenement__date__gte=datetime.date.today() - datetime.timedelta(days=10),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-            ).annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(num_departement__in=list(commercial.departement))
+            ).annotate(
+                instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
+                num_departement1=Subquery(
+                    attribut_valeur.objects.filter(
+                        installation__pk=OuterRef("instal_id"),
+                        attribut_def__description="Code postal").values('valeur')[:1]
+                    ),
+                num_departement2 = Substr('num_departement1', 1, 2),
+                num_departement=Case(
+                    When(num_departement1__length=4, then=Value(str(100))),
+                    When(num_departement1__length=5, then='num_departement2'),
+                    output_field=CharField()
+                )
+            ).filter(num_departement__in=list(commercial.departement))
             ticketsencours = ticket.objects.filter(
                 etat__in =[0, 1, 2],
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-            ).annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(
-                num_departement__in=list(commercial.departement))
+            ).annotate(
+                instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
+                num_departement1=Subquery(
+                    attribut_valeur.objects.filter(
+                        installation__pk=OuterRef("instal_id"),
+                        attribut_def__description="Code postal").values('valeur')[:1]
+                    ),
+                num_departement2 = Substr('num_departement1', 1, 2),
+                num_departement=Case(
+                    When(num_departement1__length=4, then=Value(str(100))),
+                    When(num_departement1__length=5, then='num_departement2'),
+                    output_field=CharField()
+                )
+            ).filter(num_departement__in=list(commercial.departement))
             html_content = render_to_string('email/mailPourCommerciaux.html', {
                 'ticketscree': ticketscree,
                 'ticketsencours': ticketsencours,
                 'commercial': commercial
             })
             if ticketscree or ticketsencours:
-                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", [commercial.user.email])
+                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", ['freddy.dubouchet@solisart.fr'])
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
-            result[commercial]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
+            result[str(commercial)]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
 
+        save_result_celery('args', {}, "SUCCESS", result)
         return json.dumps(result)
 
-    except Exception:
-        return "Error"
+
+    except Exception as ex:
+
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+        print(exc_type, fname, exc_tb.tb_lineno)
+
+        print(ex)
+
+        save_result_celery('args', {}, "ERROR", 'Error' + str(ex))
+
+        return 'Error' + str(ex)
+
 @shared_task
 def Recuperation_schema_my_solisart():
     '''
@@ -184,13 +247,15 @@ def Recuperation_schema_my_solisart():
     driver.close()
 
 @shared_task
-def trouvercoordonneeGPS():
+def trouvercoordonneeGPS(*args, **kwargs):
     """
     Cherche toutes les inatallation qui n'ont pas de coordonnées GPS pour lui en affecter une
     1. via l'adresse de l'install
     2.via la commune de l'install
     3. via l'adresse du priprio de l'install
     4. sinon pas d'affectation
+    :param *args:
+    :param **kwargs:
     :return:
     """
     #liste de toutes les installation sans coordonnées GPS
@@ -262,8 +327,9 @@ def trouvercoordonneeGPS():
             print(exc_type, fname, exc_tb.tb_lineno)
 
             print(ex)
+    save_result_celery(args, kwargs, "SUCCESS", counter+ 'instal localisé sur '+ install_whitout_GPS.count())
 
-    print(counter, 'instal localisé sur ', install_whitout_GPS.count())
+    return {'bilan', counter+ 'instal localisé sur '+ install_whitout_GPS.count()}
 
 
 

@@ -256,9 +256,9 @@ class ProfilForm(ModelForm):
                     FloatingField('codepostal'),
                     FloatingField('commune'),
                     FloatingField("departement"),
-                    FloatingField("mailOcommercial"),
                     HTML('<label for="exampleColorInput" class="form-label">Couleur sur la carte</label>'\
-+'<input type="color" class="form-control form-control-color" id="id_color" name="color" value="{{profil.color}}" title="Choose your color">')
++'<input type="color" class="form-control form-control-color" id="id_color" name="color" value="{{profil.color}}" title="Choose your color">'),
+                    "mailOcommercial"
                 )
             )
         )
