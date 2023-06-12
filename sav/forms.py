@@ -89,7 +89,8 @@ class MES_form(ModelForm):
         self.helper.layout = Layout(
             "id",
             FloatingField("evenement"),
-            FloatingField("detail", style='height: 100px', row="5")
+            FloatingField("detail", style='height: 100px', row="5"),
+            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
         )
 
 class ticket_form(ModelForm):
@@ -162,7 +163,8 @@ class ticket_form(ModelForm):
             FloatingField("probleme"),
             HTML(html),
             FloatingField("cause"),
-            FloatingField("detail", style='height: 100px')
+            FloatingField("detail", style='height: 100px'),
+            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
         )
 
 class add_problem_form(ModelForm):
@@ -355,7 +357,8 @@ class Stattableauform(forms.Form):
                         ),
                         Tab('Autre',
                             FloatingField('detail'),
-                            FloatingField('fichier')
+                            FloatingField('fichier'),
+                            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
                             )
                     )
                 )

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 {% extends "sav/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load static %}
 {%block Titre%}{{title}}{%endblock%}
 
 {%block article%}
+
+
 <div class="container">
     <div class="row">
         <div class="col">
@@ -117,4 +119,5 @@ function send(t){
     }
 }
 </script>
+
 {%endblock%}

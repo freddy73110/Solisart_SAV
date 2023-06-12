@@ -4,6 +4,7 @@
 {% load my_filter %}
 <head>
     <meta charset="UTF-8">
+
         <!-- for jquery -->
     <script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'jquery/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
@@ -38,6 +39,11 @@
   <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
   <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
   <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+
+    <!-- https://mervick.github.io/emojionearea/?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_library-->
+    {# JQUERY EMOJI PICKER #}
+<link rel="stylesheet" href="{% static 'emojionarea/emojionearea.min.css' %}">
+<script src="{% static 'emojionarea/emojionearea.min.js' %}"></script>
 
 
     <script>
@@ -249,5 +255,7 @@ var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)
 })
 </script>
+
+
 </body>
 </html>

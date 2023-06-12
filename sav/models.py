@@ -1,5 +1,6 @@
 import base64
 import os
+import sys
 from datetime import datetime, timedelta
 from io import BytesIO
 
@@ -18,8 +19,11 @@ from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-from django.db.models import F, Value
+from django.db.models import F, Value, Subquery, OuterRef, When, Case, CharField, TextField
 from django.db.models.functions import StrIndex
+
+from django.db.models.functions import Length
+TextField.register_lookup(Length, 'length')
 
 from Solisart_SAV import settings
 
@@ -176,10 +180,27 @@ class profil_user(models.Model):
             tickets = ticket.objects.filter(
                 evenement__date__gte=datetime.today() - timedelta(days=duree),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-            ).order_by('-evenement__date').annotate(num_departement=Lower(Substr('evenement__installation__attribut_valeur__valeur', 1, 2))).filter(
+            ).order_by('-evenement__date').annotate(
+                instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
+                num_departement1=Subquery(
+                    attribut_valeur.objects.filter(
+                        installation__pk=OuterRef("instal_id"),
+                        attribut_def__description="Code postal").values('valeur')[:1]
+                    ),
+                num_departement2 = Substr('num_departement1', 1, 2),
+                num_departement=Case(
+                    When(num_departement1__length=4, then=Value(str(100))),
+                    When(num_departement1__length=5, then='num_departement2'),
+                    output_field=CharField()
+                )
+            ).filter(
                 num_departement__in=list(self.departement))
             return tickets
-        except:
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
             return None
 
     def commercial_ticket_open(self, duree=None):
