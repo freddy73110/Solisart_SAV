@@ -106,8 +106,8 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="growall()">
-                    <span onchange="growall()">Historique
+                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    <span>Historique
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Mise en Service" data-bs-content="Mises en service faites">
                         {{ instal.MES_count }}
                         </span>
@@ -377,7 +377,7 @@ loadingTask.promise.then(function(pdf) {
                       {%if e.ticket%}
                       <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
-                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}" onclick="growall()">
+                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
                               <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {% if e.ticket.cause %}{{e.ticket.cause}} {%endif%}{{e.ticket.utilisateur}}</b>
                               <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
                               <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
@@ -403,7 +403,7 @@ loadingTask.promise.then(function(pdf) {
                                   ><i class="fas fa-wrench" ></i> Mettre à jour</button>
                                   <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
                                   <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall()">{{e.ticket.detail}}</textarea>
+                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))">{{e.ticket.detail}}</textarea>
                                   </div>
                                   </div>
                                   {%if e.ticket.fichier.all.count %}
@@ -451,7 +451,7 @@ loadingTask.promise.then(function(pdf) {
                       {%if e.MES%}
                       <div class="accordion-item">
                         <h2 class="accordion-header">
-                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}" onclick="growall()">
+                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
                               <b>Mise en Service</b>
                               <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
                               <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
@@ -470,7 +470,7 @@ loadingTask.promise.then(function(pdf) {
                                   <div class="col-{%if e.MES.fichier.all.count %}8{%else%}12{%endif%}">
                                   <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
                                   <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_MES_{{e.MES.id}}" onchange="growall()">{{e.MES.detail}}</textarea>
+                                      <textarea class="form-control textarea_update" id="ta_MES_{{e.MES.id}}" onchange="growall($(this))">{{e.MES.detail}}</textarea>
                                   </div>
                                   </div>
                                   {%if e.MES.fichier.all.count %}
@@ -517,17 +517,18 @@ loadingTask.promise.then(function(pdf) {
                       {% endfor %}
                     </div>
                     <script>
-                        $("textarea.textarea_update").on("input", function(){
-                            $.ajax({
+                    function Updatedata(t){
+                                  $.ajax({
                                         url: window.location.href,
-                                        data: {"details": $(this).val(), "id": $(this).attr('id')},
+                                        data: {"details": $(t).val(), "id": $(t).attr('id')},
                                         dataType: 'json',
                                         type: 'Post',
                                         success: function (data) {
                                             console.log(data)
                                         }
-                            })
-                        })
+                                  })
+
+                    }
                     </script>
               </div>
               <div class="tab-pane fade m-3" id="acces" role="tabpanel" aria-labelledby="home-tab">
@@ -719,11 +720,9 @@ $('.upload-zone').each(function () {
     });
 });
 auto_grow()
-function growall(){
-    console.log("growall")
-    setTimeout(
-        auto_grow(),
-        1000)
+function growall(t){
+    console.log('growall', t, t.val())
+
 }
 </script>
 <script>
@@ -770,6 +769,34 @@ var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)
 })
+
 </script>
+<script>
+$(document).ready(function() {
+  $('textarea.textarea_update').emojioneArea({
+    events: {
+      change: function(editor, event) {
+        txt=editor.html()
+        id = $(editor).parent().parent().find('textarea')[0].id
+        $($(editor).parent().parent().find('textarea')[0]).html(txt)
+        Updatedata($(editor).parent().parent().find('textarea')[0])
+      },
+      keyup: function(editor, event) {
+        txt=editor.html()
+        id = $(editor).parent().parent().find('textarea')[0].id
+        $($(editor).parent().parent().find('textarea')[0]).html(txt)
+        Updatedata($(editor).parent().parent().find('textarea')[0])
+      },
+      picker_click: function(editor, event) {
+        txt=editor.html()
+        id = $(editor).parent().parent().find('textarea')[0].id
+        $($(editor).parent().parent().find('textarea')[0]).html(txt)
+        Updatedata($(editor).parent().parent().find('textarea')[0])
+      }
+    }
+  });
+});
+</script>
+
 
 {%endblock%}

@@ -14,6 +14,8 @@ from django import forms
 
 from .models import *
 
+emoji_str='<script>$(document).ready(function() {$("textarea.textareaEmoji").emojioneArea({});});</script>'
+
 class add_evenement_form(ModelForm):
 
     class Meta:
@@ -89,8 +91,8 @@ class MES_form(ModelForm):
         self.helper.layout = Layout(
             "id",
             FloatingField("evenement"),
-            FloatingField("detail", style='height: 100px', row="5"),
-            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
+            FloatingField("detail", style='height: 100px', row="5", css_class="textareaEmoji"),
+            HTML(emoji_str)
         )
 
 class ticket_form(ModelForm):
@@ -163,8 +165,8 @@ class ticket_form(ModelForm):
             FloatingField("probleme"),
             HTML(html),
             FloatingField("cause"),
-            FloatingField("detail", style='height: 100px'),
-            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
+            FloatingField("detail", style='height: 100px',css_class="textareaEmoji"),
+            HTML(emoji_str)
         )
 
 class add_problem_form(ModelForm):
@@ -356,9 +358,9 @@ class Stattableauform(forms.Form):
                             InlineCheckboxes('type')
                         ),
                         Tab('Autre',
-                            FloatingField('detail'),
+                            FloatingField('detail', css_class="textareaEmoji"),
                             FloatingField('fichier'),
-                            HTML('<script>$(document).ready(function() {$("textarea").emojioneArea({});});</script>')
+                            HTML(emoji_str)
                             )
                     )
                 )

@@ -1413,8 +1413,6 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from .tasks import rapport_ticket
-        rapport_ticket()
 
         # from django.db.models import CharField
         # from django.db.models.functions import Length
