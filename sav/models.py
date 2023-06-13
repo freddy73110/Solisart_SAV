@@ -459,6 +459,7 @@ class forme_contact(models.IntegerChoices):
     TELEPHONE = 0, 'Téléphone'
     EMAIL = 1, 'Email'
     PHYSIQUEMENT = 2, 'Physiquement'
+    AUCUN = 3, 'Aucun'
 
 class etat(models.IntegerChoices):
     OUVERTURE = 0, 'Ouverture'

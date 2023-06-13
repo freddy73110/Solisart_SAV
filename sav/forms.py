@@ -14,7 +14,7 @@ from django import forms
 
 from .models import *
 
-emoji_str='<script>$(document).ready(function() {$("textarea.textareaEmoji").emojioneArea({});});</script>'
+emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({});});</script>'
 
 class add_evenement_form(ModelForm):
 
@@ -358,7 +358,7 @@ class Stattableauform(forms.Form):
                             InlineCheckboxes('type')
                         ),
                         Tab('Autre',
-                            FloatingField('detail', css_class="textareaEmoji"),
+                            Field('detail', css_class="textareaEmoji"),
                             FloatingField('fichier'),
                             HTML(emoji_str)
                             )
