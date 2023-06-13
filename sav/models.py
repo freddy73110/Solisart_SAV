@@ -422,6 +422,7 @@ class type_probleme(models.IntegerChoices):
     INFO = 4, 'Information diverse'
     PRESTA = 5, 'Demande de prestation'
     ERROR_PROD = 6, 'Erreur de production'
+    PREVENTIF = 7, 'Préventif'
 
 class probleme(models.Model):
     categorie = models.IntegerField(default=type_probleme.CONNEXION, choices=type_probleme.choices, verbose_name="Catégorie")
