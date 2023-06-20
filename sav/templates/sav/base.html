@@ -90,6 +90,15 @@ $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
     <title>{%block Titre%}SolisArt{%endblock%}</title>
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
     <style>
+.custom-popover {
+  --bs-popover-max-width: 400px;
+  --bs-popover-border-color: var(--bs-primary);
+  --bs-popover-header-bg: var(--bs-primary);
+  --bs-popover-header-color: var(--bs-white);
+  --bs-popover-body-padding-x: 1rem;
+  --bs-popover-body-padding-y: .5rem;
+}
+
 .fade {
   transition-duration: 0.5s;
 }

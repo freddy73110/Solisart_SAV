@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
+import pyodbc
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,12 +37,14 @@ INTERNAL_IPS = (
 
 INSTALLED_APPS = [
     'sav',
+    'heraklesinfo',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'crispy_forms',
     "crispy_bootstrap5",
     'django_celery_beat',
@@ -94,6 +98,24 @@ DATABASES = {
           'PASSWORD': 'SolisArt',
           'HOST': '192.168.10.250',
          'PORT': '5432',
+    },
+    'herakles':{
+        'ENGINE': 'mssql',
+         'NAME': 'DQE_TEST',
+         'USER': 'sa',
+          'PASSWORD': 'Her@kles',
+          'HOST': '192.168.10.253\HERAKLES',
+         'PORT': '',
+        "OPTIONS": {
+            "driver": "ODBC Driver 17 for SQL Server",
+            'unicode_results': True,
+            "setdecoding": [
+                {"sqltype": pyodbc.SQL_CHAR, "encoding": 'latin-1'},
+                {"sqltype": pyodbc.SQL_WCHAR, "encoding": 'latin-1'}],
+            "setencoding": [
+                {"encoding": "latin-1"}]
+        },
+
     }
 }
 
@@ -125,7 +147,7 @@ TIME_ZONE = 'Europe/Istanbul'
 
 USE_I18N = False
 
-USE_TZ = False
+USE_TZ = True
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
@@ -202,4 +224,9 @@ CELERY_CACHE_BACKEND = 'django-cache'
 #         },
 #     }
 # }
+
+GRAPH_MODELS ={
+'all_applications': True,
+'graph_models': True,
+}
 

@@ -393,7 +393,7 @@ loadingTask.promise.then(function(pdf) {
                               >
                               <p></p>
                               <div class="row">
-                                  <div class="col-{%if e.ticket.fichier.all.count %}8{%else%}12{%endif%}">
+                                  <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL %}8{%else%}12{%endif%}">
                                   <button class="btn btn-outline-primary m-1"
                                           type="button"
                                           data-bs-toggle="modal"
@@ -406,8 +406,28 @@ loadingTask.promise.then(function(pdf) {
                                       <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))">{{e.ticket.detail}}</textarea>
                                   </div>
                                   </div>
-                                  {%if e.ticket.fichier.all.count %}
+                                  {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL %}
                                   <div class="col-4">
+                                      <div class="row">
+                                          <div class="col-12">
+                                        {%if e.ticket.devis or e.ticket.BL%}
+                                            {%for d in e.ticket.devis.all%}
+                                                <button type="button" class="btn btn-secondary devis" devis="{{d}}" data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{d}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                  {{d}}
+                                                </button>
+                                            {% endfor %}
+                                            {%for B in e.ticket.BL.all%}
+                                                <button type="button" class="btn btn-secondary BL" BL="{{B}}" data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{B}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                  {{B}}
+                                                </button>
+                                            {% endfor %}
+                                        {%endif%}
+                                              </div>
+                                          </div>
+                                          <div class="row">
+                                          <div class="col-12">
+
+                                        {%if e.ticket.fichier.all.count %}
                                         <button type="button" class="btn btn-outline-primary" onclick="alldownload({{e.ticket.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
                                       {%for f in e.ticket.fichier.all%}
                                         {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
@@ -441,7 +461,10 @@ loadingTask.promise.then(function(pdf) {
 
                                       {% endif %}
                                       {%endfor%}
+                                      {% endif %}
                                   </div>
+                                              </div>
+                                          </div>
                                   {%endif%}
                               </div>
                           </div>
@@ -796,6 +819,53 @@ $(document).ready(function() {
     }
   });
 });
+var $popover = $(".BL")
+var popover = new bootstrap.Popover($popover)
+
+$popover.on('click', function(){
+    $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
+    var BL = $(this)
+        $.ajax({
+             url: window.location.href,
+             data: {'BL_popover': BL.attr('BL')},
+             dataType: 'html',
+             type: 'post',
+             success: function (data) {
+                BL[0].dataset.bsContent = data
+                $(".popover-body").html(data)
+             }
+        })
+})
+var $popoverdevis = $(".devis")
+var popoverdevis = new bootstrap.Popover($popoverdevis)
+
+$popoverdevis.on('click', function(){
+    $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
+    var devis = $(this)
+    console.log(devis)
+        $.ajax({
+             url: window.location.href,
+             data: {'devis_popover': devis.attr('devis')},
+             dataType: 'html',
+             type: 'post',
+             success: function (data) {
+
+                devis[0].dataset.bsContent = data
+                console.log(devis[0])
+                $(".popover-body").html(data)
+                console.log($(".popover-body"))
+             }
+        })
+})
+$('body').on('click', function (e) {
+    $('[data-bs-toggle=popover]').each(function () {
+        // hide any open popovers when the anywhere else in the body is clicked
+        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+            $(this).popover('hide');
+        }
+    });
+});
+
 </script>
 
 

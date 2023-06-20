@@ -1,0 +1,5 @@
+{% load static %}
+{% load my_filter %}
+{% for article in articles %}
+<i class="fas fa-angle-right"></i><b> {{article.qte|floatformat:"0" }} x {{article.codouv}}</b> - {{article.titre}}<br>
+{% endfor %}

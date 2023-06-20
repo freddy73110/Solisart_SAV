@@ -1,0 +1,15 @@
+[2023-06-20 14:57:02,739: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379//: MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error..
+Trying again in 2.00 seconds... (1/100)
+
+[2023-06-20 14:57:04,767: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379//: MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error..
+Trying again in 4.00 seconds... (2/100)
+
+[2023-06-20 14:57:08,792: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379//: MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error..
+Trying again in 6.00 seconds... (3/100)
+
+[2023-06-20 14:57:14,821: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379//: MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error..
+Trying again in 8.00 seconds... (4/100)
+
+[2023-06-20 14:57:22,897: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379//: MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error..
+Trying again in 10.00 seconds... (5/100)
+

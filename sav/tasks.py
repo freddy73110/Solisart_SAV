@@ -9,12 +9,15 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Subquery, OuterRef, When, Value, CharField, TextField, Case
 from django.db.models.functions import Substr, Lower
 from django.db.models.functions import Length
+
+from heraklesinfo.models import *
+
 TextField.register_lookup(Length, 'length')
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def
+from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def, BL_herakles, devis_herakles
 import time
 import io, os
 from PIL import Image
@@ -330,6 +333,76 @@ def trouvercoordonneeGPS(*args, **kwargs):
     save_result_celery(args, kwargs, "SUCCESS", counter+ 'instal localisé sur '+ install_whitout_GPS.count())
 
     return {'bilan', counter+ 'instal localisé sur '+ install_whitout_GPS.count()}
+
+@shared_task
+def actualise_herakles():
+    result = {'BLcree': [], 'Deviscree': []}
+    #actualisation les devis
+    devis = C101DevisEnTte.objects.db_manager('herakles').all()
+    for d in devis:
+        p, created = devis_herakles.objects.get_or_create(
+                             devis=str(d.t101_1_code_devis).split('/')[0]
+                         )
+        if created:
+            result['Deviscree'].append(d)
+
+    #actualisation des BL
+    BLs = C7001Phases.objects.db_manager('herakles').filter(
+        codephase__icontains='BL' + str(datetime.date.today().year)[2:4]
+    ).values_list('codephase', flat=True)
+    for BL in BLs:
+        p, created = BL_herakles.objects.get_or_create(
+            BL=BL
+        )
+        if created:
+            result['BLcree'].append(BL)
+
+    save_result_celery('args', {}, "SUCCESS", result)
+
+@shared_task
+def actualisePrixMySolisart(*args, **kwargs):
+
+
+    from django.db.models import F
+    from django.db.models import FloatField
+    from django.db.models.functions import Cast
+
+    articles = B50Composants.objects.db_manager('herakles').all().annotate(
+        ref = F("t50_2_code_comp"),
+        prix = Cast("t50_19_prix_de_vente_catalogue", output_field=(FloatField())),
+        label=F("t50_37_titre_du_composant")
+    ).values("ref", "prix", "label")
+
+    import requests
+    import json
+
+    # URL de l'endpoint POST
+    url_dev = 'https://dev.solisart.fr/schematics/api/updateTarif.php'
+
+
+    # Conversion des données en format JSON
+    json_data = json.dumps(list(articles), indent = 4)
+
+    # En-têtes de la requête
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    # Envoi de la requête POST avec les données JSON
+    response = requests.post(url_dev, data=json_data, headers=headers)
+
+    # Vérification du statut de la réponse
+    if response.status_code == 200:
+        print('Requête POST réussie.', response.status_code, response.text)
+    else:
+        print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
+
+    save_result_celery('args', {}, "SUCCESS", response)
+
+
+
+
+
 
 
 

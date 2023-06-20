@@ -17,9 +17,9 @@ from django.core.files import File
 from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, OuterRef, TextField
+from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, IntegerField, OuterRef, TextField
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
-    ExtractWeekDay
+    ExtractWeekDay, Cast
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils.html import strip_tags
@@ -991,11 +991,34 @@ class installation_view (View):
 
     def post(self, request, *args, **kwargs):
 
+        if "BL_popover" in request.POST:
+            from heraklesinfo.models import C701Ouvraof
+            articles = C701Ouvraof.objects.db_manager('herakles').\
+                filter(codeof__icontains=request.POST["BL_popover"].replace(' ', '')).\
+                annotate(qte= Cast("nbre", output_field=(FloatField()))).\
+                values("codouv", "qte", "titre")
+
+            return render(request,"widgets/tableauBL_articles.html",
+                          {'articles': articles})
+
+        if "devis_popover" in request.POST:
+            from heraklesinfo.models import C105LignesDeDevis
+            articles = C105LignesDeDevis.objects.db_manager('herakles').\
+                filter(t105_1_code_devis__icontains=request.POST["devis_popover"].replace(' ', '')).\
+                annotate(
+                    codouv = F('t105_6_code_composant'),
+                    qte= Cast("t105_34_qté_vendue", output_field=(FloatField())),
+                    titre = F('t105_40_titre_de_ligne')
+            ).\
+                values("codouv", "qte", "titre")
+
+            return render(request,"widgets/tableauBL_articles.html",
+                          {'articles': articles})
+
         if "alldownload" in request.POST:
             import zipfile
             tick = ticket.objects.get(pk=int(request.POST['ticket_id']))
             filenames = [ str(f.fichier.path) for f in tick.fichier.all()]
-            print(filenames)
             # Folder name in ZIP archive which contains the above files
             # E.g [thearchive.zip]/somefiles/file2.txt
             zip_subdir = str(tick).replace("/", " ")
@@ -1414,6 +1437,9 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
+        from .tasks import actualisePrixMySolisart, actualise_herakles
+        # actualisePrixMySolisart()
+        actualise_herakles.delay()
         # from django.db.models import CharField
         # from django.db.models.functions import Length
         # TextField.register_lookup(Length, 'length')

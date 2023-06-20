@@ -518,6 +518,25 @@ class MES(models.Model):
                               </div>'
         return html
 
+class devis_herakles(models.Model):
+    devis = models.CharField(verbose_name="Devis", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs devis")
+
+    def __str__(self):
+        return str(self.devis)
+
+    class Meta:
+        ordering = ("-devis",)
+
+class BL_herakles(models.Model):
+    BL = models.CharField(verbose_name="BL", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs BL")
+
+    def __str__(self):
+        return str(self.BL)
+
+    class Meta:
+        ordering = ("-BL",)
+
+
 class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)
     forme = models.IntegerField(default=forme_contact.TELEPHONE, choices=forme_contact.choices, verbose_name='Forme')
@@ -526,6 +545,8 @@ class ticket(models.Model):
     probleme = models.ForeignKey(probleme, verbose_name='Symptômes', on_delete=models.CASCADE)
     cause = models.ForeignKey(cause, verbose_name='Causes', on_delete=models.CASCADE, null=True, blank=True)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
+    devis = models.ManyToManyField('devis_herakles', null=True, blank=True)
+    BL = models.ManyToManyField('BL_herakles', null=True, blank=True)
     fichier = models.ManyToManyField('Fichiers', verbose_name="Fichiers", null=True, blank=True)
 
     def as_dict(self):
@@ -574,6 +595,8 @@ class ticket(models.Model):
             return '<i class="fas fa-at"></i>'
         if self.forme ==2:
             return '<i class="fas fa-comments"></i>'
+        if self.forme ==3:
+            return '<i class="fas fa-exclamation-triangle"></i>'
 
     def __str__(self):
         try:

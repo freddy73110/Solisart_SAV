@@ -13,6 +13,7 @@ from .crispy_layout import *
 from django import forms
 
 from .models import *
+from .tasks import actualise_herakles
 
 emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({});});</script>'
 
@@ -104,12 +105,12 @@ class ticket_form(ModelForm):
         exclude = ("fichier",)
 
     def __init__(self, *args, **kwargs):
+        actualise_herakles.delay()
         instal = kwargs.pop('installation', None)
         util = kwargs.pop('utilisateur', None)
         forme = kwargs.pop('forme', None)
         super(ticket_form, self).__init__(*args, **kwargs)
         self.fields['id'].widget=HiddenInput()
-        # html = '<button id="add_problem" type="button" class="btn btn-outline-primary m-1" onClick="add_Problem()"><i class="fas fa-plus-circle"></i> Ajouter un type de problème</button>'
         html=''
         from operator import itemgetter
         items = probleme.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie', 'sous_categorie')
@@ -166,7 +167,9 @@ class ticket_form(ModelForm):
             HTML(html),
             FloatingField("cause"),
             FloatingField("detail", style='height: 100px',css_class="textareaEmoji"),
-            HTML(emoji_str)
+            HTML(emoji_str),
+            "devis",
+            "BL"
         )
 
 class add_problem_form(ModelForm):
