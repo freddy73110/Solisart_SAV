@@ -1438,8 +1438,9 @@ class bidouille (View):
     def get(self, request, *args, **kwargs):
 
         from .tasks import actualisePrixMySolisart, actualise_herakles
-        # actualisePrixMySolisart()
-        actualise_herakles.delay()
+
+        actualisePrixMySolisart()
+        # actualise_herakles()
         # from django.db.models import CharField
         # from django.db.models.functions import Length
         # TextField.register_lookup(Length, 'length')

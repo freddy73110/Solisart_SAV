@@ -145,7 +145,7 @@ def rapport_ticket():
                 'commercial': commercial
             })
             if ticketscree or ticketsencours:
-                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", ['freddy.dubouchet@solisart.fr'])
+                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", [commercial.user.email])
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
             result[str(commercial)]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
@@ -372,16 +372,11 @@ def actualisePrixMySolisart(*args, **kwargs):
         prix = Cast("t50_19_prix_de_vente_catalogue", output_field=(FloatField())),
         label=F("t50_37_titre_du_composant")
     ).values("ref", "prix", "label")
-
     import requests
-    import json
 
     # URL de l'endpoint POST
     url_dev = 'https://dev.solisart.fr/schematics/api/updateTarif.php'
 
-
-    # Conversion des données en format JSON
-    json_data = json.dumps(list(articles), indent = 4)
 
     # En-têtes de la requête
     headers = {
@@ -389,7 +384,7 @@ def actualisePrixMySolisart(*args, **kwargs):
     }
 
     # Envoi de la requête POST avec les données JSON
-    response = requests.post(url_dev, data=json_data, headers=headers)
+    response = requests.post(url_dev, json=list(articles), headers=headers)
 
     # Vérification du statut de la réponse
     if response.status_code == 200:
@@ -397,7 +392,7 @@ def actualisePrixMySolisart(*args, **kwargs):
     else:
         print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
 
-    save_result_celery('args', {}, "SUCCESS", response)
+    save_result_celery('args', {}, "SUCCESS", response.status_code + ' - ' + response.text)
 
 
 
