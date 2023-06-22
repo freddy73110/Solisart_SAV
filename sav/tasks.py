@@ -30,6 +30,9 @@ def save_result_celery(args, kwargs, status, result):
     currentFuncName = lambda n=1: sys._getframe(n + 1).f_code.co_name
     from django_celery_results.models import TaskResult
     import uuid
+
+    from django.conf import settings
+
     task = TaskResult.objects.create(
                     task_id = uuid.uuid4(),
                     task_name = currentFuncName(),
@@ -40,7 +43,7 @@ def save_result_celery(args, kwargs, status, result):
                     content_encoding = "utf-8",
                     result = result,
                     traceback ="-",
-                    meta={"children": []}
+                    meta={"DEGUB": str(settings.DEBUG)}
                 )
 
 @shared_task
@@ -336,9 +339,13 @@ def trouvercoordonneeGPS(*args, **kwargs):
 
 @shared_task
 def actualise_herakles():
+    print("in actualise heracles function new")
     result = {'BLcree': [], 'Deviscree': []}
     #actualisation les devis
-    devis = C101DevisEnTte.objects.db_manager('herakles').all()
+    devis = C101DevisEnTte.objects.db_manager('herakles').\
+        filter(t101_1_code_devis__icontains='D' + str(datetime.date.today().year)[2:4]).\
+        order_by('-t101_1_code_devis')[:30:-1]
+    print(devis)
     for d in devis:
         p, created = devis_herakles.objects.get_or_create(
                              devis=str(d.t101_1_code_devis).split('/')[0]
@@ -347,9 +354,11 @@ def actualise_herakles():
             result['Deviscree'].append(d)
 
     #actualisation des BL
-    BLs = C7001Phases.objects.db_manager('herakles').filter(
-        codephase__icontains='BL' + str(datetime.date.today().year)[2:4]
-    ).values_list('codephase', flat=True)
+    BLs = C7001Phases.objects.db_manager('herakles').\
+        filter(codephase__icontains='BL' + str(datetime.date.today().year)[2:4]).\
+        order_by('-codephase').\
+        values_list('codephase', flat=True)[:30:-1]
+    print(BLs)
     for BL in BLs:
         p, created = BL_herakles.objects.get_or_create(
             BL=BL
@@ -362,14 +371,12 @@ def actualise_herakles():
 @shared_task
 def actualisePrixMySolisart(*args, **kwargs):
 
-
     from django.db.models import F
     from django.db.models import FloatField
     from django.db.models.functions import Cast
-
     articles = B50Composants.objects.db_manager('herakles').all().annotate(
         ref = F("t50_2_code_comp"),
-        prix = Cast("t50_19_prix_de_vente_catalogue", output_field=(FloatField())),
+        prix = Cast("t50_35_prix_de_vente_ouvrage_catalogue", output_field=(FloatField())),
         label=F("t50_37_titre_du_composant")
     ).values("ref", "prix", "label")
     import requests
@@ -391,8 +398,9 @@ def actualisePrixMySolisart(*args, **kwargs):
         print('Requête POST réussie.', response.status_code, response.text)
     else:
         print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
+        
 
-    save_result_celery('args', {}, "SUCCESS", response.status_code + ' - ' + response.text)
+    save_result_celery('args', {}, "SUCCESS", response.text)
 
 
 

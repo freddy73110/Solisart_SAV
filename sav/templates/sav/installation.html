@@ -412,12 +412,12 @@ loadingTask.promise.then(function(pdf) {
                                           <div class="col-12">
                                         {%if e.ticket.devis or e.ticket.BL%}
                                             {%for d in e.ticket.devis.all%}
-                                                <button type="button" class="btn btn-secondary devis" devis="{{d}}" data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{d}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                <button type="button" class="btn btn-secondary devis" devis="{{d}}" data-trigger="focus"  data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{d}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
                                                   {{d}}
                                                 </button>
                                             {% endfor %}
                                             {%for B in e.ticket.BL.all%}
-                                                <button type="button" class="btn btn-secondary BL" BL="{{B}}" data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{B}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                <button type="button" class="btn btn-secondary BL" BL="{{B}}" data-trigger="focus"  data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{B}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
                                                   {{B}}
                                                 </button>
                                             {% endfor %}
@@ -819,43 +819,37 @@ $(document).ready(function() {
     }
   });
 });
-var $popover = $(".BL")
+var $popover = $(".BL, .devis")
 var popover = new bootstrap.Popover($popover)
 
-$popover.on('click', function(){
-    $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
-    var BL = $(this)
-        $.ajax({
-             url: window.location.href,
-             data: {'BL_popover': BL.attr('BL')},
-             dataType: 'html',
-             type: 'post',
-             success: function (data) {
-                BL[0].dataset.bsContent = data
-                $(".popover-body").html(data)
-             }
-        })
+$(".BL").on('click', function(){
+        $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
+        var BL = $(this)
+            $.ajax({
+                 url: window.location.href,
+                 data: {'BL_popover': BL.attr('BL')},
+                 dataType: 'html',
+                 type: 'post',
+                 success: function (data) {
+                    BL[0].dataset.bsContent = data
+                    $(".popover-body").html(data)
+                 }
+            })
 })
-var $popoverdevis = $(".devis")
-var popoverdevis = new bootstrap.Popover($popoverdevis)
 
-$popoverdevis.on('click', function(){
-    $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
-    var devis = $(this)
-    console.log(devis)
-        $.ajax({
-             url: window.location.href,
-             data: {'devis_popover': devis.attr('devis')},
-             dataType: 'html',
-             type: 'post',
-             success: function (data) {
-
-                devis[0].dataset.bsContent = data
-                console.log(devis[0])
-                $(".popover-body").html(data)
-                console.log($(".popover-body"))
-             }
-        })
+$(".devis").on('click', function(){
+        $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
+        var devis = $(this)
+            $.ajax({
+                 url: window.location.href,
+                 data: {'devis_popover': devis.attr('devis')},
+                 dataType: 'html',
+                 type: 'post',
+                 success: function (data) {
+                    devis[0].dataset.bsContent = data
+                    $(".popover-body").html(data)
+                 }
+            })
 })
 $('body').on('click', function (e) {
     $('[data-bs-toggle=popover]').each(function () {

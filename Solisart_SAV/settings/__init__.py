@@ -101,7 +101,7 @@ DATABASES = {
     },
     'herakles':{
         'ENGINE': 'mssql',
-         'NAME': 'DQE_TEST',
+         'NAME': 'DQE',
          'USER': 'sa',
           'PASSWORD': 'Her@kles',
           'HOST': '192.168.10.253\HERAKLES',
@@ -115,7 +115,6 @@ DATABASES = {
             "setencoding": [
                 {"encoding": "latin-1"}]
         },
-
     }
 }
 

@@ -21,10 +21,11 @@ DATABASES = {
          'USER': 'sa',
           'PASSWORD': 'Her@kles',
           'HOST': '192.168.10.253\HERAKLES',
-         'PORT': '1433',
+         'PORT': '',
         "OPTIONS": {
-            "driver": "ODBC Driver 17 for SQL Server",
+            "driver": "ODBC Driver 18 for SQL Server",
             'unicode_results': True,
+            'extra_params': "Encrypt=no",
             "setdecoding": [
                 {"sqltype": pyodbc.SQL_CHAR, "encoding": 'latin-1'},
                 {"sqltype": pyodbc.SQL_WCHAR, "encoding": 'latin-1'}],

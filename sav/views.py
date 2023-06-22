@@ -1440,7 +1440,7 @@ class bidouille (View):
         from .tasks import actualisePrixMySolisart, actualise_herakles
 
         actualisePrixMySolisart()
-        # actualise_herakles()
+        # actualise_herakles.delay()
         # from django.db.models import CharField
         # from django.db.models.functions import Length
         # TextField.register_lookup(Length, 'length')
