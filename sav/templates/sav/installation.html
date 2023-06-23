@@ -5,6 +5,15 @@
 {%block Titre%}{{title}}{%endblock%}
 
 {%block article%}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+
+  </div>
+</div>
 <div class="container">
     <div class="row">
         <div class="col">
@@ -412,12 +421,12 @@ loadingTask.promise.then(function(pdf) {
                                           <div class="col-12">
                                         {%if e.ticket.devis or e.ticket.BL%}
                                             {%for d in e.ticket.devis.all%}
-                                                <button type="button" class="btn btn-secondary devis" devis="{{d}}" data-trigger="focus"  data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{d}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                <button type="button" class="btn btn-secondary devis" devis="{{d}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                   {{d}}
                                                 </button>
                                             {% endfor %}
                                             {%for B in e.ticket.BL.all%}
-                                                <button type="button" class="btn btn-secondary BL" BL="{{B}}" data-trigger="focus"  data-bs-custom-class="custom-popover" data-bs-container="body" data-bs-html="true" data-bs-toggle="popover" data-bs-placement="top" title="Détails: {{B}}" data-bs-content='<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>'>
+                                                <button type="button" class="btn btn-secondary BL" BL="{{B}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                   {{B}}
                                                 </button>
                                             {% endfor %}
@@ -428,7 +437,7 @@ loadingTask.promise.then(function(pdf) {
                                           <div class="col-12">
 
                                         {%if e.ticket.fichier.all.count %}
-                                        <button type="button" class="btn btn-outline-primary" onclick="alldownload({{e.ticket.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
+                                        <button type="button" class="btn btn-outline-primary mt-3 mb-3" id="buttonAllDownload{{e.ticket.id}}" onclick="alldownload({{e.ticket.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
                                       {%for f in e.ticket.fichier.all%}
                                         {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
                                                 <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.ticket.id}}, {{f.id}}, 'ticket')">{{f.icon|safe}} {{f.titre}}</a> (<i
@@ -751,6 +760,7 @@ function growall(t){
 <script>
 function alldownload(ticket_id){
     var data = "ticket_id=" + ticket_id + "&alldownload=all"
+    $("#buttonAllDownload" + ticket_id).html("<i class='fas fa-sun fa-spin'></i> En téléchargement")
     $.ajax({
             url: window.location.href,
             type:'post',
@@ -764,6 +774,7 @@ function alldownload(ticket_id){
                     link.download = 'Ticket.zip';
                     document.body.appendChild(link);
                     link.click();
+                    $("#buttonAllDownload" + ticket_id).html("<i class='fas fa-cloud-download-alt'></i> Tout télécharger")
             }
 
     })
@@ -823,42 +834,34 @@ var $popover = $(".BL, .devis")
 var popover = new bootstrap.Popover($popover)
 
 $(".BL").on('click', function(){
-        $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
         var BL = $(this)
+        $("#offcanvasRightLabel").html("Détail du " + BL.attr('BL') + ":")
+        $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
             $.ajax({
                  url: window.location.href,
                  data: {'BL_popover': BL.attr('BL')},
                  dataType: 'html',
                  type: 'post',
                  success: function (data) {
-                    BL[0].dataset.bsContent = data
-                    $(".popover-body").html(data)
+                    $(".offcanvas-body").html(data)
                  }
             })
 })
 
 $(".devis").on('click', function(){
-        $(".popover-body").html('<i class="fas fa-sun fa-spin" style="{color:yellow}"></i>')
         var devis = $(this)
+        $("#offcanvasRightLabel").html("Détail du " + devis.attr('devis') + ":")
+        $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
             $.ajax({
                  url: window.location.href,
                  data: {'devis_popover': devis.attr('devis')},
                  dataType: 'html',
                  type: 'post',
                  success: function (data) {
-                    devis[0].dataset.bsContent = data
-                    $(".popover-body").html(data)
+                    $(".offcanvas-body").html(data)
                  }
             })
 })
-$('body').on('click', function (e) {
-    $('[data-bs-toggle=popover]').each(function () {
-        // hide any open popovers when the anywhere else in the body is clicked
-        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-            $(this).popover('hide');
-        }
-    });
-});
 
 </script>
 

@@ -957,7 +957,6 @@ class installation_view (View):
 
         self.pk = kwargs.pop('pk')
         self.instal = installation.objects.get(pk=self.pk)
-
         self.acces = acces.objects.filter(installation=self.instal).order_by('id').distinct()
         self.attribut_val = attribut_valeur.objects.filter(installation=self.instal)
         self.liste_evenements=evenement.objects.filter(installation=self.instal).order_by('-date')

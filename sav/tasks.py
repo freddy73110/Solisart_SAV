@@ -398,7 +398,7 @@ def actualisePrixMySolisart(*args, **kwargs):
         print('Requête POST réussie.', response.status_code, response.text)
     else:
         print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
-        
+
 
     save_result_celery('args', {}, "SUCCESS", response.text)
 
