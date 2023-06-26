@@ -17,7 +17,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def, BL_herakles, devis_herakles
+from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def, BL_herakles,\
+    devis_herakles,client_herakles
 import time
 import io, os
 from PIL import Image
@@ -338,14 +339,29 @@ def trouvercoordonneeGPS(*args, **kwargs):
     return {'bilan', counter+ 'instal localisé sur '+ install_whitout_GPS.count()}
 
 @shared_task
+def actualise_client_herakles():
+    result = {'Client': []}
+    clients=C100Clients.objects.db_manager('herakles').all()
+    for client in clients:
+        c, created = client_herakles.objects.get_or_create(
+            Code_Client=client.t100_1_code_client,
+            Nom=client.t100_3_nom
+        )
+        if created:
+            result['Client'].append(c.Code_Client)
+    save_result_celery('args', {}, "SUCCESS", result)
+
+
+
+
+@shared_task
 def actualise_herakles():
-    print("in actualise heracles function new")
     result = {'BLcree': [], 'Deviscree': []}
     #actualisation les devis
     devis = C101DevisEnTte.objects.db_manager('herakles').\
         filter(t101_1_code_devis__icontains='D' + str(datetime.date.today().year)[2:4]).\
         order_by('-t101_1_code_devis')[:30:-1]
-    print(devis)
+
     for d in devis:
         p, created = devis_herakles.objects.get_or_create(
                              devis=str(d.t101_1_code_devis).split('/')[0]
@@ -358,7 +374,6 @@ def actualise_herakles():
         filter(codephase__icontains='BL' + str(datetime.date.today().year)[2:4]).\
         order_by('-codephase').\
         values_list('codephase', flat=True)[:30:-1]
-    print(BLs)
     for BL in BLs:
         p, created = BL_herakles.objects.get_or_create(
             BL=BL
@@ -398,7 +413,6 @@ def actualisePrixMySolisart(*args, **kwargs):
         print('Requête POST réussie.', response.status_code, response.text)
     else:
         print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
-
 
     save_result_celery('args', {}, "SUCCESS", response.text)
 

@@ -246,15 +246,19 @@ class UserForm(ModelForm):
 class ProfilForm(ModelForm):
     class Meta:
         model = profil_user
-        fields = ('telephone1', 'telephone2', 'voie1', 'voie2', 'voie3', 'codepostal', 'commune', 'departement', 'color', 'mailOcommercial')
+        fields = ('telephone1', 'telephone2', 'voie1', 'voie2', 'voie3', 'codepostal', 'commune', 'departement', 'color', 'mailOcommercial', 'Client_herakles')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance.pk is not None:
+            if not 'fa-tools' in self.instance.icon():
+                self.fields['Client_herakles'].widget = HiddenInput()
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Row(
                 Column(
+                    FloatingField('Client_herakles'),
                     FloatingField('telephone1'),
                     FloatingField('telephone2'),
                     FloatingField('voie1'),

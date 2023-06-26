@@ -142,11 +142,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'Europe/Istanbul'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = False
+CELERY_TIMEZONE = 'Europe/Paris'
+CELERY_ENABLE_UTC = True
 
-USE_TZ = True
+USE_TZ = False
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'

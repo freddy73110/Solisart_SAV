@@ -30,6 +30,7 @@ from django.utils.html import strip_tags
 
 from plotly.subplots import make_subplots
 
+from heraklesinfo.models import C100Clients
 from .forms import *
 from .models import *
 
@@ -703,6 +704,10 @@ class statistiques(View, SuccessMessageMixin):
             return None
 
     def chart_repartition_temporel_df(self, frequence=None, periode=None, field=None, type=None):
+
+        print(frequence, periode, field)
+        import pytz
+        from django.utils import timezone
         from django.db.models import CharField
         try:
             queryset = ticket.objects.filter(
@@ -751,7 +756,10 @@ class statistiques(View, SuccessMessageMixin):
                     lien=Case(*when4, output_field=CharField())
                 )
                 queryset= queryset.values('frequence', 'lien').order_by("frequence", "lien").annotate(count=Count('id'))
+            print(queryset)
+            print(list(queryset.values('frequence', 'lien', 'count')))
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
+            print(df)
             df.fillna(value="sans profil", inplace=True)
 
         except Exception as ex:
@@ -1265,6 +1273,10 @@ class utilisateur_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+        if 'herakles' in request.POST:
+            client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
+            return render(request, "widgets/client_herakles.html",
+                          {'client': {str(key).replace('t100_', '').replace('_', ' '): value for key, value in client.__dict__.items() }})
         if "ticket_commercial" in request.POST:
             tickets = self.profil.commercial_ticket(duree = int(request.POST['ticket_commercial']))
             return JsonResponse([t.as_dict() for t in tickets], safe=False)
@@ -1436,9 +1448,9 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
-        from .tasks import actualisePrixMySolisart, actualise_herakles
+        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles
 
-        actualisePrixMySolisart()
+        actualise_client_herakles()
         # actualise_herakles.delay()
         # from django.db.models import CharField
         # from django.db.models.functions import Length

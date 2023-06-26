@@ -64,6 +64,12 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
+              {% if 'fa-tools' in util.profil_user.icon %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="info_herakles-tab" data-bs-toggle="tab" data-bs-target="#herakles" type="button" role="tab" aria-controls="home" aria-selected="true" onclick="infoHeraklesfunction({{util.profil_user.Client_herakles.id}})">Informations Hérakles
+                    </button>
+                </li>
+                {% endif %}
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#ticket" type="button" role="tab" aria-controls="profile" aria-selected="false">
                     <span class="m-3">
@@ -137,6 +143,12 @@
                           })
                       </script>
                   </form>
+              </div>
+              <div class="tab-pane fade" id="herakles" role="tabpanel" aria-labelledby="home-tab">
+                  <h2>Informations Herakles:</h2>
+                  <div id="infoHerakles">
+                      <h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>
+                  </div>
               </div>
               <div class="tab-pane fade" id="ticket" role="tabpanel" aria-labelledby="home-tab">
                   <h2>Ticket{% if util.profil_user.ticket_count > 1 %}s{% endif %}</h2>
@@ -232,6 +244,7 @@ data-buttons-align="right">
         </div>
     </div>
 </div>
+{% if util.profil_user.departement %}
 <script>
 var t_json=[]
 $("#button-ticket_commercial").on("click", function(){
@@ -254,6 +267,7 @@ $("#button-ticket_commercial").on("click", function(){
 })
 $("#button-ticket_commercial").click()
 </script>
+{%endif%}
 <script>
 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -301,5 +315,16 @@ var arrayOfMarkers=[
 ]
 var bounds = new L.LatLngBounds(arrayOfMarkers);
 mymap.fitBounds(bounds)
+function infoHeraklesfunction(id){
+    $.ajax({
+                 url: window.location.href,
+                 data: {'herakles': id},
+                 dataType: 'html',
+                 type: 'post',
+                 success: function (data) {
+                    $("#infoHerakles").html(data)
+                 }
+            })
+}
 </script>
 {%endblock%}

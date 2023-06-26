@@ -118,6 +118,7 @@ class profil_user(models.Model):
     departement = models.JSONField(verbose_name="liste de département", blank=True, null=True, help_text='la liste doit être du format:["XX", "XX", ...], mettre 100 pour la Belgique')
     color = models.CharField(verbose_name="couleur sur la carte", blank=True, null=True, default="#000000", max_length=10)
     mailOcommercial = models.BooleanField(default=True, verbose_name="Recevoir rapport des tickets hebdomadaires ")
+    Client_herakles = models.ForeignKey("Client_herakles", on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return str(self.user)
@@ -536,6 +537,15 @@ class BL_herakles(models.Model):
     class Meta:
         ordering = ("-BL",)
 
+class client_herakles(models.Model):
+    Code_Client = models.CharField(verbose_name="Code Client", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs Client")
+    Nom = models.CharField(verbose_name="Nom", max_length=60, null=True, blank=True, help_text="Appuyer sur Ctrl pour sélectionner plusieurs Client")
+
+    def __str__(self):
+        return str(self.Code_Client)
+
+    class Meta:
+        ordering = ("Code_Client",)
 
 class ticket(models.Model):
     evenement = models.ForeignKey('evenement', verbose_name='Evenement', on_delete=models.CASCADE, null=True, blank=True)
