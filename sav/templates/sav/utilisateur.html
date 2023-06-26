@@ -129,6 +129,8 @@
                             $("button[name='modifier_profil']").removeClass('visually-hidden')
                           })
                           $("button[name='modifier_profil']").on("click", function(){
+                            var $this = $(this)
+                            $this.html('En cours de modification')
                             var form = $(this).closest("form");
                             $.ajax({
                                     url: window.location.href,
@@ -137,7 +139,7 @@
                                     dataType: 'json',
                                     success: function (data) {
                                     //todo faire un message de validation
-                                        console.log(data)
+                                        $this.html('Modifier')
                                     }
                             })
                           })
@@ -318,7 +320,7 @@ mymap.fitBounds(bounds)
 function infoHeraklesfunction(id){
     $.ajax({
                  url: window.location.href,
-                 data: {'herakles': id},
+                 data: {'herakles': ''},
                  dataType: 'html',
                  type: 'post',
                  success: function (data) {

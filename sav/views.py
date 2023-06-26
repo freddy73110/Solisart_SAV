@@ -1273,10 +1273,14 @@ class utilisateur_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+
         if 'herakles' in request.POST:
-            client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
-            return render(request, "widgets/client_herakles.html",
-                          {'client': {str(key).replace('t100_', '').replace('_', ' '): value for key, value in client.__dict__.items() }})
+            if self.profil.Client_herakles:
+                client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
+                return render(request, "widgets/client_herakles.html",
+                              {'client': {str(key).replace('t100_', '').replace('_', ' '): value for key, value in client.__dict__.items() }})
+            else:
+                return HttpResponse("<h2 class='text-danger'>Client Hérakles non renseigné</h2>")
         if "ticket_commercial" in request.POST:
             tickets = self.profil.commercial_ticket(duree = int(request.POST['ticket_commercial']))
             return JsonResponse([t.as_dict() for t in tickets], safe=False)
