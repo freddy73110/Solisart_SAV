@@ -40,8 +40,6 @@
   <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
   <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
 
-    <!-- https://mervick.github.io/emojionearea/?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_library-->
-
 <!--https://github.com/mervick/emojionearea-->
     {# JQUERY EMOJI PICKER #}
 <link rel="stylesheet" href="{% static 'emojionarea/emojionearea.min.css' %}">
@@ -90,14 +88,6 @@ $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
     <title>{%block Titre%}SolisArt{%endblock%}</title>
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
     <style>
-.custom-popover {
-  --bs-popover-max-width: 400px;
-  --bs-popover-border-color: var(--bs-primary);
-  --bs-popover-header-bg: var(--bs-primary);
-  --bs-popover-header-color: var(--bs-white);
-  --bs-popover-body-padding-x: 1rem;
-  --bs-popover-body-padding-y: .5rem;
-}
 
 .fade {
   transition-duration: 0.5s;

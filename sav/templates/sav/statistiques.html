@@ -16,6 +16,9 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#stat_corre" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-chart-pie"></i><br> Statistiques Symptômes/causes</button>
               </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-BL-tab" data-bs-toggle="pill" data-bs-target="#stat_BL" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-truck"></i><br> Statistiques BL</button>
+              </li>
             </ul>
         </div>
         <div class="tab-content" id="pills-tabContent">
@@ -51,7 +54,7 @@
                              id="inputGroupSelect03"
                              class="form-control"
                              placeholder="période en jours"
-                             value="30"
+                             value="365"
                              min=0
                              aria-label="Recipient's username"
                              aria-describedby="button-addon2"
@@ -95,6 +98,140 @@
                     </div>
                     <div class="row">
                         <div id="sunburst2" style="height: 500px;">{{sunburst2|safe}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="stat_BL" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 class="m-3">Statistiques sur les BL</h1>
+                            <form id="form_BL">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div id="div_id_date_start_BL" class="form-floating mb-3"> <input type="text" name="date_start_BL" value="28/05/2023 00:00:00" class="xdsoftdatetimepickerinput form-control" placeholder="date_start" required="" id="id_date_start">
+                                        <script>
+                                          $(function () {
+                                            var today = new Date();
+                                            today.setDate(d.getDate() - 30)
+                                            var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
+                                            $("input[name='date_start_BL']").datetimepicker({
+                                              format: 'd-m-Y H:i'
+                                            }
+                                            );
+                                          });
+                                          $("input[name='date_start_BL']").val($("input[name='date_start_BL']").val().substring(0,16).replace('\/', '-').replace('\/', '-'))
+                                        </script>
+                                            <label for="div_id_date_start_BL">Date de Départ</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div id="div_id_date_end_BL" class="form-floating mb-3">
+                                            <input type="text" name="date_end_BL" value="27/06/2023 12:13:57" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="id_date_end">
+                                        <script>
+                                          $(function () {
+                                            var today = new Date();
+                                            var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
+                                            $("input[name='date_end_BL']").datetimepicker({
+                                              format: 'd-m-Y H:i'
+                                            }
+                                            );
+                                          });
+                                          $("input[name='date_end_BL']").val($("input[name='date_end_BL']").val().substring(0,16).replace('\/', '-').replace('\/', '-'))
+                                        </script>
+                                        <label for="id_date_end">Date de fin</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary" name="stat_BL" onclick="refreshBLStat(this)">Visualiser</button>
+                            </form>
+                        </div>
+                        <div class="col-12 m-3">
+                            {{ ArticlesBl|json_script:"data1" }}
+                            <table
+                                    id="table"
+                                    data-show-footer="true"
+                                    data-footer-style="footerStyle"
+                                    data-row-style="rowStyle">
+                                <thead>
+                                    <th class="text-center" data-field="codouv" data-footer-formatter="codouvFooter">Ref</th>
+                                    <th class="text-center" data-field="titre" >Titre</th>
+                                    <th class="text-center" data-field="qtet">Quantité</th>
+                                    <th class="text-center" data-field="remisepct" data-footer-formatter="remiseFooter" data-formatter="pctFormatter">Remise (%)</th>
+                                    <th class="text-center" data-field="total" data-footer-formatter="totalFooter" data-formatter="priceFormatter">Total</th>
+                                    <th class="text-center" data-field="totalremise" data-formatter="priceFormatter">Total remisé</th>
+                                </thead>
+                            </table>
+<script>
+  var $table = $('#table')
+  var data = JSON.parse(document.getElementById('data1').textContent);
+    $table.bootstrapTable({data: data})
+  function refreshBLStat(t){
+    form = $("#form_BL")
+    data =  form.serialize()
+    $(t).html("Attente de résulat")
+    $.ajax({
+                        url: window.location.href,
+                            type:'post',
+                            data: data + "&refreshBL=refreshBL",
+                            dataType: 'json',
+                            success: function (data) {
+                                    $(t).html("Visualiser")
+                                    $('#table').bootstrapTable('load', data)
+                            }
+                    })
+
+  }
+  function codouvFooter() {
+    return 'Total sous garantie'
+  }
+    function remiseFooter() {
+    return '100 %'
+  }
+  function totalFooter(data) {
+    var field = this.field
+    var total = 0
+    $.each(data, function(key, val){
+        if(val.remisepct == 100){
+            total = total + val.prixunitaire * val.qtet
+        }
+    })
+    return  Math.round(total * 100) / 100 + " €"
+  }
+
+  function footerStyle(column) {
+    return {
+      codouv: {
+        css: {'text-transform': 'uppercase'}
+      }
+    }[column.field]
+  }
+
+function priceFormatter(value) {
+    var valuemonnaie = Math.round(value * 100) / 100
+    return valuemonnaie + " €"
+  }
+function pctFormatter(value) {
+
+    return value+ " %"
+  }
+   function rowStyle(row, index) {
+    if (row.remisepct == 100) {
+      return {
+              css: {
+                'font-weight': 'bold'
+              }
+            }
+    }
+    return {
+              css: {
+                color: 'black'
+              }
+            }
+
+  }
+</script>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,6 +309,15 @@ function genetableau(t){
         $(t).html('Tout déselectionner')
     }else{
         $("input[name=cause]").prop('checked', false)
+        $(t).html('Tout sélectionner')
+    }
+    }
+function Actionbouton_BL(t){
+    if($(t).html()== 'Tout sélectionner'){
+        $("input[name=article_BL]").prop('checked', true)
+        $(t).html('Tout déselectionner')
+    }else{
+        $("input[name=article_BL]").prop('checked', false)
         $(t).html('Tout sélectionner')
     }
     }

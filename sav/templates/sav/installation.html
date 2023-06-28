@@ -606,14 +606,15 @@ loadingTask.promise.then(function(pdf) {
 </div>
 <script>
 function initticketform(me){
+    $(".modal-body").find("div").hide()
+    $("#update_ticket").html()
+    $("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
     $.ajax({
         url: window.location.href,
             type:'post',
             data: {'nature_form': 'update_ticket_init', 'id':0},
             dataType: 'html',
             success: function (html) {
-                $(".modal-body").find("div").hide()
-                $("#update_ticket").html()
                 $("#update_ticket").html(html)
                 $("input[name='nature_form']").val('ticket')
                 $("#add_evenement_modal").show("slow")
@@ -633,7 +634,6 @@ function deletefile(me){
     $("#enregister").html('Supprimer')
 }
 function renamefile(me){
-    console.log(me, $(this))
     $(".modal-body").find("div").hide()
     $("input[name='nature_form']").val('rename_file')
     $("#ModalEvenementLabel").html('Renommer le fichier "' + $(me).attr('file_name')+'"')
@@ -644,14 +644,16 @@ function renamefile(me){
     $("#enregister").html('Renommer')
 }
 function updateTicket(id){
+    $(".modal-body").find("div").hide()
+    $("#update_ticket").html()
+    $("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
     $.ajax({
         url: window.location.href,
             type:'post',
             data: {'nature_form': 'update_ticket_init', 'id':id},
             dataType: 'html',
             success: function (html) {
-            $(".modal-body").find("div").hide()
-            $("#update_ticket").html()
+
             //todo faire un message de validation
                 $("#update_ticket").html(html)
                 $("input[name='nature_form']").val('update-ticket')
@@ -693,13 +695,6 @@ $(document).ready(function() {
 });
 </script>
 <script>
-function auto_grow() {
-    $.each($('textarea'), function(key, value){
-    var element = $(value)[0]
-    element.style.height = "5px";
-    element.style.height = (element.scrollHeight)+"px";
-    })
-}
 $(document).on('dragover', function (e) {
     e.preventDefault();
     $('.upload-zone').on('dragover', function(event){
@@ -751,11 +746,6 @@ $('.upload-zone').each(function () {
             }
     });
 });
-auto_grow()
-function growall(t){
-    console.log('growall', t, t.val())
-
-}
 </script>
 <script>
 function alldownload(ticket_id){

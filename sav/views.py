@@ -705,9 +705,6 @@ class statistiques(View, SuccessMessageMixin):
 
     def chart_repartition_temporel_df(self, frequence=None, periode=None, field=None, type=None):
 
-        print(frequence, periode, field)
-        import pytz
-        from django.utils import timezone
         from django.db.models import CharField
         try:
             queryset = ticket.objects.filter(
@@ -756,10 +753,8 @@ class statistiques(View, SuccessMessageMixin):
                     lien=Case(*when4, output_field=CharField())
                 )
                 queryset= queryset.values('frequence', 'lien').order_by("frequence", "lien").annotate(count=Count('id'))
-            print(queryset)
-            print(list(queryset.values('frequence', 'lien', 'count')))
+
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
-            print(df)
             df.fillna(value="sans profil", inplace=True)
 
         except Exception as ex:
@@ -831,6 +826,20 @@ class statistiques(View, SuccessMessageMixin):
             evenement__date__gte=datetime.strptime(P['date_start'], "%d-%m-%Y %H:%M"),
             evenement__date__lte=datetime.strptime(P['date_end'], "%d-%m-%Y %H:%M"),
             probleme__id__in=P.getlist('probleme') if 'probleme' in P else [])
+        if 'article_BL' in P:
+            conditions = Q(codouv__exact='xxxxxxxx')
+            for article in P.getlist('article_BL'):
+                conditions |= Q(codouv__exact = article)
+
+            BLs = C701Ouvraof.objects.db_manager('herakles'). \
+                filter(conditions). \
+                order_by("codeof"). \
+                values_list("codeof", flat=True)
+            condition2 = Q(BL__BL__in = list(BLs))
+            if "sans" in P.getlist('article_BL'):
+                condition2 |= Q(BL__isnull=True)
+            tickets = tickets.filter(condition2)
+
         if 'annee' in P:
             conditions = Q(evenement__installation__idsa__icontains='xxxxxxxx')
             for tag in P.getlist('annee'):
@@ -870,11 +879,35 @@ class statistiques(View, SuccessMessageMixin):
     def get(self, request, *args, **kwargs):
 
         stattableauform=Stattableauform()
+        start = datetime.today()-timedelta(days =30)
+        BLwithticket = ticket.objects.filter(
+            BL__isnull=False,
+            evenement__date__gte=start,
+            evenement__date__lte=datetime.today(),
+        ).values_list('BL__BL', flat=True)
+        from django.db.models import Sum
+        ArticlesBl = C701Ouvraof.objects.db_manager('herakles').\
+                    filter(codeof__in= list(BLwithticket)).\
+                    annotate(
+                        qte= Cast("nbre", output_field=(FloatField())),
+                        prixunitaire = Cast("pvbase", output_field=(FloatField())),
+                        remisepct = Cast("rem", output_field=(FloatField()))
+                    ).\
+                    order_by("codouv", 'remisepct'). \
+                    values("codouv", "remisepct", "qte", "prixunitaire").\
+                    annotate(
+                        qtet=Sum("qte"),
+                        remise=F("prixunitaire") * F("qtet") * F('remisepct') * 0.01,
+                        total=F("prixunitaire") * F("qtet"),
+                        totalremise=F("total") - F("remise")
+                    ).\
+                    values("codouv", "titre", "qtet", "prixunitaire","remisepct", 'total','totalremise')
+        ArticlesBl =list(ArticlesBl)
 
         try:
-            fig1=self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="bar")
+            fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
             self.tickets_chart = opy.plot(fig1, output_type='div')
-            fig2 = self.chart_repartition_temporel(frequence="jour", periode="30", field="forme", type="sunburst")
+            fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
             fig3 = self.chart_repartition_pb_cause()
             self.sunburst2=""
@@ -891,7 +924,8 @@ class statistiques(View, SuccessMessageMixin):
                           self.template_name,
                           {
                               'title': self.title,
-                              'stattableauform':stattableauform
+                              'stattableauform':stattableauform,
+                              'ArticlesBl':  ArticlesBl
                           }
                           )
         return render(request,
@@ -901,11 +935,41 @@ class statistiques(View, SuccessMessageMixin):
                           'tickets_chart':self.tickets_chart,
                           'sunburst':self.sunburst,
                           'sunburst2': self.sunburst2,
-                          'stattableauform':stattableauform
+                          'stattableauform':stattableauform,
+                          'ArticlesBl':  ArticlesBl
                       }
                       )
 
     def post(self, request, *args, **kwargs):
+
+        if "refreshBL" in request.POST:
+            start = datetime.strptime(request.POST['date_start_BL'], "%d-%m-%Y %H:%M")
+            end = datetime.strptime(request.POST['date_end_BL'], "%d-%m-%Y %H:%M")
+            BLwithticket = ticket.objects.filter(
+                BL__isnull=False,
+                evenement__date__gte=start,
+                evenement__date__lte=end,
+            ).values_list('BL__BL', flat=True)
+            from django.db.models import Sum
+            ArticlesBl = C701Ouvraof.objects.db_manager('herakles'). \
+                filter(codeof__in=list(BLwithticket)). \
+                annotate(
+                qte=Cast("nbre", output_field=(FloatField())),
+                prixunitaire=Cast("pvbase", output_field=(FloatField())),
+                remisepct=Cast("rem", output_field=(FloatField()))
+            ). \
+                order_by("codouv", 'remisepct'). \
+                values("codouv", "remisepct", "qte", "prixunitaire"). \
+                annotate(
+                qtet=Sum("qte"),
+                remise=F("prixunitaire") * F("qtet") * F('remisepct') * 0.01,
+                total=F("prixunitaire") * F("qtet"),
+                totalremise=F("total") - F("remise")
+            ). \
+                values("codouv", "titre", "qtet", "prixunitaire", "remisepct", 'total', 'totalremise')
+            ArticlesBl = list(ArticlesBl)
+            return JsonResponse(ArticlesBl, safe=False)
+
         if "download_csv2" in request.POST:
 
             df = self.chart_repartition_pb_cause_df(P=request.POST)
@@ -953,8 +1017,6 @@ class statistiques(View, SuccessMessageMixin):
                                                   field=request.POST['field'],
                                                   type=request.POST['type'])
             return HttpResponse(opy.plot(fig, output_type='div'))
-
-
 
 class installation_view (View):
     login_url = '/login/'

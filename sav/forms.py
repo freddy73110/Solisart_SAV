@@ -8,12 +8,17 @@ from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
 from django.db.models import F, Value as V, Subquery, OuterRef
 from django.db.models.functions import Concat
 from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
+
+from heraklesinfo.models import C701Ouvraof
 from .crispy_layout import *
 
 from django import forms
 
 from .models import *
 from .tasks import actualise_herakles
+
+from django.db.models import Value, Subquery, FloatField, OuterRef, TextField
+from django.db.models.functions import Cast
 
 emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({});});</script>'
 
@@ -333,8 +338,23 @@ class Stattableauform(forms.Form):
                                       help_text="En fonction de son numéro de série"
                                       )
 
+
+    article_BL = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                      required = False,
+                                      help_text = "En fonction des articles"
+                                      )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        BL_with_tickets = list(ticket.objects.filter(BL__isnull=False).values_list('BL__BL', flat=True))
+        articles = C701Ouvraof.objects.db_manager('herakles').\
+                    filter(codeof__in=BL_with_tickets).\
+                    annotate(qte= Cast("nbre", output_field=(FloatField()))).\
+                    order_by("codouv").\
+                    values("codouv", "titre"). \
+                    distinct()
+        self.fields['article_BL'].choices = (("sans", "sans BL"),) + tuple([(i["codouv"], i["codouv"] + ' - ' +i["titre"]) for i in articles])
+        self.fields['article_BL'].initial = ["sans"] + [i["codouv"] for i in articles]
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
@@ -363,6 +383,13 @@ class Stattableauform(forms.Form):
                         Tab('Installation',
                             InlineCheckboxes('annee'),
                             InlineCheckboxes('type')
+                        ),
+                        Tab('BL',
+                            Field('article_BL', size=10, template='widgets/multiselect3colonne.html'),
+                            HTML(
+                                '<button type="button" id="button_cause" class="btn btn-outline-primary" onclick="Actionbouton_BL(this)">Tout désélectionner</button>'
+                            )
+
                         ),
                         Tab('Autre',
                             Field('detail', css_class="textareaEmoji"),

@@ -210,6 +210,9 @@ class B50Composants(models.Model):
         db_table = 'B50-Composants'
         unique_together = (('t50_1_code_bibli', 't50_2_code_comp'),)
 
+    def __str__(self):
+        return str(self.t50_2_code_comp) + ' - ' + str(self.t50_2_code_comp)
+
 class B99Affaires(models.Model):
     t99_0_code_affaire = models.CharField(db_column='T99-0-Code affaire', primary_key=True, max_length=20)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t99_1_nom_affaire = models.CharField(db_column='T99-1-Nom affaire', max_length=60, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
