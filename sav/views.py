@@ -187,6 +187,12 @@ class updateDB (View):
                       )
 
     def post(self, request, *args, **kwargs):
+
+        if 'exportprix' in request.POST:
+            from .tasks import actualisePrixMySolisart
+
+            return actualisePrixMySolisart()
+
         if 'submit' in request.POST:
             uploaded_file = request.FILES['fichier']
             df = pd.read_csv(uploaded_file, on_bad_lines='skip', header=None)
@@ -1060,6 +1066,39 @@ class installation_view (View):
 
     def post(self, request, *args, **kwargs):
 
+        if "dynamicsolution" in request.POST:
+            if request.POST["dynamicsolution"]:
+                solutions = cause.objects.get(pk=request.POST["dynamicsolution"]).solution.all()
+                if solutions:
+                    html='<h3>Solutions associées:</h3><ul>'
+                    for s in solutions:
+                        html+='<li>'+ str(s) + '</li>'
+                    html+='</ul>'
+                else:
+                    html = ''
+            else:
+                html=''
+            return HttpResponse(html)
+
+        if "dynamiccauces" in request.POST:
+            causes = probleme.objects.get(pk=request.POST["dynamiccauces"]).causes.all()
+            if not causes:
+                causes = cause.objects.all()
+            html='<option value="" selected="">---------</option>'
+            categorie=''
+            i = 0
+            for c in causes:
+                if c.categorie != categorie and i != 0:
+                    html += '</optgroup>'
+                if c.categorie != categorie:
+                    html+="<optgroup label='" + str(type_cause(c.categorie).label) +"'>"
+                    categorie = c.categorie
+                html+= "<option value='" + str(c.id) + "'>" + str(c.sous_categorie)+"</option>"
+                i+=1
+            html+='</optgroup>'
+
+            return HttpResponse(html)
+
         if "BL_popover" in request.POST:
             from heraklesinfo.models import C701Ouvraof
             articles = C701Ouvraof.objects.db_manager('herakles').\
@@ -1240,6 +1279,8 @@ class installation_view (View):
                 tick = self.add_ticket_form.save(commit=False)
                 tick.evenement=even
                 tick.detail=request.POST['detail']
+                tick.BL=request.POST['BL']
+                tick.devis = request.POST['devis']
                 tick.save()
                 return JsonResponse({
                     "ticket": "ok"
@@ -1516,7 +1557,7 @@ class bidouille (View):
 
         from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles
 
-        actualise_client_herakles()
+        actualisePrixMySolisart()
         # actualise_herakles.delay()
         # from django.db.models import CharField
         # from django.db.models.functions import Length

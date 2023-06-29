@@ -59,6 +59,7 @@ class add_evenement_form(ModelForm):
             self.fields['installation'].choices=choices
         self.fields['date'].widget = XDSoftDateTimePickerInput()
         self.fields['date'].input_formats = ['%d-%m-%Y %H:%M']
+        self.fields['date'].help_text = ''
         if date:
             self.fields['date'].initial = date
         else:
@@ -117,12 +118,43 @@ class ticket_form(ModelForm):
         super(ticket_form, self).__init__(*args, **kwargs)
         self.fields['id'].widget=HiddenInput()
         html=''
+        dynamiccauses = '<script>'\
+'$("#id_probleme").on("change", function(){'\
+        'var $t = $(this).val();'\
+            '$.ajax({' \
+            'url: window.location.href,' \
+            'data: {"dynamiccauces": $t},' \
+            'dataType: "html",' \
+            'type: "post",' \
+            'success: function(data) {' \
+        '$("#id_cause").html(data);' \
+        '$("#SolutionDiv").html('')'\
+        '}' \
+        '})' \
+'})'\
+'</script>'
+        dynamicsolution = '<script>' \
+                        '$("#id_cause").on("change", function(){' \
+                        'var $t = $(this).val();' \
+                        'console.log($t);' \
+                        '$.ajax({' \
+                        'url: window.location.href,' \
+                        'data: {"dynamicsolution": $t},' \
+                        'dataType: "html",' \
+                        'type: "post",' \
+                        'success: function(data) {' \
+                        'console.log(data);' \
+                        '$("#SolutionDiv").html(data)' \
+                        '}' \
+                        '})' \
+                        '})' \
+                        '</script>'
         from operator import itemgetter
         items = probleme.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie', 'sous_categorie')
         rows = groupby(items, itemgetter('categorie'))
         di = {str(type_probleme(c_title).label): tuple([(i['id'], i['sous_categorie']) for i in items]) for c_title, items in rows}
         choices=tuple([(key, value) for key, value in di.items()])
-        self.fields['probleme'].choices = choices
+        self.fields['probleme'].choices = (('', '---------'),) + choices
 
         items = cause.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie',
                                                                                             'sous_categorie')
@@ -165,16 +197,25 @@ class ticket_form(ModelForm):
         self.helper.layout = Layout(
             "id",
             FloatingField("evenement"),
-            FloatingField("forme"),
-            FloatingField("etat"),
-            FloatingField("utilisateur"),
-            FloatingField("probleme"),
+            Row(
+                Column(FloatingField("forme"), css_class="col-4"),
+                Column(FloatingField("etat"), css_class="col-4"),
+                Column(FloatingField("utilisateur"), css_class="col-4")
+            ),
+            Row(
+                Column(FloatingField("probleme"), css_class="col-6" ),
+                Column(FloatingField("cause"), css_class="col-6"),
+                Column(HTML("<div id='SolutionDiv'></div>"), css_class="col-12")
+            ),
             HTML(html),
-            FloatingField("cause"),
             FloatingField("detail", style='height: 100px',css_class="textareaEmoji"),
             HTML(emoji_str),
-            "devis",
-            "BL"
+            Row(
+                Column("devis", css_class="col-6"),
+                Column("BL", css_class="col-6")
+            ),
+            HTML(dynamiccauses),
+            HTML(dynamicsolution)
         )
 
 class add_problem_form(ModelForm):

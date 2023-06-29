@@ -415,25 +415,11 @@ class attribut_valeur(models.Model):
     def __str__(self):
         return str(self.attribut_def) + ': ' + str(self.valeur)
 
-class type_probleme(models.IntegerChoices):
-    CONNEXION = 0, 'Pas de Connexion'
-    PBTECH = 1, 'Problème technique'
-    PIECESSAV = 2, 'Pièces SAV'
-    HELP = 3, 'Aide au paramétrage'
-    INFO = 4, 'Information diverse'
-    PRESTA = 5, 'Demande de prestation'
-    ERROR_PROD = 6, 'Erreur de production'
-    PREVENTIF = 7, 'Préventif'
-
-class probleme(models.Model):
-    categorie = models.IntegerField(default=type_probleme.CONNEXION, choices=type_probleme.choices, verbose_name="Catégorie")
-    sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
+class solution(models.Model):
+    solution = models.CharField(max_length=100, verbose_name="Solution")
 
     def __str__(self):
-        return str(type_probleme(self.categorie).label) + ' - ' + str(self.sous_categorie)
-
-    class Meta:
-        ordering = ['categorie', 'sous_categorie']
+        return str(self.solution)
 
 class type_cause(models.IntegerChoices):
     CONNEXION = 0, 'Connexion'
@@ -449,9 +435,31 @@ class type_cause(models.IntegerChoices):
 class cause(models.Model):
     categorie = models.IntegerField(default=type_cause.CONNEXION, choices=type_cause.choices, verbose_name="Catégorie")
     sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
+    solution = models.ManyToManyField('solution', null=True, blank=True, verbose_name='Solutions')
 
     def __str__(self):
         return str(type_cause(self.categorie).label) + ' - ' + str(self.sous_categorie)
+
+    class Meta:
+        ordering = ['categorie', 'sous_categorie']
+
+class type_probleme(models.IntegerChoices):
+    CONNEXION = 0, 'Pas de Connexion'
+    PBTECH = 1, 'Problème technique'
+    PIECESSAV = 2, 'Pièces SAV'
+    HELP = 3, 'Aide au paramétrage'
+    INFO = 4, 'Information diverse'
+    PRESTA = 5, 'Demande de prestation'
+    ERROR_PROD = 6, 'Erreur de production'
+    PREVENTIF = 7, 'Préventif'
+
+class probleme(models.Model):
+    categorie = models.IntegerField(default=type_probleme.CONNEXION, choices=type_probleme.choices, verbose_name="Catégorie")
+    sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
+    causes = models.ManyToManyField('cause', null=True, blank=True,verbose_name='Causes possible')
+
+    def __str__(self):
+        return str(type_probleme(self.categorie).label) + ' - ' + str(self.sous_categorie)
 
     class Meta:
         ordering = ['categorie', 'sous_categorie']

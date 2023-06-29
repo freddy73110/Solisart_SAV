@@ -3,7 +3,7 @@
 {% load static %}
 {% load my_filter %}
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 
         <!-- for jquery -->
     <script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
@@ -144,10 +144,18 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:updateDB' %}" data-bs-container="body" data-bs-toggle="popover" title='Import depuis MySolisArt' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Importer les datas depuis MySolisArt'>
+                <a class="dropdown-item mt-3 snipperclick"
+                   href="{% url 'sav:updateDB' %}"
+                   data-bs-container="body"
+                   data-bs-toggle="popover"
+                   title='Import - Export de Données'
+                   data-bs-trigger="hover"
+                   data-placement="bottom"
+                   data-bs-content='Importer les datas depuis MySolisArt
+                   Export prix vers site commerciale'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
-                        <i class="fa fa-plus-circle" data-fa-transform="shrink-8"></i>
+                        <i class="fas fa-sync-alt" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
             </li>

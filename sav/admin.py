@@ -28,6 +28,7 @@ class profil_user_Admin(ModelAdmin):
     list_editable = ('Client_herakles',)
     list_filter = (Allinstallateur,)
 
+
 admin.site.register(profil_user,profil_user_Admin)
 admin.site.register(profil_type)
 admin.site.register(installation)
@@ -47,4 +48,5 @@ admin.site.register(classification)
 admin.site.register(BL_herakles)
 admin.site.register(devis_herakles)
 admin.site.register(client_herakles)
+admin.site.register(solution)
 # admin.site.register(attachement)

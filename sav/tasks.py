@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 import json
 import sys
@@ -352,8 +353,6 @@ def actualise_client_herakles():
     save_result_celery('args', {}, "SUCCESS", result)
 
 
-
-
 @shared_task
 def actualise_herakles():
     result = {'BLcree': [], 'Deviscree': []}
@@ -394,10 +393,11 @@ def actualisePrixMySolisart(*args, **kwargs):
         prix = Cast("t50_35_prix_de_vente_ouvrage_catalogue", output_field=(FloatField())),
         label=F("t50_37_titre_du_composant")
     ).values("ref", "prix", "label")
+
     import requests
 
     # URL de l'endpoint POST
-    url_dev = 'https://dev.solisart.fr/schematics/api/updateTarif.php'
+    url_dev = 'https://www.solisart.fr/schematics/api/updateTarif.php'
 
 
     # En-têtes de la requête
@@ -415,6 +415,9 @@ def actualisePrixMySolisart(*args, **kwargs):
         print('Erreur lors de la requête POST. Code de statut:', response.status_code, response.text)
 
     save_result_celery('args', {}, "SUCCESS", response.text)
+
+    return HttpResponse('Requête code: ' + str(response.status_code)+ " <br> " +  str(response.text).replace('\n', '<br>'))
+
 
 
 
