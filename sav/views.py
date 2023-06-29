@@ -1279,8 +1279,10 @@ class installation_view (View):
                 tick = self.add_ticket_form.save(commit=False)
                 tick.evenement=even
                 tick.detail=request.POST['detail']
-                tick.BL=request.POST['BL']
-                tick.devis = request.POST['devis']
+                if 'BL' in request.POST:
+                    tick.BL=request.POST['BL']
+                if 'devis' in request.POST:
+                    tick.devis = request.POST['devis']
                 tick.save()
                 return JsonResponse({
                     "ticket": "ok"
