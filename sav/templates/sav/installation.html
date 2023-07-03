@@ -841,7 +841,7 @@ $(".BL").on('click', function(){
 $(".devis").on('click', function(){
         var devis = $(this)
         $("#offcanvasRightLabel").html("Détail du " + devis.attr('devis') + ":")
-        $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
+        $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
             $.ajax({
                  url: window.location.href,
                  data: {'devis_popover': devis.attr('devis')},

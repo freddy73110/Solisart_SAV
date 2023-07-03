@@ -108,12 +108,7 @@ DATABASES = {
          'PORT': '',
         "OPTIONS": {
             "driver": "ODBC Driver 17 for SQL Server",
-            'unicode_results': True,
-            "setdecoding": [
-                {"sqltype": pyodbc.SQL_CHAR, "encoding": 'latin-1'},
-                {"sqltype": pyodbc.SQL_WCHAR, "encoding": 'latin-1'}],
-            "setencoding": [
-                {"encoding": "latin-1"}]
+            'unicode_results': True
         },
     }
 }
@@ -145,8 +140,6 @@ LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = False
-CELERY_TIMEZONE = 'Europe/Paris'
-CELERY_ENABLE_UTC = True
 
 USE_TZ = False
 
@@ -206,9 +199,12 @@ result_backend = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Europe/Paris'
+CELERY_ENABLE_UTC = True
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
+#indispensable avec use_tz=False
+DJANGO_CELERY_BEAT_TZ_AWARE = False
 
 
 # this allows you to schedule items in the Django admin.

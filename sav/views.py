@@ -177,12 +177,15 @@ class updateDB (View):
     title = 'Importation depuis my.solisart'
 
     def get(self, request, *args, **kwargs):
-
+        from django_celery_results.models import TaskResult
+        from django.db.models import Max
+        Tasks = TaskResult.objects.filter(pk__in=TaskResult.objects.values('task_name').annotate(Max('id')).values_list('id__max', flat=True))
         return render(request,
                       self.template_name,
                       {
                           'title':self.title,
-                          'form': self.form_class
+                          'form': self.form_class,
+                          'tasks':Tasks
                       }
                       )
 
@@ -190,7 +193,6 @@ class updateDB (View):
 
         if 'exportprix' in request.POST:
             from .tasks import actualisePrixMySolisart
-
             return actualisePrixMySolisart()
 
         if 'submit' in request.POST:
@@ -213,44 +215,8 @@ class updateDB (View):
                 }
             df.replace(dictionary, regex=True, inplace=True)
             if 'utilisateur' in uploaded_file.name:
-                df.columns=['id', 'pass', 'nom', 'prenom', 'email', 'telephone1', 'telephone2','voie1', 'voie2', 'voie3', 'codepostal', 'commune']
-                df = df.reset_index()  # make sure indexes pair with number of rows
-                total_created=0
-                for index, row in df.iterrows():
-                    try:
-                        user, created = User.objects.get_or_create(
-                            username = row["id"]
-                        )
-                        user.first_name = row['prenom'],
-                        user.last_name = row['nom'],
-                        user.email = row["email"]
-                        #Comprend pas cette ligne mais çà marche
-                        user.first_name = user.first_name[0]
-                        user.last_name = user.last_name[0]
-                        user.save()
-                        profil = profil_user.objects.get(user=user)
-                        profil.idsa = row['id']
-                        profil.PW = row['pass']
-                        profil.telephone1 = row['telephone1'] if str(row['telephone1']).replace('.', '').replace(' ', '') != profil.telephone1 else profil.telephone1
-                        profil.telephone2 = row['telephone2'] if str(row['telephone2']).replace('.', '').replace(' ', '') != profil.telephone2 else profil.telephone2
-                        profil.voie1 =row['voie1']
-                        profil.voie2 = row['voie2']
-                        profil.voie3 = row['voie3']
-                        profil.codepostal = row['codepostal']
-                        profil.commune = row['commune']
-                        profil.save()
-                        if created:
-                            total_created += 1
-
-                    except Exception as e:
-                        print(row)
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        print(exc_type, fname, exc_tb.tb_lineno)
-                        print(e)
-                        pass
-
-                messages.success(request, str(total_created) + ' nouveaux utilisateur de créer')
+                from .tasks import ActualiseUtilisateur
+                ActualiseUtilisateur(request = request, df=df)
 
             if 'profil' in uploaded_file.name:
                 df.columns = ['id', 'nom', 'type', 'droit_gestion', 'droit_carte', 'icone']
@@ -279,37 +245,8 @@ class updateDB (View):
                 messages.success(request, str(total_created) + ' nouveaux profils type')
 
             if 'installation' in uploaded_file.name:
-                df.columns = ['id', 'type_communication', 'version_carte_firmware', 'version_carte_interface',
-                              'version_serveur_appli', 'heure_contact', 'heure_test', 'adresse_ip_wan',
-                              'port_tcp_wan', '	propager_droits']
-                df = df.reset_index()  # make sure indexes pair with number of rows
-                total_created = 0
-                for index, row in df.iterrows():
-                    try:
-                        inst, created = installation.objects.get_or_create(
-                            idsa=row['id'])
-                        # tc= row['type_communication'] if row['type_communication'] != np.nan else None
-
-                        # inst.type_communication= tc,
-
-                        inst.version_carte_firmware=row['version_carte_firmware'] if 'version_carte_firmware' in row and row['version_carte_firmware'] != np.nan else None,
-                        inst.version_carte_interface=row['version_carte_interface'] if 'version_carte_interface' in row and row['version_carte_interface'] != np.nan else None,
-                        inst.version_serveur_appli=row['version_serveur_appli'] if 'version_serveur_appli' in row and row['version_serveur_appli'] != np.nan else None,
-                        inst.adresse_ip_wan=row['adresse_ip_wan'] if 'adresse_ip_wan' in row and row['adresse_ip_wan'] != np.nan else None,
-                        inst.port_tcp_wan=row['port_tcp_wan'] if 'port_tcp_wan' in row and row['port_tcp_wan'] != np.nan else None
-                        inst.save()
-
-                        if created:
-                            total_created += 1
-                    except Exception as e:
-                        print(row)
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        print(exc_type, fname, exc_tb.tb_lineno)
-                        print(e)
-                        pass
-
-                messages.success(request, str(total_created) + ' nouvelles installations')
+                from .tasks import ActualiseInstallation
+                ActualiseInstallation(request=request, df=df)
 
             if 'attribut_def' in uploaded_file.name:
                 df.columns = ['id', 'description']
@@ -334,51 +271,12 @@ class updateDB (View):
                 messages.success(request, str(total_created) + ' nouvelles attribut_def')
 
             if 'attribut_val' in uploaded_file.name:
-                df.columns = ['installation', 'attribut_def', 'valeur']
-                df = df.reset_index()  # make sure indexes pair with number of rows
-                total_created = 0
-                for index, row in df.iterrows():
-                    try:
-                        int, created = attribut_valeur.objects.get_or_create(
-                            installation=installation.objects.get(idsa=row['installation']),
-                            attribut_def=attribut_def.objects.get(idsa=row['attribut_def'])
-                        )
-                        int.valeur=row['valeur']
-                        int.save()
-                        if created:
-                            total_created += 1
-                    except Exception as e:
-
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        print(exc_type, fname, exc_tb.tb_lineno)
-                        print(e)
-                        pass
-
-                messages.success(request, str(total_created) + ' nouvelles attribut_val')
+                from .tasks import ActualiseAttribut
+                ActualiseAttribut(request=request, df=df)
 
             if 'acces' in uploaded_file.name:
-                df.columns = ['utilisateur', 'profil', 'installation']
-                df = df.reset_index()  # make sure indexes pair with number of rows
-                total_created = 0
-                for index, row in df.iterrows():
-                    try:
-                        int, created = acces.objects.get_or_create(
-                            installation=installation.objects.get(idsa=row['installation']),
-                            profil_type=profil_type.objects.get(idsa=row['profil']),
-                            utilisateur=User.objects.get(profil_user__idsa=row['utilisateur'])
-                        )
-                        if created:
-                            total_created += 1
-                    except Exception as e:
-                        print(row)
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        print(exc_type, fname, exc_tb.tb_lineno)
-                        print(e)
-                        pass
-
-                messages.success(request, str(total_created) + ' nouveaux acces')
+                from .tasks import ActualiseAcces
+                ActualiseAcces(request=request, df=df)
 
             if 'donnee' in uploaded_file.name:
                 df.columns = ['id', 'nom_carte', 'nom','description', 'id_statut', 'droit_modification']
@@ -404,28 +302,8 @@ class updateDB (View):
                 messages.success(request, str(total_created) + ' nouvelles données')
 
             if 'historique' in uploaded_file.name:
-                df.columns = ['installation', 'heure', 'donnee', 'valeur']
-                df = df.reset_index()  # make sure indexes pair with number of rows
-                total_created = 0
-                for index, row in df.iterrows():
-                    try:
-                        int, created = historique.objects.get_or_create(
-                            installation=installation.objects.get(idsa=row['installation']),
-                            donnee=donnee.objects.get(idsa=row['donnee'])
-                        )
-                        int.valeur = row['valeur']
-                        int.save()
-                        if created:
-                            total_created += 1
-                    except Exception as e:
-
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                        print(exc_type, fname, exc_tb.tb_lineno)
-                        print(e)
-                        pass
-
-                messages.success(request, str(total_created) + ' nouveaux historiques')
+                from .tasks import ActualiseHistorique
+                ActualiseHistorique(request=request, df=df)
 
         return render(request,
                       self.template_name,
@@ -435,169 +313,168 @@ class updateDB (View):
                       }
                       )
 
-class mail(View):
-    login_url = '/login/'
-    template_name = 'sav/mail.html'
-    title = 'Ouvrir un ticket depuis la boîte email sav'
-
-    def dispatch(self, request, *args, **kwargs):
-        return super(mail, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        self.emails = emailbox.objects.all()
-
-        return render(request,
-                      self.template_name,
-                      {
-                          'title': self.title,
-                          'emails': self.emails
-                      }
-                      )
-
-    def post(self, request, *args, **kwargs):
-
-
-        print(request.POST)
-        if 'createticket' in request.POST:
-            msg = emailbox.objects.get(pk=request.POST['id'])
-            return render(request, 'widgets/ticketSinceEmail.html',
-                          {
-                              'e':msg,
-                              'add_evenement_form': add_evenement_form(user=request.user, user_acces=msg.from_user)
-                          })
-
-
-        t_form = ticket_form(request.POST)
-        e_form = add_evenement_form(request.POST, user=request.user,
-                                        date=request.POST['mail_date'])
-        json={}
-        if e_form.is_valid():
-            even=e_form.save(commit=False)
-            json['evenement'] = {"form": "ok"}
-        else:
-            json['evenement'] = {"form": "nok", "error": e_form.errors}
-
-        if t_form.is_valid():
-            tick=t_form.save(commit=False)
-            json['ticket'] = {"form": "ok"}
-        else:
-            json['ticket'] = {"form": "nok", "error": t_form.errors}
-
-        if not e_form.is_valid() and t_form.is_valid():
-            return JsonResponse(json, safe=False)
-        else:
-            e = even.save()
-            tick.evenement=e
-            tick.save()
-        if request.POST['response']:
-            date= datetime.strptime(request.POST['mail_date'], '%d-%m-%Y %H:%M')
-            msg=emailbox.objects.filter(pk=request.POST['mail_id'])
-            if request.POST['response'] == 'send_response':
-                try:
-                    for m in msg:
-                        if settings.DEBUG:
-                            subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                        else:
-                            subject, from_email, to = m.subject, 'sav@solisart.fr', request.POST['response_email']
-
-                        html_content = render_to_string('email/responsewithsignature.html', {
-                            'oldmail': m.html,
-                            'msg': request.POST['response_text']
-                        })  # render with dynamic value
-                        text_content = strip_tags(
-                            html_content)  # Strip the html tag. So people can see the pure text at least.
-
-                        # create the email, and attach the HTML version as well.
-                        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-                        msg.attach_alternative(html_content, "text/html")
-                        msg.send()
-                        json['email'] = {"send": "ok"}
-                except Exception as e:
-
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
-                    print(e)
-                    pass
-                    json['email'] = {"send": "nok"}
-
-            if request.POST['response'] == 'move_response':
-                #todo when i have outlook 365
-                    json['moveemail'] = {"todo": "ok"}
-
-            if request.POST['response'] == 'login_response':
-                try:
-                    if settings.DEBUG:
-                        subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                        utilisateur = User.objects.filter(email='freddy.dubouchet@solisart.fr')[0]
-                    else:
-                        subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
-                        utilisateur=User.objects.filter(email=request.POST['response_email'])[0]
-
-                    html_content = render_to_string('email/responseloselogin.html', {
-                        'utilisateur':utilisateur,
-                        'profil':profil_user.objects.get(user=utilisateur)
-                    })  # render with dynamic value
-                    text_content = strip_tags(
-                        html_content)  # Strip the html tag. So people can see the pure text at least.
-
-                    # create the email, and attach the HTML version as well.
-                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.mixed_subtype = 'related'
-                    from django.templatetags.static import static
-                    img_path=os.path.join(settings.STATIC_ROOT, 'image', 'login.png')
-                    msg.mixed_subtype = 'related'
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.attach(addimg(img_path, 'login'))
-                    msg.send(fail_silently=False)
-
-                    json['email'] = {"send": "ok"}
-                except Exception as e:
-
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
-                    print(e)
-                    pass
-                    json['email'] = {"send": "nok"}
-
-            if request.POST['response'] == 'reconnection':
-                try:
-                    if settings.DEBUG:
-                        subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
-                    else:
-                        subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', request.POST['response_email']
-
-                    html_content = render_to_string('email/responsehelpconnection.html')  # render with dynamic value
-                    text_content = strip_tags(
-                        html_content)  # Strip the html tag. So people can see the pure text at least.
-
-                    # create the email, and attach the HTML version as well.
-                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.mixed_subtype = 'related'
-                    from django.templatetags.static import static
-                    img_path=os.path.join(settings.STATIC_ROOT, 'image', 'aidereconnexion.jpg')
-                    msg.mixed_subtype = 'related'
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.attach(addimg(img_path, 'aidereconnexion'))
-                    file_path=os.path.join(settings.STATIC_ROOT,'sav', 'fichier', 'procedure_connexion.pdf')
-                    msg.attach_file(file_path)
-                    msg.send(fail_silently=False)
-                    json['email'] = {"send": "ok"}
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
-                    print(e)
-                    pass
-                    json['email'] = {"send": "nok"}
-        else:
-            json['email'] = {"send": "pas demander"}
-
-        return JsonResponse(json, safe=False)
-
+# class mail(View):
+#     login_url = '/login/'
+#     template_name = 'sav/mail.html'
+#     title = 'Ouvrir un ticket depuis la boîte email sav'
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         return super(mail, self).dispatch(request, *args, **kwargs)
+#
+#     def get(self, request, *args, **kwargs):
+#         self.emails = emailbox.objects.all()
+#
+#         return render(request,
+#                       self.template_name,
+#                       {
+#                           'title': self.title,
+#                           'emails': self.emails
+#                       }
+#                       )
+#
+#     def post(self, request, *args, **kwargs):
+#
+#
+#         print(request.POST)
+#         if 'createticket' in request.POST:
+#             msg = emailbox.objects.get(pk=request.POST['id'])
+#             return render(request, 'widgets/ticketSinceEmail.html',
+#                           {
+#                               'e':msg,
+#                               'add_evenement_form': add_evenement_form(user=request.user, user_acces=msg.from_user)
+#                           })
+#
+#
+#         t_form = ticket_form(request.POST)
+#         e_form = add_evenement_form(request.POST, user=request.user,
+#                                         date=request.POST['mail_date'])
+#         json={}
+#         if e_form.is_valid():
+#             even=e_form.save(commit=False)
+#             json['evenement'] = {"form": "ok"}
+#         else:
+#             json['evenement'] = {"form": "nok", "error": e_form.errors}
+#
+#         if t_form.is_valid():
+#             tick=t_form.save(commit=False)
+#             json['ticket'] = {"form": "ok"}
+#         else:
+#             json['ticket'] = {"form": "nok", "error": t_form.errors}
+#
+#         if not e_form.is_valid() and t_form.is_valid():
+#             return JsonResponse(json, safe=False)
+#         else:
+#             e = even.save()
+#             tick.evenement=e
+#             tick.save()
+#         if request.POST['response']:
+#             date= datetime.strptime(request.POST['mail_date'], '%d-%m-%Y %H:%M')
+#             msg=emailbox.objects.filter(pk=request.POST['mail_id'])
+#             if request.POST['response'] == 'send_response':
+#                 try:
+#                     for m in msg:
+#                         if settings.DEBUG:
+#                             subject, from_email, to = m.subject, 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+#                         else:
+#                             subject, from_email, to = m.subject, 'sav@solisart.fr', request.POST['response_email']
+#
+#                         html_content = render_to_string('email/responsewithsignature.html', {
+#                             'oldmail': m.html,
+#                             'msg': request.POST['response_text']
+#                         })  # render with dynamic value
+#                         text_content = strip_tags(
+#                             html_content)  # Strip the html tag. So people can see the pure text at least.
+#
+#                         # create the email, and attach the HTML version as well.
+#                         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+#                         msg.attach_alternative(html_content, "text/html")
+#                         msg.send()
+#                         json['email'] = {"send": "ok"}
+#                 except Exception as e:
+#
+#                     exc_type, exc_obj, exc_tb = sys.exc_info()
+#                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+#                     print(exc_type, fname, exc_tb.tb_lineno)
+#                     print(e)
+#                     pass
+#                     json['email'] = {"send": "nok"}
+#
+#             if request.POST['response'] == 'move_response':
+#                 #todo when i have outlook 365
+#                     json['moveemail'] = {"todo": "ok"}
+#
+#             if request.POST['response'] == 'login_response':
+#                 try:
+#                     if settings.DEBUG:
+#                         subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+#                         utilisateur = User.objects.filter(email='freddy.dubouchet@solisart.fr')[0]
+#                     else:
+#                         subject, from_email, to = 'Identifiant pour my.solisart.fr', 'sav@solisart.fr', request.POST['response_email']
+#                         utilisateur=User.objects.filter(email=request.POST['response_email'])[0]
+#
+#                     html_content = render_to_string('email/responseloselogin.html', {
+#                         'utilisateur':utilisateur,
+#                         'profil':profil_user.objects.get(user=utilisateur)
+#                     })  # render with dynamic value
+#                     text_content = strip_tags(
+#                         html_content)  # Strip the html tag. So people can see the pure text at least.
+#
+#                     # create the email, and attach the HTML version as well.
+#                     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+#                     msg.attach_alternative(html_content, "text/html")
+#                     msg.mixed_subtype = 'related'
+#                     from django.templatetags.static import static
+#                     img_path=os.path.join(settings.STATIC_ROOT, 'image', 'login.png')
+#                     msg.mixed_subtype = 'related'
+#                     msg.attach_alternative(html_content, "text/html")
+#                     msg.attach(addimg(img_path, 'login'))
+#                     msg.send(fail_silently=False)
+#
+#                     json['email'] = {"send": "ok"}
+#                 except Exception as e:
+#
+#                     exc_type, exc_obj, exc_tb = sys.exc_info()
+#                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+#                     print(exc_type, fname, exc_tb.tb_lineno)
+#                     print(e)
+#                     pass
+#                     json['email'] = {"send": "nok"}
+#
+#             if request.POST['response'] == 'reconnection':
+#                 try:
+#                     if settings.DEBUG:
+#                         subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', 'freddy.dubouchet@solisart.fr'
+#                     else:
+#                         subject, from_email, to = 'Aide à la connexion du module SolisArt', 'sav@solisart.fr', request.POST['response_email']
+#
+#                     html_content = render_to_string('email/responsehelpconnection.html')  # render with dynamic value
+#                     text_content = strip_tags(
+#                         html_content)  # Strip the html tag. So people can see the pure text at least.
+#
+#                     # create the email, and attach the HTML version as well.
+#                     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+#                     msg.attach_alternative(html_content, "text/html")
+#                     msg.mixed_subtype = 'related'
+#                     from django.templatetags.static import static
+#                     img_path=os.path.join(settings.STATIC_ROOT, 'image', 'aidereconnexion.jpg')
+#                     msg.mixed_subtype = 'related'
+#                     msg.attach_alternative(html_content, "text/html")
+#                     msg.attach(addimg(img_path, 'aidereconnexion'))
+#                     file_path=os.path.join(settings.STATIC_ROOT,'sav', 'fichier', 'procedure_connexion.pdf')
+#                     msg.attach_file(file_path)
+#                     msg.send(fail_silently=False)
+#                     json['email'] = {"send": "ok"}
+#                 except Exception as e:
+#                     exc_type, exc_obj, exc_tb = sys.exc_info()
+#                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+#                     print(exc_type, fname, exc_tb.tb_lineno)
+#                     print(e)
+#                     pass
+#                     json['email'] = {"send": "nok"}
+#         else:
+#             json['email'] = {"send": "pas demander"}
+#
+#         return JsonResponse(json, safe=False)
 
 class statistiques(View, SuccessMessageMixin):
     login_url = '/login/'
@@ -894,6 +771,7 @@ class statistiques(View, SuccessMessageMixin):
         from django.db.models import Sum
         ArticlesBl = C701Ouvraof.objects.db_manager('herakles').\
                     filter(codeof__in= list(BLwithticket)).\
+                    exclude(codouv="TEXTE").\
                     annotate(
                         qte= Cast("nbre", output_field=(FloatField())),
                         prixunitaire = Cast("pvbase", output_field=(FloatField())),
@@ -911,9 +789,9 @@ class statistiques(View, SuccessMessageMixin):
         ArticlesBl =list(ArticlesBl)
 
         try:
-            fig1=self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="bar")
+            fig1=self.chart_repartition_temporel(frequence="semaine", periode="120", field="forme", type="bar")
             self.tickets_chart = opy.plot(fig1, output_type='div')
-            fig2 = self.chart_repartition_temporel(frequence="jour", periode="365", field="forme", type="sunburst")
+            fig2 = self.chart_repartition_temporel(frequence="semaine", periode="120", field="forme", type="sunburst")
             self.sunburst = opy.plot(fig2, output_type='div')
             fig3 = self.chart_repartition_pb_cause()
             self.sunburst2=""
@@ -1420,10 +1298,6 @@ class utilisateur_view (View):
         else:
             return JsonResponse({'data':'error'}, safe=False)
 
-
-
-
-
 class carte (View):
     login_url = '/login/'
     template_name = 'sav/map.html'
@@ -1557,9 +1431,9 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
-        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles
-
-        actualisePrixMySolisart()
+        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult
+        cleanTaskResult()
+        # actualisePrixMySolisart()
         # actualise_herakles.delay()
         # from django.db.models import CharField
         # from django.db.models.functions import Length

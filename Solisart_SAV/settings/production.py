@@ -23,16 +23,8 @@ DATABASES = {
           'HOST': '192.168.10.253\HERAKLES',
          'PORT': '',
         "OPTIONS": {
-            "driver": "ODBC Driver 18 for SQL Server",
-            'host_is_server': True,
-            'autocommit': True,
-            'unicode_results': True,
-            'extra_params': 'tds_version=8.0',
-            "setdecoding": [
-                {"sqltype": pyodbc.SQL_CHAR, "encoding": 'latin-1'},
-                {"sqltype": pyodbc.SQL_WCHAR, "encoding": 'latin-1'}],
-            "setencoding": [
-                {"encoding": "latin-1"}]
+            "driver": "ODBC Driver 17 for SQL Server",
+            'unicode_results': True
         },
     }
 }

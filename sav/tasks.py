@@ -18,11 +18,16 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from .models import profil_user, ticket, Fichiers, installation, attribut_valeur, attribut_def, BL_herakles,\
-    devis_herakles,client_herakles
+from .models import *
 import time
 import io, os
 from PIL import Image
+
+from django.contrib import messages
+
+import pandas as pd
+import numpy as np
+
 
 def save_result_celery(args, kwargs, status, result):
 
@@ -402,7 +407,7 @@ def actualisePrixMySolisart(*args, **kwargs):
 
     # En-têtes de la requête
     headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=latin-1'
     }
 
     # Envoi de la requête POST avec les données JSON
@@ -419,11 +424,175 @@ def actualisePrixMySolisart(*args, **kwargs):
     return HttpResponse('Requête code: ' + str(response.status_code)+ " <br> " +  str(response.text).replace('\n', '<br>'))
 
 
+@shared_task
+def cleanTaskResult(*args, **kwargs):
+    from django_celery_results.models import TaskResult
+    from django.db.models import Max
+    tasks = TaskResult.objects.values('task_name').annotate(Max('id')).values_list('id__max', flat=True)
+    TaskResult.objects.exclude(id__in=tasks).delete()
 
+@shared_task
+def ActualiseUtilisateur(request=None, df=None):
 
+    df.columns = ['id', 'pass', 'nom', 'prenom', 'email', 'telephone1', 'telephone2', 'voie1', 'voie2', 'voie3',
+                  'codepostal', 'commune']
+    df = df.reset_index()  # make sure indexes pair with number of rows
+    total_created = 0
+    for index, row in df.iterrows():
+        try:
+            user, created = User.objects.get_or_create(
+                username=row["id"]
+            )
+            user.first_name = row['prenom'],
+            user.last_name = row['nom'],
+            user.email = row["email"]
+            # Comprend pas cette ligne mais çà marche
+            user.first_name = user.first_name[0]
+            user.last_name = user.last_name[0]
+            user.save()
+            profil = profil_user.objects.get(user=user)
+            profil.idsa = row['id']
+            profil.PW = row['pass']
+            profil.telephone1 = row['telephone1'] if str(row['telephone1']).replace('.', '').replace(' ',
+                                                                                                     '') != profil.telephone1 else profil.telephone1
+            profil.telephone2 = row['telephone2'] if str(row['telephone2']).replace('.', '').replace(' ',
+                                                                                                     '') != profil.telephone2 else profil.telephone2
+            profil.voie1 = row['voie1']
+            profil.voie2 = row['voie2']
+            profil.voie3 = row['voie3']
+            profil.codepostal = row['codepostal']
+            profil.commune = row['commune']
+            profil.save()
+            if created:
+                total_created += 1
 
+        except Exception as e:
+            print(row)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+            pass
 
+    messages.success(request, str(total_created) + ' nouveaux utilisateur de créer')
+    save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux utilisateurs de créer')
 
+@shared_task
+def ActualiseInstallation(request=None, df=None):
 
+    df.columns = ['id', 'type_communication', 'version_carte_firmware', 'version_carte_interface',
+                  'version_serveur_appli', 'heure_contact', 'heure_test', 'adresse_ip_wan',
+                  'port_tcp_wan', '	propager_droits']
+    df = df.reset_index()  # make sure indexes pair with number of rows
+    total_created = 0
+    for index, row in df.iterrows():
+        try:
+            inst, created = installation.objects.get_or_create(
+                idsa=row['id'])
+            # tc= row['type_communication'] if row['type_communication'] != np.nan else None
+
+            # inst.type_communication= tc,
+
+            inst.version_carte_firmware = row['version_carte_firmware'] if 'version_carte_firmware' in row and row[
+                'version_carte_firmware'] != np.nan else None,
+            inst.version_carte_interface = row['version_carte_interface'] if 'version_carte_interface' in row and row[
+                'version_carte_interface'] != np.nan else None,
+            inst.version_serveur_appli = row['version_serveur_appli'] if 'version_serveur_appli' in row and row[
+                'version_serveur_appli'] != np.nan else None,
+            inst.adresse_ip_wan = row['adresse_ip_wan'] if 'adresse_ip_wan' in row and row[
+                'adresse_ip_wan'] != np.nan else None,
+            inst.port_tcp_wan = row['port_tcp_wan'] if 'port_tcp_wan' in row and row['port_tcp_wan'] != np.nan else None
+            inst.save()
+
+            if created:
+                total_created += 1
+        except Exception as e:
+            print(row)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+            pass
+
+    messages.success(request, str(total_created) + ' nouvelles installations')
+    save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouvelles installations')
+
+@shared_task
+def ActualiseAcces(request=None, df=None):
+    df.columns = ['utilisateur', 'profil', 'installation']
+    df = df.reset_index()  # make sure indexes pair with number of rows
+    total_created = 0
+    for index, row in df.iterrows():
+        try:
+            int, created = acces.objects.get_or_create(
+                installation=installation.objects.get(idsa=row['installation']),
+                profil_type=profil_type.objects.get(idsa=row['profil']),
+                utilisateur=User.objects.get(profil_user__idsa=row['utilisateur'])
+            )
+            if created:
+                total_created += 1
+        except Exception as e:
+            print(row)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+            pass
+
+    messages.success(request, str(total_created) + ' nouveaux acces')
+
+    save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux acces')
+
+@shared_task
+def ActualiseHistorique(request=None, df=None):
+    df.columns = ['installation', 'heure', 'donnee', 'valeur']
+    df = df.reset_index()  # make sure indexes pair with number of rows
+    total_created = 0
+    for index, row in df.iterrows():
+        try:
+            int, created = historique.objects.get_or_create(
+                installation=installation.objects.get(idsa=row['installation']),
+                donnee=donnee.objects.get(idsa=row['donnee'])
+            )
+            int.valeur = row['valeur']
+            int.save()
+            if created:
+                total_created += 1
+        except Exception as e:
+
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+            pass
+
+    messages.success(request, str(total_created) + ' nouveaux historiques')
+    save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux historiques')
+
+@shared_task
+def ActualiseAttribut(request=None, df=None):
+    df.columns = ['installation', 'attribut_def', 'valeur']
+    df = df.reset_index()  # make sure indexes pair with number of rows
+    total_created = 0
+    for index, row in df.iterrows():
+        try:
+            int, created = attribut_valeur.objects.get_or_create(
+                installation=installation.objects.get(idsa=row['installation']),
+                attribut_def=attribut_def.objects.get(idsa=row['attribut_def'])
+            )
+            int.valeur = row['valeur']
+            int.save()
+            if created:
+                total_created += 1
+        except Exception as e:
+
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(e)
+            pass
+
+    messages.success(request, str(total_created) + ' nouvelles attribut_val')
+    save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux historiques')
 
 

@@ -421,6 +421,9 @@ class solution(models.Model):
     def __str__(self):
         return str(self.solution)
 
+    class Meta:
+        ordering = ['solution']
+
 class type_cause(models.IntegerChoices):
     CONNEXION = 0, 'Connexion'
     ELECTRONIQUE = 1, 'Electronique'

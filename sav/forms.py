@@ -389,7 +389,8 @@ class Stattableauform(forms.Form):
         super().__init__(*args, **kwargs)
         BL_with_tickets = list(ticket.objects.filter(BL__isnull=False).values_list('BL__BL', flat=True))
         articles = C701Ouvraof.objects.db_manager('herakles').\
-                    filter(codeof__in=BL_with_tickets).\
+                    filter(codeof__in=BL_with_tickets). \
+                    exclude(codouv="TEXTE").\
                     annotate(qte= Cast("nbre", output_field=(FloatField()))).\
                     order_by("codouv").\
                     values("codouv", "titre"). \
