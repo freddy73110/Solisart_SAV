@@ -65,7 +65,7 @@ class add_evenement_form(ModelForm):
         if date:
             self.fields['date'].initial = date
         else:
-            self.fields['date'].initial = timezone.now(pytz.timezone("Europe/Paris"))
+            self.fields['date'].initial = timezone.now()
 
         self.helper = FormHelper()
         self.helper.form_tag = False
