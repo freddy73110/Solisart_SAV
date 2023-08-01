@@ -12,6 +12,8 @@ from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
 from heraklesinfo.models import C701Ouvraof
 from .crispy_layout import *
 
+from django.utils import timezone
+
 from django import forms
 
 from .models import *
@@ -63,7 +65,7 @@ class add_evenement_form(ModelForm):
         if date:
             self.fields['date'].initial = date
         else:
-            self.fields['date'].initial = datetime.now(pytz.timezone("Europe/Paris"))
+            self.fields['date'].initial = timezone.now(pytz.timezone("Europe/Paris"))
 
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -327,13 +329,13 @@ class Stattableauform(forms.Form):
         input_formats=['%d/%m/%Y'],
         widget=XDSoftDateTimePickerInput(),
         label = 'Date de Départ',
-        initial=(datetime.now()- timedelta(days=30)).date()
+        initial=(timezone.now()- timedelta(days=30)).date()
     )
     date_end = forms.DateField(
         input_formats=['%d/%m/%Y'],
         widget=XDSoftDateTimePickerInput(),
         label='Date de fin',
-        initial=datetime.now()
+        initial=timezone.now()
     )
 
     probleme = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
@@ -363,9 +365,9 @@ class Stattableauform(forms.Form):
                              required=False)
 
     annee = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                      choices=(("sans", "sans année"), ) +tuple([(i, i) for i in range(2015, datetime.now().year + 1, 1)]),
+                                      choices=(("sans", "sans année"), ) +tuple([(i, i) for i in range(2015, timezone.now().year + 1, 1)]),
                                       required=False,
-                                      initial=["sans"] + [*range(2015, int(datetime.now().year) + 1, 1)],
+                                      initial=["sans"] + [*range(2015, int(timezone.now().year) + 1, 1)],
                                       help_text="Sans année correspond à toutes lesa installation sans année dans son numéro de série"
                                       )
     type = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,

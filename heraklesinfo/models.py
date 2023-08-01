@@ -1068,7 +1068,6 @@ class C7001Phases(models.Model):
 
     class Meta:
         managed = False
-        ordering = ("-codephase",)
         db_table = 'C700-1-Phases'
         unique_together = (('codechantier', 'codedevis'),)
 

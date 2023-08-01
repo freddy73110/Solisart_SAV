@@ -180,7 +180,7 @@ class profil_user(models.Model):
             duree = 15
         try:
             tickets = ticket.objects.filter(
-                evenement__date__gte=datetime.today() - timedelta(days=duree),
+                evenement__date__gte=timezone.today() - timedelta(days=duree),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
             ).order_by('-evenement__date').annotate(
                 instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
@@ -481,7 +481,7 @@ class etat(models.IntegerChoices):
     CLOTURE = 3, 'Clôturé'
 
 class evenement(models.Model):
-    date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=timezone.now())
+    date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=datetime.now())
     technicien_sav = models.ForeignKey(User, verbose_name='technicien sav', on_delete=models.CASCADE)
     installation = models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
 
@@ -506,7 +506,7 @@ class evenement(models.Model):
             return '<i class="fas fa-people-arrows"></i>'
 
     def duree(self):
-        return datetime.now()
+        return timezone.now()
 
     def __str__(self):
         return str(self.date) + ' ' + str(self.installation)
@@ -824,10 +824,10 @@ class documentation(models.Model):
                         return docs[i].date
                         break
                     else:
-                        return datetime.today().date()
+                        return timezone.now().date()
                         break
                 except:
-                    return datetime.today().date()
+                    return timezone.now().date()
 
     class Meta:
          app_label = 'sav'
