@@ -36,6 +36,7 @@ INTERNAL_IPS = (
 # Application definition    
 
 INSTALLED_APPS = [
+    'daphne',
     'sav',
     'heraklesinfo',
     'django.contrib.admin',
@@ -48,7 +49,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     "crispy_bootstrap5",
     'django_celery_beat',
-    'django_celery_results'
+    'django_celery_results',
 ]
 
 
@@ -141,7 +142,7 @@ TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = False
 
-USE_TZ = False
+USE_TZ = True
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
@@ -203,24 +204,24 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_ENABLE_UTC = True
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
-#indispensable avec use_tz=False
-DJANGO_CELERY_BEAT_TZ_AWARE = False
 
 
 # this allows you to schedule items in the Django admin.
 # CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 #
-# ASGI_APPLICATION = "Solisart_SAV.asgi.application"
-# #channels settings
-# CHANNEL_LAYERS = {
-#     'default': {
-#         # "BACKEND": "channels.layers.InMemoryChannelLayer",
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("localhost", 6379)],
-#         },
-#     }
-# }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+INSTALLED_APPS.append('channels')
+ASGI_APPLICATION = 'Solisart_SAV.routing.application'
+
 
 GRAPH_MODELS ={
 'all_applications': True,

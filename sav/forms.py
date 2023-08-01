@@ -112,6 +112,7 @@ class ticket_form(ModelForm):
 
     def __init__(self, *args, **kwargs):
         actualise_herakles.delay()
+        # actualise_herakles()
         instal = kwargs.pop('installation', None)
         util = kwargs.pop('utilisateur', None)
         forme = kwargs.pop('forme', None)

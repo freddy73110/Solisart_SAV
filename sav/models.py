@@ -2,6 +2,7 @@ import base64
 import os
 import sys
 from datetime import datetime, timedelta
+from django.utils import timezone
 from io import BytesIO
 
 import django.db.models
@@ -480,7 +481,7 @@ class etat(models.IntegerChoices):
     CLOTURE = 3, 'Clôturé'
 
 class evenement(models.Model):
-    date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=datetime.now)
+    date = models.DateTimeField(verbose_name='Date', help_text="Date et heure de événement", default=timezone.now())
     technicien_sav = models.ForeignKey(User, verbose_name='technicien sav', on_delete=models.CASCADE)
     installation = models.ForeignKey(installation, verbose_name='Installation', on_delete=models.CASCADE)
 
@@ -529,6 +530,17 @@ class MES(models.Model):
                                 </span>\
                               </div>'
         return html
+
+
+
+# class CL_herakles(models.Model):
+#     CL = models.CharField(verbose_name="Commande", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs commande")
+#
+#     def __str__(self):
+#         return str(self.CL)
+#
+#     class Meta:
+#         ordering = ("-CL",)
 
 class devis_herakles(models.Model):
     devis = models.CharField(verbose_name="Devis", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs devis")

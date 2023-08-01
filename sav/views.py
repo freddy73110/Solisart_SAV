@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import glob
 import io
 import json
 import os
@@ -8,8 +9,9 @@ import time
 from datetime import timedelta
 from email.mime.image import MIMEImage
 from io import StringIO
-
+from django.utils import timezone
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -590,19 +592,29 @@ class statistiques(View, SuccessMessageMixin):
 
         from django.db.models import CharField
         try:
+            from django.utils import timezone
             queryset = ticket.objects.filter(
-                evenement__date__gte=datetime.today() - timedelta(days=int(periode))).order_by('evenement__date')
+                evenement__date__gte=timezone.now() - timedelta(days=int(periode))).order_by('evenement__date')
 
             if frequence == "semaine":
-                queryset = queryset.annotate(frequence=TruncWeek('evenement__date'))
+                queryset = queryset.annotate(freq=TruncWeek('evenement__date'))
             if frequence == "mois":
-                queryset = queryset.annotate(frequence=TruncMonth('evenement__date'))
+                queryset = queryset.annotate(freq=TruncMonth('evenement__date'))
             if frequence == "jour":
-                queryset = queryset.annotate(frequence=TruncDay('evenement__date'))
+                queryset = queryset.annotate(freq=TruncDay('evenement__date'))
             if frequence == "heure":
-                queryset = queryset.annotate(frequence=ExtractHour('evenement__date'))
+                queryset = queryset.annotate(freq=ExtractHour('evenement__date'))
             if frequence == "Rjour":
-                queryset = queryset.annotate(frequence=ExtractWeekDay('evenement__date'))
+                queryset = queryset.annotate(freq=ExtractWeekDay('evenement__date'))
+
+            queryset = queryset.annotate(
+                      frequence=Func(
+                        F('freq'),
+                        Value('dd.MM.yyyy hh:mm'),
+                        function='to_char',
+                        output_field=CharField()
+                      )
+                    )
 
             if field == "forme":
                 when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
@@ -636,7 +648,6 @@ class statistiques(View, SuccessMessageMixin):
                     lien=Case(*when4, output_field=CharField())
                 )
                 queryset= queryset.values('frequence', 'lien').order_by("frequence", "lien").annotate(count=Count('id'))
-
             df = pd.DataFrame(list(queryset.values('frequence', 'lien', 'count')))
             df.fillna(value="sans profil", inplace=True)
 
@@ -766,7 +777,7 @@ class statistiques(View, SuccessMessageMixin):
         BLwithticket = ticket.objects.filter(
             BL__isnull=False,
             evenement__date__gte=start,
-            evenement__date__lte=datetime.today(),
+            evenement__date__lte=timezone.now(),
         ).values_list('BL__BL', flat=True)
         from django.db.models import Sum
         ArticlesBl = C701Ouvraof.objects.db_manager('herakles').\
@@ -1158,9 +1169,9 @@ class installation_view (View):
                 tick.evenement=even
                 tick.detail=request.POST['detail']
                 if 'BL' in request.POST:
-                    tick.BL=request.POST['BL']
+                    tick.BL= BL_herakles.objects.filter(pk__in =request.POST['BL'])
                 if 'devis' in request.POST:
-                    tick.devis = request.POST['devis']
+                    tick.devis = devis_herakles.objects.filter(pk__in = request.POST['devis'])
                 tick.save()
                 return JsonResponse({
                     "ticket": "ok"
@@ -1424,6 +1435,21 @@ class ticket_view(View):
             return JsonResponse(data, safe=False)
 
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+
+def send_channel_message(group_name, message):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        '{}'.format(group_name),
+        {
+            'type': 'channel_message',
+            'message': message
+        }
+    )
+
+
 class bidouille (View):
     login_url = '/login/'
     template_name = 'sav/bidouille.html'
@@ -1431,8 +1457,12 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
-        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult
-        cleanTaskResult()
+        send_channel_message('cartcreating', 'well done')
+
+
+
+        # from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult
+        # cleanTaskResult()
         # actualisePrixMySolisart()
         # actualise_herakles.delay()
         # from django.db.models import CharField
@@ -1459,6 +1489,7 @@ class bidouille (View):
                           }
                       )
 
+
 class bibliotheque(View):
     login_url = '/login/'
     template_name = 'sav/bibliotheque.html'
@@ -1467,7 +1498,6 @@ class bibliotheque(View):
 
     def get(self, request, *args, **kwargs):
         self.c = classification.objects.all().order_by("dossier", "titre")
-        print(kwargs)
         if  'pk' in kwargs:
             self.pk = kwargs.pop('pk')
         else:
@@ -1678,6 +1708,98 @@ class bibliotheque(View):
                 procedure = c.dossier
             return  HttpResponse(html)
 
+class cartcreator(View):
+    login_url = '/login/'
+    template_name = 'sav/cartcreator.html'
+    title = "Création d'une carte de régulation"
 
+    def get(self, request, *args, **kwargs):
+        from .tasks import wrapperscapping
+        installations = installation.objects.all().values('idsa')
+        # from .scrapping import scrappingMySolisart
+        # scrappingMySolisart().save_csv_configuration(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+
+        return render(request,
+                      self.template_name,
+                      {
+                          'installations':installations
+                      }
+                      )
+
+    def post(self, request):
+        if 'download' in request.POST:
+            with open(os.path.dirname(__file__) + '/temp/config.csv') as myfile:
+                response = HttpResponse(myfile, content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename=config.csv'
+            return response
+
+        if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
+            file = request.FILES['file']
+            data = file.read()
+            import json
+            param = json.loads(data)
+
+            from .tasks import wrapperscapping
+            wrapperscapping.delay("cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param})
+
+            # import os
+            # from django.core.files.storage import FileSystemStorage
+            #
+            # #Supprime tous les fichiers du dossier temp
+            # files = glob.glob(os.path.dirname(__file__) +'/temp')
+            # for f in files:
+            #     try:
+            #         os.remove(f)
+            #     except:
+            #         pass
+            #
+            # import requests
+            # from PIL import Image
+            # from io import BytesIO, StringIO
+            #
+            # # URL de l'api
+            # url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
+            # # ici getSchema.php peut contenir 2 paramètre get :
+            # #   -image : qui permet d'indiquer l'image à récupérer (SchemaHydrau, SchemaHydrauWithLegend, SchemaExe, Etiquetage, ImageFicheProg)
+            # #   -format : qui peut uniquement prendre la valeur PDF pour indiquer de renvoyer l'image en format PDF
+            # # exemple d'url pour récupérer l'etiquetage en format pdf :
+            # #   https://www.solisart.fr/schematics/api/getSchema.php?image=Etiquetage&format=PDF
+            # # dans le cas ou format n'est pas indiqué alors le téléchargement se fait en png
+            #
+            # # URL du fichier json qui sera envoyé
+            # # le fichier json doit être une configuration téléchargé depuis la schématèque
+            # # il peut être dans un ancien format cela ne devrait pas poser de problème
+            #
+            # # le fichier doit bien être passé avec l'identifiant 'fichier' sinon cela ne marchera pas
+            # files = {'fichier': data}
+            #
+            # # la requête doit passé obligatoirement le fichier en paramètre files
+            # response = requests.post(url, files=files)
+            #
+            # # Lire les données de l'image depuis la réponse
+            # image_data = response.content
+            # #
+            # # # Créer une image à partir des données
+            # image = Image.open(BytesIO(image_data))
+            #
+            # import os
+            # #SAuvegarder dans le dossier /temp
+            # image.save(os.path.dirname(__file__) +'/temp/image.png')
+            #
+            # # url pour récupérer la confi.csv depuis le json
+            # url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
+            # response = requests.post(url, files=files)
+            # #Ecrit le fichier config dans le dossier tmp
+            # with open(os.path.dirname(__file__) +'/temp/config.csv', 'w') as out:
+            #     out.write(response.content.decode())
+
+        elif request.POST['installation']:
+            from .tasks import wrapperscapping
+            wrapperscapping.delay("downloadConfigCsvInstallation", request.POST['installation'])
+            param = {"valide": "OK"}
+        else:
+            param ={"error":"erreur dans le fichier"}
+
+        return JsonResponse(param, safe=False)
 
 

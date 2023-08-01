@@ -16,5 +16,6 @@ urlpatterns = [
     path('bibliotheque/<int:pk>', login_required(views.bibliotheque.as_view()), name='bibliotheque'),
     path('statistiques', login_required(views.statistiques.as_view()), name='statistiques'),
     # path('mail', login_required(views.mail.as_view()), name='mail'),
-    path('bidouille', views.bidouille.as_view(), name='bidouille')
+    path('bidouille', views.bidouille.as_view(), name='bidouille'),
+    path('cartcreator', views.cartcreator.as_view(), name='cartcreator')
 ]

@@ -606,3 +606,29 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 1671700875925	Marionette	INFO	Stopped listening on port 52342
 console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
 [Parent 21404, IPC I/O Parent] WARNING: file /builds/worker/checkouts/gecko/ipc/chromium/src/base/process_util_win.cc:167
+1688648482615	geckodriver	INFO	Listening on 127.0.0.1:59566
+1688648485685	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59567" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\freddy\\AppData\\Local\\Temp\\rust_mozprofileuzQPrw"
+1688648486242	Marionette	INFO	Marionette enabled
+1688648486248	Marionette	INFO	Listening on port 59579
+WebDriver BiDi listening on ws://localhost:59567
+Read port: 59579
+1688648486415	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\freddy\\AppData\\Local\\Temp\\rust_mozprofileuzQPrw\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:59567/devtools/browser/f52e0ad5-ae7f-42dd-b26f-a935d417ec27
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://my.solisart.fr"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://my.solisart.fr"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1688648511081	Marionette	INFO	Stopped listening on port 59579
+1688648602188	geckodriver	INFO	Listening on 127.0.0.1:59702
+1688648605262	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59703" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\freddy\\AppData\\Local\\Temp\\rust_mozprofilehM2zVL"
+1688648605604	Marionette	INFO	Marionette enabled
+1688648605608	Marionette	INFO	Listening on port 59712
+WebDriver BiDi listening on ws://localhost:59703
+Read port: 59712
+1688648605770	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\freddy\\AppData\\Local\\Temp\\rust_mozprofilehM2zVL\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:59703/devtools/browser/8145c36b-63f4-438c-8338-f2ac6129b9eb
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://my.solisart.fr"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://my.solisart.fr"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1688648636966	Marionette	INFO	Stopped listening on port 59712

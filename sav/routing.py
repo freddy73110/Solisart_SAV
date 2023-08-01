@@ -1,8 +1,6 @@
-from django.urls import re_path
+from django.urls import path
+from sav.consumers import Cartcreating
 
-from . import consumers
-
-websocket_urlpatterns = [
-    re_path(r'^ws/livec/$', consumers.Calculator.as_asgi()),
-    re_path(r'^ws/mails/(?P<room_name>\w+)/$', consumers.Websock_Mails.as_asgi()),
+ws_urlpatterns = [
+    path(r'ws/cartcreator/', Cartcreating.as_asgi()),
 ]

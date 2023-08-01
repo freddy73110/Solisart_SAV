@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<h1 class="text-center m-3">Création de carte de régulation</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form method="post">{% csrf_token %}
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="option">Options</label>
+                  <select class="form-select" id="option" name="opt">
+                    <option >Choisir que faire...</option>
+                    <option value="json">A partir d'un json</option>
+<!--                    <option value="csv">A partir d'un fichier csv</option>-->
+                    <option value="installation">A partir d'une installation existente</option>
+                  </select>
+                </div>
+                <div class="mb-3 d-none" id="divFile">
+                  <div class="mb-3">
+                      <label for="formFile" class="form-label">Default file input example</label>
+                        <input class="form-control" type="file" id="formFile" name="file">
+                  </div>
+
+                  <div class="input-group mb-3">
+                      <span class="input-group-text" id="basic-addon2">Nom de la nouvelle installation</span>
+                      <input type="text" name="new_installation" class="form-control" placeholder="SC2M..." value="SC2M20240000" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    </div>
+                </div>
+                <div class="input-group mb-3 d-none" id="divInstallation">
+                    <label class="input-group-text" for="installation">Installation</label>
+                    <select class="form-select" name="installation" id="installation">
+                    <option>--------</option>
+                    {%for install in installations %}
+                    <option value="{{install.idsa}}">{{install.idsa}}</option>
+                    {%endfor%}
+                </select>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button class="btn btn-outline-primary" type="button" id="submit" disabled>Lancer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $("#option").on('change', function(){
+        if($("#option").val() == "json"){
+            $("#divInstallation").addClass('d-none')
+            $("#divFile").removeClass('d-none')
+            $("label[for='formFile']").html("Sélectionner le json généré par la schématèque")
+            $('#formFile').attr("accept", "." + "json")
+            $("#submit").prop("disabled",false);
+        }else if($("#option").val() == "csv"){
+            $("#divInstallation").addClass('d-none')
+            $("#divFile").removeClass('d-none')
+            $("label[for='formFile']").html("Sélectionner le fichier csv de configuration de l'installation")
+            $('#formFile').attr("accept", "." + "csv")
+            $("#submit").prop("disabled",false);
+        }else if($("#option").val() == "installation"){
+            $("#divFile").addClass('d-none')
+            $("#divInstallation").removeClass("d-none")
+            $("#submit").prop("disabled",false);
+        }else{
+            $("#submit").prop("disabled",true);
+        }
+        })
+        $("#submit").on('click', function(e){
+            e.preventDefault();
+            var data = new FormData($('form').get(0))
+            $("#results").parent().removeClass('d-none')
+            $("#formFile").prop("disabled",true);
+            $("#divInstallation").prop("disabled",true);
+            $("#option").prop("disabled",true);
+<!--            var form = $(this).closest("form");-->
+
+<!--            var data;-->
+
+<!--            data = new FormData();-->
+<!--            data.append( 'file', $('#formFile')[0].files[0] );-->
+
+<!--            var other_data = form.serializeArray();-->
+<!--            $.each(other_data,function(key,input){-->
+<!--                data.append(input.name,input.value);-->
+<!--            });-->
+            $.ajax({
+                 url: window.location.href,
+                 data: data,
+                 dataType: 'json',
+                 type: 'post',
+                 success: function (json) {
+                    console.log(json)
+                 },
+                 cache: false,
+                contentType: false,
+                processData: false
+            })
+        })
+    </script>
+    <div class="row m-3">
+        <div class="col-12 border border-dark rounded-3" style="min-height: 400px;">
+            <ul class="list-unstyled" name="ta" id="results">
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <script>
+    var processing = false
+    var json = false
+    var png = false
+    var client = false
+        const socket = new WebSocket('ws://'+window.location.host+'/ws/cartcreator/');
+        socket.onmessage = (e) => {
+            data = JSON.parse(e.data)
+            if (data.hasOwnProperty("processing")) {
+                processing = data.processing
+                if (processing == true){
+                    $("#submit").prop("disabled",true);
+                    $("#submit").html('<i class="fas fa-sun fa-spin" style="color:yellow"></i> Processus en cours')
+                }else{
+                    $("#submit").prop("disabled",false);
+                    $("#submit").html('Lancer')
+                }
+            }
+            if(data.hasOwnProperty("download")){
+                download_config()
+            }
+            if (data.hasOwnProperty("message")) {
+                var dt = new Date();
+                var min, sec
+                if(dt.getMinutes() < 10){
+                    min = "0" + dt.getMinutes()
+                }else{
+                    min = dt.getMinutes()
+                }
+                if(dt.getSeconds() < 10){
+                    sec = "0" + dt.getSeconds()
+                }else{
+                    sec = dt.getSeconds()
+                }
+                var time = dt.getHours() + ":" + min + ":" + sec;
+                result = data.message;
+                $('#results li:last-child').remove();
+                $("#results").append("<li><b>"+ time + ":</b> "+ result + "</li>");
+                if(processing == true){
+                    $("#results").append('<li><i class="fas fa-sun fa-spin" style="color:yellow"></i></li>');
+                }
+            }
+
+
+
+        }
+        socket.onclose = (e) => {
+            console.log("Socket closed!");
+            var dt = new Date();
+            var min, sec
+            if(dt.getMinutes() < 10){
+                min = "0" + dt.getMinutes()
+            }else{
+                min = dt.getMinutes()
+            }
+            if(dt.getSeconds() < 10){
+                sec = "0" + dt.getSeconds()
+            }else{
+                sec = dt.getSeconds()
+            }
+            var time = dt.getHours() + ":" + min + ":" + sec;
+            $('#results li:last-child').remove();
+            $("#results").append(
+                "<li class='text-danger'><b>"+time+":WebSocket déconnectée. Attenter quelques minutes avant que vérifier l'état de la carte.</b></li>");
+        }
+
+<!--        document.querySelector("#submit").onclick = (e) => {-->
+<!--            inputfield = document.querySelector("#exp")-->
+<!--            exp = inputfield.value-->
+<!--            socket.send(JSON.stringify(-->
+<!--                {-->
+<!--                    expression: exp-->
+<!--                }-->
+<!--            ))-->
+<!--            document.querySelector("#results").value += "You: " + exp + "\n";-->
+<!--            inputfield.value = "";-->
+<!--        }-->
+
+
+$("#formFile").on('change', function(event) {
+  var reader = new FileReader();
+
+  reader.onload = function(event) {
+    var jsonObj = JSON.parse(event.target.result);
+    console.log(jsonObj);
+  }
+
+  reader.readAsText(event.target.files[0]);
+});
+function download_config(){
+    var form=$(form)
+    $.ajax({
+        url: window.location.href,
+        data: form.serialize() + '&download=-',
+        type: 'post',
+        xhrFields:{
+            responseType: 'blob'
+        },
+        success: function(response){
+            if($("#option").val() == "json"){
+                var fileName= 'config_' + $("input[name=new_installation]").val() + '.csv'
+            }
+            if($("#option").val() == "installation"){
+                var fileName= 'config_' + $("#installation").val() + '.csv'
+            }
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(response)
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+        }
+    })
+}
+    </script>
+{%endblock%}

@@ -11,6 +11,7 @@ from django.db.models import Subquery, OuterRef, When, Value, CharField, TextFie
 from django.db.models.functions import Substr, Lower
 from django.db.models.functions import Length
 
+from Solisart_SAV.celery import app
 from heraklesinfo.models import *
 
 TextField.register_lookup(Length, 'length')
@@ -27,6 +28,8 @@ from django.contrib import messages
 
 import pandas as pd
 import numpy as np
+
+from django.utils import timezone
 
 
 def save_result_celery(args, kwargs, status, result):
@@ -52,6 +55,12 @@ def save_result_celery(args, kwargs, status, result):
                     traceback ="-",
                     meta={"DEGUB": str(settings.DEBUG)}
                 )
+
+@app.task
+def wrapperscapping(func, kwargs):
+    from .scrapping import scrappingMySolisart
+    return getattr(scrappingMySolisart(), func)(kwargs)
+
 
 @shared_task
 def add(x, y):
@@ -116,7 +125,7 @@ def rapport_ticket():
         for commercial in commerciaux:
             #list des tickets par affectation commerciale
             ticketscree = ticket.objects.filter(
-                evenement__date__gte=datetime.date.today() - datetime.timedelta(days=10),
+                evenement__date__gte=timezone.now() - datetime.timedelta(days=10),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
             ).annotate(
                 instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
@@ -362,8 +371,9 @@ def actualise_client_herakles():
 def actualise_herakles():
     result = {'BLcree': [], 'Deviscree': []}
     #actualisation les devis
+
     devis = C101DevisEnTte.objects.db_manager('herakles').\
-        filter(t101_1_code_devis__icontains='D' + str(datetime.date.today().year)[2:4]).\
+        filter(t101_1_code_devis__icontains='D' + str(timezone.now().year)[2:4]).\
         order_by('-t101_1_code_devis')[:30:-1]
 
     for d in devis:
@@ -375,7 +385,7 @@ def actualise_herakles():
 
     #actualisation des BL
     BLs = C7001Phases.objects.db_manager('herakles').\
-        filter(codephase__icontains='BL' + str(datetime.date.today().year)[2:4]).\
+        filter(codephase__icontains='BL' + str(timezone.now().year)[2:4]).\
         order_by('-codephase').\
         values_list('codephase', flat=True)[:30:-1]
     for BL in BLs:

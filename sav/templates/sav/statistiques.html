@@ -109,12 +109,15 @@
                             <form id="form_BL">
                                 <div class="row">
                                     <div class="col-6">
-                                        <div id="div_id_date_start_BL" class="form-floating mb-3"> <input type="text" name="date_start_BL" value="28/05/2023 00:00:00" class="xdsoftdatetimepickerinput form-control" placeholder="date_start" required="" id="id_date_start">
+                                        <div id="div_id_date_start_BL" class="form-floating mb-3"> <input type="text" name="date_start_BL" value="" class="xdsoftdatetimepickerinput form-control" placeholder="date_start" required="" id="id_date_start">
                                         <script>
                                           $(function () {
                                             var today = new Date();
                                             today.setDate(today.getDate() - 30)
                                             var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
+                                            $("input[name='date_start_BL']").val(today.
+                                                      toLocaleString('fr-fr', {year: 'numeric', month: '2-digit', day: '2-digit'}).
+                                                      replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3') + " " + today.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
                                             $("input[name='date_start_BL']").datetimepicker({
                                               format: 'd-m-Y H:i'
                                             }
@@ -127,11 +130,14 @@
                                     </div>
                                     <div class="col-6">
                                         <div id="div_id_date_end_BL" class="form-floating mb-3">
-                                            <input type="text" name="date_end_BL" value="27/06/2023 12:13:57" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="id_date_end">
+                                            <input type="text" name="date_end_BL" value="" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="id_date_end">
                                         <script>
                                           $(function () {
                                             var today = new Date();
                                             var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
+                                             $("input[name='date_end_BL']").val(today.
+                                                      toLocaleString('fr-fr', {year: 'numeric', month: '2-digit', day: '2-digit'}).
+                                                      replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3') + " " + today.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
                                             $("input[name='date_end_BL']").datetimepicker({
                                               format: 'd-m-Y H:i'
                                             }
