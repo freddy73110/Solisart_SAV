@@ -53,32 +53,42 @@ class scrappingMySolisart():
     connecting=False
 
     def __init__(self):
-        send_channel_message('cartcreating', {
-            'message':'Lancement du scrapping',
-            'processing': True
-        })
-        if not os.name =='nt':
-            from selenium.webdriver.firefox.service import Service
-            self.driver = webdriver.Firefox()
-        else:
+        try:
+            send_channel_message('cartcreating', {
+                'message':'Lancement du scrapping',
+                'processing': True
+            })
+            if not os.name =='nt':
+                from selenium.webdriver.firefox.service import Service
+                self.driver = webdriver.Firefox()
+            else:
 
-            from selenium.webdriver.firefox.service import Service
-            service = Service(
-                executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe"
-            )
-            self.driver = webdriver.Firefox(
-                service=service
-            )
-        self.connecting=True
-        self.driver.get(self.link)
-        self.driver.find_element(By.ID, 'id').send_keys(self.username)
-        self.driver.find_element(By.ID, 'pass').send_keys(self.password)
-        self.driver.find_element(By.ID, 'connexion').click()
-        send_channel_message('cartcreating', {
-            'message':'Connexion au serveur my.solisart.fr'
-        })
+                from selenium.webdriver.firefox.service import Service
+                service = Service(
+                    executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe"
+                )
+                self.driver = webdriver.Firefox(
+                    service=service
+                )
+            self.connecting=True
+            self.driver.get(self.link)
+            self.driver.find_element(By.ID, 'id').send_keys(self.username)
+            self.driver.find_element(By.ID, 'pass').send_keys(self.password)
+            self.driver.find_element(By.ID, 'connexion').click()
+            send_channel_message('cartcreating', {
+                'message':'Connexion au serveur my.solisart.fr'
+            })
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
+                    fname) + str(exc_tb.tb_lineno) + str(ex)})
 
-    def waitelement(self, by, element, func, action, time_max=None):
+
+def waitelement(self, by, element, func, action, time_max=None):
         if not time_max:
             time_max=20
         try:
