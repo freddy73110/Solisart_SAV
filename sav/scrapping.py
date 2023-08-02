@@ -60,7 +60,10 @@ class scrappingMySolisart():
             })
             if not os.name =='nt':
                 from selenium import webdriver
-                self.driver = webdriver.Firefox()
+                from selenium.webdriver import FirefoxOptions
+                opts = FirefoxOptions()
+                opts.add_argument("--headless")
+                self.driver = webdriver.Firefox(options=opts)
             else:
                 from selenium import webdriver
                 from selenium.webdriver.firefox.service import Service
