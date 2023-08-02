@@ -59,11 +59,11 @@ class scrappingMySolisart():
                 'processing': True
             })
             if not os.name =='nt':
-                from selenium.webdriver.firefox.service import Service
                 from selenium import webdriver
+                from selenium.webdriver.firefox.service import Service as FirefoxService
                 from webdriver_manager.firefox import GeckoDriverManager
 
-                self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+                self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
             else:
                 from selenium import webdriver
                 from selenium.webdriver.firefox.service import Service
