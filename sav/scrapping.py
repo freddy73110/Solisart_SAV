@@ -60,7 +60,12 @@ class scrappingMySolisart():
             })
             if not os.name =='nt':
                 from selenium.webdriver.firefox.service import Service
-                self.driver = webdriver.Firefox()
+                service = Service(
+                    executable_path=r"/usr/local/bin/geckodriver"
+                )
+                self.driver = webdriver.Firefox(
+                    service=service
+                )
             else:
 
                 from selenium.webdriver.firefox.service import Service
