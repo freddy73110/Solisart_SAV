@@ -60,14 +60,12 @@ class scrappingMySolisart():
             })
             if not os.name =='nt':
                 from selenium.webdriver.firefox.service import Service
-                service = Service(
-                    executable_path=r"/usr/local/bin/geckodriver"
-                )
-                self.driver = webdriver.Firefox(
-                    service=service
-                )
-            else:
+                from selenium import webdriver
+                from webdriver_manager.firefox import GeckoDriverManager
 
+                self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+            else:
+                from selenium import webdriver
                 from selenium.webdriver.firefox.service import Service
                 service = Service(
                     executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe"
