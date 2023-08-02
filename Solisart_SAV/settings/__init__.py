@@ -220,7 +220,7 @@ CHANNEL_LAYERS = {
 }
 
 INSTALLED_APPS.append('channels')
-ASGI_APPLICATION = 'Solisart_SAV.routing.application'
+ASGI_APPLICATION = 'Solisart_SAV.asgi.application'
 
 
 GRAPH_MODELS ={
