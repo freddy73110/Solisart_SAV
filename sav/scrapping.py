@@ -58,28 +58,25 @@ class scrappingMySolisart():
                 'message':'Lancement du scrapping',
                 'processing': True
             })
-            # if not os.name =='nt':
-            #     from selenium import webdriver
-            #     from selenium.webdriver.firefox.service import Service as FirefoxService
-            #     from webdriver_manager.firefox import GeckoDriverManager
-            #
-            #     self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-            # else:
-            #     from selenium import webdriver
-            #     from selenium.webdriver.firefox.service import Service
-            #     service = Service(
-            #         executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe"
-            #     )
-            #     self.driver = webdriver.Firefox(
-            #         service=service
-            #     )
-            from selenium import webdriver
-            from selenium.webdriver.firefox.service import Service as FirefoxService
-            from webdriver_manager.firefox import GeckoDriverManager
-            from selenium.webdriver import FirefoxOptions
-            opts = FirefoxOptions()
-            opts.add_argument("--headless")
-            self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=opts)
+            if not os.name =='nt':
+                from selenium import webdriver
+                self.driver = webdriver.Firefox()
+            else:
+                from selenium import webdriver
+                from selenium.webdriver.firefox.service import Service
+                service = Service(
+                    executable_path=r"C:\Users\freddy\Downloads\geckodriver-v0.32.0-win32\geckodriver.exe"
+                )
+                self.driver = webdriver.Firefox(
+                    service=service
+                )
+            # from selenium import webdriver
+            # from selenium.webdriver.firefox.service import Service as FirefoxService
+            # from webdriver_manager.firefox import GeckoDriverManager
+            # from selenium.webdriver import FirefoxOptions
+            # opts = FirefoxOptions()
+            # opts.add_argument("--headless")
+            # self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=opts)
             self.connecting=True
             self.driver.get(self.link)
             self.driver.find_element(By.ID, 'id').send_keys(self.username)
