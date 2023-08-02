@@ -88,7 +88,7 @@ class scrappingMySolisart():
                     fname) + str(exc_tb.tb_lineno) + str(ex)})
 
 
-def waitelement(self, by, element, func, action, time_max=None):
+    def waitelement(self, by, element, func, action, time_max=None):
         if not time_max:
             time_max=20
         try:
