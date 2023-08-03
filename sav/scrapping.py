@@ -25,6 +25,7 @@ def get_download_path():
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key) as key:
             location = winreg.QueryValueEx(key, downloads_guid)[0]
         return location
+
     else:
         return os.path.join('root', 'snap', 'firefox', '2952')
 
@@ -652,6 +653,8 @@ class scrappingMySolisart():
 
         import os
         import glob
+        print(get_download_path())
+        print(glob.glob(get_download_path() + "\*.csv"))
         files = glob.glob(get_download_path() + "\*.csv")
         for f in files:
             try:
@@ -680,13 +683,24 @@ class scrappingMySolisart():
             print("çà casse")
             pass
 
-
-        os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.dirname(__file__) + '/temp/config.csv')
-        send_channel_message('cartcreating',
-                             {
-                                 'download': "-"
-                             })
-        self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+        try:
+            print(get_download_path())
+            print(glob.glob(get_download_path() + "\*.csv"))
+            os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.dirname(__file__) + '/temp/config.csv')
+            send_channel_message('cartcreating',
+                                 {
+                                     'download': "-"
+                                 })
+            self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
+                    fname) + str(exc_tb.tb_lineno) + str(ex)})
+            self.close()
 
     def createuser(self, dict_schematic):
 
