@@ -144,8 +144,10 @@ class scrappingMySolisart():
         })
         time.sleep(5)
         install = self.waitelement(By.XPATH, '//*[@class="liste_colonne_paire"]/a[2]', 'presence_of_all_elements_located', None, time_max=120)
-
-        return [i.get_attribute("innerHTML") for i in install]
+        all_installs = []
+        for i in install:
+            all_installs.append(i.get_attribute("innerHTML"))
+        return all_installs
     def save_csv_configuration(self, path_csv=None):
         """
         Depuis la page d'une installation, enregister le csv et sauvegarder les données
