@@ -113,7 +113,10 @@ class scrappingMySolisart():
         if not time_max:
             time_max=20
         try:
-            wait = WebDriverWait(self.driver, time_max)
+            from selenium.common.exceptions import NoSuchElementException
+            from selenium.common.exceptions import StaleElementReferenceException
+            ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+            wait = WebDriverWait(self.driver, time_max, ignored_exceptions=ignored_exceptions)
             element = wait.until(getattr(EC, func)((by, element)))
             if action == 'click':
                 element.click()
