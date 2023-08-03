@@ -62,15 +62,14 @@ class scrappingMySolisart():
             if not os.name =='nt':
                 import subprocess
                 if subprocess.call("killall -9 firefox", shell=True) > 0:
-                    self._logger.debug('Firefox cleanup - FAILURE!')
                     send_channel_message('cartcreating', {
                         'message': "Firefox à l'arrêt"
                     })
                 else:
-                    self._logger.debug('Firefox cleanup - SUCCESS!')
                     send_channel_message('cartcreating', {
                         'message': 'Arrêt du firefox'
                     })
+
                 from selenium import webdriver
                 from selenium.webdriver import FirefoxOptions
                 opts = FirefoxOptions()
