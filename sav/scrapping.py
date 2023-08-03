@@ -129,8 +129,8 @@ class scrappingMySolisart():
         """
 
         self.driver.get('https://my.solisart.fr/admin/index.php?page=installations')
-
-        install = self.waitelement(By.XPATH, '//*[@class="liste_colonne_paire"]/a[2]', 'presence_of_all_elements_located', None)
+        time.sleep(2)
+        install = self.waitelement(By.XPATH, '//*[@class="liste_colonne_paire"]/a[2]', 'presence_of_all_elements_located', None, time_max=120)
 
         return [i.get_attribute("innerHTML") for i in install]
     def save_csv_configuration(self, path_csv=None):
@@ -684,14 +684,12 @@ class scrappingMySolisart():
             pass
 
         try:
-            print(get_download_path())
-            print(glob.glob(get_download_path() + "\*.csv"))
             os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.dirname(__file__) + '/temp/config.csv')
             send_channel_message('cartcreating',
                                  {
                                      'download': "-"
                                  })
-            self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -701,6 +699,7 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
                     fname) + str(exc_tb.tb_lineno) + str(ex)})
             self.close()
+        self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
 
     def createuser(self, dict_schematic):
 
