@@ -27,7 +27,7 @@ def get_download_path():
         return location
 
     else:
-        return os.path.join('root', 'snap', 'firefox', '2952')
+        return os.path.join(os.path.abspath(os.sep), 'root', 'snap', 'firefox', '2952')
 
 def send_channel_message(group_name, message):
     # Sous Windows
