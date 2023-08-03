@@ -26,7 +26,7 @@ def get_download_path():
             location = winreg.QueryValueEx(key, downloads_guid)[0]
         return location
     else:
-        return os.path.join(os.path.expanduser('~'), 'downloads')
+        return os.path.join('root', 'snap', 'firefox', '2952')
 
 def send_channel_message(group_name, message):
     # Sous Windows
@@ -652,7 +652,6 @@ class scrappingMySolisart():
 
         import os
         import glob
-
         files = glob.glob(get_download_path() + "\*.csv")
         for f in files:
             try:
