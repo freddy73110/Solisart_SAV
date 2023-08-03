@@ -60,6 +60,17 @@ class scrappingMySolisart():
                 'processing': True
             })
             if not os.name =='nt':
+                import subprocess
+                if subprocess.call("killall -9 firefox", shell=True) > 0:
+                    self._logger.debug('Firefox cleanup - FAILURE!')
+                    send_channel_message('cartcreating', {
+                        'message': "Firefox à l'arrêt"
+                    })
+                else:
+                    self._logger.debug('Firefox cleanup - SUCCESS!')
+                    send_channel_message('cartcreating', {
+                        'message': 'Arrêt du firefox'
+                    })
                 from selenium import webdriver
                 from selenium.webdriver import FirefoxOptions
                 opts = FirefoxOptions()
@@ -129,7 +140,10 @@ class scrappingMySolisart():
         """
 
         self.driver.get('https://my.solisart.fr/admin/index.php?page=installations')
-        time.sleep(2)
+        send_channel_message('cartcreating', {
+            'message': 'Connecté à la page des installations'
+        })
+        time.sleep(5)
         install = self.waitelement(By.XPATH, '//*[@class="liste_colonne_paire"]/a[2]', 'presence_of_all_elements_located', None, time_max=120)
 
         return [i.get_attribute("innerHTML") for i in install]
@@ -653,8 +667,6 @@ class scrappingMySolisart():
 
         import os
         import glob
-        print(get_download_path())
-        print(glob.glob(get_download_path() + "\*.csv"))
         files = glob.glob(get_download_path() + "\*.csv")
         for f in files:
             try:

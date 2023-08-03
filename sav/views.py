@@ -1722,7 +1722,8 @@ class cartcreator(View):
         return render(request,
                       self.template_name,
                       {
-                          'installations':installations
+                          'installations':installations,
+                          'title':self.title
                       }
                       )
 

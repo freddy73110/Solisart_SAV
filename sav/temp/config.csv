@@ -1,8 +1,8 @@
-01/08/2023;09:18:55;Configuration du 01/08/2023 à 09:18
+03/08/2023;11:34:33;Configuration du 03/08/2023 à 11:34
 1;srv_name;gestion.solisart.fr
 2;srv_req; update.php 
-3;serial;SC1M20184104
-4;srv_id;ABDALLAH & TROMBET
+3;serial;GodinLuc
+4;srv_id;Luc Godin
 5;srv_port;80
 6;req_T;300
 7;TMarcheDeg;103
@@ -29,66 +29,70 @@
 28;DTCapteurOn;10
 29;DTCapteurOff;4
 30;VMinCircCapteur;50
-31;Nb_Champs_Capt;1
-32;Sortie_48;255
-33;Sortie_49;255
+31;Nb_Champs_Capt;2
+32;Sortie_48;0
+33;Sortie_49;0
 34;S48lbl;Sortie 48
 35;S49lbl;Sortie 49
-36;Type_Appoint(0);3
-37;Type_Appoint(1);6
-38;TMaxApp(0);92
-39;TMaxApp(1);92
-40;TRetMinChdr(0);35
-41;TRetMinChdr(1);55
-42;DTChdr(0);20
-43;DTChdr(1);40
+36;Type_Appoint(0);0
+37;Type_Appoint(1);0
+38;TMaxApp(0);100
+39;TMaxApp(1);100
+40;TRetMinChdr(0);47
+41;TRetMinChdr(1);47
+42;DTChdr(0);7
+43;DTChdr(1);7
 44;DTAppECS(0);6
 45;DTAppECS(1);6
 46;TStockECS(0);42
-47;TStockECS(1);57
+47;TStockECS(1);42
 48;ZoneAppoint(0);0
-49;ZoneAppoint(1);1
-50;MinOnDelay(0);20
-51;MinOnDelay(1);20
+49;ZoneAppoint(1);0
+50;MinOnDelay(0);5
+51;MinOnDelay(1);5
 52;MinOffDelay(0);1
-53;MinOffDelay(1);10
-54;VolCorpsChf(0);3
-55;VolCorpsChf(1);51
-56;VMinCircApp(0);80
-57;VMinCircApp(1);70
+53;MinOffDelay(1);1
+54;VolCorpsChf(0);10
+55;VolCorpsChf(1);10
+56;VMinCircApp(0);100
+57;VMinCircApp(1);100
 58;NonRecupCal(0);
 59;NonRecupCal(1);
-60;tlbl(11);T11 Amb. REZ
-61;tlbl(12);T12 Amb. Etage
-62;tlbl(13);T13 Amb.Loc
+60;tlbl(11);T11 Planchers
+
+61;tlbl(12);
+
+62;tlbl(13);T13 Piscine
+
 63;tlbl(14);
+
 64;Type_Emetteur(0);1
-65;Type_Emetteur(1);1
-66;Type_Emetteur(2);1
+65;Type_Emetteur(1);0
+66;Type_Emetteur(2);0
 67;Type_Emetteur(3);0
 68;Type_Emetteur(4);0
 69;Type_Emetteur(5);0
 70;DTMaxSol(0);3.0
-71;DTMaxSol(1);3.0
-72;DTMaxSol(2);3.0
+71;DTMaxSol(1);0.0
+72;DTMaxSol(2);0.0
 73;DTMaxSol(3);0.0
 74;DTMaxSol(4);3.0
 75;DTMaxSol(5);3.0
 76;DTEco(0);4
-77;DTEco(1);4
-78;DTEco(2);4
+77;DTEco(1);0
+78;DTEco(2);0
 79;DTEco(3);0
 80;DTEco(4);7
 81;DTEco(5);7
 82;DTOn(0);5
-83;DTOn(1);5
-84;DTOn(2);5
+83;DTOn(1);0
+84;DTOn(2);0
 85;DTOn(3);0
 86;DTOn(4);5
 87;DTOn(5);5
 88;DTOff(0);2
-89;DTOff(1);2
-90;DTOff(2);2
+89;DTOff(1);0
+90;DTOff(2);0
 91;DTOff(3);0
 92;DTOff(4);2
 93;DTOff(5);2
@@ -99,24 +103,24 @@
 98;DTCorrTA(4);0.0
 99;DTCorrTA(5);0.0
 100;TBaseEnvoi(0);37
-101;TBaseEnvoi(1);37
-102;TBaseEnvoi(2);37
+101;TBaseEnvoi(1);0
+102;TBaseEnvoi(2);0
 103;TBaseEnvoi(3);0
 104;TBaseEnvoi(4);55
 105;TBaseEnvoi(5);55
 106;TMinEnvoi(0);27
-107;TMinEnvoi(1);27
-108;TMinEnvoi(2);27
+107;TMinEnvoi(1);0
+108;TMinEnvoi(2);0
 109;TMinEnvoi(3);0
 110;TMinEnvoi(4);27
 111;TMinEnvoi(5);27
 112;TMaxEnvoi(0);38
-113;TMaxEnvoi(1);38
-114;TMaxEnvoi(2);38
+113;TMaxEnvoi(1);0
+114;TMaxEnvoi(2);0
 115;TMaxEnvoi(3);0
 116;TMaxEnvoi(4);65
 117;TMaxEnvoi(5);65
-118;TBaseExt(0);-13
+118;TBaseExt(0);-10
 119;DTOffset;0.0
 120;UUs;util
 121;UPw;util
@@ -134,35 +138,35 @@
 133;Mdp(5);util6
 134;THorsGel;10
 135;Mode_Hors_Gel;
-136;DateDebHorsGel(0);1
-137;DateDebHorsGel(1);8
+136;DateDebHorsGel(0);13
+137;DateDebHorsGel(1);7
 138;DateDebHorsGel(2);23
-139;DateDebHorsGel(3);3
-140;DateFinHorsGel(0);1
-141;DateFinHorsGel(1);8
+139;DateDebHorsGel(3);2
+140;DateFinHorsGel(0);13
+141;DateFinHorsGel(1);7
 142;DateFinHorsGel(2);23
-143;DateFinHorsGel(3);3
-150;Mode_Chauff(0);2
-151;Mode_Chauff(1);2
-152;Mode_Chauff(2);1
+143;DateFinHorsGel(3);2
+150;Mode_Chauff(0);0
+151;Mode_Chauff(1);0
+152;Mode_Chauff(2);0
 153;Mode_Chauff(3);0
 154;Mode_Chauff(4);0
 155;Mode_Chauff(5);0
-156;Mode_Chauff(6);2
+156;Mode_Chauff(6);1
 157;TConfort(0);20.0
 158;TConfort(1);20.0
-159;TConfort(2);19.0
+159;TConfort(2);20.0
 160;TConfort(3);20.0
 161;TConfort(4);20.0
 162;TConfort(5);20.0
 163;TConfort(6);42.0
-164;TReduit(0);19.2
-165;TReduit(1);19.1
-166;TReduit(2);18.5
+164;TReduit(0);18.0
+165;TReduit(1);18.0
+166;TReduit(2);18.0
 167;TReduit(3);18.0
 168;TReduit(4);18.0
 169;TReduit(5);18.0
-170;TReduit(6);39.0
+170;TReduit(6);42.0
 171;DTDerog(0);0
 172;DTDerog(1);0
 173;DTDerog(2);0
@@ -475,8 +479,8 @@
 480;P(6,6,3);255
 481;P(6,6,4);255
 482;P(6,6,5);255
-497;firmware_rev;SRB_32MX_vD.18+6
-499;config_mac;b8:27:eb:36:92:a0
+497;firmware_rev;SRB_32MX_vD.22+6
+499;config_mac;b8:27:eb:07:27:02
 500;ip(0);0
 501;ip(1);0
 502;ip(2);0
@@ -487,68 +491,99 @@
 507;sub(3);0
 508;gw(0);192
 509;gw(1);168
-510;gw(2);0
-511;gw(3);254
+510;gw(2);10
+511;gw(3);2
 512;pdn(0);192
 513;pdn(1);168
-514;pdn(2);0
-515;pdn(3);254
+514;pdn(2);10
+515;pdn(3);252
 516;sdn(0);0
 517;sdn(1);0
 518;sdn(2);0
 519;sdn(3);0
-520;tlbl(01);T1 Capt Chaud 1
+520;tlbl(01);T1 Capt Ch 1
+
 521;tlbl(09);T9 Exterieure
+
 522;tlbl(02);T2 Capt Froid
-523;tlbl(10);
-524;tlbl(03);T3 Bal Solaire
-525;tlbl(04);T4 Bal Appoint
-526;tlbl(05);
-527;tlbl(06);T6 foyer bois
+
+523;tlbl(10);T10 Capt Ch 2
+
+524;tlbl(03);T3 Ballon Sol
+
+525;tlbl(04);T4 Ballon App
+
+526;tlbl(05);T5 Ballon Tamp
+
+527;tlbl(06);
+
 528;tlbl(07);T7 Coll Froid
+
 529;tlbl(15);
+
 530;tlbl(08);T8 Coll Chaud
+
 531;tlbl(16);
-532;fllbl(1);DEBIT 1
-533;fllbl(2);DEBIT 2
-534;fllbl(3);DEBIT 3
-535;fllbl(4);DEBIT 4
-536;fllbl(5);DEBIT 5
-537;fllbl(6);DEBIT 6
+
+532;fllbl(1);DEBIT  1
+
+533;fllbl(2);DEBIT  2
+
+534;fllbl(3);DEBIT  3
+
+535;fllbl(4);DEBIT  4
+
+536;fllbl(5);DEBIT  5
+
+537;fllbl(6);DEBIT  6
+
 538;trilbl(01);C4 BAL Appoint
+
 539;trilbl(08);V3VAPP Appoint
+
 540;trilbl(02);C5 BAL Solaire
+
 541;trilbl(09);V3VAPP Solaire
-542;trilbl(03);
-543;trilbl(10);
-544;trilbl(04);C7 foyer bois
-545;trilbl(11);
-546;trilbl(05);C1 Rez
-547;trilbl(12);
-548;trilbl(06);C2 Etage
-549;trilbl(13);
-550;trilbl(07);C3 Location
+
+542;trilbl(03);C6 BAL Tampon
+
+543;trilbl(10);S10
+
+544;trilbl(04);C7 Appoint 2
+
+545;trilbl(11);S11
+
+546;trilbl(05);C1 ZONE 1
+
+547;trilbl(12);V3VTAM Solaire
+
+548;trilbl(06);
+
+549;trilbl(13);V3VTAM Tampon
+
+550;trilbl(07);C3 ZONE 3
+
 551;ModeleDebitmetre(0);0
 552;ModeleDebitmetre(1);0
 553;ModeleDebitmetre(2);0
 554;ModeleDebitmetre(3);0
 555;ModeleDebitmetre(4);0
-584;t(1);243.3 dC
-585;t(2);234.3 dC
-586;t(3);242.6 dC
-587;t(4);241.6 dC
-588;t(5);238.4 dC
-589;t(6);232.0 dC
-590;t(7);233.7 dC
-591;t(8);242.5 dC
-592;t(9);241.4 dC
-593;t(10);239.1 dC
-594;t(11);242.0 dC
-595;t(12);238.6 dC
-596;t(13);243.6 dC
-597;t(14);243.0 dC
-598;t(15);233.6 dC
-599;t(16);243.3 dC
+584;t(1);Dsc
+585;t(2);Dsc
+586;t(3);Dsc
+587;t(4);Dsc
+588;t(5);Dsc
+589;t(6);Dsc
+590;t(7);Dsc
+591;t(8);Dsc
+592;t(9);Dsc
+593;t(10);Dsc
+594;t(11);Dsc
+595;t(12);Dsc
+596;t(13);Dsc
+597;t(14);Dsc
+598;t(15);Dsc
+599;t(16);Dsc
 600;fl(1);0.0 l mn
 601;fl(2);0.0 l mn
 602;fl(3);0.0 l mn
@@ -560,46 +595,46 @@
 614;tr(1);0pC
 615;tr(2);100pC
 616;tr(3);0pC
-617;tr(4);100pC
+617;tr(4);0pC
 618;tr(5);0pC
 619;tr(6);0pC
 620;tr(7);0pC
 621;tr(8);0pC
 622;tr(9);0pC
 623;tr(10);0pC
-624;tr(11);0pC
+624;tr(11);100pC
 625;tr(12);0pC
 626;tr(13);0pC
 627;v3v(0);0
-628;v3v(1);100
-629;v3v(2);24
-630;flpws;0
-631;Tcons(0);19.9
-632;Tcons(1);19.9
-633;Tcons(2);18.9
+628;v3v(1);0
+629;v3v(2);100
+630;flpws;1
+631;Tcons(0);0.0
+632;Tcons(1);0.0
+633;Tcons(2);0.0
 634;Tcons(3);0.0
 635;Tcons(6);42.0
 636;Dem(0);0
 637;Dem(1);0
 638;Dem(2);0
-639;Dem(3);103
+639;Dem(3);0
 640;Dem(6);0
-641;MD;189.4
-642;dtcapt3mn;0.0
+641;MD;-81.8
+642;dtcapt3mn;16384.0
 643;TconPisc_dep;30
-644;Tcaptcalc;243.2
-645;anticc_chd;2361.0
-646;var_cir;2048.0
-647;demPisc_D;0
-648;def_T;0
-649;def;33028
-650;CircType(0);2
-651;CircType(1);2
+644;Tcaptcalc;14.9
+645;anticc_chd;1870.0
+646;var_cir;0.0
+647;demPisc_D;5
+648;def_T;975
+649;def;0
+650;CircType(0);0
+651;CircType(1);0
 652;CircType(2);0
-653;CircType(3);3
-654;CircType(4);2
-655;CircType(5);2
-656;CircType(6);2
+653;CircType(3);0
+654;CircType(4);0
+655;CircType(5);0
+656;CircType(6);0
 657;CircType(9);0
 658;CircType(10);0
 659;tfmoy;0
@@ -608,7 +643,7 @@
 662;index3;0.0
 663;index4;0.0
 664;index5;0.0
-665;index6;115.5
+665;index6;5.7
 666;index1S;0.0
 667;index2S;0.0
 668;index3S;0.0
@@ -622,5 +657,29 @@
 676;rebour_derog_z5;0
 677;rebour_derog_z6;0
 678;rebour_derog_ECS;0
-981;CarteCompteur;2875
-984;ServeurCompteur;509072
+981;CarteCompteur;1862
+987;tlbl(17); Zone 7
+
+988;tlbl(18); Zone 8
+
+989;tlbl(19); Zone 9
+
+990;tlbl(20); Zone 10
+
+991;tlbl(21); Zone 11
+
+992;tlbl(22); Zone 12
+
+993;tlbl(23); Zone 13
+
+994;tlbl(24); Zone 14
+
+995;tlbl(25); Zone 15
+
+996;tlbl(26); Zone 16
+
+997;tlbl(27); Zone 17
+
+998;tlbl(28); Zone 18
+
+999;tlbl(29); Zone 19
