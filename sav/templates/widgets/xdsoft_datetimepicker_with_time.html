@@ -5,7 +5,9 @@
     var today = new Date();
     var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
     $("input[name='{{ widget.name }}']").datetimepicker({
-      format: 'd-m-Y H:i'
+      format: 'd-m-Y H:i',
+      scrollMonth : false,
+    scrollInput : false
     }
     );
   });

@@ -17,5 +17,6 @@ urlpatterns = [
     path('statistiques', login_required(views.statistiques.as_view()), name='statistiques'),
     # path('mail', login_required(views.mail.as_view()), name='mail'),
     path('bidouille', views.bidouille.as_view(), name='bidouille'),
-    path('cartcreator', views.cartcreator.as_view(), name='cartcreator')
+    path('cartcreator', login_required(views.cartcreator.as_view()), name='cartcreator'),
+    path('production', login_required(views.production.as_view()), name='production')
 ]

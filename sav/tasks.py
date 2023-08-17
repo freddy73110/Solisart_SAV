@@ -13,6 +13,7 @@ from django.db.models.functions import Length
 
 from Solisart_SAV.celery import app
 from heraklesinfo.models import *
+from .scrapping import send_channel_message
 
 TextField.register_lookup(Length, 'length')
 from django.http import HttpResponse, JsonResponse
@@ -125,7 +126,7 @@ def rapport_ticket():
         for commercial in commerciaux:
             #list des tickets par affectation commerciale
             ticketscree = ticket.objects.filter(
-                evenement__date__gte=timezone.now() - datetime.timedelta(days=10),
+                evenement__date__gte=timezone.now() - timedelta(days=10),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
             ).annotate(
                 instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
@@ -354,6 +355,37 @@ def trouvercoordonneeGPS(*args, **kwargs):
     return {'bilan', counter+ 'instal localisé sur '+ install_whitout_GPS.count()}
 
 @shared_task
+def actualise_date_livraison_CL():
+    CLs = CL_herakles.objects.filter(
+        date_livraison_prevu__gte = timezone.now() - timedelta(days=15)
+    )
+    result=[]
+    for CL in CLs:
+        #before = date avavnt modif
+        before = CL.date_livraison_prevu
+        CL.date_livraison_prevu = C601ChantierEnTte.objects.db_manager('herakles'). \
+                  filter(t601_1_code_chantier=CL).values_list('delai', flat=True)[0]
+        CL.save()
+        from zoneinfo import ZoneInfo
+        utc = ZoneInfo('UTC')
+        if before != CL.date_livraison_prevu.date():
+            result.append({'Name': CL.CL,
+                           'newdate': CL.date_livraison_prevu.date().strftime('%d/%m/%Y'),
+                           "olddate": before.strftime('%d/%m/%Y')})
+        #Recherche si un BL a été créé pour cette CL
+        if C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL):
+            CL.BL=C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL).values_list('codeof', flat=True)[0]
+        CL.save()
+
+    send_channel_message('production', {
+        'message': "Les dates de livraison client viennent d'être mise à jour",
+        'result': result,
+        'datereceptionclient':True
+    })
+
+    save_result_celery('args', {}, "SUCCESS", result)
+
+@shared_task
 def actualise_client_herakles():
     result = {'Client': []}
     clients=C100Clients.objects.db_manager('herakles').all()
@@ -365,7 +397,6 @@ def actualise_client_herakles():
         if created:
             result['Client'].append(c.Code_Client)
     save_result_celery('args', {}, "SUCCESS", result)
-
 
 @shared_task
 def actualise_herakles():

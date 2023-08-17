@@ -6,6 +6,8 @@
     var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear();
     $("input[name='{{ widget.name }}']").datetimepicker({
       timepicker:false,
+      scrollMonth : false,
+    scrollInput : false,
       format: 'd-m-Y'
     }
     );

@@ -1,0 +1,31 @@
+{% load static %}
+{% load my_filter %}
+{% load crispy_forms_tags %}
+<meta charset="UTF-8">
+
+<!--<h2>Client: {{codechantier.0.t601_12_code_client}}</h2>-->
+<!--<input type="hidden" value="{{codechantier.0.t601_12_code_client}}" name="installateur">-->
+<!--<h2>Affaire: {{codechantier.0.t601_2_titre_du_chantier}}</h2>-->
+<!--<input type="hidden" value="{{codechantier.0.t601_2_titre_du_chantier}}" name="information">-->
+<div class="container">
+    <div class="row">
+        <div class="col-{%if beforeAdd %}6{%else%}12{% endif %}">
+            <fieldset class="border p-2 h-100">
+                <legend class="float-none w-auto"><b>Paramètre de commande à Sauvegarder</b></legend>
+                {% crispy formCL %}
+            </fieldset>
+        </div>{%if beforeAdd %}
+        <div class="col-6">
+            <fieldset class="border p-2 h-100">
+                <legend class="float-none w-auto"><b>Liste des articles</b></legend>
+                {% for article in CLarticles %}
+            <i class='fas fa-angle-right'></i><b> {{article.qte|floatformat:"0" }} x {{article.codouv}}</b> - {{article.titre}}<br>
+            {% endfor %}
+            </fieldset>
+        </div>
+        {%endif%}
+    </div>
+</div>
+
+
+

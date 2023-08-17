@@ -1543,7 +1543,6 @@ class bibliotheque(View):
                            }
                            )
             else:
-                print(class_form.errors)
                 return render(request,
                        self.template_name,
                        {
@@ -1803,4 +1802,232 @@ class cartcreator(View):
 
         return JsonResponse(param, safe=False)
 
+class production(View):
+    login_url = '/login/'
+    template_name = 'sav/production.html'
+    title = "Gestion de production"
 
+    def get(self, request, *args, **kwargs):
+        from .tasks import actualise_date_livraison_CL
+        actualise_date_livraison_CL()
+        from heraklesinfo.models import C7001Phases
+        excludeCL= Q(codephase__icontains='-------')
+        CLs = CL_herakles.objects.all().values_list('CL', flat=True)
+        for Clsolistools in CLs:
+            excludeCL |=  Q(codephase__icontains=str(Clsolistools))
+        heraklesCLs = C7001Phases.objects.db_manager('herakles'). \
+                  filter(Q(codephase__icontains='CL' + str(timezone.now().year)[2:4]) | Q(codephase__icontains='CL' + str((timezone.now()-timedelta(days=366)).year)[2:4])). \
+                  exclude(codephase__icontains='/'). \
+                  exclude(excludeCL). \
+                  order_by('-codephase'). \
+                  values_list('codephase', flat=True)
+
+        return render(request,
+                      self.template_name,
+                      {
+                          'title':self.title,
+                          'heraklesCLs': heraklesCLs,
+                          'CLs':CLs
+                      }
+                      )
+
+    def post(self, request, *args, **kwargs):
+        from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
+        if "numCL" in request.POST:
+            numCL = request.POST['numCL']
+            CLarticles = C701Ouvraof.objects.db_manager('herakles'). \
+                  filter(codeof__icontains=numCL). \
+                  exclude(codouv__isnull=True) .\
+                  annotate(qte=Cast("nbre", output_field=(FloatField()))). \
+                  order_by('codouv'). \
+                  distinct(). \
+                  values("codouv", "qte", "titre")
+            list_codouv = [i['codouv'] for i in CLarticles]
+            codechantier =  C601ChantierEnTte.objects.db_manager('herakles'). \
+                  filter(t601_1_code_chantier=numCL).values('t601_12_code_client', 't601_2_titre_du_chantier', 'delai')
+
+            capt=None
+            capteur_nbre=0
+            for cap in capteur.objects.all():
+                if cap.type == "SID":
+                    str_seach = "SI"
+                else:
+                    str_seach = cap.type
+                if any(s.startswith(str_seach) for s in list_codouv):
+                    capt = capteur.objects.get(type=str_seach)
+                    for article in CLarticles:
+                        if article['codouv'].startswith(str_seach):
+                            capteur_nbre = int(article['codouv'][-1]) * article['qte']
+
+            modu=None
+            for mod in module.objects.all():
+                if any(s.startswith(mod.type) for s in list_codouv):
+                    modu = mod
+
+            ballons=''
+            for art in CLarticles:
+                if art['titre'].lower().startswith("ballon-"):
+                    if not ballons:
+                        ballons += art['codouv']
+                    else:
+                        ballons += ' + ' + art['codouv']
+
+            formCL = CL_Form(initial = {
+                'CL': numCL,
+                'installateur':client_herakles.objects.get(Code_Client = codechantier[0]['t601_12_code_client']),
+                'information': codechantier[0]['t601_2_titre_du_chantier'],
+                "capteur": capt,
+                "capteur_nbre":capteur_nbre,
+                "module": modu,
+                "ballon": ballons,
+                'date_livraison': codechantier[0]['delai']-timedelta(days=3),
+                'date_livraison_prevu': codechantier[0]['delai'],
+                'date_montage_prevu': codechantier[0]['delai'] - timedelta(days=15),
+                'date_capteur_prevu': codechantier[0]['delai'] - timedelta(days=15),
+                'date_ballon_prevu': codechantier[0]['delai'] - timedelta(days=15),
+                'date_prepa_carte_prevu': codechantier[0]['delai'] - timedelta(days=7),
+                'date_prepa_prevu': codechantier[0]['delai'] - timedelta(days=2),
+                'date_reglement': codechantier[0]['delai'] + timedelta(days=90)
+                           })
+
+            return render(request,
+                          "widgets/PresentCL.html",
+                          {
+                              "formCL":formCL,
+                              "CLarticles":CLarticles,
+                              "beforeAdd": True
+                          }
+                          )
+
+        if "add_CL" in request.POST:
+            form = CL_Form(data=request.POST)
+            CL  = request.POST['CL']
+            installateur = client_herakles.objects.get(pk=request.POST['installateur'])
+            date_livraison_prevu = datetime.strptime(request.POST['date_livraison_prevu'], '%d-%m-%Y')
+            if form.is_valid():
+                f = form.save(commit=False)
+                f.CL = CL
+                f.installateur = installateur
+                f.date_livraison_prevu =  date_livraison_prevu
+                f.save()
+                send_channel_message('production', {
+                    'message': "Création d'une nouvelles commande",
+                    'result': [CL.CL],
+                    'datereceptionclient': False
+                })
+                return HttpResponseRedirect(request.path_info)
+            else:
+                print("error", form.errors)
+            return HttpResponseRedirect(request.path_info)
+        if 'calendar' in request.POST:
+            # todo mettre un filter
+            return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.filter(
+                date_reglement__gte = timezone.now() + timedelta(days=15)
+    )]), safe=False)
+        if 'show' in request.POST:
+            CL = CL_herakles.objects.get(CL = request.POST['show'])
+            formCL = CL_Form(instance=CL, show=True)
+
+            return render(request,
+                          "widgets/PresentCL.html",
+                          {
+                              "formCL":formCL,
+                              "beforeAdd": False
+                          }
+                          )
+
+        if 'update' in request.POST:
+            CL1 = CL_herakles.objects.get(CL=request.POST['CL'])
+            form = CL_Form(instance=CL1, data=request.POST)
+            if form.is_valid():
+                CL = form.save()
+                send_channel_message('production', {
+                    'message': "Modification de la Commande",
+                    'result': [CL.CL],
+                    'datereceptionclient': False
+                })
+                return HttpResponseRedirect(request.path_info)
+
+        if 'updateDate' in request.POST:
+            result=[]
+            for newdate in json.loads(request.POST['updateDate']):
+                CL = CL_herakles.objects.get(CL=newdate['CL'])
+                if 'capteur' in newdate['task']:
+                    CL.date_capteur_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('capteur ' + CL.CL)
+                if 'ballon' in newdate['task']:
+                    CL.date_ballon_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('Ballon ' + CL.CL)
+                if 'prepa' in newdate['task']:
+                    CL.date_prepa_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('Prépa  ' + CL.CL)
+                if 'carte' in newdate['task']:
+                    CL.date_prepa_carte_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('Prépa carte ' + CL.CL)
+                if 'montage' in newdate['task']:
+                    CL.date_montage_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('Montage ' + CL.CL)
+                if 'livraison' in newdate['task']:
+                    CL.date_livraison = datetime.strptime(newdate['new'], '%Y-%m-%d')
+                    result.append('Livraison ' + CL.CL)
+                CL.save()
+
+
+            send_channel_message('production', {
+                    'message': "Modification de la Commande",
+                    'result': result,
+                    'datereceptionclient': False
+                })
+
+
+            return JsonResponse({"data":""}, safe=False)
+
+        if 'finishTask' in request.POST:
+            task = json.loads(request.POST['finishTask'])
+            CL = CL_herakles.objects.get(CL=task['CL'])
+            finish = datetime.strptime(task['_end'].split('T')[0], '%Y-%m-%d')
+            if 'capteur' in task['id']:
+                CL.date_capteur = finish
+                result=['capteur ' + CL.CL]
+            if 'ballon' in task['id']:
+                CL.date_ballon = finish
+                result=['Ballon ' + CL.CL]
+            if 'prepa' in task['id']:
+                CL.date_prepa = finish
+                result=['Prépa ' + CL.CL]
+            if 'carte' in task['id']:
+                CL.date_prepa_carte = finish
+                result=['Prépa carte ' + CL.CL]
+            if 'montage' in task['id']:
+                CL.date_montage = finish
+                result=['Montage ' + CL.CL]
+            if 'livraison' in task['id']:
+                CL.date_livraison = finish
+                result=['Livraison ' + CL.CL]
+            CL.save()
+            send_channel_message('production', {
+                    'message': "Tâche Terminée",
+                    'result': result,
+                    'datereceptionclient': False
+                })
+            return JsonResponse({"data": ""}, safe=False)
+
+        if 'NotFinishedTask' in request.POST:
+            task = json.loads(request.POST['NotFinishedTask'])
+            CL = CL_herakles.objects.get(CL=task['CL'])
+            if 'capteur' in task['id']:
+                CL.date_capteur = None
+            if 'ballon' in task['id']:
+                CL.date_ballon = None
+            if 'prepa' in task['id']:
+                CL.date_prepa = None
+            if 'carte' in task['id']:
+                CL.date_prepa_carte = None
+            if 'montage' in task['id']:
+                CL.date_montage = None
+            if 'livraison' in task['id']:
+                CL.date_livraison = None
+            CL.save()
+            return JsonResponse({"data": ""}, safe=False)
+
+        return HttpResponse("error ....")

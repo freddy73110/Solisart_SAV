@@ -24,6 +24,53 @@ from django.db.models.functions import Cast
 
 emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({});});</script>'
 
+from django.forms.widgets import TextInput
+
+class NumberInput(TextInput):
+    input_type = 'number'
+
+class Custom_Fieldset(LayoutObject):
+    """
+    Layout object. It wraps fields in a <fieldset>
+
+    Example::
+
+        Fieldset("Text for the legend",
+            'form_field_1',
+            'form_field_2'
+        )
+
+    The first parameter is the text for the fieldset legend. This text is context aware,
+    so you can do things like::
+
+        Fieldset("Data for {{ user.username }}",
+            'form_field_1',
+            'form_field_2'
+        )
+    """
+    template = "widgets/custom_fieldset.html"
+
+    def __init__(self, legend, *fields, **kwargs):
+        self.fields = list(fields)
+        self.legend = legend
+        self.css_class = kwargs.pop('css_class', '')
+        self.css_id = kwargs.pop('css_id', None)
+        self.template = kwargs.pop('template', self.template)
+        self.flat_attrs = flatatt(kwargs)
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, **kwargs):
+        fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+
+        legend = ''
+        if self.legend:
+            legend = self.legend
+
+        template = self.get_template_name(template_pack)
+        return render_to_string(
+            template,
+            {'fieldset': self, 'legend': legend, 'fields': fields, 'form_style': form_style}
+        )
+
 class add_evenement_form(ModelForm):
 
     class Meta:
@@ -503,6 +550,294 @@ class classification_form(ModelForm):
                     FloatingField('sous_dossier', css_class="refreshOption"),
                     FloatingField('titre'),
                     FloatingField('autre', css_class="d-none", wrapper_class="d-none")
+
             )
         )
         )
+
+class CL_Form(ModelForm):
+    class Meta:
+        model = CL_herakles
+        fields = '__all__'
+
+    def __init__(self, show=None, *args, **kwargs):
+        super(CL_Form, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if 'date' in field:
+                self.fields[field].widget = XDSoftDatePickerInput()
+                self.fields[field].input_formats = ['%d-%m-%Y']
+                self.fields[field].help_text = ''
+        self.fields['CL'].disabled = True
+        self.fields['installateur'].disabled = True
+        self.fields['date_livraison_prevu'].disabled = True
+        self.fields['BL'].disabled = True
+        self.fields['prix_transport'].widget = NumberInput(attrs={'min': '0', 'max': '10000', 'step': '0.01'})
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        if self.instance.pk == None:
+            self.helper.layout = Layout(
+            Row(
+                Column(
+                    Div(
+                        Div(AppendedText('CL', '<i class="far fa-file"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html')
+                            , css_class="col-4"),
+                        Div(AppendedText('installateur', '<i class="fas fa-tools" ></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                            css_class="col-4"),
+                        Div(
+                            AppendedText('module', '<i class="fas fa-database"></i>',
+                                         wrapper_class='form-row',
+                                         template='widgets/prepended_appended_text_inline.html'),
+                        HTML(emoji_str), css_class="col-4"),
+                        css_class='row m-1 pb-2'
+                    ),
+                    FloatingField('information', style='height: 100px', row="3", css_class="textareaEmoji"),
+                    Div(
+                        Div(AppendedText('capteur_nbre',
+                                                                 '<i class="fas fa-solar-panel"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                            css_class="col-sm-6" ),
+                        Div(AppendedText('capteur',
+                                                                 '<i class="fas fa-solar-panel"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                            css_class="col-sm-6"),
+                        css_class='row pb-3'
+                    ),
+                    AppendedText('ballon', '<i class="fas fa-database"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html',
+                                 css_class="pb-3"),
+                    AppendedText('transporteur',
+                                 '<i class="fas fa-truck"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_livraison',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_livraison_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_ballon_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_capteur_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_montage_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_prepa_carte_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_prepa_prevu',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html'),
+                    AppendedText('date_reglement',
+                                 '<i class="fas fa-calendar-day"></i>',
+                                 wrapper_class='form-row',
+                                 template='widgets/prepended_appended_text_inline.html')
+                )
+            )
+        )
+        else:
+            self.helper.layout = Layout(
+                Row(
+                    Column(
+                        Div(
+                            Div(AppendedText('CL', '<i class="far fa-file"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                css_class="col-sm-4"),
+                            Div(AppendedText('installateur', '<i class="fas fa-tools" ></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                css_class="col-sm-4"),
+                            Div(AppendedText('module', '<i class="fas fa-database"></i>',
+                                             wrapper_class='form-row',
+                                             template='widgets/prepended_appended_text_inline.html'),
+                                css_class="col-sm-4"),
+                            css_class='row pb-3'
+                        ),
+                        FloatingField("information", style='height: 100px', row="3", css_class="textareaEmoji"),
+                        HTML(emoji_str)
+                    ),
+                    css_class="m-1"
+                ),
+                Row(
+                    Column(
+                        Custom_Fieldset('Ballon',
+                                        Row(
+                                            Column(
+                                                AppendedText('ballon', '<i class="fas fa-database"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                                 css_class="col-4"),
+                                            Column(
+                                                AppendedText('date_ballon_prevu', '<i class="fas fa-calendar-day"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-4"),
+                                            Column(
+                                                AppendedText('date_ballon',
+                                                                 '<i class="fas fa-calendar-check"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-4"),
+                                            css_class="m-1"
+                                        )
+                                        )
+                    )
+                ),
+                Row(
+                    Column(
+                        Custom_Fieldset('Capteur',
+                                        Row(
+                                            Column(
+                                                AppendedText('capteur_nbre',
+                                                                 '<i class="fas fa-solar-panel"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html')
+                                                , css_class="col-3"),
+                                            Column(
+                                                AppendedText('capteur',
+                                                                 '<i class="fas fa-solar-panel"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_capteur_prevu',
+                                                                 '<i class="fas fa-calendar-day"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_capteur',
+                                                                 '<i class="fas fa-calendar-check"></i>',
+                                                                 wrapper_class='form-row',
+                                                                 template='widgets/prepended_appended_text_inline.html'),
+
+                                                css_class="col-3"),
+                                            css_class="m-1"
+                                        )
+                                        )
+
+                    )
+                ),Row(
+                    Column(
+                        Custom_Fieldset('Montage',
+                                        Row(
+                                            Column(
+                                                AppendedText('date_montage_prevu',
+                                                             '<i class="fas fa-calendar-day"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_montage',
+                                                             '<i class="fas fa-calendar-check"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_prepa_carte_prevu',
+                                                             '<i class="fas fa-calendar-day"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_prepa_carte',
+                                                             '<i class="fas fa-calendar-check"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            css_class="m-1"
+                                        )
+                                        )
+
+                    )
+                ),Row(
+                    Column(
+                        Custom_Fieldset('Transport - Expédition',
+                                        Row(
+                                            Column(
+                                                AppendedText('transporteur',
+                                                             '<i class="fas fa-truck"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-4"),
+                                            Column(
+                                                AppendedText('prix_transport',
+                                                             '<i class="fas fa-euro-sign"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-4"),
+                                            Column(
+                                                AppendedText('BL',
+                                                             '<i class="far fa-file"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-4"),
+                                            css_class="m-1 pb-2"
+                                        ),
+                                        Row(
+                                            Column(
+                                                AppendedText('date_prepa_prevu',
+                                                             '<i class="fas fa-calendar-day"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_prepa',
+                                                             '<i class="fas fa-calendar-check"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_livraison',
+                                                             '<i class="fas fa-calendar-day"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            Column(
+                                                AppendedText('date_livraison_prevu',
+                                                             '<i class="fas fa-calendar-day"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-3"),
+                                            css_class="m-1"
+                                        )
+                                        )
+                                        )
+
+                    ),Row(
+                    Column(
+                        Custom_Fieldset('Facturation',
+                                        Row(
+                                            Column(
+                                                AppendedText('date_reglement',
+                                                             '<i class="fas fa-calendar-check"></i>',
+                                                             wrapper_class='form-row',
+                                                             template='widgets/prepended_appended_text_inline.html'),
+                                                css_class="col-6"),
+                                            css_class="m-1"
+                                                )
+                                        )
+                        )
+
+                    )
+
+
+            )

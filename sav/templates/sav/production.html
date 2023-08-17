@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+<!--library ici: https://www.cssscript.com/svg-gantt-chart-frappe/-->
+<link rel="stylesheet" href="{% static 'gantt-master/gantt-master/dist/frappe-gantt.css' %}" />
+<script src="{% static 'gantt-master/gantt-master/dist/frappe-gantt.js' %}"></script>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ModalDiv" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                          <div class="modal-header bg-warning">
+                            <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                            <form method="post" id="modalForm" enctype="multipart/form-data">
+                          <div class="modal-body">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-outline-primary" id="enregister" name="">Ajouter</button>
+                          </div>
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+            <form id="formCL" >
+            <div class="input-group">
+              <label class="input-group-text" for="numCL"><i class="fas fa-cart-plus"></i></label>
+              <select
+                      class="form-select"
+                      name ="numCL"
+                      id="numCL"
+                      aria-label="Example select with button addon"
+                      onchange="descriptionCL()"
+                      disabled
+              >
+                <option selected>Ajouter une commande</option>
+                  {% for CL in heraklesCLs %}
+                <option value="{{CL}}">{{CL}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+            </form>
+        </div>
+                <div class="col-2">
+
+            <div class="input-group">
+              <label class="input-group-text" for="VisuCL"><i class="fas fa-search"></i></label>
+              <select
+                      class="form-select"
+                      aria-label="Example select with button addon"
+                      id="VisuCL"
+                      onchange="ganttGenerator()"
+              >
+                <option value="tout" selected>Visualiser tous les CL</option>
+                  {% for CL in CLs %}
+                <option value="{{CL}}">{{CL}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+
+        </div>
+        <div class="col-2">
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="inputGroupSelect01"><i class="fas fa-calendar-week"></i></label>
+              <select class="form-select" id="inputGroupSelect01" onchange="myChart.change_view_mode($(this).val())">
+                <option selected value="Day">Jour</option>
+                <option value="Week">Semaine</option>
+                <option value="Month">Mois</option>
+                <option value="Year">Année</option>
+              </select>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="step"><i class="fas fa-filter"></i></label>
+              <select class="form-select" id="step" onchange="ganttGenerator()">
+                <option selected value="tout">Tout</option>
+                <option value="capteur">Capteur</option>
+                <option value="ballon">Ballon</option>
+                <option value="montage">Montage</option>
+                <option value="carte">Carte</option>
+                <option value="prepa">Prépa commande</option>
+                <option value="expe">Expédition</option>
+                <option value="livraison">Livraison</option>
+                <option value="reglement">Réglement</option>
+              </select>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="step"><i class="fas fa-filter"></i></label>
+              <select class="form-select" id="Todo" onchange="ganttGenerator()">
+                <option selected value="all">Tout</option>
+                <option value="todo">A faire</option>
+                <option value="done">Soldé</option>
+              </select>
+            </div>
+        </div>
+        <div class="col-2">
+            {% if request.user|has_group:"ADV" %}
+            <button class="btn btn-outline-primary" type="button" onclick="save()" id="ButtonSave"><i class="far fa-save"></i> Sauvegarder</button>
+            {%endif%}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div id="ganttContainer" class="gantt-container"></div>
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed top-0 end-0">
+    <div class="p-3" style="z-index: 11">
+      <div id="liveToast" class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+          <div role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+              <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="...">
+              <strong class="me-auto">Solistools</strong>
+              <small id="toastSmall"></small>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+            </div>
+          </div>
+      </div>
+    </div>
+</div>
+<script>
+{% if request.user|has_group:'ADV' %}
+$("#numCL").prop('disabled', false)
+{%endif%}
+
+  $('#modalForm').submit(function(){
+    $("#modalForm :disabled").removeAttr('disabled');
+});
+    function descriptionCL(){
+        $Modalshow=new bootstrap.Modal(document.getElementById('ModalDiv'))
+        var $Modal=$("#ModalDiv")
+        $Modal.find(".modal-title").html()
+        $Modal.find(".modal-title").html("Détail de la commande " + $("[name=numCL]").val())
+        $Modal.find(".modal-body").html()
+        $Modal.find(".modal-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+        $Modalshow.show()
+        $.ajax({
+            url: window.location.href,
+            type:'post',
+            data:{numCL:$("[name=numCL]").val()},
+            dataType: 'html',
+            success: function (html) {
+            //todo faire un message de validation
+                $Modal.find(".modal-body").html(html)
+                $("#enregister").attr('name', 'add_CL')
+                $("#enregister").html('Ajouter')
+             }
+        })
+    }
+function Refreshdata(){
+    $.ajax({
+            url: window.location.href,
+            type:'post',
+            data:{calendar:"full"},
+            dataType: 'json',
+            success: function (json) {
+                data = json
+                ganttGenerator()
+             }
+        })
+}
+Refreshdata()
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function convertdate(date){
+
+    date_datetime = new Date(date)
+    delta = date_datetime.setDate(date_datetime.getDate() - 1)
+    return formatDate(delta)
+}
+
+function ganttGenerator(){
+    tasks=[]
+    $.each(data, function(index, value){
+        if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
+            if (value['capteur'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'capteur'){
+                tasks.push(
+                {
+                start: convertdate((value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu']),
+                end: (value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu'],
+                name: (value['capteur_nbre'] < 2) ? value['CL'] + ': '+ value['capteur_nbre'] + ' Capteur ' + value['capteur'] : value['CL'] + ': '+ value['capteur_nbre'] + ' Capteurs ' + value['capteur'],
+                id: "capteur-"+value['CL'],
+                CL: value['CL'],
+                progress: (value['date_capteur']) ? 100 : 30
+              })
+            }
+            if (value['ballon'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'ballon'){
+                tasks.push(
+                {
+                start: convertdate((value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu']),
+                end: (value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu'],
+                name: value['CL'] +': ' + value['ballon'],
+                id: "ballon-"+value['CL'],
+                CL: value['CL'],
+                progress: (value['date_ballon']) ? 100 : 30
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'montage'){
+                tasks.push(
+                {
+                start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
+                end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
+                name: value['CL']+': Montage ',
+                id: "montage-"+value['CL'],
+                CL: value['CL'],
+                progress: (value['date_montage']) ? 100 : 30
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'carte'){
+                tasks.push(
+                {
+                start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),
+                end: (value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu'],
+                name: value['CL']+': Création carte régulation ',
+                id: "carte-"+value['CL'],
+                CL: value['CL'],
+                progress: (value['date_prepa_carte']) ? 100 : 30,
+                dependencies: "montage-"+value['CL']
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'prepa'){
+                tasks.push(
+                {
+                start: convertdate((value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu']),
+                end: (value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu'],
+                name: value['CL'] + ': Préparation commande ',
+                id: "prepa-"+value['CL'],
+                CL: value['CL'],
+                progress: (value['date_prepa']) ? 100 : 30,
+                dependencies: ["carte-"+value['CL'], "capteur-"+value['CL'], "ballon-"+value['CL']]
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'expe'){
+                name=
+                tasks.push({
+                start: convertdate(value['date_livraison']),
+                end: value['date_livraison'],
+                name: (value['transporteur']) ? value['CL'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ": Livraison par ?",
+                id: "livraison-"+value['CL'],
+                CL: value['CL'],
+                progress: 30,
+                dependencies: "prepa-"+value['CL']
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'livraison'){
+            tasks.push(
+              {
+                start: convertdate(value['date_livraison_prevu']),
+                end: value['date_livraison_prevu'],
+                name: value['CL'] + ': Réception client',
+                id: "reception-"+value['CL'],
+                CL: value['CL'],
+                progress: 30,
+                dependencies: "livraison-"+value['CL']
+              })
+            }
+            if ($("#step").val() == 'tout' || $("#step").val() == 'reglement'){
+              tasks.push({
+                start: convertdate(value['date_reglement']),
+                end: value['date_reglement'],
+                name: value['CL']+ ': Réglement',
+                id: "reglement-"+value['CL'],
+                CL: value['CL'],
+                progress: 30,
+                dependencies: "reception-"+value['CL']
+              })
+            }
+        }
+    })
+    var tasks2=[]
+    $.each(tasks, function(index, value){
+        if($("#Todo").val() == 'todo' && value.progress == 30){
+            tasks2.push(value)
+        }
+        if($("#Todo").val() == 'done' && value.progress == 100){
+            tasks2.push(value)
+        }
+        if($("#Todo").val() == 'all'){
+            tasks2.push(value)
+        }
+    })
+    if (tasks2.length === 0){
+        $("#ganttContainer").html("<h1>Pas de données avec ces critères</h1>")
+    }else{
+    $("#ganttContainer").html("")
+    myChart = new Gantt(".gantt-container", tasks2, {
+      view_mode: $("#inputGroupSelect01").val(),
+      header_height: 50,
+      column_width: 50,
+      step: 24,
+      bar_height: 20,
+      bar_corner_radius: 3,
+      arrow_curve: 5,
+      padding: 18,
+      date_format: 'YYYY-MM-DD',
+      language: 'fr',
+      custom_popup_html: function(task) {
+        // the task object will contain the updated
+        // dates and progress value
+        end = task.end.substring(0,10)
+        if(task.progress == 100){
+             return `
+        <div class="details-container">
+          <h5>${task.name}</h5>
+          <p>Tâche Terminée le ${end}</p>
+        </div>
+        `;
+        }else{
+             return `
+        <div class="details-container">
+          <h5>${task.name}</h5>
+          <p>Date de fin prévu ${end}</p>
+        </div>
+        `;
+
+        }
+
+      },
+      {% if request.user|has_group:'ADV' %}
+      on_click: task => {
+        var $Modal=$("#ModalDiv")
+                $Modal.find(".modal-title").html()
+                $Modal.find(".modal-title").html("Détail de la commande " + task.CL)
+                $Modal.find(".modal-body").html()
+                $Modal.find(".modal-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+                $Modal.modal('show')
+                $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data:{show: task.CL},
+                    dataType: 'html',
+                    success: function (html) {
+                    //todo faire un message de validation
+                        $Modal.find(".modal-body").html(html)
+                        $("#enregister").attr('name', 'update')
+                        $("#enregister").html('Mettre à jour')
+                     }
+                })
+      },
+      {%endif%}
+      on_date_change: (task, start, end) => {
+        $('#ButtonSave').addClass('beatanimation')
+      },
+      on_progress_change: (task, progress) => {
+        if(progress == 100){
+             $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data: {'finishTask': JSON.stringify(task)},
+                    dataType: 'json',
+                    success: function (json) {
+                        showToast(task.name + ": terminée et sauvegardée")
+                     }
+             })
+
+        }else{
+            $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data: {'NotFinishedTask': JSON.stringify(task)},
+                    dataType: 'json',
+                    success: function (json) {
+                        console.log(json)
+                     }
+             })
+        }
+
+      }
+
+
+});
+}
+}
+    function save(){
+        $('#ButtonSave').removeClass('beatanimation')
+        var toUpdate=[]
+        $.each(myChart.bars, function(index, value){
+            var end= new Date(value.task.end)
+            var _end= new Date(convertdate(value.task._end))
+            if (end.getDate() != _end.getDate() || end.getMonth() != _end.getMonth() || end.getYear() != _end.getYear()){
+                toUpdate.push({
+                    old: end.toISOString().split('T')[0],
+                    new: _end.toISOString().split('T')[0],
+                    CL: value.task.CL,
+                    task: value.task.id
+                    })
+
+            }
+        })
+        $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data: {'updateDate': JSON.stringify(toUpdate)},
+                    dataType: 'json',
+                    success: function (json) {
+                        console.log("Update", json)
+                     }
+                })
+
+
+    }
+
+function showToast(Toastbody){
+var d = new Date();
+var n = d.toLocaleTimeString();
+$("#toastSmall").html(n)
+$(".toast-body").html(Toastbody)
+var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+  var toastList = toastElList.map(function(toastEl) {
+    return new bootstrap.Toast(toastEl)
+  })
+  toastList.forEach(toast => toast.show())
+    }
+
+</script>
+<script>
+     const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');
+        socket.onmessage = (e) => {
+            var d = JSON.parse(e.data)
+            var d = d.message
+            if (d.hasOwnProperty("message")) {
+                var message = d.message;
+                console.log('message', message)
+                if (d.datereceptionclient){
+                    if (data.result.length == 0){
+                        message = message + '<br> Pas de date de livraison modifiée sur Héraklès'
+                    }else{
+                        message = message + "<br>Date de livraison modifiée:"
+                        $.each(d.result, function(index, value){
+                            console.log(value, index)
+                            message = message + '<li>' + value.Name + '</li>'
+                        })
+                    }
+                }else{
+                    message = message + "<br>Date modifié:"
+                        $.each(d.result, function(index, value){
+                            console.log(value, index)
+                            message = message + '<li>' + value + '</li>'
+                        })
+                }
+                console.log(message)
+                showToast(message)
+                if ($("#ButtonSave").hasClass('beatanimation') && d.result.length != 0){
+                    $('#alertMessageId').append(
+                        '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+                          '<strong><i class="fas fa-exclamation-triangle"></i></strong> ' + message +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                        '</div>'
+                    )
+                }else{
+                    Refreshdata()
+                }
+            }
+        }
+        socket.onclose = (e) => {
+            console.log("Socket closed!");
+             var dt = new Date();
+            var min, sec
+            if(dt.getMinutes() < 10){
+                min = "0" + dt.getMinutes()
+            }else{
+                min = dt.getMinutes()
+            }
+            if(dt.getSeconds() < 10){
+                sec = "0" + dt.getSeconds()
+            }else{
+                sec = dt.getSeconds()
+            }
+            var time = dt.getHours() + ":" + min + ":" + sec;
+            showToast("<li class='text-danger'><b>"+time+":WebSocket déconnectée. Veuillez réactualiser la page</b></li>")
+
+        }
+
+</script>
+
+{%endblock%}

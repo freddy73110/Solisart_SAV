@@ -3,13 +3,13 @@
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    <div id="div_{{ field.auto_id }}" class="{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if 'form-horizontal' in form_class %} row{% endif %}{% if form_group_wrapper_class %} {{ form_group_wrapper_class }}{% endif %}{% if form_show_errors and field.errors %} has-danger{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
-        <div class="input-group mb-3 {% if field_class %} {{ field_class }} {% endif %}">
+    <div id="div_{{ field.auto_id }}" class=" pb-3 {% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if 'form-horizontal' in form_class %} row{% endif %}{% if form_group_wrapper_class %} {{ form_group_wrapper_class }}{% endif %}{% if form_show_errors and field.errors %} has-danger{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+        <div class="input-group flex-nowrap {% if field_class %} {{ field_class }} {% endif %}">
             {# prepend #}
                 {% if crispy_prepended_text %}
                     <span class="input-group-text">{{ crispy_prepended_text|safe }}</span>
                 {% endif %}
-            <div class="form-floating flex-grow-1 {% if input_size %} {{ input_size }}{% endif %}">
+            <div class="form-floating w-100 {% if input_size %} {{ input_size }}{% endif %}">
 
 
                 {# input #}

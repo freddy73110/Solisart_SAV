@@ -88,7 +88,16 @@ $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
     <title>{%block Titre%}SolisArt{%endblock%}</title>
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
     <style>
-
+.beatanimation {
+    animation: beatkey .5s infinite alternate;
+}
+@keyframes beatkey{
+	to { transform: scale(0.85); }
+}
+.yaxislayer-above {
+  cursor: pointer;
+  pointer-events: all;
+}
 .fade {
   transition-duration: 0.5s;
 }
@@ -163,10 +172,10 @@ ul.nav li a.active {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:cartcreator' %}" data-bs-container="body" data-bs-toggle="popover" title='Création de carte de régulation' data-bs-trigger="hover" data-placement="bottom" data-bs-content="Permet de créer une carte à partir d'une installation ou à partir d'un json">
+                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:production' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion de production' data-bs-trigger="hover" data-placement="bottom" data-bs-content="Calendrier de cadencement de production">
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
-                        <i class="fas fa-plus-circle" data-fa-transform="shrink-8"></i>
+                        <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
             </li>
@@ -228,7 +237,7 @@ ul.nav li a.active {
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-12">
+        <div class="col-12" id="alertMessageId">
             <br>
             {% if messages %}
             <ul class="messages">

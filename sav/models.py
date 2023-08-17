@@ -834,6 +834,83 @@ class documentation(models.Model):
          ordering = ['date']
 
 
+class module(models.Model):
+
+    type = models.CharField(verbose_name="Type", max_length=50)
+
+    def __str__(self):
+        return self.type
+class capteur(models.Model):
+
+    type = models.CharField(verbose_name="Capteur", max_length=50)
+
+    def __str__(self):
+        return self.type
+
+class transporteur(models.Model):
+
+    nom = models.CharField(verbose_name="Transporteur", max_length=50)
+
+    def __str__(self):
+        return self.nom
+
+class CL_herakles(models.Model):
+    CL = models.CharField(verbose_name="CL", max_length=25, default="default")
+    BL = models.ForeignKey("BL_herakles", on_delete=models.CASCADE, null=True, blank=True)
+    installateur = models.ForeignKey("client_herakles", verbose_name="installateur", on_delete=models.CASCADE, null=True, blank=True)
+    information = models.TextField(verbose_name="Information", null=True, blank=True)
+    module = models.ForeignKey("module", on_delete=models.CASCADE, null=True, blank=True)
+    capteur = models.ForeignKey("capteur", on_delete=models.CASCADE, null=True, blank=True)
+    capteur_nbre = models.IntegerField(verbose_name="Nombre de capteur", default=0)
+    ballon = models.CharField(verbose_name="Ballon", max_length=100, null=True, blank=True)
+    transporteur = models.ForeignKey("transporteur", on_delete=models.CASCADE, null=True, blank=True)
+    prix_transport = models.FloatField(verbose_name="Tarif réel du transport", default=0)
+    date_livraison_prevu = models.DateField(verbose_name="Date de réception prévue", help_text='Définit sur Héraklès', null=True, blank=True)
+    date_livraison = models.DateField(verbose_name="Date de livraison", help_text='Date réelle', null=True, blank=True)
+    date_capteur = models.DateField(verbose_name="Date Capteur prêt", help_text='Date réelle', null=True, blank=True)
+    date_capteur_prevu = models.DateField(verbose_name="Date prévu de prépa capteurs", help_text='Date prévisionnelle', null=True, blank=True)
+    date_ballon = models.DateField(verbose_name="Date Ballon prêt", help_text='Date réelle', null=True, blank=True)
+    date_ballon_prevu = models.DateField(verbose_name="Date prévu de prépades ballons",
+                                          help_text='Date prévisionnelle', null=True, blank=True)
+    date_montage_prevu = models.DateField(verbose_name="Date prévue de montage ", help_text='2 semaines avant livraison prévu',
+                                            null=True, blank=True)
+    date_montage = models.DateField(verbose_name="Date de montage", help_text='Date réelle', null=True,
+                                      blank=True)
+    date_prepa_carte = models.DateField(verbose_name="Date Carte prête", help_text='Date réelle', null=True,
+                                  blank=True)
+    date_prepa_carte_prevu = models.DateField(verbose_name="Date prévu pour la carte",
+                                        help_text='Date prévisionnelle', null=True, blank=True)
+    date_prepa = models.DateField(verbose_name="Date Prépa CL prête", help_text='Date réelle', null=True, blank=True)
+    date_prepa_prevu = models.DateField(verbose_name="Date prévu de prépa du CL",
+                                         help_text='Date prévisionnelle', null=True, blank=True)
+
+    date_reglement = models.DateField(verbose_name="Date de réglement réelle",  null=True, blank=True)
+
+    def __str__(self):
+        return self.CL
+
+    def as_dict(self):
+        serial = {
+            "CL": self.CL,
+            "BL": self.BL,
+        "installateur": str(self.installateur),
+        "information" : self.information,
+        "module": str(self.module),
+        "capteur": str(self.capteur),
+        "capteur_nbre": self.capteur_nbre,
+        "ballon": str(self.ballon),
+        "transporteur": self.transporteur
+        }
+        for f in self._meta.fields:
+            if 'date' in f.name:
+                serial[f.name] = getattr(self, f.name, None).strftime("%Y-%m-%d %H:%M") if getattr(self, f.name, None) else None
+
+        return serial
+
+    def save(self, *args, **kwargs):
+        self.prix_transport = round(self.prix_transport, 2)
+        super(CL_herakles, self).save(*args, **kwargs)
+
 
 # class emailbox(models.Model):
 #
