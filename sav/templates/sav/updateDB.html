@@ -1,6 +1,6 @@
 {% extends "sav/base.html" %}
 {% load crispy_forms_tags %}
-
+{% load static %}
 {%block Titre%}Importer depuis my.solisart{%endblock%}
 
 {%block article%}
@@ -62,6 +62,22 @@
         </div>
     </div>
 </div>
+<div class="toast-container position-fixed top-0 end-0">
+    <div class="p-3" style="z-index: 11">
+      <div id="liveToast" class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+          <div role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+              <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="...">
+              <strong class="me-auto">Solistools</strong>
+              <small id="toastSmall"></small>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+            </div>
+          </div>
+      </div>
+    </div>
+</div>
 <script>
 function exportprix(){
     $("#resulexport").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
@@ -76,5 +92,48 @@ function exportprix(){
                             }
                     })
 }
+</script>
+<script>
+function showToast(Toastbody){
+    var d = new Date();
+    var n = d.toLocaleTimeString();
+    $("#toastSmall").html(n)
+    $(".toast-body").html(Toastbody)
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+      var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl)
+      })
+      toastList.forEach(toast => toast.show())
+}
+const socket = new WebSocket('ws://'+window.location.host+'/ws/updateDB/');
+        socket.onmessage = (e) => {
+            var d = JSON.parse(e.data)
+            console.log(d)
+            if (d.hasOwnProperty("message")) {
+                var message = d.message;
+                showToast(message)
+                if(message.includes("Importation finie:")){
+                    window.location.href=window.location.href
+                }
+            }
+        }
+        socket.onclose = (e) => {
+            console.log("Socket closed!");
+             var dt = new Date();
+            var min, sec
+            if(dt.getMinutes() < 10){
+                min = "0" + dt.getMinutes()
+            }else{
+                min = dt.getMinutes()
+            }
+            if(dt.getSeconds() < 10){
+                sec = "0" + dt.getSeconds()
+            }else{
+                sec = dt.getSeconds()
+            }
+            var time = dt.getHours() + ":" + min + ":" + sec;
+            showToast("<li class='text-danger'><b>"+time+":WebSocket déconnectée. Veuillez réactualiser la page</b></li>")
+        }
+
 </script>
 {%endblock%}

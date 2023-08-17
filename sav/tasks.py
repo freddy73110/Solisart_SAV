@@ -469,16 +469,21 @@ def actualisePrixMySolisart(*args, **kwargs):
 def cleanTaskResult(*args, **kwargs):
     from django_celery_results.models import TaskResult
     from django.db.models import Max
-    tasks = TaskResult.objects.values('task_name').annotate(Max('id')).values_list('id__max', flat=True)
+    tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id')).values_list('id__max', flat=True)
     TaskResult.objects.exclude(id__in=tasks).delete()
 
 @shared_task
-def ActualiseUtilisateur(request=None, df=None):
-
+def ActualiseUtilisateur(*args, **kwargs):
+    df_as_dict = kwargs.get('df_as_dict')
+    df = pd.DataFrame.from_dict(df_as_dict)
     df.columns = ['id', 'pass', 'nom', 'prenom', 'email', 'telephone1', 'telephone2', 'voie1', 'voie2', 'voie3',
                   'codepostal', 'commune']
     df = df.reset_index()  # make sure indexes pair with number of rows
     total_created = 0
+    lendf = str(len(df))
+    send_channel_message('updateDB', {
+        'message': "Démarrage de la mise en base de donnée.<br>utilisateur: 0/" + lendf,
+    })
     for index, row in df.iterrows():
         try:
             user, created = User.objects.get_or_create(
@@ -507,6 +512,8 @@ def ActualiseUtilisateur(request=None, df=None):
             if created:
                 total_created += 1
 
+
+
         except Exception as e:
             print(row)
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -515,17 +522,29 @@ def ActualiseUtilisateur(request=None, df=None):
             print(e)
             pass
 
-    messages.success(request, str(total_created) + ' nouveaux utilisateur de créer')
+        if index % 100 == 0:
+            send_channel_message('updateDB', {
+                'message': "En cours d'éxécution:<br>utilisateurs: " + str(index) + "/" + lendf,
+            })
+
+    send_channel_message('updateDB', {
+        'message': "Importation finie:<br>utilisateurs: " +  lendf + "/" + lendf,
+    })
     save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux utilisateurs de créer')
 
 @shared_task
-def ActualiseInstallation(request=None, df=None):
-
+def ActualiseInstallation(*args, **kwargs):
+    df_as_dict = kwargs.get('df_as_dict')
+    df = pd.DataFrame.from_dict(df_as_dict)
+    lendf = str(len(df))
     df.columns = ['id', 'type_communication', 'version_carte_firmware', 'version_carte_interface',
                   'version_serveur_appli', 'heure_contact', 'heure_test', 'adresse_ip_wan',
                   'port_tcp_wan', '	propager_droits']
     df = df.reset_index()  # make sure indexes pair with number of rows
     total_created = 0
+    send_channel_message('updateDB', {
+        'message': "Démarrage de la mise en base de donnée.<br>installation: 0/" + lendf,
+    })
     for index, row in df.iterrows():
         try:
             inst, created = installation.objects.get_or_create(
@@ -547,6 +566,8 @@ def ActualiseInstallation(request=None, df=None):
 
             if created:
                 total_created += 1
+
+
         except Exception as e:
             print(row)
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -554,15 +575,28 @@ def ActualiseInstallation(request=None, df=None):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
             pass
+        if index % 100 == 0:
+            send_channel_message('updateDB', {
+                'message': "En cours d'éxécution:<br>installation: " + str(index) + "/" + lendf,
+            })
+    send_channel_message('updateDB', {
+        'message': "Importation finie:<br>installations: " + lendf + "/" + lendf,
+    })
 
-    messages.success(request, str(total_created) + ' nouvelles installations')
+
     save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouvelles installations')
 
 @shared_task
-def ActualiseAcces(request=None, df=None):
+def ActualiseAcces(*args, **kwargs):
+    df_as_dict = kwargs.get('df_as_dict')
+    df = pd.DataFrame.from_dict(df_as_dict)
+    lendf = str(len(df))
     df.columns = ['utilisateur', 'profil', 'installation']
     df = df.reset_index()  # make sure indexes pair with number of rows
     total_created = 0
+    send_channel_message('updateDB', {
+        'message': "Démarrage de la mise en base de donnée.<br>accès: 0/" + lendf,
+    })
     for index, row in df.iterrows():
         try:
             int, created = acces.objects.get_or_create(
@@ -572,6 +606,7 @@ def ActualiseAcces(request=None, df=None):
             )
             if created:
                 total_created += 1
+
         except Exception as e:
             print(row)
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -579,16 +614,26 @@ def ActualiseAcces(request=None, df=None):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
             pass
-
-    messages.success(request, str(total_created) + ' nouveaux acces')
-
+        if index % 500 == 0:
+            send_channel_message('updateDB', {
+                'message': "En cours d'éxécution:<br>accès: " + str(index) + "/" + lendf,
+            })
+    send_channel_message('updateDB', {
+        'message': "Importation finie:<br>accès: " + lendf + "/" + lendf,
+    })
     save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux acces')
 
 @shared_task
-def ActualiseHistorique(request=None, df=None):
+def ActualiseHistorique(*args, **kwargs):
+    df_as_dict = kwargs.get('df_as_dict')
+    df = pd.DataFrame.from_dict(df_as_dict)
+    lendf = str(len(df))
     df.columns = ['installation', 'heure', 'donnee', 'valeur']
     df = df.reset_index()  # make sure indexes pair with number of rows
     total_created = 0
+    send_channel_message('updateDB', {
+        'message': "Démarrage de la mise en base de donnée.<br>historique: 0/" + lendf,
+    })
     for index, row in df.iterrows():
         try:
             int, created = historique.objects.get_or_create(
@@ -599,6 +644,7 @@ def ActualiseHistorique(request=None, df=None):
             int.save()
             if created:
                 total_created += 1
+
         except Exception as e:
 
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -606,15 +652,26 @@ def ActualiseHistorique(request=None, df=None):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
             pass
-
-    messages.success(request, str(total_created) + ' nouveaux historiques')
+        if index % 100 == 0:
+            send_channel_message('updateDB', {
+                'message': "En cours d'éxécution:<br>historique: " + str(index) + "/" + lendf,
+            })
+    send_channel_message('updateDB', {
+        'message': "Importation finie:<br>historique: " + lendf + "/" + lendf,
+    })
     save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux historiques')
 
 @shared_task
-def ActualiseAttribut(request=None, df=None):
+def ActualiseAttribut(*args, **kwargs):
+    df_as_dict = kwargs.get('df_as_dict')
+    df = pd.DataFrame.from_dict(df_as_dict)
+    lendf = str(len(df))
     df.columns = ['installation', 'attribut_def', 'valeur']
     df = df.reset_index()  # make sure indexes pair with number of rows
     total_created = 0
+    send_channel_message('updateDB', {
+        'message': "Démarrage de la mise en base de donnée.<br>attribut_def: 0/" + lendf,
+    })
     for index, row in df.iterrows():
         try:
             int, created = attribut_valeur.objects.get_or_create(
@@ -625,6 +682,7 @@ def ActualiseAttribut(request=None, df=None):
             int.save()
             if created:
                 total_created += 1
+
         except Exception as e:
 
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -632,8 +690,15 @@ def ActualiseAttribut(request=None, df=None):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
             pass
-
-    messages.success(request, str(total_created) + ' nouvelles attribut_val')
+        if index % 500 == 0:
+            send_channel_message('updateDB', {
+                'message': "En cours d'éxécution:<br>attribut_val: " + str(index) + "/" + lendf,
+            })
+    send_channel_message('updateDB', {
+        'message': "Importation finie:<br>attribut_val: " + lendf + "/" + lendf,
+    })
     save_result_celery('args', {}, 'SUCCESS', str(total_created) + ' nouveaux historiques')
+
+
 
 

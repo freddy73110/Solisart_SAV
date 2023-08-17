@@ -181,7 +181,7 @@ class updateDB (View):
     def get(self, request, *args, **kwargs):
         from django_celery_results.models import TaskResult
         from django.db.models import Max
-        Tasks = TaskResult.objects.filter(pk__in=TaskResult.objects.values('task_name').annotate(Max('id')).values_list('id__max', flat=True))
+        Tasks = TaskResult.objects.filter(pk__in=TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id')).values_list('id__max', flat=True))
         return render(request,
                       self.template_name,
                       {
@@ -218,7 +218,7 @@ class updateDB (View):
             df.replace(dictionary, regex=True, inplace=True)
             if 'utilisateur' in uploaded_file.name:
                 from .tasks import ActualiseUtilisateur
-                ActualiseUtilisateur(request = request, df=df)
+                ActualiseUtilisateur.apply_async(kwargs={'df_as_dict':df.to_dict()})
 
             if 'profil' in uploaded_file.name:
                 df.columns = ['id', 'nom', 'type', 'droit_gestion', 'droit_carte', 'icone']
@@ -248,7 +248,7 @@ class updateDB (View):
 
             if 'installation' in uploaded_file.name:
                 from .tasks import ActualiseInstallation
-                ActualiseInstallation(request=request, df=df)
+                ActualiseInstallation.apply_async(kwargs={'df_as_dict':df.to_dict()})
 
             if 'attribut_def' in uploaded_file.name:
                 df.columns = ['id', 'description']
@@ -274,11 +274,11 @@ class updateDB (View):
 
             if 'attribut_val' in uploaded_file.name:
                 from .tasks import ActualiseAttribut
-                ActualiseAttribut(request=request, df=df)
+                ActualiseAttribut.apply_async(kwargs={'df_as_dict':df.to_dict()})
 
             if 'acces' in uploaded_file.name:
                 from .tasks import ActualiseAcces
-                ActualiseAcces(request=request, df=df)
+                ActualiseAcces.apply_async(kwargs={'df_as_dict':df.to_dict()})
 
             if 'donnee' in uploaded_file.name:
                 df.columns = ['id', 'nom_carte', 'nom','description', 'id_statut', 'droit_modification']
@@ -305,7 +305,7 @@ class updateDB (View):
 
             if 'historique' in uploaded_file.name:
                 from .tasks import ActualiseHistorique
-                ActualiseHistorique(request=request, df=df)
+                ActualiseHistorique.apply_async(kwargs={'df_as_dict':df.to_dict()})
 
         return render(request,
                       self.template_name,
@@ -1808,8 +1808,6 @@ class production(View):
     title = "Gestion de production"
 
     def get(self, request, *args, **kwargs):
-        from .tasks import actualise_date_livraison_CL
-        actualise_date_livraison_CL()
         from heraklesinfo.models import C7001Phases
         excludeCL= Q(codephase__icontains='-------')
         CLs = CL_herakles.objects.all().values_list('CL', flat=True)
