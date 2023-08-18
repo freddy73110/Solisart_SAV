@@ -266,14 +266,14 @@ function ganttGenerator(){
               })
             }
             if ($("#step").val() == 'tout' || $("#step").val() == 'expe'){
-                name=
+
                 tasks.push({
                 start: convertdate(value['date_livraison']),
                 end: value['date_livraison'],
                 name: (value['transporteur']) ? value['CL'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ": Livraison par ?",
                 id: "livraison-"+value['CL'],
                 CL: value['CL'],
-                progress: 30,
+                progress: (new Date(value['date_livraison']) < new Date()) ? 100 : 30,
                 dependencies: "prepa-"+value['CL']
               })
             }
@@ -285,7 +285,7 @@ function ganttGenerator(){
                 name: value['CL'] + ': Réception client',
                 id: "reception-"+value['CL'],
                 CL: value['CL'],
-                progress: 30,
+                progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 30,
                 dependencies: "livraison-"+value['CL']
               })
             }

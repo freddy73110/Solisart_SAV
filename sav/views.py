@@ -773,7 +773,7 @@ class statistiques(View, SuccessMessageMixin):
     def get(self, request, *args, **kwargs):
 
         stattableauform=Stattableauform()
-        start = datetime.today()-timedelta(days =30)
+        start = timezone.now()-timedelta(days =30)
         BLwithticket = ticket.objects.filter(
             BL__isnull=False,
             evenement__date__gte=start,
@@ -954,6 +954,8 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+
+        print(request.POST)
 
         if "dynamicsolution" in request.POST:
             if request.POST["dynamicsolution"]:
@@ -1168,11 +1170,13 @@ class installation_view (View):
                 tick = self.add_ticket_form.save(commit=False)
                 tick.evenement=even
                 tick.detail=request.POST['detail']
-                if 'BL' in request.POST:
-                    tick.BL= BL_herakles.objects.filter(pk__in =request.POST['BL'])
-                if 'devis' in request.POST:
-                    tick.devis = devis_herakles.objects.filter(pk__in = request.POST['devis'])
                 tick.save()
+                if 'BL' in request.POST:
+                    for b in request.POST.getlist('BL'):
+                        tick.BL.add(BL_herakles.objects.get(pk=b))
+                if 'devis' in request.POST:
+                    for d in request.POST.getlist('devis'):
+                        tick.devis.add(devis_herakles.objects.get(pk=d))
                 return JsonResponse({
                     "ticket": "ok"
                 }, safe=False)
