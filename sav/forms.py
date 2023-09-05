@@ -613,10 +613,24 @@ class CL_Form(ModelForm):
                                  wrapper_class='form-row',
                                  template='widgets/prepended_appended_text_inline.html',
                                  css_class="pb-3"),
-                    AppendedText('transporteur',
-                                 '<i class="fas fa-truck"></i>',
-                                 wrapper_class='form-row',
-                                 template='widgets/prepended_appended_text_inline.html'),
+                    Div(
+                        Div(
+                            AppendedText('transporteur',
+                                         '<i class="fas fa-truck"></i>',
+                                         wrapper_class='form-row',
+                                         template='widgets/prepended_appended_text_inline.html'),
+                            css_class="col-6"
+                        ),
+                        Div(
+                            AppendedText('prix_transport',
+                                         '€',
+                                         wrapper_class='form-row',
+                                         template='widgets/prepended_appended_text_inline.html'),
+                            css_class="col-6"
+                        ),
+
+                    ),
+
                     AppendedText('date_livraison',
                                  '<i class="fas fa-calendar-day"></i>',
                                  wrapper_class='form-row',

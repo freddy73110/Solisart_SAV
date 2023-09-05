@@ -1940,10 +1940,10 @@ class production(View):
                 f.CL = CL
                 f.installateur = installateur
                 f.date_livraison_prevu =  date_livraison_prevu
-                f.save()
+                CL= f.save()
                 send_channel_message('production', {
                     'message': "Création d'une nouvelles commande",
-                    'result': [CL.CL],
+                    'result': [CL],
                     'datereceptionclient': False
                 })
                 return HttpResponseRedirect(request.path_info)
