@@ -35,7 +35,47 @@
                         </div>
                       </div>
                     </div>
+<div class="container p-3">
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group">
+              <label class="input-group-text" for="VisuCL"><i class="fas fa-not-equal"></i></label>
+              <input type="text" name="date_information" value="" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="date_information">
+              <button class="btn btn-outline-secondary" type="button" onclick="CheckUpdateInformation()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Afficher</button>
+                                        <script>
+                                          $(function () {
+                                            var today = new Date();
+                                            var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear()+ ' ' + today.getHours()+ ':' + today.getMinutes();
+                                             $("input[name='date_information']").val(today.
+                                                      toLocaleString('fr-fr', {year: 'numeric', month: '2-digit', day: '2-digit'}).
+                                                      replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3') + " " + today.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
+                                            $("input[name='date_information']").datetimepicker({
+                                              format: 'd-m-Y H:i'
+                                            }
+                                            );
+                                          });
+                                          $("input[name='date_information']").val($("input[name='date_information']").val().substring(0,16).replace('\/', '-').replace('\/', '-'))
+                                          function CheckUpdateInformation(){
+                                            $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+                                             $.ajax({
+                                                url: window.location.href,
+                                                type:'post',
+                                                data:{date_information:$("#date_information").val()},
+                                                dataType: 'html',
+                                                success: function (html) {
+                                                //todo faire un message de validation
+                                                    console.log(html)
+                                                    $("#offcanvasRightLabel").html('Modifications de commentaire depuis le ' + $("#date_information").val())
+                                                    $(".offcanvas-body").html(html)
+                                                 }
+                                            })
 
+                                          }
+                                        </script>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container">
     <div class="row">
         <div class="col-2">

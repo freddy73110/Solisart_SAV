@@ -859,6 +859,7 @@ class CL_herakles(models.Model):
     BL = models.ForeignKey("BL_herakles", on_delete=models.CASCADE, null=True, blank=True)
     installateur = models.ForeignKey("client_herakles", verbose_name="installateur", on_delete=models.CASCADE, null=True, blank=True)
     information = models.TextField(verbose_name="Information", null=True, blank=True)
+    date_last_update_information = models.DateField(verbose_name="Date de dernière modif commentaire", default=timezone.now())
     module = models.ForeignKey("module", on_delete=models.CASCADE, null=True, blank=True)
     capteur = models.ForeignKey("capteur", on_delete=models.CASCADE, null=True, blank=True)
     capteur_nbre = models.IntegerField(verbose_name="Nombre de capteur", default=0)
@@ -899,7 +900,8 @@ class CL_herakles(models.Model):
         "capteur": str(self.capteur),
         "capteur_nbre": self.capteur_nbre,
         "ballon": str(self.ballon),
-        "transporteur": self.transporteur
+        "transporteur": str(self.transporteur)
+
         }
         for f in self._meta.fields:
             if 'date' in f.name:
@@ -907,8 +909,14 @@ class CL_herakles(models.Model):
 
         return serial
 
+    def __init__(self, *args, **kwargs):
+        super(CL_herakles, self).__init__(*args, **kwargs)
+        self.old_information = self.information
+
     def save(self, *args, **kwargs):
         self.prix_transport = round(self.prix_transport, 2)
+        if self.old_information != self.information:
+            self.date_last_update_information=timezone.now()
         super(CL_herakles, self).save(*args, **kwargs)
 
 

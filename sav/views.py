@@ -2061,4 +2061,11 @@ class production(View):
             CL.save()
             return JsonResponse({"data": ""}, safe=False)
 
+        if 'date_information' in request.POST:
+            CLs = CL_herakles.objects.filter(date_last_update_information__gte = datetime.strptime(request.POST['date_information'],'%d-%m-%Y %H:%M'))
+            html =""
+            for Cl in CLs:
+                html+= "<i class='fas fa-angle-right'></i><b>"+ Cl.CL +":</b><br><p>"+ Cl.information.replace('\\n', '<br>') +"</p><br>"
+            return HttpResponse(html)
+
         return HttpResponse("error ....")
