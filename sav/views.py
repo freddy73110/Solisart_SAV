@@ -21,7 +21,7 @@ from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count, F, When, Value, Case, CharField, Func, Subquery, FloatField, IntegerField, OuterRef, TextField
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay, TruncHour, ExtractHour, ExtractDay, \
-    ExtractWeekDay, Cast
+    ExtractWeekDay, Cast, ExtractIsoWeekDay
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils.html import strip_tags
@@ -598,23 +598,50 @@ class statistiques(View, SuccessMessageMixin):
 
             if frequence == "semaine":
                 queryset = queryset.annotate(freq=TruncWeek('evenement__date'))
-            if frequence == "mois":
-                queryset = queryset.annotate(freq=TruncMonth('evenement__date'))
-            if frequence == "jour":
-                queryset = queryset.annotate(freq=TruncDay('evenement__date'))
-            if frequence == "heure":
-                queryset = queryset.annotate(freq=ExtractHour('evenement__date'))
-            if frequence == "Rjour":
-                queryset = queryset.annotate(freq=ExtractWeekDay('evenement__date'))
-
-            queryset = queryset.annotate(
-                      frequence=Func(
+                format_str='sWW - yyyy.MM.dd'
+                queryset = queryset.annotate(
+                    frequence=Func(
                         F('freq'),
-                        Value('dd.MM.yyyy hh:mm'),
+                        Value(format_str),
                         function='to_char',
                         output_field=CharField()
-                      )
                     )
+                )
+
+            if frequence == "mois":
+                queryset = queryset.annotate(freq=TruncMonth('evenement__date'))
+                format_str = 'YYYY-MM'
+                queryset = queryset.annotate(
+                    frequence=Func(
+                        F('freq'),
+                        Value(format_str),
+                        function='to_char',
+                        output_field=CharField()
+                    )
+                )
+
+            if frequence == "jour":
+                queryset = queryset.annotate(freq=TruncDay('evenement__date'))
+                format_str = 'yyyy-MM-dd'
+                queryset = queryset.annotate(
+                    frequence=Func(
+                        F('freq'),
+                        Value(format_str),
+                        function='to_char',
+                        output_field=CharField()
+                    )
+                )
+
+            if frequence == "heure":
+                import zoneinfo
+                paris = zoneinfo.ZoneInfo('Europe/Paris')
+                with timezone.override(paris):
+                    queryset = queryset.annotate(frequence=ExtractHour('evenement__date'))
+            if frequence == "Rjour":
+                import zoneinfo
+                paris = zoneinfo.ZoneInfo('Europe/Paris')
+                with timezone.override(paris):
+                    queryset = queryset.annotate(frequence=ExtractIsoWeekDay('evenement__date'))
 
             if field == "forme":
                 when = [When(forme=v.value, then=Value(v.name)) for v in forme_contact]
@@ -630,12 +657,12 @@ class statistiques(View, SuccessMessageMixin):
 
             if field == "cause":
                 when = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
-                queryset = queryset.order_by('frequence', 'cause').annotate(
+                queryset = queryset.order_by('freq', 'cause').annotate(
                     lien=Case(*when, output_field=CharField())).values(
                     'frequence', 'lien').annotate(count=Count('id'))
 
             if field =="profil_type":
-                queryset = queryset.order_by('frequence').annotate(
+                queryset = queryset.order_by('freq').annotate(
                     installation_id=F('evenement__installation')
                 ).values("installation_id", "utilisateur", "frequence").annotate(profil_type_id=Subquery(
                     acces.objects.filter(installation__id=OuterRef("installation_id"),
@@ -669,7 +696,7 @@ class statistiques(View, SuccessMessageMixin):
             else:
                 if frequence == "Rjour":
                     semaine=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-                    df['frequence']=pd.Series([semaine[i-2] for i in list(df['frequence'])])
+                    df['frequence']=pd.Series([semaine[i-1] for i in list(df['frequence'])])
                     titre='Répartition de hebdomadaire des tickets sur ' + periode + ' jours'
                     titlex="Jour de la semaine"
                 elif frequence == "heure":
@@ -847,6 +874,7 @@ class statistiques(View, SuccessMessageMixin):
             ).values_list('BL__BL', flat=True)
             from django.db.models import Sum
             ArticlesBl = C701Ouvraof.objects.db_manager('herakles'). \
+                exclude(codouv='TEXTE').\
                 filter(codeof__in=list(BLwithticket)). \
                 annotate(
                 qte=Cast("nbre", output_field=(FloatField())),
@@ -1323,7 +1351,8 @@ class carte (View):
         return super(carte, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        data = profil_user.objects.filter(departement__isnull=False).order_by('user__first_name')
+        #tous les utilisateurs ayant des départements sauf samuel Ronsin
+        data = profil_user.objects.filter(departement__isnull=False).exclude(user_id=6846).order_by('user__first_name')
         dictionaries = [obj.as_dict() for obj in data]
         return render(request,
                       self.template_name,
