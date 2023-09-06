@@ -63,8 +63,6 @@
                                                 data:{date_information:$("#date_information").val()},
                                                 dataType: 'html',
                                                 success: function (html) {
-                                                //todo faire un message de validation
-                                                    console.log(html)
                                                     $("#offcanvasRightLabel").html('Modifications de commentaire depuis le ' + $("#date_information").val())
                                                     $(".offcanvas-body").html(html)
                                                  }
@@ -270,7 +268,8 @@ function ganttGenerator(){
                 progress: (value['date_ballon']) ? 100 : 30
               })
             }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'montage'){
+            var SSCSoliart=['SC1', 'SC2', 'SC1Z500', '500PAC', 'SC1Z']
+            if (($("#step").val() == 'tout' || $("#step").val() == 'montage') && SSCSoliart.includes(value['module'])){
                 tasks.push(
                 {
                 start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
@@ -281,7 +280,7 @@ function ganttGenerator(){
                 progress: (value['date_montage']) ? 100 : 30
               })
             }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'carte'){
+            if (($("#step").val() == 'tout' || $("#step").val() == 'carte') && SSCSoliart.includes(value['module'])){
                 tasks.push(
                 {
                 start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),

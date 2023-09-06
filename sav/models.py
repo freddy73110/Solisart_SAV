@@ -884,7 +884,6 @@ class CL_herakles(models.Model):
     date_prepa = models.DateField(verbose_name="Date Prépa CL prête", help_text='Date réelle', null=True, blank=True)
     date_prepa_prevu = models.DateField(verbose_name="Date prévu de prépa du CL",
                                          help_text='Date prévisionnelle', null=True, blank=True)
-
     date_reglement = models.DateField(verbose_name="Date de réglement réelle",  null=True, blank=True)
 
     def __str__(self):

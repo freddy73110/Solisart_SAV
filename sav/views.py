@@ -1843,7 +1843,7 @@ class production(View):
     def get(self, request, *args, **kwargs):
         from heraklesinfo.models import C7001Phases
         excludeCL= Q(codephase__icontains='-------')
-        CLs = CL_herakles.objects.all().values_list('CL', flat=True)
+        CLs = CL_herakles.objects.all().order_by('-CL').values_list('CL', flat=True)
         for Clsolistools in CLs:
             excludeCL |=  Q(codephase__icontains=str(Clsolistools))
         heraklesCLs = C7001Phases.objects.db_manager('herakles'). \
@@ -1978,6 +1978,8 @@ class production(View):
                     'datereceptionclient': False
                 })
                 return HttpResponseRedirect(request.path_info)
+            else:
+                print(form.errors)
 
         if 'updateDate' in request.POST:
             result=[]
