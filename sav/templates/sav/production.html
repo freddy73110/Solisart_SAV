@@ -72,11 +72,7 @@
                                         </script>
             </div>
         </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col-2">
+        <div class="col-4">
             <form id="formCL" >
             <div class="input-group">
               <label class="input-group-text" for="numCL"><i class="fas fa-cart-plus"></i></label>
@@ -95,6 +91,26 @@
               </select>
             </div>
             </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+            <div class="input-group">
+              <label class="input-group-text" for="VisuCL"><i class="fas fa-search"></i></label>
+              <select
+                      class="form-select"
+                      onchange="searchByCustomer()"
+                      id="client"
+              >
+                <option value="tout" selected>Recherche par Client</option>
+                  {% for client in clients %}
+                <option value="{{client.Code_Client}}">{{client.Nom}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+
         </div>
                 <div class="col-2">
 
@@ -241,8 +257,12 @@ function convertdate(date){
     delta = date_datetime.setDate(date_datetime.getDate() - 1)
     return formatDate(delta)
 }
-
+lastScroll=0
 function ganttGenerator(){
+    if ($("#VisuCL").val() == 'tout'){
+        $("#client").val('tout')
+        searchByCustomer()
+    }
     tasks=[]
     $.each(data, function(index, value){
         if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
@@ -268,8 +288,7 @@ function ganttGenerator(){
                 progress: (value['date_ballon']) ? 100 : 30
               })
             }
-            var SSCSoliart=['SC1', 'SC2', 'SC1Z500', '500PAC', 'SC1Z']
-            if (($("#step").val() == 'tout' || $("#step").val() == 'montage') && SSCSoliart.includes(value['module'])){
+            if (($("#step").val() == 'tout' || $("#step").val() == 'montage') && value['module']!= "CESI"){
                 tasks.push(
                 {
                 start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
@@ -280,7 +299,7 @@ function ganttGenerator(){
                 progress: (value['date_montage']) ? 100 : 30
               })
             }
-            if (($("#step").val() == 'tout' || $("#step").val() == 'carte') && SSCSoliart.includes(value['module'])){
+            if (($("#step").val() == 'tout' || $("#step").val() == 'carte') && value['module']!= "CESI"){
                 tasks.push(
                 {
                 start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),
@@ -326,17 +345,6 @@ function ganttGenerator(){
                 CL: value['CL'],
                 progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 30,
                 dependencies: "livraison-"+value['CL']
-              })
-            }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'reglement'){
-              tasks.push({
-                start: convertdate(value['date_reglement']),
-                end: value['date_reglement'],
-                name: value['CL']+ ': Réglement',
-                id: "reglement-"+value['CL'],
-                CL: value['CL'],
-                progress: 30,
-                dependencies: "reception-"+value['CL']
               })
             }
         }
@@ -443,7 +451,33 @@ function ganttGenerator(){
 
 
 });
+    DateTop= $(".date").offset().top
+    window.onscroll = function() {
+
+           if(window.pageYOffset > DateTop){
+                $('.lower-text').each(function(){
+                    $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
+                })
+                $('.upper-text').each(function(){
+                    $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
+                })
+                lastScroll= window.pageYOffset
+           }else{
+                $('.lower-text').each(function(){
+                    $(this).attr('y', 50)
+                })
+                $('.upper-text').each(function(){
+                    $(this).attr('y', 25)
+                })
+                lastScroll= window.pageYOffset
+           }
+    }
+
+
+
+
 }
+
 }
     function save(){
         $('#ButtonSave').removeClass('beatanimation')
@@ -486,6 +520,18 @@ var toastElList = [].slice.call(document.querySelectorAll('.toast'))
   toastList.forEach(toast => toast.show())
     }
 
+function searchByCustomer(){
+ $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data: {'searchByCustomer': $("#client").val()},
+                    dataType: 'html',
+                    success: function (html) {
+                        $("#VisuCL").html(html)
+                     }
+                })
+
+}
 </script>
 <script>
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');

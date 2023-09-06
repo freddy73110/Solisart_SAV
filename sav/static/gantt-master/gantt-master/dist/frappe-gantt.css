@@ -95,6 +95,7 @@
 .gantt .lower-text, .gantt .upper-text {
   font-size: 12px;
   text-anchor: middle;
+  font-weight: bold;
 }
 .gantt .upper-text {
   fill: #555;

@@ -1853,12 +1853,14 @@ class production(View):
                   order_by('-codephase'). \
                   values_list('codephase', flat=True)
 
+
         return render(request,
                       self.template_name,
                       {
                           'title':self.title,
                           'heraklesCLs': heraklesCLs,
-                          'CLs':CLs
+                          'CLs':CLs,
+                          'clients': client_herakles.objects.all().order_by('Nom')
                       }
                       )
 
@@ -2068,6 +2070,16 @@ class production(View):
             html =""
             for Cl in CLs:
                 html+= "<i class='fas fa-angle-right'></i><b>"+ Cl.CL +":</b><br><p>"+ Cl.information.replace('\\n', '<br>') +"</p><br>"
+            return HttpResponse(html)
+
+        if 'searchByCustomer' in request.POST:
+            html='<option value="tout" selected="">Visualiser tous les CL</option>'
+            if request.POST['searchByCustomer'] != "tout":
+                CLs=CL_herakles.objects.filter(installateur__Code_Client=request.POST['searchByCustomer']).order_by('-CL')
+            else:
+                CLs = CL_herakles.objects.all().order_by('-CL')
+            for CL in CLs:
+                html+="<option value='"+ str(CL)+"'>"+str(CL)+"</option>"
             return HttpResponse(html)
 
         return HttpResponse("error ....")

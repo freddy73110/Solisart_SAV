@@ -11,6 +11,7 @@ $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
 
 .gantt {
+    overflow: auto;
 	.grid-background {
 		fill: none;
 	}
@@ -132,6 +133,7 @@ $handle-color: #ddd !default;
 		display: none;
 	}
 }
+
 
 .gantt-container {
 	position: relative;
