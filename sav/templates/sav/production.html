@@ -9,6 +9,7 @@
 <!--library ici: https://www.cssscript.com/svg-gantt-chart-frappe/-->
 <link rel="stylesheet" href="{% static 'gantt-master/gantt-master/dist/frappe-gantt.css' %}" />
 <script src="{% static 'gantt-master/gantt-master/dist/frappe-gantt.js' %}"></script>
+<script src="{% static 'jquery/jquery.doubleScroll.js' %}"></script>
 
 <div class="container">
     <div class="row">
@@ -452,6 +453,7 @@ function ganttGenerator(){
 
 });
     DateTop= $(".date").offset().top
+    $(".gantt-container:not(#ganttContainer)").doubleScroll()
     window.onscroll = function() {
 
            if(window.pageYOffset > DateTop){
@@ -461,6 +463,7 @@ function ganttGenerator(){
                 $('.upper-text').each(function(){
                     $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
                 })
+                $(".date").css("background-color", "white")
                 lastScroll= window.pageYOffset
            }else{
                 $('.lower-text').each(function(){
@@ -472,10 +475,7 @@ function ganttGenerator(){
                 lastScroll= window.pageYOffset
            }
     }
-
-
-
-
+    $(".popup-wrapper").css('opacity', '0')
 }
 
 }
