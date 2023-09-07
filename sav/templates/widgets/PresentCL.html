@@ -9,21 +9,30 @@
 <!--<input type="hidden" value="{{codechantier.0.t601_2_titre_du_chantier}}" name="information">-->
 <div class="container">
     <div class="row">
-        <div class="col-{%if beforeAdd %}6{%else%}12{% endif %}">
-            <fieldset class="border p-2 h-100">
+        <ul class="nav nav-pills nav-justified">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="parameter-tab" data-bs-toggle="pill" data-bs-target="#parameter" type="button" role="tab" aria-controls="parameter" aria-selected="true">Paramètre de commande</button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="articles-tab" data-bs-toggle="pill" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="false">Liste des articles</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="parameter" role="tab" aria-labelledby="parameter-tab">
+                <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto"><b>Paramètre de commande à Sauvegarder</b></legend>
                 {% crispy formCL %}
-            </fieldset>
-        </div>{%if beforeAdd %}
-        <div class="col-6">
-            <fieldset class="border p-2 h-100">
+                </fieldset>
+            </div>
+            <div class="tab-pane fade" id="articles" role="tab" aria-labelledby="articles-tab">
+                <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto"><b>Liste des articles</b></legend>
                 {% for article in CLarticles %}
-            <i class='fas fa-angle-right'></i><b> {{article.qte|floatformat:"0" }} x {{article.codouv}}</b> - {{article.titre}}<br>
-            {% endfor %}
+                    <i class='fas fa-angle-right'></i><b> {{article.qte|floatformat:"0" }} x {{article.codouv}}</b> - {{article.titre}}<br>
+                {%endfor%}
             </fieldset>
+            </div>
         </div>
-        {%endif%}
     </div>
 </div>
 

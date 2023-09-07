@@ -1959,12 +1959,21 @@ class production(View):
     )]), safe=False)
         if 'show' in request.POST:
             CL = CL_herakles.objects.get(CL = request.POST['show'])
+            numCL = request.POST['show']
+            CLarticles = C701Ouvraof.objects.db_manager('herakles'). \
+                filter(codeof__icontains=numCL). \
+                exclude(codouv__isnull=True). \
+                annotate(qte=Cast("nbre", output_field=(FloatField()))). \
+                order_by('codouv'). \
+                distinct(). \
+                values("codouv", "qte", "titre")
             formCL = CL_Form(instance=CL, show=True)
 
             return render(request,
                           "widgets/PresentCL.html",
                           {
                               "formCL":formCL,
+                            'CLarticles': CLarticles,
                               "beforeAdd": False
                           }
                           )
@@ -2079,7 +2088,7 @@ class production(View):
             else:
                 CLs = CL_herakles.objects.all().order_by('-CL')
             for CL in CLs:
-                html+="<option value='"+ str(CL)+"'>"+str(CL)+"</option>"
+                html+="<option value='"+ str(CL)+"'>"+str(CL)+" - " + str(CL.installateur)+ "</option>"
             return HttpResponse(html)
 
         return HttpResponse("error ....")

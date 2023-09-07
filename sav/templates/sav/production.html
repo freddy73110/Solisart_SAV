@@ -125,7 +125,7 @@
               >
                 <option value="tout" selected>Visualiser tous les CL</option>
                   {% for CL in CLs %}
-                <option value="{{CL}}">{{CL}}</option>
+                <option value="{{CL}}">{{CL}} - {{CL.installateur}}</option>
                   {%endfor%}
               </select>
             </div>
@@ -272,7 +272,7 @@ function ganttGenerator(){
                 {
                 start: convertdate((value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu']),
                 end: (value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu'],
-                name: (value['capteur_nbre'] < 2) ? value['CL'] + ': '+ value['capteur_nbre'] + ' Capteur ' + value['capteur'] : value['CL'] + ': '+ value['capteur_nbre'] + ' Capteurs ' + value['capteur'],
+                name: (value['capteur_nbre'] < 2) ? value['CL'] + ' - ' + value['installateur'] +': '+ value['capteur_nbre'] + ' Capteur ' + value['capteur'] : value['CL'] + ' - ' + value['installateur'] + ': '+ value['capteur_nbre'] + ' Capteurs ' + value['capteur'],
                 id: "capteur-"+value['CL'],
                 CL: value['CL'],
                 progress: (value['date_capteur']) ? 100 : 30
@@ -283,7 +283,7 @@ function ganttGenerator(){
                 {
                 start: convertdate((value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu']),
                 end: (value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu'],
-                name: value['CL'] +': ' + value['ballon'],
+                name: value['CL'] + ' - ' + value['installateur'] +': ' + value['ballon'],
                 id: "ballon-"+value['CL'],
                 CL: value['CL'],
                 progress: (value['date_ballon']) ? 100 : 30
@@ -294,7 +294,7 @@ function ganttGenerator(){
                 {
                 start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
                 end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
-                name: value['CL']+': Montage ',
+                name: value['CL'] + ' - ' + value['installateur'] +': Montage ',
                 id: "montage-"+value['CL'],
                 CL: value['CL'],
                 progress: (value['date_montage']) ? 100 : 30
@@ -305,7 +305,7 @@ function ganttGenerator(){
                 {
                 start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),
                 end: (value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu'],
-                name: value['CL']+': Création carte régulation ',
+                name: value['CL'] + ' - ' + value['installateur'] +': Création carte régulation ',
                 id: "carte-"+value['CL'],
                 CL: value['CL'],
                 progress: (value['date_prepa_carte']) ? 100 : 30,
@@ -317,7 +317,7 @@ function ganttGenerator(){
                 {
                 start: convertdate((value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu']),
                 end: (value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu'],
-                name: value['CL'] + ': Préparation commande ',
+                name: value['CL'] + ' - ' + value['installateur'] + ': Préparation commande ',
                 id: "prepa-"+value['CL'],
                 CL: value['CL'],
                 progress: (value['date_prepa']) ? 100 : 30,
@@ -329,7 +329,7 @@ function ganttGenerator(){
                 tasks.push({
                 start: convertdate(value['date_livraison']),
                 end: value['date_livraison'],
-                name: (value['transporteur']) ? value['CL'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ": Livraison par ?",
+                name: (value['transporteur']) ? value['CL'] + ' - ' + value['installateur'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ' - ' + value['installateur'] + ": Livraison par ?",
                 id: "livraison-"+value['CL'],
                 CL: value['CL'],
                 progress: (new Date(value['date_livraison']) < new Date()) ? 100 : 30,
@@ -341,7 +341,7 @@ function ganttGenerator(){
               {
                 start: convertdate(value['date_livraison_prevu']),
                 end: value['date_livraison_prevu'],
-                name: value['CL'] + ': Réception client',
+                name: value['CL'] + ' - ' + value['installateur'] + ': Réception client',
                 id: "reception-"+value['CL'],
                 CL: value['CL'],
                 progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 30,

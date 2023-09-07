@@ -558,12 +558,12 @@ class classification_form(ModelForm):
 class CL_Form(ModelForm):
     class Meta:
         model = CL_herakles
-        fields = '__all__'
+        exclude = ('date_last_update_information', )
 
     def __init__(self, show=None, *args, **kwargs):
         super(CL_Form, self).__init__(*args, **kwargs)
         for field in self.fields:
-            if 'date' in field and field != 'date_last_update_information':
+            if 'date' in field:
                 self.fields[field].widget = XDSoftDatePickerInput()
                 self.fields[field].input_formats = ['%d-%m-%Y']
                 self.fields[field].help_text = ''
@@ -572,7 +572,6 @@ class CL_Form(ModelForm):
         self.fields['date_livraison_prevu'].disabled = True
         self.fields['BL'].disabled = True
         self.fields['prix_transport'].widget = NumberInput(attrs={'min': '0', 'max': '10000', 'step': '0.01'})
-        # self.fields['date_last_update_information'].widget = HiddenInput()
 
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -597,7 +596,6 @@ class CL_Form(ModelForm):
                         css_class='row m-1 pb-2'
                     ),
                     FloatingField('information', style='height: 100px', row="3", css_class="textareaEmoji"),
-                    'date_last_update_information',
                     Div(
                         Div(AppendedText('capteur_nbre',
                                                                  '<i class="fas fa-solar-panel"></i>',
@@ -665,8 +663,7 @@ class CL_Form(ModelForm):
                                  '<i class="fas fa-calendar-day"></i>',
                                  wrapper_class='form-row',
                                  template='widgets/prepended_appended_text_inline.html')
-                ),
-                'date_last_update_information'
+                )
             )
         )
         else:
@@ -689,7 +686,6 @@ class CL_Form(ModelForm):
                             css_class='row pb-3'
                         ),
                         FloatingField("information", style='height: 100px', row="3", css_class="textareaEmoji"),
-                        'date_last_update_information',
                         HTML(emoji_str)
                     ),
                     css_class="m-1"
