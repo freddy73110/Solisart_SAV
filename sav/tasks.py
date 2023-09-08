@@ -357,7 +357,7 @@ def trouvercoordonneeGPS(*args, **kwargs):
 @shared_task
 def actualise_date_livraison_CL():
     CLs = CL_herakles.objects.filter(
-        date_livraison_prevu__gte = timezone.now() - timedelta(days=15)
+        date_livraison_prevu__gte = timezone.now() - timedelta(days=21)
     )
     result=[]
     for CL in CLs:
@@ -374,7 +374,8 @@ def actualise_date_livraison_CL():
                            "olddate": before.strftime('%d/%m/%Y')})
         #Recherche si un BL a été créé pour cette CL
         if C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL):
-            CL.BL=C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL).values_list('codeof', flat=True)[0]
+            CL.BL=BL_herakles.objects.get(BL=
+                                          C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL).values_list('codeof', flat=True)[0])
         CL.save()
 
     send_channel_message('production', {
