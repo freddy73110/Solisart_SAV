@@ -891,8 +891,8 @@ class CL_herakles(models.Model):
 
     def as_dict(self):
         serial = {
-            "CL": self.CL,
-            "BL": self.BL,
+            "CL": str(self.CL),
+            "BL": str(self.BL),
         "installateur": str(self.installateur),
         "information" : self.information,
         "module": str(self.module),
