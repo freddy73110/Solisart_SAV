@@ -24,7 +24,7 @@
                             <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                            <form method="post" id="modalForm" enctype="multipart/form-data">
+                            <form method="post" id="modalForm" enctype="multipart/form-data">{% csrf_token %}
                           <div class="modal-body">
                           </div>
                           <div class="modal-footer">
