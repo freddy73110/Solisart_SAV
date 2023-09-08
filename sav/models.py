@@ -180,7 +180,7 @@ class profil_user(models.Model):
             duree = 15
         try:
             tickets = ticket.objects.filter(
-                evenement__date__gte=timezone.today() - timedelta(days=duree),
+                evenement__date__gte=timezone.now() - timedelta(days=duree),
                 evenement__installation__attribut_valeur__attribut_def__description="Code postal",
             ).order_by('-evenement__date').annotate(
                 instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),

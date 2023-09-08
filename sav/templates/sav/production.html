@@ -22,14 +22,14 @@
                         <div class="modal-content">
                           <div class="modal-header bg-warning">
                             <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" id= "ButtonModalclose" aria-label="Close"></button>
                           </div>
                             <form method="post" id="modalForm" enctype="multipart/form-data">
                           <div class="modal-body">
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="submit" class="btn btn-outline-primary" id="enregister" name="">Ajouter</button>
+                            <button type="button" class="btn btn-outline-primary" id="enregister" name="tutu">Ajouter</button>
                           </div>
                             </form>
                         </div>
@@ -453,7 +453,6 @@ function ganttGenerator(){
     DateTop= $(".date").offset().top
     $(".gantt-container:not(#ganttContainer)").doubleScroll()
     window.onscroll = function() {
-
            if(window.pageYOffset > DateTop){
                 $('.lower-text').each(function(){
                     $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)

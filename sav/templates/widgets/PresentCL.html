@@ -2,11 +2,6 @@
 {% load my_filter %}
 {% load crispy_forms_tags %}
 <meta charset="UTF-8">
-
-<!--<h2>Client: {{codechantier.0.t601_12_code_client}}</h2>-->
-<!--<input type="hidden" value="{{codechantier.0.t601_12_code_client}}" name="installateur">-->
-<!--<h2>Affaire: {{codechantier.0.t601_2_titre_du_chantier}}</h2>-->
-<!--<input type="hidden" value="{{codechantier.0.t601_2_titre_du_chantier}}" name="information">-->
 <div class="container">
     <div class="row">
         <ul class="nav nav-pills nav-justified">
@@ -35,6 +30,23 @@
         </div>
     </div>
 </div>
+<script>
+    $("#enregister").on("click", function(){
+    $("#modalForm :disabled").removeAttr('disabled');
+    var form= $("#enregister").closest("form")
+    var d =  form.serialize() + "&" + $("#enregister").attr("name") + "=" +$("#enregister").attr("name")
+    $.ajax({
+                                                url: window.location.href,
+                                                type:'post',
+                                                data:d,
+                                                dataType: 'json',
+                                                success: function (json) {
+                                                    console.log(json)
+                                                    $("#ButtonModalclose").click()
+                                                 }
+                                            })
+    })
+</script>
 
 
 
