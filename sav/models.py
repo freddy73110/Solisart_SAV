@@ -900,7 +900,6 @@ class CL_herakles(models.Model):
         "capteur_nbre": self.capteur_nbre,
         "ballon": str(self.ballon),
         "transporteur": str(self.transporteur)
-
         }
         for f in self._meta.fields:
             if 'date' in f.name:

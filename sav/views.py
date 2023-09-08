@@ -1839,15 +1839,13 @@ class production(View):
     login_url = '/login/'
     template_name = 'sav/production.html'
     title = "Gestion de production"
-    CLfiltered = CL_herakles.objects.filter(
-        date_livraison_prevu__gte=timezone.now() - timedelta(days=21)).order_by('-CL')
 
     def get(self, request, *args, **kwargs):
-        from .tasks import actualise_date_livraison_CL
-        actualise_date_livraison_CL.delay()
+        # from .tasks import actualise_date_livraison_CL
+        # actualise_date_livraison_CL.delay()
         from heraklesinfo.models import C7001Phases
         excludeCL= Q(codephase__icontains='-------')
-        CLs = self.CLfiltered.values_list('CL', flat=True)
+        CLs = CL_herakles.objects.all().order_by('-CL').values_list('CL', flat=True)
         for Clsolistools in CLs:
             excludeCL |=  Q(codephase__icontains=str(Clsolistools))
         heraklesCLs = C7001Phases.objects.db_manager('herakles'). \
@@ -1957,8 +1955,7 @@ class production(View):
                 print("error", form.errors)
             return HttpResponseRedirect(request.path_info)
         if 'calendar' in request.POST:
-            # todo mettre un filter
-            return JsonResponse(list([i.as_dict() for i in self.CLfiltered]), safe=False)
+            return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.all().order_by('-CL')]), safe=False)
         if 'show' in request.POST:
             CL = CL_herakles.objects.get(CL = request.POST['show'])
             numCL = request.POST['show']

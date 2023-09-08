@@ -232,5 +232,3 @@ GRAPH_MODELS ={
 'graph_models': True,
 }
 
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-

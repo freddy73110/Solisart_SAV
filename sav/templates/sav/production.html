@@ -24,7 +24,7 @@
                             <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                            <form method="post" id="modalForm" enctype="multipart/form-data">{% csrf_token %}
+                            <form method="post" id="modalForm" enctype="multipart/form-data">
                           <div class="modal-body">
                           </div>
                           <div class="modal-footer">
@@ -161,8 +161,8 @@
             <div class="input-group mb-3">
               <label class="input-group-text" for="step"><i class="fas fa-filter"></i></label>
               <select class="form-select" id="Todo" onchange="ganttGenerator()">
-                <option selected value="all">Tout</option>
-                <option value="todo">A faire</option>
+                <option value="all">Tout</option>
+                <option selected value="todo">A faire</option>
                 <option value="done">Soldé</option>
               </select>
             </div>
@@ -258,6 +258,7 @@ function convertdate(date){
     return formatDate(delta)
 }
 lastScroll=0
+
 function ganttGenerator(){
     if ($("#VisuCL").val() == 'tout'){
         $("#client").val('tout')
@@ -448,9 +449,7 @@ function ganttGenerator(){
         }
 
       }
-
-
-});
+    });
     DateTop= $(".date").offset().top
     $(".gantt-container:not(#ganttContainer)").doubleScroll()
     window.onscroll = function() {
@@ -478,7 +477,10 @@ function ganttGenerator(){
 }
 
 }
-    function save(){
+
+
+
+function save(){
         $('#ButtonSave').removeClass('beatanimation')
         var toUpdate=[]
         $.each(myChart.bars, function(index, value){
@@ -539,25 +541,21 @@ function searchByCustomer(){
             var d = d.message
             if (d.hasOwnProperty("message")) {
                 var message = d.message;
-                console.log('message', message)
                 if (d.datereceptionclient){
                     if (data.result.length == 0){
                         message = message + '<br> Pas de date de livraison modifiée sur Héraklès'
                     }else{
                         message = message + "<br>Date de livraison modifiée:"
                         $.each(d.result, function(index, value){
-                            console.log(value, index)
                             message = message + '<li>' + value.Name + '</li>'
                         })
                     }
                 }else{
                     message = message + "<br>Date modifié:"
                         $.each(d.result, function(index, value){
-                            console.log(value, index)
                             message = message + '<li>' + value + '</li>'
                         })
                 }
-                console.log(message)
                 showToast(message)
                 if ($("#ButtonSave").hasClass('beatanimation') && d.result.length != 0){
                     $('#alertMessageId').append(
