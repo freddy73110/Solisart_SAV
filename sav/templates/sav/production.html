@@ -92,6 +92,11 @@
             </div>
             </form>
         </div>
+        <div class="col-2">
+            {% if request.user|has_group:"ADV" %}
+            <button class="btn btn-outline-primary" type="button" onclick="save()" id="ButtonSave"><i class="far fa-save"></i> Sauvegarder</button>
+            {%endif%}
+        </div>
     </div>
 </div>
 <div class="container">
@@ -104,9 +109,25 @@
                       onchange="searchByCustomer()"
                       id="client"
               >
-                <option value="tout" selected>Recherche par Client</option>
+                <option value="tout" selected>Par Client</option>
                   {% for client in clients %}
                 <option value="{{client.Code_Client}}">{{client.Nom}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+
+        </div>
+        <div class="col-2">
+            <div class="input-group">
+              <label class="input-group-text" for="VisuCL"><i class="fas fa-search"></i></label>
+              <select
+                      class="form-select"
+                      onchange="searchByCommercial()"
+                      id="commercial"
+              >
+                <option value="tout" selected>Par Commerciaux</option>
+                  {% for commercial in commerciaux %}
+                <option value="{{commercial}}">{{commercial}}</option>
                   {%endfor%}
               </select>
             </div>
@@ -167,11 +188,7 @@
               </select>
             </div>
         </div>
-        <div class="col-2">
-            {% if request.user|has_group:"ADV" %}
-            <button class="btn btn-outline-primary" type="button" onclick="save()" id="ButtonSave"><i class="far fa-save"></i> Sauvegarder</button>
-            {%endif%}
-        </div>
+
     </div>
     <div class="row">
         <div class="col">
@@ -263,6 +280,10 @@ function ganttGenerator(){
     if ($("#VisuCL").val() == 'tout'){
         $("#client").val('tout')
         searchByCustomer()
+    }
+    if ($("#VisuCL").val() == 'tout'){
+        $("#commercial").val('tout')
+        searchByCommercial()
     }
     tasks=[]
     $.each(data, function(index, value){
@@ -528,6 +549,20 @@ function searchByCustomer(){
                     dataType: 'html',
                     success: function (html) {
                         $("#VisuCL").html(html)
+                        $("#commercial").val("tout")
+                     }
+                })
+
+}
+function searchByCommercial(){
+ $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data: {'searchByCommercial': $("#commercial").val()},
+                    dataType: 'html',
+                    success: function (html) {
+                        $("#VisuCL").html(html)
+                        $("#client").val("tout")
                      }
                 })
 

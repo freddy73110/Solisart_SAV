@@ -501,7 +501,7 @@ var Gantt = (function () {
                 height: this.height - 2,
                 rx: this.corner_radius,
                 ry: this.corner_radius,
-                class: 'handle right',
+                class: 'handle right d-none',
                 append_to: this.handle_group,
             });
 
@@ -512,7 +512,7 @@ var Gantt = (function () {
                 height: this.height - 2,
                 rx: this.corner_radius,
                 ry: this.corner_radius,
-                class: 'handle left',
+                class: 'handle left d-none',
                 append_to: this.handle_group,
             });
 

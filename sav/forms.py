@@ -558,7 +558,7 @@ class classification_form(ModelForm):
 class CL_Form(ModelForm):
     class Meta:
         model = CL_herakles
-        exclude = ('date_last_update_information', )
+        exclude = ('date_last_update_information', 'fichier', 'date_reglement',)
 
     def __init__(self, show=None, *args, **kwargs):
         super(CL_Form, self).__init__(*args, **kwargs)
@@ -570,12 +570,15 @@ class CL_Form(ModelForm):
         self.fields['CL'].disabled = True
         self.fields['installateur'].disabled = True
         self.fields['date_livraison_prevu'].disabled = True
+        self.fields['transporteur'].disabled = True
         self.fields['BL'].disabled = True
         self.fields['prix_transport'].widget = NumberInput(attrs={'min': '0', 'max': '10000', 'step': '0.01'})
 
         self.helper = FormHelper()
         self.helper.form_tag = False
         if self.instance.pk == None:
+            self.fields['installation'].widget = HiddenInput()
+
             self.helper.layout = Layout(
             Row(
                 Column(
@@ -663,10 +666,13 @@ class CL_Form(ModelForm):
                                  '<i class="fas fa-calendar-day"></i>',
                                  wrapper_class='form-row',
                                  template='widgets/prepended_appended_text_inline.html')
-                )
+                ),
+                'installation'
             )
         )
         else:
+            tu = installation.objects.all().values_list('id', 'idsa')
+            self.fields['installation'].choices=tuple(tu)
             self.helper.layout = Layout(
                 Row(
                     Column(
@@ -838,11 +844,11 @@ class CL_Form(ModelForm):
 
                     ),Row(
                     Column(
-                        Custom_Fieldset('Facturation',
+                        Custom_Fieldset('Installation',
                                         Row(
                                             Column(
-                                                AppendedText('date_reglement',
-                                                             '<i class="fas fa-calendar-check"></i>',
+                                                AppendedText('installation',
+                                                             '<i class="fas fa-home"></i>',
                                                              wrapper_class='form-row',
                                                              template='widgets/prepended_appended_text_inline.html'),
                                                 css_class="col-6"),

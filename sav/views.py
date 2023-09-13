@@ -983,8 +983,6 @@ class installation_view (View):
 
     def post(self, request, *args, **kwargs):
 
-        print(request.POST)
-
         if "dynamicsolution" in request.POST:
             if request.POST["dynamicsolution"]:
                 solutions = cause.objects.get(pk=request.POST["dynamicsolution"]).solution.all()
@@ -1841,9 +1839,9 @@ class production(View):
     title = "Gestion de production"
 
     def get(self, request, *args, **kwargs):
-        # from .tasks import actualise_date_livraison_CL
-        # actualise_date_livraison_CL.delay()
-        from heraklesinfo.models import C7001Phases
+        from .tasks import actualise_date_livraison_CL
+        actualise_date_livraison_CL.delay()
+        from heraklesinfo.models import C7001Phases, C601ChantierEnTte
         excludeCL= Q(codephase__icontains='-------')
         CLs = CL_herakles.objects.all().order_by('-CL').values_list('CL', flat=True)
         for Clsolistools in CLs:
@@ -1853,7 +1851,15 @@ class production(View):
                   exclude(codephase__icontains='/'). \
                   exclude(excludeCL). \
                   order_by('-codephase'). \
+                  distinct(). \
                   values_list('codephase', flat=True)
+
+        commerciaux = set(C601ChantierEnTte.objects.db_manager('herakles'). \
+              filter(t601_1_code_chantier__in = list(CLs)). \
+              exclude (t601_8_0_code_commercial__isnull=True). \
+              order_by('t601_8_0_code_commercial').\
+              values_list('t601_8_0_code_commercial', flat=True)
+                  )
 
 
         return render(request,
@@ -1862,7 +1868,8 @@ class production(View):
                           'title':self.title,
                           'heraklesCLs': heraklesCLs,
                           'CLs':CLs,
-                          'clients': client_herakles.objects.all().order_by('Nom')
+                          'clients': client_herakles.objects.all().order_by('Nom'),
+                          'commerciaux': commerciaux
                       }
                       )
 
@@ -1974,6 +1981,7 @@ class production(View):
                           {
                               "formCL":formCL,
                             'CLarticles': CLarticles,
+                              'CL':CL,
                               "beforeAdd": False
                           }
                           )
@@ -2090,5 +2098,29 @@ class production(View):
             for CL in CLs:
                 html+="<option value='"+ str(CL)+"'>"+str(CL)+" - " + str(CL.installateur)+ "</option>"
             return HttpResponse(html)
+
+        if 'searchByCommercial' in request.POST:
+            html='<option value="tout" selected="">Visualiser tous les CL</option>'
+            if request.POST['searchByCommercial'] == "tout":
+                CLs=CL_herakles.objects.all().order_by('-CL')
+            else:
+                listCLHerakles = set(C601ChantierEnTte.objects.db_manager('herakles').filter(t601_8_0_code_commercial = request.POST['searchByCommercial']).values_list('t601_1_code_chantier', flat=True))
+                CLs = CL_herakles.objects.filter(CL__in=listCLHerakles).order_by('-CL')
+            for CL in CLs:
+                html+="<option value='"+ str(CL)+"'>"+str(CL)+" - " + str(CL.installateur)+ "</option>"
+            return HttpResponse(html)
+
+        if 'file_CL' in request.POST:
+            form = FilesForm(request.POST, request.FILES)
+            if form.is_valid():
+                files = form.save()
+                CL = CL_herakles.objects.get(pk=int(request.POST["file_CL"]))
+                CL.fichier.add(files)
+                data = {'is_valid': True, 'name': files.fichier.name, 'url': files.fichier.url, 'file_id': files.id,
+                        'size': files.fichier.size}
+            else:
+                data = {'is_valid': False}
+            print(data)
+            return JsonResponse(data, safe=False)
 
         return HttpResponse("error ....")

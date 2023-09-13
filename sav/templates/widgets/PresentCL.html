@@ -11,6 +11,11 @@
           <li class="nav-item" role="presentation">
               <button class="nav-link" id="articles-tab" data-bs-toggle="pill" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="false">Liste des articles</button>
           </li>
+          {%if not beforeAdd %}
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="fichier-tab" data-bs-toggle="pill" data-bs-target="#fichier" type="button" role="tab" aria-controls="fichiers" aria-selected="false">Liste des fichiers</button>
+          </li>
+          {%endif%}
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="parameter" role="tab" aria-labelledby="parameter-tab">
@@ -26,6 +31,24 @@
                     <i class='fas fa-angle-right'></i><b> {{article.qte|floatformat:"0" }} x {{article.codouv}}</b> - {{article.titre}}<br>
                 {%endfor%}
             </fieldset>
+            </div>
+            <div class="tab-pane fade" id="fichier" role="tab" aria-labelledby="articles-tab">
+                <fieldset class="border p-2 h-100 upload-zone">
+                <legend class="float-none w-auto"><b>Liste des Fichiers</b></legend>
+                    <p></p>
+                    <button type="button" class="btn btn-outline-primary m-1" onclick="$('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers liés</button>
+                    <input class="fileupload" type="file" name="fichier" multiple
+                                 style="display: none;"
+                                 data-url="{{ request.get_full_path }}"
+                                 data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_CL":"{{CL.id}}"}'
+                              >
+                    <ul>
+                        {% for f in CL.fichier.all %}
+                        <li><a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a></li>
+                        {%endfor%}
+                    </ul>
+
+                </fieldset>
             </div>
         </div>
     </div>
@@ -46,6 +69,58 @@
                                                  }
                                             })
     })
+
+$(document).on('dragover', function (e) {
+    e.preventDefault();
+    $('.upload-zone').on('dragover', function(event){
+    if(!$(this).find('.todelete').length){
+            $(this).find('p').first().after('<div class="well text-muted text-center todelete" style="padding-top: 4rem; padding-bottom: 4rem;"><i class="fa fa-arrow-down fa-4x" aria-hidden="true"></i><h3>Déposer vos fichiers ici</h3></div>')
+        }
+    });
+    if (!$(event.target).closest('.upload-zone').length){
+        $('.todelete').remove()
+    }
+});
+
+$('.upload-zone').each(function () {
+    var DropZone = $(this);
+    var DropZone_id = DropZone[0].id.split('_')[1];
+    DropZone.find('input:first').fileupload({
+            dropZone: DropZone,
+            dataType: 'json',
+            sequentialUploads: true,
+
+            start: function (e) {
+              $("#modal-progress").modal("show");
+            },
+
+            stop: function (e) {
+              $("#modal-progress").modal("hide");
+            },
+
+            progressall: function (e, data) {
+              var progress = parseInt(data.loaded / data.total * 100, 10);
+              var strProgress = progress + "%";
+              $(".progress-bar").css({"width": strProgress});
+              $(".progress-bar").text(strProgress);
+              if (progress == 100){
+                setTimeout(function(){
+                    $("#modal-progress").modal("hide");
+                }, 1500);
+              }
+            },
+            done: function (e, data) {
+              $('.todelete').remove()
+              console.log(e, data)
+              if (data.is_valid == false){
+
+              }else{
+
+              }
+
+            }
+    });
+});
 </script>
 
 

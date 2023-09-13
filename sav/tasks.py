@@ -124,51 +124,62 @@ def rapport_ticket():
         commerciaux = profil_user.objects.filter(departement__isnull=False, mailOcommercial=True)
         result = {}
         for commercial in commerciaux:
-            #list des tickets par affectation commerciale
-            ticketscree = ticket.objects.filter(
-                evenement__date__gte=timezone.now() - timedelta(days=10),
-                evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-            ).annotate(
-                instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
-                num_departement1=Subquery(
-                    attribut_valeur.objects.filter(
-                        installation__pk=OuterRef("instal_id"),
-                        attribut_def__description="Code postal").values('valeur')[:1]
-                    ),
-                num_departement2 = Substr('num_departement1', 1, 2),
-                num_departement=Case(
-                    When(num_departement1__length=4, then=Value(str(100))),
-                    When(num_departement1__length=5, then='num_departement2'),
-                    output_field=CharField()
-                )
-            ).filter(num_departement__in=list(commercial.departement))
-            ticketsencours = ticket.objects.filter(
-                etat__in =[0, 1, 2],
-                evenement__installation__attribut_valeur__attribut_def__description="Code postal",
-            ).annotate(
-                instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
-                num_departement1=Subquery(
-                    attribut_valeur.objects.filter(
-                        installation__pk=OuterRef("instal_id"),
-                        attribut_def__description="Code postal").values('valeur')[:1]
-                    ),
-                num_departement2 = Substr('num_departement1', 1, 2),
-                num_departement=Case(
-                    When(num_departement1__length=4, then=Value(str(100))),
-                    When(num_departement1__length=5, then='num_departement2'),
-                    output_field=CharField()
-                )
-            ).filter(num_departement__in=list(commercial.departement))
-            html_content = render_to_string('email/mailPourCommerciaux.html', {
-                'ticketscree': ticketscree,
-                'ticketsencours': ticketsencours,
-                'commercial': commercial
-            })
-            if ticketscree or ticketsencours:
-                msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", [commercial.user.email])
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-            result[str(commercial)]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
+            try:
+                #list des tickets par affectation commerciale
+                ticketscree = ticket.objects.filter(
+                    evenement__date__gte=timezone.now() - timedelta(days=10),
+                    evenement__installation__attribut_valeur__attribut_def__description="Code postal",
+                ).annotate(
+                    instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
+                    num_departement1=Subquery(
+                        attribut_valeur.objects.filter(
+                            installation__pk=OuterRef("instal_id"),
+                            attribut_def__description="Code postal").values('valeur')[:1]
+                        ),
+                    num_departement2 = Substr('num_departement1', 1, 2),
+                    num_departement=Case(
+                        When(num_departement1__length=4, then=Value(str(100))),
+                        When(num_departement1__length=5, then='num_departement2'),
+                        output_field=CharField()
+                    )
+                ).filter(num_departement__in=list(commercial.departement))
+                ticketsencours = ticket.objects.filter(
+                    etat__in =[0, 1, 2],
+                    evenement__installation__attribut_valeur__attribut_def__description="Code postal",
+                ).annotate(
+                    instal_id=Subquery(installation.objects.filter(evenement__ticket__id=OuterRef("id")).values("id")[:1]),
+                    num_departement1=Subquery(
+                        attribut_valeur.objects.filter(
+                            installation__pk=OuterRef("instal_id"),
+                            attribut_def__description="Code postal").values('valeur')[:1]
+                        ),
+                    num_departement2 = Substr('num_departement1', 1, 2),
+                    num_departement=Case(
+                        When(num_departement1__length=4, then=Value(str(100))),
+                        When(num_departement1__length=5, then='num_departement2'),
+                        output_field=CharField()
+                    )
+                ).filter(num_departement__in=list(commercial.departement))
+                html_content = render_to_string('email/mailPourCommerciaux.html', {
+                    'ticketscree': ticketscree,
+                    'ticketsencours': ticketsencours,
+                    'commercial': commercial
+                })
+                if ticketscree or ticketsencours:
+                    msg = EmailMultiAlternatives("Solisart SAV: Rapport des derniers tickets sur votre périmètre", '', "sav@solisart.fr", [commercial.user.email])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                result[str(commercial)]={'ticketscree': len(ticketscree), 'ticketsencours':len(ticketsencours)}
+            except Exception as ex:
+
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+                print(exc_type, fname, exc_tb.tb_lineno)
+
+                print(ex)
+                result[str(commercial)]={'ERROR': 'Error' + str(ex)}
 
         save_result_celery('args', {}, "SUCCESS", result)
         return json.dumps(result)
@@ -378,6 +389,15 @@ def actualise_date_livraison_CL():
                                           C701Ouvraof.objects.db_manager('herakles').filter(codechantier=CL).exclude(codeof__icontains=CL).values_list('codeof', flat=True)[0])
         CL.save()
 
+        trans = C7001Phases.objects.db_manager('herakles').filter(codechantier=CL, codetransporteur__isnull=False).values_list( 'codetransporteur', flat=True)
+        if trans:
+            if not transporteur.objects.filter(nom = trans[0]).exists():
+                transp = transporteur.objects.create(nom = trans[0])
+            else:
+                transp = transporteur.objects.get(nom = trans[0])
+            CL.transporteur = transp
+            CL.save()
+
     send_channel_message('production', {
         'message': "Les dates de livraison client viennent d'être mise à jour",
         'result': result,
@@ -388,6 +408,7 @@ def actualise_date_livraison_CL():
 
 @shared_task
 def actualise_client_herakles():
+
     result = {'Client': []}
     clients=C100Clients.objects.db_manager('herakles').all()
     for client in clients:
