@@ -669,6 +669,11 @@ class CL_Form(ModelForm):
         else:
             tu = installation.objects.all().values_list('id', 'idsa')
             self.fields['installation'].choices=tuple(tu)
+            self.fields['date_ballon'].widget=HiddenInput()
+            self.fields['date_prepa_carte'].widget = HiddenInput()
+            self.fields['date_prepa'].widget = HiddenInput()
+            self.fields['date_montage'].widget = HiddenInput()
+            self.fields['date_capteur'].widget = HiddenInput()
             self.helper.layout = Layout(
                 Row(
                     Column(
@@ -706,12 +711,7 @@ class CL_Form(ModelForm):
                                                                  wrapper_class='form-row',
                                                                  template='widgets/prepended_appended_text_inline.html'),
                                                 css_class="col-4"),
-                                            Column(
-                                                AppendedText('date_ballon',
-                                                                 '<i class="fas fa-calendar-check"></i>',
-                                                                 wrapper_class='form-row',
-                                                                 template='widgets/prepended_appended_text_inline.html'),
-                                                css_class="col-4"),
+                                            'date_ballon',
                                             css_class="m-1"
                                         )
                                         )

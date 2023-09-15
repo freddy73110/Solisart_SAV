@@ -871,7 +871,7 @@ class CL_herakles(models.Model):
     date_capteur = models.DateField(verbose_name="Date Capteur prêt", help_text='Date réelle', null=True, blank=True)
     date_capteur_prevu = models.DateField(verbose_name="Date prévu de prépa capteurs", help_text='Date prévisionnelle', null=True, blank=True)
     date_ballon = models.DateField(verbose_name="Date Ballon prêt", help_text='Date réelle', null=True, blank=True)
-    date_ballon_prevu = models.DateField(verbose_name="Date prévu de prépades ballons",
+    date_ballon_prevu = models.DateField(verbose_name="Date prévu de prépa des ballons",
                                           help_text='Date prévisionnelle', null=True, blank=True)
     date_montage_prevu = models.DateField(verbose_name="Date prévue de montage ", help_text='2 semaines avant livraison prévu',
                                             null=True, blank=True)

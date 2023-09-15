@@ -259,16 +259,16 @@ function Dateformatter (value, row, index) {
 function operateFormatter(value, row, index) {
     var classlike = $("#step").val() == 'simple' ? "" : "like"
 
-    return value == 100 ? '<a href="javascript:void(0)" class="'+classlike+'"><i class="fas fa-check text-success '+classlike+'"></i></a>' : '<a href="javascript:void(0)" class="'+classlike+'"><i class="fas fa-times text-danger '+classlike+'"></i></a>'
+    return value == 100 ? '<a href="javascript:void(0)" class="'+classlike+'"><i class="far fa-check-circle text-success '+classlike+'"></i></a>' : '<a href="javascript:void(0)" class="'+classlike+'"><i class="far fa-circle text-danger '+classlike+'"></i></a>'
   }
 function CLTabformatter(value, row, index) {
     return '<a href="javascript:void(0)" class="tabcl" onclick="afficherCLModal($(this).html())">' + value +'</a>'
 }
 window.operateEvents = {
     'click .like': function (e, value, row, index) {
-      var v = $($(e.target).closest('a').find('svg')[0]).hasClass('text-success') ? `<a href="javascript:void(0)" class="like"><i class="fas fa-times text-danger like"></i></a>`: '<a href="javascript:void(0)" class="like"><i class="fas fa-check text-success like"></i></a>'
+      var v = $($(e.target).closest('a').find('svg')[0]).hasClass('text-success') ? `<a href="javascript:void(0)" class="like"><i class="far fa-circle text-danger like"></i></a>`: '<a href="javascript:void(0)" class="like"><i class="far fa-check-circle text-success like"></i></a>'
       if($($(e.target).closest('a').find('svg')[0]).hasClass('text-success')){
-        $(e.target).closest('a').html('<i class="fas fa-times text-danger like"></i>')
+        $(e.target).closest('a').html('<i class="far fa-circle text-danger like"></i>')
          $.ajax({
                             url: window.location.href,
                             type:'post',
