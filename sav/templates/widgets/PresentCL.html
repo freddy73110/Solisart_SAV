@@ -121,6 +121,19 @@ $('.upload-zone').each(function () {
             }
     });
 });
+$("#id_date_livraison, #id_date_ballon_prevu, #id_date_capteur_prevu, #id_date_montage_prevu, #id_date_prepa_carte_prevu, #id_date_prepa_prevu").on("change", function(){
+    if ($(this).val()==''){
+        $(this).addClass("is-invalid")
+        $("#enregister").prop("disabled",true)
+        if(!$(this).parent().parent().parent().find("small").length){
+            $(this).parent().parent().parent().append("<small class='text-danger'>Doit être obligatoirement complété</small>")
+        }
+    }else{
+        $(this).removeClass("is-invalid")
+        $("#enregister").prop("disabled",false)
+        $(this).parent().parent().parent().find("small").remove()
+    }
+})
 </script>
 
 

@@ -28,6 +28,12 @@ class profil_user_Admin(ModelAdmin):
     list_editable = ('Client_herakles',)
     list_filter = (Allinstallateur,)
 
+class CL_HeraklesAdmin(admin.ModelAdmin):
+    list_display = ('CL', 'BL', 'date_livraison_prevu', 'date_livraison', 'date_capteur', 'date_capteur_prevu')
+    list_display_links = None
+    list_editable = ('CL', 'BL', 'date_livraison_prevu', 'date_livraison', 'date_capteur', 'date_capteur_prevu')
+    list_filter = ['CL']
+    search_fields = ['CL']
 
 admin.site.register(profil_user,profil_user_Admin)
 admin.site.register(profil_type)
@@ -48,7 +54,7 @@ admin.site.register(classification)
 admin.site.register(BL_herakles)
 admin.site.register(devis_herakles)
 admin.site.register(client_herakles)
-admin.site.register(CL_herakles)
+admin.site.register(CL_herakles, CL_HeraklesAdmin)
 admin.site.register(solution)
 admin.site.register(module)
 admin.site.register(capteur)

@@ -977,7 +977,8 @@ class installation_view (View):
                           'add_MES_form': self.add_MES_form,
                           'add_problem_form': self.add_problem,
                           'form': self.form_class,
-                          'acces': self.acces
+                          'acces': self.acces,
+                          'CL': CL_herakles.objects.filter(installation__id=self.pk)
                       }
                       )
 
@@ -1091,11 +1092,13 @@ class installation_view (View):
             data={'rotation': 'ok'}
             return JsonResponse(data, safe=False)
 
-        if "ticket_id" in request.POST or "MES_id" in request.POST:
+        if "ticket_id" in request.POST or "MES_id" in request.POST or "CL_id" in request.POST:
             if "ticket_id" in request.POST:
                 tic = ticket.objects.get(pk=int(request.POST["ticket_id"]))
-            else:
+            elif "MES_id" in request.POST:
                 tic = MES.objects.get(pk=int(request.POST["MES_id"]))
+            else:
+                tic = CL_herakles.objects.get(pk=int(request.POST["CL_id"]))
             return render(request, "widgets/carouselImage.html",
                           {'tic': tic,
                            'photo_id': int(request.POST["photoid"])})

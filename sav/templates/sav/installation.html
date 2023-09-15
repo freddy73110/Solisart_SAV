@@ -129,112 +129,18 @@ loadingTask.promise.then(function(pdf) {
                     </span>
                 </button>
               </li>
+                {%if CL %}
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="donnes-tab" data-bs-toggle="tab" data-bs-target="#donnes" type="button" role="tab" aria-controls="profile" aria-selected="false">Données</button>
+                <button class="nav-link" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">Bon de  commande lié</button>
               </li>
+                {%endif%}
             </ul>
         </div>
     </div>
     <div class="row">
         <div class="col">
             <div class="tab-content" id="myTabContent">
-              <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
-                  <div class="accordion m-3" id="accordionPanelsStayOpenExample">
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-                            <b>Information de "my.solisart"</b>
-                          </button>
-                        </h2>
-                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-                          <div class="accordion-body">
-                            <table
-                    data-toolbar="#toolbar"
-                    data-toggle="table"
-                    data-search="true"
-                    data-show-columns="true"
-                    data-show-columns-toggle-all="true"
-                    data-show-refresh="false"
-                    data-show-fullscreen="true"
-                    data-show-export="true"
-                    data-page-list="[10, 25, 50, 100, all]"
-                    data-pagination="true"
-                    data-filter-control="true"
-                    data-show-search-clear-button="true">
-                <thead>
-                    <th>Description</th>
-                    <th>Valeur</th>
-                </thead>
-                <tbody>
-                    {% for i in attribut_val %}
-                    <tr>
-                        <td>{{i.attribut_def}}</td>
-                        <td>{%if i.attribut_def.description == "Coordonnées GPS DD" %}
-                            <form>{% csrf_token %}
-                                <div class="input-group mb-3">
-                                    <input type="hidden" value="{{i.id}}" name="GPS_id">
-                                  <input
-                                          type="text"
-                                          class="form-control"
-                                          id="GPS"
-                                          name="CoordonneeGPS"
-                                          value="{{i.valeur}}"
-                                          placeholder="Recipient's username"
-                                          aria-label="Recipient's username"
-                                          aria-describedby="button-addon2"
-                                  >
-                                  <button class="btn btn-outline-secondary" type="button" id="GPSValider" onclick="modifierGPS()">Valider</button>
-                                </div>
-                            </form>
-                            {%else%}
-                            {{i.valeur}}
-                            {%endif%}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-                            <b>Autre</b>
-                          </button>
-                        </h2>
-                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
-                          <div class="accordion-body">
-                              {% crispy form %}
-                          </div>
-                        </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="tab-pane fade m-3" id="historique" role="tabpanel" aria-labelledby="profile-tab">
-                  <button type="button"
-                          class="btn btn-outline-primary"
-                          data-bs-toggle="modal"
-                          data-bs-target="#ModalEvenement"
-                          data-bs-whatever="ticket"
-                          onclick="initticketform(this)"  ><i class="fas fa-tag"></i> Ajouter un ticket
-                  </button>
-                  <button type="button"
-                          class="btn btn-outline-primary"
-                          data-bs-toggle="modal"
-                          data-bs-target="#ModalEvenement"
-                          data-bs-whatever="MES"
-                          ><i class="fas fa-rocket"></i> Ajouter une MES
-                  </button>
-                  <button
-                          type="button"
-                          class="btn btn-outline-primary"
-                          data-bs-toggle="modal"
-                          data-bs-target="#ModalEvenement"
-                          data-bs-whatever="Production"><i class="fas fa-truck-loading"></i> Sortie de production
-                  </button>
-
-                    <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
+                <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
                       <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                           <div class="modal-header bg-warning">
@@ -371,6 +277,96 @@ loadingTask.promise.then(function(pdf) {
                         </div>
                       </div>
                     </div>
+              <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
+                  <div class="accordion m-3" id="accordionPanelsStayOpenExample">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                            <b>Information de "my.solisart"</b>
+                          </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                          <div class="accordion-body">
+                            <table
+                    data-toolbar="#toolbar"
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                <thead>
+                    <th>Description</th>
+                    <th>Valeur</th>
+                </thead>
+                <tbody>
+                    {% for i in attribut_val %}
+                    <tr>
+                        <td>{{i.attribut_def}}</td>
+                        <td>{%if i.attribut_def.description == "Coordonnées GPS DD" %}
+                            <form>{% csrf_token %}
+                                <div class="input-group mb-3">
+                                    <input type="hidden" value="{{i.id}}" name="GPS_id">
+                                  <input
+                                          type="text"
+                                          class="form-control"
+                                          id="GPS"
+                                          name="CoordonneeGPS"
+                                          value="{{i.valeur}}"
+                                          placeholder="Recipient's username"
+                                          aria-label="Recipient's username"
+                                          aria-describedby="button-addon2"
+                                  >
+                                  <button class="btn btn-outline-secondary" type="button" id="GPSValider" onclick="modifierGPS()">Valider</button>
+                                </div>
+                            </form>
+                            {%else%}
+                            {{i.valeur}}
+                            {%endif%}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                            <b>Autre</b>
+                          </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                          <div class="accordion-body">
+                              {% crispy form %}
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="tab-pane fade m-3" id="historique" role="tabpanel" aria-labelledby="profile-tab">
+                  <button type="button"
+                          class="btn btn-outline-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#ModalEvenement"
+                          data-bs-whatever="ticket"
+                          onclick="initticketform(this)"  ><i class="fas fa-tag"></i> Ajouter un ticket
+                  </button>
+                  <button type="button"
+                          class="btn btn-outline-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#ModalEvenement"
+                          data-bs-whatever="MES"
+                          ><i class="fas fa-rocket"></i> Ajouter une MES
+                  </button>
+
+
                   <div class="accordion m-3 " id="accordionExample">
                       {%for e in liste_evenements %}
                       {%if e.ticket%}
@@ -571,12 +567,16 @@ loadingTask.promise.then(function(pdf) {
                     <thead>
                         <th class="text-center">Statut</th>
                         <th class="text-center">Personne</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Téléphone</th>
                     </thead>
                       <tbody>
                         {% for util in acces%}
                         <tr>
                             <td>{{util.profil_type}}</td>
                             <td><a href="{% url 'sav:utilisateur' pk=util.utilisateur.id %}">{{util.utilisateur.profil_user.icon|safe}} {{util.utilisateur}}</a></td>
+                            <td>{{util.utilisateur.email}}</td>
+                            <td>{{util.utilisateur.profil_user.telephone1}}</td>
                         </tr>
                       {%endfor%}
 
@@ -584,11 +584,50 @@ loadingTask.promise.then(function(pdf) {
                 </table>
 
               </div>
-              <div class="tab-pane fade m-3" id="donnes" role="tabpanel" aria-labelledby="home-tab">
-                  <h1>Données</h1>
-                  <a href="https://my.solisart.fr/admin/export.php?fichier=donnees-{{instal.idsa}}-{% now 'Y' %}-{% now 'm' %}.csv">
-                      <i class="fas fa-cloud-download-alt"></i> données de {% now 'Y' %}-{% now 'm' %}
-                  </a>
+              <div class="tab-pane fade m-3" id="CL" role="tabpanel" aria-labelledby="home-tab">
+                  <h1>Bon de  commande lié</h1>
+                  <ul class="list-unstyled">
+                  <li>N° de commande: {{CL.0}}</li>
+                  <li>Date de livraison : {{CL.0.date_livraison_prevu}}</li>
+                  <li>Fichiers liés:
+                      <ul>
+                  {% for f in CL.0.fichier.all %}
+                  {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{CL.0.id}}, {{f.id}}, 'CL')">{{f.icon|safe}} {{f.titre}}</a> (<i
+                                              class="far fa-trash-alt deletefile"
+                                              id="deletefile_{{f.id}}"
+                                              onclick="deletefile(this)"
+                                              file_name="{{f.titre}}"
+                                            data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
+                                              class="fas fa-pen renamefile"
+                                              id="renamefile_{{f.id}}"
+                                              onclick="renamefile(this)"
+                                              file_name="{{f.titre}}"
+                                              data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
+                                      ></i>)
+                                          {% if not forloop.last %}<br>{%endif%}
+                                        {% else %}
+                                      <a href="{{f.fichier.url}}" download>{{f.icon|safe}} {{f.titre}}</a> (<i
+                                          class="far fa-trash-alt deletefile"
+                                          id="deletefile_{{f.id}}"
+                                          onclick="deletefile(this)"
+                                          file_name="{{f.titre}}"
+                                        data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
+                                          class="fas fa-pen renamefile"
+                                          id="renamefile_{{f.id}}"
+                                          onclick="renamefile(this)"
+                                          file_name="{{f.titre}}"
+                                          data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
+                                  ></i>)
+                                      {% if not forloop.last %}<br>{%endif%}
+
+                                      {% endif %}
+                                      {%endfor%}
+                          </ul>
+                  </li>
+                  </ul>
+
+
               </div>
             </div>
         </div>
@@ -773,7 +812,6 @@ function ShowModalImage(id, photo_id, type){
                 $("#ModalEvenementLabel").html("<h2>Photos</h2>")
                 $("#photos").html(html)
                 $("#photos").show("show")
-
             }
     })
 
