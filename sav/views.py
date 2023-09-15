@@ -1017,6 +1017,16 @@ class installation_view (View):
 
             return HttpResponse(html)
 
+        if "CL_popover" in request.POST:
+            from heraklesinfo.models import C701Ouvraof
+            articles = C701Ouvraof.objects.db_manager('herakles').\
+                filter(codeof__icontains=request.POST["CL_popover"].replace(' ', '')).\
+                annotate(qte= Cast("nbre", output_field=(FloatField()))).\
+                values("codouv", "qte", "titre")
+
+            return render(request,"widgets/tableauBL_articles.html",
+                          {'articles': articles})
+
         if "BL_popover" in request.POST:
             from heraklesinfo.models import C701Ouvraof
             articles = C701Ouvraof.objects.db_manager('herakles').\
@@ -1877,7 +1887,6 @@ class production(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
         if "numCL" in request.POST:
             numCL = request.POST['numCL']
@@ -2040,7 +2049,10 @@ class production(View):
         if 'finishTask' in request.POST:
             task = json.loads(request.POST['finishTask'])
             CL = CL_herakles.objects.get(CL=task['CL'])
-            finish = datetime.strptime(task['_end'].split('T')[0], '%Y-%m-%d')
+            if '_end' in task:
+                finish = datetime.strptime(task['_end'].split('T')[0], '%Y-%m-%d')
+            else:
+                finish = timezone.now()
             if 'capteur' in task['id']:
                 CL.date_capteur = finish
                 result=['capteur ' + CL.CL]

@@ -10,6 +10,7 @@
 <script src="{% static 'gantt-master/gantt-master/dist/frappe-gantt.js' %}"></script>
 <script src="{% static 'jquery/jquery.doubleScroll.js' %}"></script>
 
+
 <div class="container">
     <div class="row">
         <div class="col">
@@ -166,7 +167,8 @@
             <div class="input-group mb-3">
               <label class="input-group-text" for="step"><i class="fas fa-filter"></i></label>
               <select class="form-select" id="step" onchange="ganttGenerator()">
-                <option selected value="tout">Tout</option>
+                <option selected value="simple">Simplifié</option>
+                <option value="tout">Tout</option>
                 <option value="capteur">Capteur</option>
                 <option value="ballon">Ballon</option>
                 <option value="montage">Montage</option>
@@ -192,6 +194,21 @@
     </div>
     <div class="row">
         <div class="col">
+            <div class="d-flex">
+                <p>
+                    Vue Gantt
+                </p>
+                <div class="form-check form-switch form-check-inline">
+                  <input class="form-check-input float-end"
+                         type="checkbox"
+                         role="switch"
+                         id="ganttVstableur"
+                         onchange="ganttGenerator()" >
+                </div>
+                <p>
+                  Vue Tableur
+                </p>
+            </div>
             <div id="ganttContainer" class="gantt-container"></div>
         </div>
     </div>
@@ -213,6 +230,67 @@
     </div>
 </div>
 <script>
+function afficherCLModal(CL){
+    console.log(CL)
+    var $Modal=$("#ModalDiv")
+                        $Modal.find(".modal-title").html()
+                        $Modal.find(".modal-title").html("Détail de la commande " + CL)
+                        $Modal.find(".modal-body").html()
+                        $Modal.find(".modal-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+                        $Modal.modal('show')
+                        $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data:{show: CL},
+                            dataType: 'html',
+                            success: function (html) {
+                            //todo faire un message de validation
+                                $Modal.find(".modal-body").html(html)
+                                $("#enregister").attr('name', 'update')
+                                $("#enregister").html('Mettre à jour')
+                             }
+                        })
+}
+
+function operateFormatter(value, row, index) {
+    var classlike = $("#step").val() == 'simple' ? "" : "like"
+
+    return value == 100 ? '<a href="javascript:void(0)" class="'+classlike+'"><i class="fas fa-check text-success '+classlike+'"></i></a>' : '<a href="javascript:void(0)" class="'+classlike+'"><i class="fas fa-times text-danger '+classlike+'"></i></a>'
+  }
+function CLTabformatter(value, row, index) {
+    return '<a href="javascript:void(0)" class="tabcl" onclick="afficherCLModal($(this).html())">' + value +'</a>'
+}
+window.operateEvents = {
+    'click .like': function (e, value, row, index) {
+      var v = $($(e.target).closest('a').find('svg')[0]).hasClass('text-success') ? `<a href="javascript:void(0)" class="like"><i class="fas fa-times text-danger like"></i></a>`: '<a href="javascript:void(0)" class="like"><i class="fas fa-check text-success like"></i></a>'
+      if($($(e.target).closest('a').find('svg')[0]).hasClass('text-success')){
+        $(e.target).closest('a').html('<i class="fas fa-times text-danger like"></i>')
+         $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data: {'NotFinishedTask': JSON.stringify(row)},
+                            dataType: 'json',
+                            success: function (json) {
+                                console.log(json)
+                             }
+                     })
+      }else{
+        $(e.target).closest('a').html('<i class="fas fa-check text-success like"></i>')
+        $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data: {'finishTask': JSON.stringify(row)},
+                            dataType: 'json',
+                            success: function (json) {
+                                showToast(row.name + ": terminée et sauvegardée")
+                             }
+                     })
+      }
+
+    }
+
+}
+
 {% if request.user|has_group:'ADV' %}
 $("#numCL").prop('disabled', false)
 {%endif%}
@@ -285,220 +363,274 @@ function ganttGenerator(){
         $("#commercial").val('tout')
         searchByCommercial()
     }
-    tasks=[]
-    $.each(data, function(index, value){
-        if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
-            if (value['capteur'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'capteur'){
-                tasks.push(
-                {
-                start: convertdate((value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu']),
-                end: (value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu'],
-                name: (value['capteur_nbre'] < 2) ? value['CL'] + ' - ' + value['installateur'] +': '+ value['capteur_nbre'] + ' Capteur ' + value['capteur'] : value['CL'] + ' - ' + value['installateur'] + ': '+ value['capteur_nbre'] + ' Capteurs ' + value['capteur'],
-                id: "capteur-"+value['CL'],
-                CL: value['CL'],
-                progress: (value['date_capteur']) ? 100 : 30
-              })
-            }
-            if (value['ballon'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'ballon'){
-                tasks.push(
-                {
-                start: convertdate((value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu']),
-                end: (value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu'],
-                name: value['CL'] + ' - ' + value['installateur'] +': ' + value['ballon'],
-                id: "ballon-"+value['CL'],
-                CL: value['CL'],
-                progress: (value['date_ballon']) ? 100 : 30
-              })
-            }
-            if (($("#step").val() == 'tout' || $("#step").val() == 'montage') && value['module']!= "CESI"){
-                tasks.push(
-                {
-                start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
-                end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
-                name: value['CL'] + ' - ' + value['installateur'] +': Montage ',
-                id: "montage-"+value['CL'],
-                CL: value['CL'],
-                progress: (value['date_montage']) ? 100 : 30
-              })
-            }
-            if (($("#step").val() == 'tout' || $("#step").val() == 'carte') && value['module']!= "CESI"){
-                tasks.push(
-                {
-                start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),
-                end: (value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu'],
-                name: value['CL'] + ' - ' + value['installateur'] +': Création carte régulation ',
-                id: "carte-"+value['CL'],
-                CL: value['CL'],
-                progress: (value['date_prepa_carte']) ? 100 : 30,
-                dependencies: "montage-"+value['CL']
-              })
-            }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'prepa'){
-                tasks.push(
-                {
-                start: convertdate((value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu']),
-                end: (value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu'],
-                name: value['CL'] + ' - ' + value['installateur'] + ': Préparation commande ',
-                id: "prepa-"+value['CL'],
-                CL: value['CL'],
-                progress: (value['date_prepa']) ? 100 : 30,
-                dependencies: ["carte-"+value['CL'], "capteur-"+value['CL'], "ballon-"+value['CL']]
-              })
-            }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'expe'){
+    if($("#step").val() != "simple"){
+        tasks=[]
+        $.each(data, function(index, value){
+            if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
+                if (value['capteur'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'capteur'){
+                    tasks.push(
+                    {
+                    start: convertdate((value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu']),
+                    end: (value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu'],
+                    name: (value['capteur_nbre'] < 2) ? value['CL'] + ' - ' + value['installateur'] +': '+ value['capteur_nbre'] + ' Capteur ' + value['capteur'] : value['CL'] + ' - ' + value['installateur'] + ': '+ value['capteur_nbre'] + ' Capteurs ' + value['capteur'],
+                    id: "capteur-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (value['date_capteur']) ? 100 : 0
+                  })
+                }
+                if (value['ballon'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'ballon'){
+                    tasks.push(
+                    {
+                    start: convertdate((value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu']),
+                    end: (value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu'],
+                    name: value['CL'] + ' - ' + value['installateur'] +': ' + value['ballon'],
+                    id: "ballon-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (value['date_ballon']) ? 100 : 0
+                  })
+                }
+                if (($("#step").val() == 'tout' || $("#step").val() == 'montage') && value['module']!= "CESI"){
+                    tasks.push(
+                    {
+                    start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
+                    end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
+                    name: value['CL'] + ' - ' + value['installateur'] +': Montage ',
+                    id: "montage-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (value['date_montage']) ? 100 : 0
+                  })
+                }
+                if (($("#step").val() == 'tout' || $("#step").val() == 'carte') && value['module']!= "CESI"){
+                    tasks.push(
+                    {
+                    start: convertdate((value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu']),
+                    end: (value['date_prepa_carte']) ? (value['date_prepa_carte']) : value['date_prepa_carte_prevu'],
+                    name: value['CL'] + ' - ' + value['installateur'] +': Création carte régulation ',
+                    id: "carte-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (value['date_prepa_carte']) ? 100 : 0,
+                    dependencies: "montage-"+value['CL']
+                  })
+                }
+                if ($("#step").val() == 'tout' || $("#step").val() == 'prepa'){
+                    tasks.push(
+                    {
+                    start: convertdate((value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu']),
+                    end: (value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu'],
+                    name: value['CL'] + ' - ' + value['installateur'] + ': Préparation commande ',
+                    id: "prepa-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (value['date_prepa']) ? 100 : 0,
+                    dependencies: ["carte-"+value['CL'], "capteur-"+value['CL'], "ballon-"+value['CL']]
+                  })
+                }
+                if ($("#step").val() == 'tout' || $("#step").val() == 'expe'){
 
-                tasks.push({
-                start: convertdate(value['date_livraison']),
-                end: value['date_livraison'],
-                name: (value['transporteur']) ? value['CL'] + ' - ' + value['installateur'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ' - ' + value['installateur'] + ": Livraison par ?",
-                id: "livraison-"+value['CL'],
-                CL: value['CL'],
-                progress: (new Date(value['date_livraison']) < new Date()) ? 100 : 30,
-                dependencies: "prepa-"+value['CL']
-              })
+                    tasks.push({
+                    start: convertdate(value['date_livraison']),
+                    end: value['date_livraison'],
+                    name: (value['transporteur']) ? value['CL'] + ' - ' + value['installateur'] + ": Livraison par " + (value['transporteur']) : value['CL'] + ' - ' + value['installateur'] + ": Livraison par ?",
+                    id: "livraison-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (new Date(value['date_livraison']) < new Date()) ? 100 : 0,
+                    dependencies: "prepa-"+value['CL']
+                  })
+                }
+                if ($("#step").val() == 'tout' || $("#step").val() == 'livraison'){
+                tasks.push(
+                  {
+                    start: convertdate(value['date_livraison_prevu']),
+                    end: value['date_livraison_prevu'],
+                    name: value['CL'] + ' - ' + value['installateur'] + ': Réception client',
+                    id: "reception-"+value['CL'],
+                    CL: value['CL'],
+                    progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 0
+                  })
+                }
             }
-            if ($("#step").val() == 'tout' || $("#step").val() == 'livraison'){
-            tasks.push(
-              {
-                start: convertdate(value['date_livraison_prevu']),
-                end: value['date_livraison_prevu'],
-                name: value['CL'] + ' - ' + value['installateur'] + ': Réception client',
-                id: "reception-"+value['CL'],
-                CL: value['CL'],
-                progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 30,
-                dependencies: "livraison-"+value['CL']
-              })
-            }
-        }
-    })
+        })
+
+    }else{
+        var tasks=[]
+        $.each(data, function(index, dict){
+            if (dict['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
+                var values = $.map(dict, function(v, key) {return v})
+                var list_date = $.map(values, function(v, key){
+                    return /[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/.test(v) ? v : null;
+                }).sort()
+                var prog =0
+                if(dict['ballon'] == 'None' || dict['date_ballon'] != null){
+                    var prog = 10
+                    if(dict['capteur'] != 0 || dict['date_capteur'] != null){
+                        var prog =20
+                        if(dict['module'] != "CESI" || dict['date_prepa_carte'] != null){
+                            var prog =30
+                            if(dict['date_prepa_prevu'] != null){
+                                var prog =50
+                                if(new Date(dict['date_livraison']) < new Date()){
+                                    var prog =75
+                                    if(new Date(dict['date_livraison_prevu']) < new Date()){
+                                        var prog =100
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                tasks.push(
+                      {
+                        start: list_date[0],
+                        end: list_date.pop(),
+                        name: dict['CL'] + ' - ' + dict['installateur'],
+                        id: "commande-"+dict['CL'],
+                        CL: dict['CL'],
+                        progress: prog
+                      })
+                }
+            })
+    }
     var tasks2=[]
-    $.each(tasks, function(index, value){
-        if($("#Todo").val() == 'todo' && value.progress == 30){
-            tasks2.push(value)
-        }
-        if($("#Todo").val() == 'done' && value.progress == 100){
-            tasks2.push(value)
-        }
-        if($("#Todo").val() == 'all'){
-            tasks2.push(value)
-        }
-    })
+        $.each(tasks, function(index, value){
+            if($("#Todo").val() == 'todo' && value.progress != 100){
+                tasks2.push(value)
+            }
+            if($("#Todo").val() == 'done' && value.progress == 100){
+                tasks2.push(value)
+            }
+            if($("#Todo").val() == 'all'){
+                tasks2.push(value)
+            }
+        })
     if (tasks2.length === 0){
         $("#ganttContainer").html("<h1>Pas de données avec ces critères</h1>")
     }else{
-    $("#ganttContainer").html("")
-    myChart = new Gantt(".gantt-container", tasks2, {
-      view_mode: $("#inputGroupSelect01").val(),
-      header_height: 50,
-      column_width: 50,
-      step: 24,
-      bar_height: 20,
-      bar_corner_radius: 3,
-      arrow_curve: 5,
-      padding: 18,
-      date_format: 'YYYY-MM-DD',
-      language: 'fr',
-      custom_popup_html: function(task) {
-        // the task object will contain the updated
-        // dates and progress value
-        end = task.end.substring(0,10)
-        if(task.progress == 100){
-             return `
-        <div class="details-container">
-          <h5>${task.name}</h5>
-          <p>Tâche Terminée le ${end}</p>
-        </div>
-        `;
+        $("#ganttContainer").html("")
+        if (!$("#ganttVstableur").is(":checked")){
+            myChart = new Gantt(".gantt-container", tasks2, {
+              view_mode: $("#inputGroupSelect01").val(),
+              header_height: 50,
+              column_width: 50,
+              step: 24,
+              bar_height: 20,
+              bar_corner_radius: 3,
+              arrow_curve: 5,
+              padding: 18,
+              date_format: 'YYYY-MM-DD',
+              language: 'fr',
+              custom_popup_html: function(task) {
+                // the task object will contain the updated
+                // dates and progress value
+                end = task.end.substring(0,10)
+                if(task.progress == 100){
+                     return `
+                <div class="details-container">
+                  <h5>${task.name}</h5>
+                  <p>Tâche Terminée le ${end}</p>
+                </div>
+                `;
+                }else{
+                     return `
+                <div class="details-container">
+                  <h5>${task.name}</h5>
+                  <p>Date de fin prévu ${end}</p>
+                </div>
+                `;
+
+                }
+
+              },
+              {% if request.user|has_group:'ADV' %}
+              on_click: task => {
+                afficherCLModal(task.CL)
+              },
+              {%endif%}
+              on_date_change: (task, start, end) => {
+                $('#ButtonSave').addClass('beatanimation')
+              },
+              on_progress_change: (task, progress) => {
+                if(progress == 100){
+                     $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data: {'finishTask': JSON.stringify(task)},
+                            dataType: 'json',
+                            success: function (json) {
+                                showToast(task.name + ": terminée et sauvegardée")
+                             }
+                     })
+
+                }else{
+                    $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data: {'NotFinishedTask': JSON.stringify(task)},
+                            dataType: 'json',
+                            success: function (json) {
+                                console.log(json)
+                             }
+                     })
+                }
+
+              }
+            });
+            DateTop= $(".date").offset().top
+            $(".gantt-container:not(#ganttContainer)").doubleScroll()
+            window.onscroll = function() {
+                   if(window.pageYOffset > DateTop){
+                        $('.lower-text').each(function(){
+                            $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
+                        })
+                        $('.upper-text').each(function(){
+                            $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
+                        })
+                        $(".date").css("background-color", "white")
+                        lastScroll= window.pageYOffset
+                   }else{
+                        $('.lower-text').each(function(){
+                            $(this).attr('y', 50)
+                        })
+                        $('.upper-text').each(function(){
+                            $(this).attr('y', 25)
+                        })
+                        lastScroll= window.pageYOffset
+                   }
+            }
+            $(".popup-wrapper").css('opacity', '0')
         }else{
-             return `
-        <div class="details-container">
-          <h5>${task.name}</h5>
-          <p>Date de fin prévu ${end}</p>
-        </div>
-        `;
+
+            $("#ganttContainer").html('<table id="table" data-toggle="table" data-custom-sort="customSort" data-search="true" '+
+            'data-show-columns="true"><thead><tr>'+
+            '<th data-field="CL"  data-halign="center" data-align="center" data-formatter="CLTabformatter">N° CL</th>'+
+            '<th data-field="name"  data-halign="center" data-align="center">Installateur</th>'+
+            '<th data-field="start"  data-halign="center" data-align="center">Date prévu</th>'+
+            '<th data-field="progress"  data-halign="center" data-align="center" data-formatter="operateFormatter" data-events="operateEvents">Etat</th>'+
+            '</tr></thead></table>')
+
+            var $table = $('#table')
+              $(function() {
+                $table.bootstrapTable({data: tasks2})
+              })
+
 
         }
-
-      },
-      {% if request.user|has_group:'ADV' %}
-      on_click: task => {
-        var $Modal=$("#ModalDiv")
-                $Modal.find(".modal-title").html()
-                $Modal.find(".modal-title").html("Détail de la commande " + task.CL)
-                $Modal.find(".modal-body").html()
-                $Modal.find(".modal-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
-                $Modal.modal('show')
-                $.ajax({
-                    url: window.location.href,
-                    type:'post',
-                    data:{show: task.CL},
-                    dataType: 'html',
-                    success: function (html) {
-                    //todo faire un message de validation
-                        $Modal.find(".modal-body").html(html)
-                        $("#enregister").attr('name', 'update')
-                        $("#enregister").html('Mettre à jour')
-                     }
-                })
-      },
-      {%endif%}
-      on_date_change: (task, start, end) => {
-        $('#ButtonSave').addClass('beatanimation')
-      },
-      on_progress_change: (task, progress) => {
-        if(progress == 100){
-             $.ajax({
-                    url: window.location.href,
-                    type:'post',
-                    data: {'finishTask': JSON.stringify(task)},
-                    dataType: 'json',
-                    success: function (json) {
-                        showToast(task.name + ": terminée et sauvegardée")
-                     }
-             })
-
-        }else{
-            $.ajax({
-                    url: window.location.href,
-                    type:'post',
-                    data: {'NotFinishedTask': JSON.stringify(task)},
-                    dataType: 'json',
-                    success: function (json) {
-                        console.log(json)
-                     }
-             })
-        }
-
-      }
-    });
-    DateTop= $(".date").offset().top
-    $(".gantt-container:not(#ganttContainer)").doubleScroll()
-    window.onscroll = function() {
-           if(window.pageYOffset > DateTop){
-                $('.lower-text').each(function(){
-                    $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
-                })
-                $('.upper-text').each(function(){
-                    $(this).attr('y', parseFloat($(this).attr('y')) + window.pageYOffset - lastScroll)
-                })
-                $(".date").css("background-color", "white")
-                lastScroll= window.pageYOffset
-           }else{
-                $('.lower-text').each(function(){
-                    $(this).attr('y', 50)
-                })
-                $('.upper-text').each(function(){
-                    $(this).attr('y', 25)
-                })
-                lastScroll= window.pageYOffset
-           }
     }
-    $(".popup-wrapper").css('opacity', '0')
-}
 
 }
 
-
+function customSort(sortName, sortOrder, data) {
+    var order = sortOrder === 'desc' ? -1 : 1
+    data.sort(function (a, b) {
+      var aa = +((a[sortName] + '').replace(/[^\d]/g, ''))
+      var bb = +((b[sortName] + '').replace(/[^\d]/g, ''))
+      if (aa < bb) {
+        return order * -1
+      }
+      if (aa > bb) {
+        return order
+      }
+      return 0
+    })
+  }
 
 function save(){
         $('#ButtonSave').removeClass('beatanimation')

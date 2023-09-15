@@ -587,7 +587,7 @@ loadingTask.promise.then(function(pdf) {
               <div class="tab-pane fade m-3" id="CL" role="tabpanel" aria-labelledby="home-tab">
                   <h1>Bon de  commande lié</h1>
                   <ul class="list-unstyled">
-                  <li>N° de commande: {{CL.0}}</li>
+                      <li>N° de commande: <button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button></li>
                   <li>Date de livraison : {{CL.0.date_livraison_prevu}}</li>
                   <li>Fichiers liés:
                       <ul>
@@ -848,8 +848,24 @@ $(document).ready(function() {
     }
   });
 });
-var $popover = $(".BL, .devis")
+var $popover = $(".BL, .devis, .CL")
 var popover = new bootstrap.Popover($popover)
+
+$(".CL").on('click', function(){
+        var CL = $(this)
+        console.log(CL, CL.attr('cl'))
+        $("#offcanvasRightLabel").html("Détail du " + CL.attr('cl') + ":")
+        $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+            $.ajax({
+                 url: window.location.href,
+                 data: {'CL_popover': CL.attr('cl')},
+                 dataType: 'html',
+                 type: 'post',
+                 success: function (data) {
+                    $(".offcanvas-body").html(data)
+                 }
+            })
+})
 
 $(".BL").on('click', function(){
         var BL = $(this)

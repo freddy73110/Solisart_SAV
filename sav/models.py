@@ -904,7 +904,7 @@ class CL_herakles(models.Model):
         "transporteur": str(self.transporteur)
         }
         for f in self._meta.fields:
-            if 'date' in f.name:
+            if 'date' in f.name and f.name != "date_reglement":
                 serial[f.name] = getattr(self, f.name, None).strftime("%Y-%m-%d %H:%M") if getattr(self, f.name, None) else None
 
         return serial
