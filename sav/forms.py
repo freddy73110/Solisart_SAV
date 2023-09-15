@@ -661,10 +661,6 @@ class CL_Form(ModelForm):
                     AppendedText('date_prepa_prevu',
                                  '<i class="fas fa-calendar-day"></i>',
                                  wrapper_class='form-row',
-                                 template='widgets/prepended_appended_text_inline.html'),
-                    AppendedText('date_reglement',
-                                 '<i class="fas fa-calendar-day"></i>',
-                                 wrapper_class='form-row',
                                  template='widgets/prepended_appended_text_inline.html')
                 ),
                 'installation'

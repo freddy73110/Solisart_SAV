@@ -1887,6 +1887,7 @@ class production(View):
                       )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
         from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
         if "numCL" in request.POST:
             numCL = request.POST['numCL']

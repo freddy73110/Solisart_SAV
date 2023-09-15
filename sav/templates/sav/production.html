@@ -156,10 +156,10 @@
             <div class="input-group mb-3">
               <label class="input-group-text" for="inputGroupSelect01"><i class="fas fa-calendar-week"></i></label>
               <select class="form-select" id="inputGroupSelect01" onchange="myChart.change_view_mode($(this).val())">
-                <option selected value="Day">Jour</option>
-                <option value="Week">Semaine</option>
-                <option value="Month">Mois</option>
-                <option value="Year">Année</option>
+                <option selected value="Day">Zoom 1</option>
+                <option value="Week">Zoom 2</option>
+                <option value="Month">Zoom 3</option>
+                <option value="Year">Zoom 4</option>
               </select>
             </div>
         </div>
@@ -250,6 +250,10 @@ function afficherCLModal(CL){
                                 $("#enregister").html('Mettre à jour')
                              }
                         })
+}
+
+function Dateformatter (value, row, index) {
+    return value.slice(0, 10)
 }
 
 function operateFormatter(value, row, index) {
@@ -599,11 +603,11 @@ function ganttGenerator(){
         }else{
 
             $("#ganttContainer").html('<table id="table" data-toggle="table" data-custom-sort="customSort" data-search="true" '+
-            'data-show-columns="true"><thead><tr>'+
-            '<th data-field="CL"  data-halign="center" data-align="center" data-formatter="CLTabformatter">N° CL</th>'+
-            '<th data-field="name"  data-halign="center" data-align="center">Installateur</th>'+
-            '<th data-field="start"  data-halign="center" data-align="center">Date prévu</th>'+
-            '<th data-field="progress"  data-halign="center" data-align="center" data-formatter="operateFormatter" data-events="operateEvents">Etat</th>'+
+            '><thead><tr>'+
+            '<th data-field="CL"  data-halign="center" data-align="center" data-formatter="CLTabformatter" data-sortable="true">N° CL</th>'+
+            '<th data-field="name"  data-halign="center" data-align="center" data-sortable="true">Installateur</th>'+
+            '<th data-field="start"  data-halign="center" data-align="center" data-sortable="true" data-formatter="Dateformatter">Date prévu</th>'+
+            '<th data-field="progress"  data-halign="center" data-align="center" data-formatter="operateFormatter" data-events="operateEvents" data-sortable="true">Etat</th>'+
             '</tr></thead></table>')
 
             var $table = $('#table')
