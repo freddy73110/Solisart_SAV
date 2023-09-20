@@ -956,7 +956,6 @@ class installation_view (View):
         self.add_ticket_form = ticket_form(installation=self.instal)
         self.add_MES_form = MES_form(prefix="MES")
         self.add_evenement = add_evenement_form(user=request.user, installation=self.instal)
-        self.add_problem = add_problem_form()
         self.form_class=installation_form(instance=self.instal)
         self.title = self.title + ' ' + str(self.instal)
         self.histo= historique.objects.filter(installation=self.instal)
@@ -975,7 +974,6 @@ class installation_view (View):
                           'add_evenement': self.add_evenement,
                           'add_ticket_form': self.add_ticket_form,
                           'add_MES_form': self.add_MES_form,
-                          'add_problem_form': self.add_problem,
                           'form': self.form_class,
                           'acces': self.acces,
                           'CL': CL_herakles.objects.filter(installation__id=self.pk)
@@ -1500,8 +1498,11 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-
-        send_channel_message('cartcreating', 'well done')
+        from django_celery_results.models import TaskResult
+        from django.db.models import Max
+        tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id'))
+        print(tasks)
+        # send_channel_message('cartcreating', 'well done')
 
 
 

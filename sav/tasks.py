@@ -493,6 +493,7 @@ def cleanTaskResult(*args, **kwargs):
     from django.db.models import Max
     tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id')).values_list('id__max', flat=True)
     TaskResult.objects.exclude(id__in=tasks).delete()
+    save_result_celery('args', {}, 'SUCCESS', [str(f) for f in TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id'))])
 
 @shared_task
 def ActualiseUtilisateur(*args, **kwargs):
