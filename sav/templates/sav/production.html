@@ -209,11 +209,13 @@
                   Vue Tableur
                 </p>
             </div>
-            <div id="ganttContainer" class="gantt-container"></div>
+            <div id="ganttContainer" class="gantt-container">
+                <h1 class="text-center"><i class="fas fa-sun fa-spin fa-5x" style="color:yellow"></i></h1>
+            </div>
         </div>
     </div>
 </div>
-<div class="toast-container position-fixed top-0 end-0">
+<div class="toast-container position-absolute top-0 end-0">
     <div class="p-3" style="z-index: 11">
       <div id="liveToast" class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
           <div role="alert" aria-live="assertive" aria-atomic="true">
@@ -231,7 +233,6 @@
 </div>
 <script>
 function afficherCLModal(CL){
-    console.log(CL)
     var $Modal=$("#ModalDiv")
                         $Modal.find(".modal-title").html()
                         $Modal.find(".modal-title").html("Détail de la commande " + CL)
@@ -253,7 +254,8 @@ function afficherCLModal(CL){
 }
 
 function Dateformatter (value, row, index) {
-    return value.slice(0, 10)
+    var v = value.slice(0, 10)
+    return $("#step").val() != 'simple' ? '<input type="text" class="date_picker form-control" value=' + v + '>' : v
 }
 
 function operateFormatter(value, row, index) {
@@ -371,7 +373,7 @@ function ganttGenerator(){
         tasks=[]
         $.each(data, function(index, value){
             if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
-                if (value['capteur'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'capteur'){
+                if (value['capteur'] != 'None' && ($("#step").val() == 'tout' || $("#step").val() == 'capteur')){
                     tasks.push(
                     {
                     start: convertdate((value['date_capteur']) ? (value['date_capteur']) : value['date_capteur_prevu']),
@@ -382,7 +384,7 @@ function ganttGenerator(){
                     progress: (value['date_capteur']) ? 100 : 0
                   })
                 }
-                if (value['ballon'] != 'None' && $("#step").val() == 'tout' || $("#step").val() == 'ballon'){
+                if (value['ballon'] != 'None' && ($("#step").val() == 'tout' || $("#step").val() == 'ballon')){
                     tasks.push(
                     {
                     start: convertdate((value['date_ballon']) ? (value['date_ballon']) : value['date_ballon_prevu']),
@@ -508,6 +510,7 @@ function ganttGenerator(){
     if (tasks2.length === 0){
         $("#ganttContainer").html("<h1>Pas de données avec ces critères</h1>")
     }else{
+        $("#ganttContainer").addClass("gantt-container")
         $("#ganttContainer").html("")
         if (!$("#ganttVstableur").is(":checked")){
             myChart = new Gantt(".gantt-container", tasks2, {
@@ -601,7 +604,7 @@ function ganttGenerator(){
             }
             $(".popup-wrapper").css('opacity', '0')
         }else{
-
+            $("#ganttContainer").removeClass("gantt-container")
             $("#ganttContainer").html('<table id="table" data-toggle="table" data-custom-sort="customSort" data-search="true" '+
             '><thead><tr>'+
             '<th data-field="CL"  data-halign="center" data-align="center" data-formatter="CLTabformatter" data-sortable="true">N° CL</th>'+
@@ -611,11 +614,32 @@ function ganttGenerator(){
             '</tr></thead></table>')
 
             var $table = $('#table')
-              $(function() {
-                $table.bootstrapTable({data: tasks2})
-              })
+            $(function() {
+                $table.bootstrapTable({
+                    data: tasks2,
+                    onPostBody: function() {
+                        $("input.date_picker").datetimepicker({
+                                              format: 'Y-m-d'
+                                            })
+                        $("input.date_picker").on("change", function(){
+                            $.ajax({
+                                url: window.location.href,
+                                type:'post',
+                                data: {'updateDate': [{
+                                    'CL': $(this).closest("tr").find("td:first-child a").html(),
+                                    'new': $(this).val(),
+                                    'task': $(this).closest("tr").find("td:nth-child(2)").html()
+                                    }]},
+                                dataType: 'json',
+                                success: function (json) {
+                                    showToast(task.name + ": terminée et sauvegardée")
+                                }
+                            })
 
-
+                        })
+                    }
+                })
+            })
         }
     }
 
@@ -755,9 +779,7 @@ function searchByCommercial(){
             }
             var time = dt.getHours() + ":" + min + ":" + sec;
             showToast("<li class='text-danger'><b>"+time+":WebSocket déconnectée. Veuillez réactualiser la page</b></li>")
-
         }
-
 </script>
 
 {%endblock%}

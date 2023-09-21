@@ -506,6 +506,9 @@ def ActualiseUtilisateur(*args, **kwargs):
     lendf = str(len(df))
     send_channel_message('updateDB', {
         'message': "Démarrage de la mise en base de donnée.<br>utilisateur: 0/" + lendf,
+                'index': 0,
+                'total': lendf,
+                'nature':"utilisateurs"
     })
     for index, row in df.iterrows():
         try:
@@ -548,6 +551,9 @@ def ActualiseUtilisateur(*args, **kwargs):
         if index % 100 == 0:
             send_channel_message('updateDB', {
                 'message': "En cours d'éxécution:<br>utilisateurs: " + str(index) + "/" + lendf,
+                'index': index,
+                'total': lendf,
+                'nature':"utilisateurs"
             })
 
     send_channel_message('updateDB', {
@@ -601,6 +607,9 @@ def ActualiseInstallation(*args, **kwargs):
         if index % 100 == 0:
             send_channel_message('updateDB', {
                 'message': "En cours d'éxécution:<br>installation: " + str(index) + "/" + lendf,
+                'index': index,
+                'total': lendf,
+                'nature':"installations"
             })
     send_channel_message('updateDB', {
         'message': "Importation finie:<br>installations: " + lendf + "/" + lendf,
@@ -640,6 +649,9 @@ def ActualiseAcces(*args, **kwargs):
         if index % 500 == 0:
             send_channel_message('updateDB', {
                 'message': "En cours d'éxécution:<br>accès: " + str(index) + "/" + lendf,
+                'index': index,
+                'total': lendf,
+                'nature':"accès"
             })
     send_channel_message('updateDB', {
         'message': "Importation finie:<br>accès: " + lendf + "/" + lendf,
@@ -678,6 +690,9 @@ def ActualiseHistorique(*args, **kwargs):
         if index % 100 == 0:
             send_channel_message('updateDB', {
                 'message': "En cours d'éxécution:<br>historique: " + str(index) + "/" + lendf,
+                'index': index,
+                'total': lendf,
+                'nature':"historiques"
             })
     send_channel_message('updateDB', {
         'message': "Importation finie:<br>historique: " + lendf + "/" + lendf,
@@ -716,6 +731,9 @@ def ActualiseAttribut(*args, **kwargs):
         if index % 500 == 0:
             send_channel_message('updateDB', {
                 'message': "En cours d'éxécution:<br>attribut_val: " + str(index) + "/" + lendf,
+                'index': index,
+                'total': lendf,
+                'nature':"valeurs d'attribut"
             })
     send_channel_message('updateDB', {
         'message': "Importation finie:<br>attribut_val: " + lendf + "/" + lendf,

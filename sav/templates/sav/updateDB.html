@@ -1,6 +1,7 @@
 {% extends "sav/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
+{% load my_filter %}
 {%block Titre%}Importer depuis my.solisart{%endblock%}
 
 {%block article%}
@@ -41,12 +42,35 @@
                         {% endif%}
                     {%endfor%}
                 </ul>
-                <form method="post" enctype="multipart/form-data">{% csrf_token %}
+
+                {% if request.user|has_group:'update_Since_My_Solisart' %}
+                <div class="row">
+                    <p>Pour récupérer les donnés depuis my.solisart.fr:
+                        <ul class="list-group-numbered">
+                            <li class="list-group-item">Aller sur le site: <a href="https://my.solisart.fr/MySQLAdmin/"> ici</a>, avec Utilisateur: solisart-ro et Mot de passe: XaZ1Aech</li>
+                            <li class="list-group-item">Cliquer sur le + devant solisart. La liste des tables de my.solisart apparaît.</li>
+                            <li class="list-group-item">Cliquer sur l'une des 4 tables à mettre à jour entre:<ul>
+                                <li>acces: liste des droits acces</li>
+                                <li>attribut_val: liste des informations de l'installation (proprio, adresse, ...)</li>
+                                <li>installation: liste de toutes installations</li>
+                                <li>utilisateur: liste de tous les utilisateurs (installateur, proprio, tech, ...)</li>
+                            </ul>
+                                la table apparaît sur la partie de droite de l'écran.
+                            </li>
+                            <li class="list-group-item">Cliquer sur l'onglet Exporter en haut de la page.</li>
+                            <li class="list-group-item">Sélectionner CSV comme format d'export</li>
+                            <li class="list-group-item">Cliquer sur le bouton Exécuter. un fichier .csv a être téléchargé dans votre dossier de téléchargement.</li>
+                            <li class="list-group-item">Pour faire la mise à jour de la base de donnée, sélectionner le fichier à important, dans l'ordre:<ul><li>installation</li><li>utilisateur</li><li>acces</li><li>attribut_val</li></ul></li>
+                        </ul>
+                    </p>
+                    <form method="post" enctype="multipart/form-data">{% csrf_token %}
                     <div class="input-group m-3">
                       <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroup" aria-label="Upload" name="fichier">
                       <button class="btn btn-outline-secondary" type="submit" id="inputGroup" name="submit">Importer</button>
                     </div>
-                </form>
+                    </form>
+                </div>
+                {%endif%}
             </div>
             <div class="tab-pane fade" id="export" role="tabpanel" aria-labelledby="pills-home-tab">
                 <h2 class="m-3">Exporter les prix d'Herakles vers site commercial</h2>
@@ -108,11 +132,18 @@ function showToast(Toastbody){
 const socket = new WebSocket('ws://'+window.location.host+'/ws/updateDB/');
         socket.onmessage = (e) => {
             var d = JSON.parse(e.data)
-            console.log(d)
+            $("#inputGroup").prop('disabled', true)
+            if(!$("#modal-progress").hasClass("show")){
+                $("#modal-progress").modal("show")
+                $(".modal-title").html("mise à jour des " + d.total +" " + d.nature)
+            }
+            var progress = parseInt(d.index / d.total * 100, 10);
+                  var strProgress = progress + "%";
+                  $(".progress-bar").css({"width": strProgress});
+                  $(".progress-bar").text(strProgress);
             if (d.hasOwnProperty("message")) {
-                var message = d.message;
-                showToast(message)
-                if(message.includes("Importation finie:")){
+                if(d.message.includes("Importation finie:")){
+                    $("#modal-progress").modal("hide")
                     window.location.href=window.location.href
                 }
             }

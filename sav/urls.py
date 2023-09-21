@@ -18,5 +18,6 @@ urlpatterns = [
     # path('mail', login_required(views.mail.as_view()), name='mail'),
     path('bidouille', views.bidouille.as_view(), name='bidouille'),
     path('cartcreator', login_required(views.cartcreator.as_view()), name='cartcreator'),
-    path('production', login_required(views.production.as_view()), name='production')
+    path('production', login_required(views.production.as_view()), name='production'),
+    path('bg_dark', views.bg_dark, name='bg_dark')
 ]

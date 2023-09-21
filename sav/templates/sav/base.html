@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
 {% load static %}
 {% load my_filter %}
+<!DOCTYPE html>
+<html lang="fr" {% if request.user|has_group:'bg_dark' %}data-bs-theme="dark"{%endif%}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 
@@ -149,11 +149,11 @@ ul.nav li a.active {
   </div>
 <div class="row">
     <div class="col-12">
-        <nav class="navbar navbar-expand-md navbar-white bg-white">
-    <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+        <nav class="navbar navbar-expand-md navbar-white">
+        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
 
-    </div>
-    <div class="mx-auto order-0 {% if debug %}bg-warning rounded{%endif%}">
+        </div>
+    <div class="mx-auto order-0 {% if debug %}bg-secondary rounded{%endif%}">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:home' %}" data-bs-container="body" data-bs-toggle="popover" title='Rechercher' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
@@ -231,8 +231,9 @@ ul.nav li a.active {
                 <i class="far fa-user x-2"></i>
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
-                <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
+                    <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" id="bgmode">{% if request.user|has_group:'bg_dark' %}<i class="fas fa-moon"></i> Mode sombre{%else%}<i class="fas fa-sun"></i> Mode claire{%endif%}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                 <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
               </ul>
         </div>
@@ -290,6 +291,29 @@ ul.nav li a.active {
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)
+})
+$("#bgmode").on("click", function(){
+    if($("#bgmode").html().includes('claire')){
+        $("html").attr("data-bs-theme","dark")
+
+        $("#bgmode").html('<i class="fas fa-moon"></i> Mode sombre')
+    }else{
+        $("html").removeAttr("data-bs-theme")
+        $("#bgmode").html('<i class="fas fa-sun"></i> Mode claire')
+    }
+    $.ajax({
+            url: '{% url 'sav:bg_dark' %}',
+            type:'post',
+
+            data: {
+                'user': {{request.user.id}}
+                },
+            success: function (response) {
+                    console.log(response)
+            }
+
+    })
+
 })
 </script>
 

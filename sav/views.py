@@ -178,16 +178,23 @@ class updateDB (View):
     template_name = 'sav/updateDB.html'
     title = 'Importation depuis my.solisart'
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         from django_celery_results.models import TaskResult
         from django.db.models import Max
-        Tasks = TaskResult.objects.filter(pk__in=TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id')).values_list('id__max', flat=True))
+        self.Tasks = TaskResult.objects.filter(
+            pk__in=TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id')).values_list(
+                'id__max', flat=True))
+        return super(updateDB, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+
+
         return render(request,
                       self.template_name,
                       {
                           'title':self.title,
                           'form': self.form_class,
-                          'tasks':Tasks
+                          'tasks':self.Tasks
                       }
                       )
 
@@ -311,7 +318,8 @@ class updateDB (View):
                       self.template_name,
                       {
                           'title':self.title,
-                          'form': self.form_class
+                          'form': self.form_class,
+                          'tasks':self.Tasks
                       }
                       )
 
@@ -1977,7 +1985,7 @@ class production(View):
                 print("error", form.errors)
             return HttpResponseRedirect(request.path_info)
         if 'calendar' in request.POST:
-            return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.all().order_by('-CL')]), safe=False)
+            return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.all().order_by('date_livraison_prevu')]), safe=False)
         if 'show' in request.POST:
             CL = CL_herakles.objects.get(CL = request.POST['show'])
             numCL = request.POST['show']
@@ -2018,6 +2026,7 @@ class production(View):
             result=[]
             for newdate in json.loads(request.POST['updateDate']):
                 CL = CL_herakles.objects.get(CL=newdate['CL'])
+                newdate['task'] = newdate['task'].lower()
                 if 'capteur' in newdate['task']:
                     CL.date_capteur_prevu = datetime.strptime(newdate['new'], '%Y-%m-%d')
                     result.append('capteur ' + CL.CL)
@@ -2141,3 +2150,15 @@ class production(View):
             return JsonResponse(data, safe=False)
 
         return HttpResponse("error ....")
+
+def bg_dark(request):
+    from django.contrib.auth.models import Group
+    u = User.objects.get(pk=request.POST['user'])
+    if u.groups.filter(name='bg_dark').exists():
+        group = Group.objects.get(name='bg_dark')
+        u.groups.remove(group)
+    else:
+        group = Group.objects.get(name='bg_dark')
+        group.user_set.add(u)
+
+    return JsonResponse({'dg_dark': False}, safe=False)
