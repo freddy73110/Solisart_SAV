@@ -9,6 +9,8 @@ import time
 from datetime import timedelta
 from email.mime.image import MIMEImage
 from io import StringIO
+
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -970,6 +972,12 @@ class installation_view (View):
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        import datetime
+        now = timezone.now()
+        result = [now.strftime('%Y-%m')]
+        for _ in range(0, 5):
+            now = now.replace(day=1) - datetime.timedelta(days=1)
+            result.append(now.strftime('%Y-%m'))
 
         return render(request,
                       self.template_name,
@@ -984,7 +992,8 @@ class installation_view (View):
                           'add_MES_form': self.add_MES_form,
                           'form': self.form_class,
                           'acces': self.acces,
-                          'CL': CL_herakles.objects.filter(installation__id=self.pk)
+                          'CL': CL_herakles.objects.filter(installation__id=self.pk),
+                          'month_list': result
                       }
                       )
 
@@ -2162,3 +2171,397 @@ def bg_dark(request):
         group.user_set.add(u)
 
     return JsonResponse({'dg_dark': False}, safe=False)
+
+class tools(View):
+    login_url = '/login/'
+    template_name = 'sav/tools.html'
+    title = "Visualisation des courbes"
+
+    def get(self, request, *args, **kwargs):
+        # for p in profil_user.objects.all():
+        #     p.solisgraph_json_schema = json_solisgraph_schema_default()
+        #     p.save()
+
+        if kwargs:
+            date = kwargs.pop('date')
+            pk_install = kwargs.pop('pk_instal')
+            return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title,
+                          'install': installation.objects.get(pk=pk_install),
+                          'pk_install': pk_install,
+                          'date':date
+                      }
+                      )
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title
+                      }
+                      )
+    def convert_file_to_df (self, bin):
+        pathnewfile = os.path.dirname(__file__) + '/temp/chart.csv'
+        # print("path", tmp_file, pathnewfile)
+        oldfile=bin
+        bad_words = ['Date', 'SolisConfrt']
+        with open(pathnewfile, 'w') as newfile:
+            lines = oldfile.readlines()
+            try:
+                for x, line in enumerate(lines):
+                    line = line.decode('utf-8')
+                    if x == 1:
+                        newfile.write(line)
+                    elif x == len(lines) - 1:
+                        break
+                    elif any(bad_word in lines[x + 1].decode('utf-8') for bad_word in bad_words) and x != 1:
+                        pass
+                    elif not any(bad_word in line for bad_word in bad_words) and x != 2:
+                        newfile.write(line.replace(' l mn', '').replace('?', 'null').replace('C-c', 'null').replace('dsc', 'null'))
+            except Exception as ex:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(ex)
+
+        chunk = pd.read_csv(pathnewfile,
+                            chunksize=1000,
+                            na_values=['null', ''],
+                            sep=";",
+                            on_bad_lines='skip'
+                            )
+
+        # Concataine tous les chunk entre eux
+        df = pd.concat(chunk)
+        df['Date'] = pd.to_datetime(df['Date'], format="%d/%m/%y %H:%M")
+        return df
+
+    def df_plage(self, df, Series, valeur_cible=None):
+
+        current_event = None
+        result = []
+        for event, time in zip(Series, df['Date']):
+            if event != current_event:
+                if current_event is not None:
+                    result.append([current_event, start_time, time, time - start_time])
+                current_event, start_time = event, time
+        df_result = pd.DataFrame(result, columns=['Event', 'EventStartTime', 'EventEndTime', 'duration'])
+        if valeur_cible:
+            df_result = df_result[df_result['Event'] == str(valeur_cible)]
+        return df_result
+
+    def generate_band_defaut(self, df, default):
+        colors = [
+            '#E6B0AA', '#F5B7B1', '#D7BDE2', '#D2B4DE',
+            '#A9CCE3', '#AED6F1', '#A3E4D7 ', '#A2D9CE',
+            '#A9DFBF', '#ABEBC6', '#F9E79F', '#FAD7A0',
+            '#EDBB99', '#F2F3F4', '#D5DBDB', "#AEB6BF"
+        ]
+        defaults = {'def': ['Sonde poele bouilleur tombée du doigt de gant',
+                            'T.Capteur > 115°C',
+                            'Tball (app ou sani) > Tmax autorisée',
+                            'Détection de capteur inversée',
+                            'Blocage du multiplexeur',
+                            'Défaut chaudière',
+                            'sonde Tcapt < Tcapt froid',
+                            'Tcapt froid > T7 en solaire',
+                            'Coupure d électrique ou forte baisse de tension',
+                            'Clapet fuyard C1 à C4, C7 ou V3VAPP',
+                            'Calage V3V APP',
+                            'Clapey fuyard circ. APP (C4)',
+                            'Clapey fuyard circ. SOL (C5)',
+                            'Loi d eau insuffisant',
+                            'Pas de débit',
+                            'Si T6> Tmax chaudière bois'],
+                    'var_cir': ['Consigne Trop élevé de 1°C',
+                                'Consigne Trop élevé de 1°C',
+                                'Consigne Trop élevé de 1°C',
+                                'Consigne Trop élevé de 1°C',
+                                'Débit insuffisant dans les capteurs',
+                                'Débit insuffisant de la pompe de filtration piscine',
+                                'Blocage circulateur capteurs',
+                                'T1 très supérieur à T8',
+                                'Circulation BTC',
+                                'sonde T3 sortie du doigt de gant',
+                                'Tps de marche capteur > 24h',
+                                'T° sonde inférieur à -40°C',
+                                'Clapet fuyard circ. BTC (C6) ou V3V SOL mal calée',
+                                'V3V Solaire mal calée',
+                                'Un circulateur tourne en permanence',
+                                'Apppoint 1 tourne en permanance'],
+                    'dtcapt3mn': ['Manque débit circulateur C7',
+                                  'T4 sortie de son doigt de gant',
+                                  'T retour froid plancher > 50°C',
+                                  'Clapet fuyard C7',
+                                  'Circulateur SOLAIRE tourne en permanence',
+                                  'Circulateur BTC tourne en permanence',
+                                  'T8 inférieur à T7',
+                                  'Température consigne Z1 non atteinte',
+                                  'Température consigne Z2 non atteinte',
+                                  'Température consigne Z3 non atteinte',
+                                  'Température consigne Z4 non atteinte',
+                                  'defaut clapet retour bouclage sanitaire',
+                                  'T8 monte toute seule',
+                                  'Vaporisation cycle dernier',
+                                  'Sonde comptage en défaut',
+                                  'T1 mal placée'],
+                    'index6S': ['Manque débit circulateur SOL',
+                                'Manque débit circulateur APP',
+                                'Manque débit circulateur BTC',
+                                'Manque débit circulateur C1',
+                                'Manque débit circulateur C2',
+                                'Manque débit circulateur C3',
+                                'Manque débit circulateur C7',
+                                'Pas de débit circulateur SOL',
+                                'Pas de débit circulateur APP',
+                                'Pas de débit circulateur BTC',
+                                'Pas de débit circulateur C1',
+                                'Pas de débit circulateur C2',
+                                'Pas de débit circulateur C3',
+                                'Pas de débit circulateur C7',
+                                'Libre',
+                                'Entrée débitmètre 6 (manque de pression, ....)'],
+                    'Aucun': []
+                    }
+        plage_index = []
+        markers = []
+        try:
+            for dft in defaults:
+                if dft == default:
+                    df[dft]=df[dft].fillna(0)
+                    for i in range(16):
+                        serie = df[dft].apply(lambda x: '{0:016b}'.format(int(x))).str[i]
+                        for index, row in self.df_plage(df, serie, valeur_cible=1).iterrows():
+                            plage_index.append(
+                                {
+                                    "x0": row['EventStartTime'].strftime('%Y-%m-%dT%H:%M:%S'),
+                                    "x1": row['EventEndTime'].strftime('%Y-%m-%dT%H:%M:%S'),
+                                    "y0": 0,
+                                    "y1": 100,
+                                    "type": "rect",
+                                    "xref": "x",
+                                    "yref": "y",
+                                    "opacity": 0.6,
+                                    'line': {
+                                        'color': colors[i],
+                                        'width': 3
+                                    },
+                                    'fillcolor': colors[i]
+                                }
+                            )
+                            markers.append(
+                                {
+                                    'marker': {
+                                        'color': colors[i]
+                                    },
+                                    'opacity': 0.1,
+                                    'name': list(reversed(defaults[dft]))[i],
+                                    'showlegend': False,
+                                    'x': [
+                                        row['EventStartTime'].strftime('%Y-%m-%dT%H:%M:%S'),
+                                        row['EventEndTime'].strftime('%Y-%m-%dT%H:%M:%S')
+                                    ],
+                                    'y': [
+                                        0,
+                                        100
+                                    ],
+                                    'type': 'scatter',
+                                    'index': i
+                                }
+                            )
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+        return plage_index, markers, defaults[default], colors
+
+    def diag(self, df):
+        dft = []
+        for k, v in {'def': 'diag1', 'var_cir': 'diag2', 'dtcapt3mn': 'diag3', 'index6S': 'diag4'}.items():
+            plage_index, markers, designation, colors = self.generate_band_defaut(df, k)
+            dft += [{'start': d['x'][0], 'end': d['x'][1], 'type': d['name']} for d in markers]
+        return dft
+
+    def post(self, request, *args, **kwargs):
+        if "name__C1" in request.POST:
+            param=request.user.profil_user.solisgraph_json
+            for k, v in request.POST.dict().items():
+                if k.split('__')[1] in param.keys():
+                    param[k.split('__')[1]][k.split('__')[0]]= v
+                else:
+                    param[k.split('__')[1]] = {k.split('__')[0]: v}
+            for k, v in param.items():
+                if k in ['backgroundChart', 'backgroundBody']:
+                    continue
+                else:
+                    if param[k]['visible'] == 'on':
+                        param[k]['visible']=True
+                    else:
+                        param[k]['visible'] = False
+            request.user.profil_user.solisgraph_json = param
+            request.user.profil_user.save()
+            return JsonResponse(
+                {
+                    'data': param
+                }, safe=False)
+
+
+        if "schema" in request.POST:
+            json_schema = json.loads(request.POST['schema'])
+            request.user.profil_user.solisgraph_json_schema = json_schema
+            request.user.profil_user.save()
+            return JsonResponse(
+                {
+                    'data': "done"
+                }, safe=False)
+
+        if 'date' in request.POST and 'pk_install' in request.POST:
+            date = request.POST['date']
+            pk_install = request.POST['pk_install']
+            message = ''
+            for i, d in enumerate(str(date).split("_")):
+                url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                    pk=pk_install).idsa + "-" + d + ".csv"
+                import requests
+                with requests.Session() as s:
+                    download = s.get(url, stream=True)
+                    # "Check if file exist"
+                    if download.headers['Content-length'] != str(0):
+                        df_temp = self.convert_file_to_df(BytesIO(download.content))
+                    else:
+                        # If not exist test with zip
+                        url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                            pk=pk_install).idsa + "-" + d + ".zip"
+                        with requests.Session() as s:
+                            download = s.get(url, stream=True)
+                            if download.headers['Content-length'] == str(0):
+                                # If not exist test with zip
+                                url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                                    pk=pk_install).idsa + "-" + d + "-debut.zip"
+                                with requests.Session() as s:
+                                    download = s.get(url, stream=True)
+                                    if download.headers['Content-length'] == str(0):
+                                        print("pas de donnée pour " + d)
+                                        message += "pas de donnée pour " + d
+                                        continue
+                            import zipfile
+                            with zipfile.ZipFile(BytesIO(download.content), 'r') as zip_ref:
+                                first = zip_ref.infolist()[0]
+                                with zip_ref.open(first, "r") as fo:
+                                    df_temp = self.convert_file_to_df(fo)
+
+                if not 'df' in locals():
+                    df = df_temp
+                else:
+                    if df_temp.Date[len(df_temp) - 1] <= df.Date[0]:
+                        df = pd.concat([df_temp, df]).reset_index(drop=True)
+                    elif df.Date[len(df) - 1] <= df_temp.Date[0]:
+                        df = pd.concat([df, df_temp]).reset_index(drop=True)
+                    else:
+                        index = df[df.Date >= df_temp['Date'][0]].first_valid_index()
+                        try:
+                            if df.Date[index] == df.Date[index + 1]:
+                                index += 1
+                        except:
+                            pass
+                        df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]]).reset_index(drop=True)
+
+            data = {}
+            if 'df' in locals():
+                for column in df.columns:
+                    if column == "Date":
+                        s_datetime = pd.to_datetime(df['Date'], format="%d/%m/%y %H:%M")
+                        for i, v in s_datetime.items():
+                            try:
+                                if i < len(s_datetime) - 2:
+                                    if s_datetime[i + 1] == v:
+                                        s_datetime[i + 1] = v + pd.Timedelta(30, "sec")
+                            except Exception as ex:
+                                print(ex, i, v)
+                                pass
+                        data[column] = list(s_datetime.dt.strftime("%Y-%m-%dT%H:%M:%S"))
+                    else:
+                        if column in ['TdepC', 'TretC']:
+                            df[column] = pd.to_numeric(df[column].fillna(0), errors='coerce', downcast="float")
+                        data[column] = {
+                                "data": list(df[column].fillna("null")),
+                                "name": column,
+                                "visible": True
+                            }
+                data['DeltaTempCollecteur'] = {
+                        "data": list(round(df['TdepC'] - df['TretC'], 2)),
+                        "name": 'Delta de température entre Collecteur',
+                        "color": '#FFC0CB',
+                        "visible": "legendonly"
+                    }
+
+            return JsonResponse(
+                {
+                    'data': data,
+                    'message': message,
+                    'default': self.diag(df)
+                }, safe=False)
+
+        if 'file' in request.POST:
+            for i, f in enumerate(request.FILES.getlist('fichier')):
+                title = f.name
+                if '.zip' in f.name:
+                    import zipfile
+                    with zipfile.ZipFile(f, 'r') as zip_ref:
+                        first = zip_ref.infolist()[0]
+                        with zip_ref.open(first, "r") as fo:
+                            df_temp = self.convert_file_to_df(fo)
+                if '.csv' in f.name:
+                    df_temp = self.convert_file_to_df(f)
+                if i == 0:
+                    df = df_temp
+                else:
+                    if df_temp.Date[len(df_temp) - 1] <= df.Date[0]:
+                        df = pd.concat([df_temp, df]).reset_index(drop=True)
+                    elif df.Date[len(df) - 1] <= df_temp.Date[0]:
+                        df = pd.concat([df, df_temp]).reset_index(drop=True)
+                    else:
+                        index = df[df.Date >= df_temp['Date'][0]].first_valid_index()
+                        try:
+                            if df.Date[index] == df.Date[index + 1]:
+                                index += 1
+                        except:
+                            pass
+                        df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]]).reset_index(drop=True)
+
+            data = {}
+            for column in df.columns:
+                if column =="Date":
+                    s_datetime=pd.to_datetime(df['Date'], format="%d/%m/%y %H:%M")
+                    for i, v in s_datetime.items():
+                        try:
+                            if i < len(s_datetime)-2:
+                                if s_datetime[i + 1] == v:
+                                    s_datetime[i + 1] = v + pd.Timedelta(30, "sec")
+                        except Exception as ex:
+                            print(ex, i , v)
+                            pass
+                    data[column]=list(s_datetime.dt.strftime("%Y-%m-%dT%H:%M:%S"))
+                else:
+                    if column in ['TdepC', 'TretC']:
+                        df[column] = pd.to_numeric(df[column].fillna(0), errors='coerce',downcast="float")
+                    data[column]={
+                        "data":list(df[column].fillna("null")),
+                        "name": column,
+                        "visible": True
+                    }
+            data['DeltaTempCollecteur']={
+                "data": list(round(df['TdepC'] - df['TretC'], 2)),
+                "name": 'Delta de température entre Collecteur',
+                "color": '#FFC0CB',
+                "visible": "legendonly"
+            }
+
+            return JsonResponse(
+                {
+                    'data':data,
+                    "title": title,
+                    'param': request.user.profil_user.solisgraph_json,
+                    'schema': request.user.profil_user.solisgraph_json_schema
+                }, safe=False)

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+
+{% block javascript %}
+<script src="{% static 'plotly2-26-0/plotly.js' %}"></script>
+{%endblock%}
+
+{%block Titre%}Visualisation des courbes{%endblock%}
+
+{%block article%}
+<div class="modal fade" id="modal-progress-tools" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Paramètre</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </button>
+        </div>
+        <form>
+        <div class="modal-body">
+            <table class="table">
+                <thead>
+                    <th class="text-center">Label</th>
+                    <th class="text-center">Couleur</th>
+                    <th class="text-center">Visible au démarrage</th>
+                </thead>
+                <tbody>
+                {% for p, v in user.profil_user.solisgraph_json.items %}
+                {% if p != "backgroundChart" and p != "backgroundBody"%}
+                <tr>
+                    <td>
+                        <div class="form-floating">
+                            <input type="text" class="form-control" name="name__{{p}}"  id="id_name_{{p}}" value="{{v.name}}">
+                            <label for="id_name_{{p}}">label pour {{p}}</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-floating">
+                            <input type="color" class="form-control" name="color__{{p}}"  id="id_color_{{p}}" value="{{v.color}}">
+                            <label for="id_color_{{p}}">Couleur</label>
+                        </div>
+                    </td>
+                    <td class="text-center align-middle">
+                        <div class="form-check form-switch mx-auto">
+                          <input class="form-check-input" type="checkbox" name="visible__{{p}}"  id="id_visible_{{p}}" {% if v.visible %}checked{%endif%}>
+                          <label class="form-check-label" for="id_visible_{{p}}">Visible</label>
+                        </div>
+                    </td>
+                </tr>
+                {%endif%}
+                {%endfor%}
+                </tbody>
+            </table>
+
+        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close" id="modal-close">Annuler</button>
+                <button type="button" class="btn btn-outline-primary" name="param_chart">Enregister</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 m-3">
+            <h1 class="text-center">SolisGraph</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-progress-tools">Configuration paramètres</button>
+        </div>
+        <div class="col-12 m-3">
+            <ul class="nav nav-pills nav-justified m-3" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="chart-li" data-bs-toggle="tab" data-bs-target="#chart_tab" type="button" role="tab" aria-controls="home" aria-selected="true">Graphique et Schéma</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="schema-li" data-bs-toggle="tab" data-bs-target="#default_tab" type="button" role="tab" aria-controls="home" aria-selected="true">
+                    <span>Défauts</span>
+                    <span class="badge rounded-pill bg-success" tabindex="0" >
+                        0
+                        </span>
+                </button>
+              </li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade active show" id="chart_tab" >
+                <div class="col-12 upload-zone">
+                    <p>
+                        <div class="well text-muted text-center todelete" style="padding-top: 4rem; padding-bottom: 4rem;height:700px" id="chart">
+                        <i class="fa fa-arrow-down fa-4x" aria-hidden="true"></i><h3>Déposer vos fichiers ici</h3></div>
+                        <input class="fileupload multi" type="file" name="fichier" multiple
+                                     style="display: none;"
+                                     data-url="{{ request.get_full_path }}"
+                                     data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file":""}'
+                                    accept="zip|csv"
+                                     maxlength="2"
+                                  >
+                    </p>
+                    <div class="m-auto position-relative mt-4 schema" id="div_schema" style="height:700px">
+                                <img src="{% static 'image/schemaPrincipe.png' %}" alt="schema" class="position-absolute top-50 start-50 translate-middle" id="imgSchema">
+
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C1" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C1">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C2" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C2">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C3" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C3">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C4" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C4">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C7" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C7">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C5" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C5">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <span class="fa-layers fa-fw fa-4x draggable text-black" id="C6" tabindex="0" data-bs-toggle="tooltip" title="Circulateur C6">
+                                        <i class="far fa-circle"></i>
+                                        <i class="fas fa-play fa-rotate-90" data-fa-transform="shrink-2 down-1"></i>
+                                    </span>
+                                    <div class="draggable position-absolute" tabindex="0" data-bs-toggle="tooltip" title="Vanne 3 Voies Appoint" id="divV3VA">
+                                        <span id="V3VA" class="">
+                                            <i class="fas fa-play fa-rotate-180"></i>
+                                        </span>
+                                        <span id="V3VAm100" class="">
+                                            <i class="fas fa-play fa-rotate-90"></i>
+                                        </span>
+                                        <span id="V3VAm50" class="">
+                                            <i class="fas fa-play"></i>
+                                        </span>
+                                        <span id="V3VAm0" class="">
+                                            <i class="fas fa-play"></i>
+                                        </span>
+                                    </div>
+                                    <div class="draggable position-absolute" tabindex="0" data-bs-toggle="tooltip" title="Vanne 3 Voies Solaire" id="divV3VS">
+                                        <span id="V3VS">
+                                            <i class="fas fa-play fa-rotate-180" ></i>
+                                        </span>
+                                        <span id="V3VSm100">
+                                            <i class="fas fa-play fa-rotate-90" ></i>
+                                        </span>
+                                        <span id="V3VSm50">
+                                            <i class="fas fa-play"></i>
+                                        </span>
+                                        <span id="V3VSm0">
+                                            <i class="fas fa-play"></i>
+                                        </span>
+                                    </div>
+
+                                    <span class="draggable position-absolute" id="appoint1" tabindex="0" data-bs-toggle="tooltip" title="Appoint 1">
+                                        <span>
+                                            <i class="fas fa-fire text-warning pulses" ></i>
+                                        </span>
+                                    </span>
+                                    <span class="draggable position-absolute" id="appoint2" tabindex="0" data-bs-toggle="tooltip" title="Appoint 2">
+                                        <span>
+                                            <i class="fas fa-fire text-warning pulses" ></i>
+                                        </span>
+                                    </span>
+                                    <span class="draggable position-absolute" id="MD" tabindex="0" data-bs-toggle="tooltip" title="Mode dégradé">
+                                        <i class="fas fa-thermometer-full text-danger" ></i> <b class="text-black">Mode dégradé</b>
+                                    </span>
+
+                                    <span class="draggable position-absolute" id="option1" tabindex="0" data-bs-toggle="tooltip" title="Option 1">
+                                        <i class="fas fa-lightbulb text-danger"></i> <b class="text-black">Option1</b>
+                                    </span>
+
+                                    <span class="draggable position-absolute" id="option2" tabindex="0" data-bs-toggle="tooltip" title="Option 2">
+                                        <i class="fas fa-lightbulb text-danger"></i> <b class="text-black">Option2</b>
+                                    </span>
+
+                                    <span class="draggable position-absolute" id="divInputT1" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T1">
+                                        <b type="text" id="inputT1" class="inputSchema w-100">Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT2" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T2">
+                                        <b type="text" id="inputT2" class="inputSchema w-100">Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT3" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T3">
+                                        <b type="text" id="inputT3" class="inputSchema w-100" >Nan</b>
+
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT4" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T4">
+                                        <b type="text" id="inputT4" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT5" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T5">
+                                        <b type="text" id="inputT5" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT6" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T6">
+                                        <b type="text" id="inputT6" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT7" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T7">
+                                        <b type="text" id="inputT7" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT8" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T8">
+                                        <b type="text" id="inputT8" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT9" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T9">
+                                        <b type="text" id="inputT9" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT10" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T10">
+                                        <b type="text" id="inputT10" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT11" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T11">
+                                        <b type="text" id="inputT11" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT12" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T12">
+                                        <b type="text" id="inputT12" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT13" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T13">
+                                        <b type="text" id="inputT13" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT14" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T14">
+                                        <b type="text" id="inputT14" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT15" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T15">
+                                        <b type="text" id="inputT15" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                                    <span class="draggable position-absolute" id="divInputT16" tabindex="0" data-bs-toggle="tooltip" title="Température Sonde T16">
+                                        <b type="text" id="inputT16" class="inputSchema w-100" >Nan</b>
+                                    </span>
+                            </div>
+                        <p id="p_defauts"></p>
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="default_tab">
+
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <th class="text-center">Début</th>
+                            <th class="text-center">Fin</th>
+                            <th class="text-center">Défaut</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    </div>
+</div>
+
+<script>
+
+$('.upload-zone').each(function () {
+    var DropZone = $(this);
+    var DropZone_id = DropZone[0].id.split('_')[1];
+    DropZone.find('input:first').fileupload({
+            dropZone: DropZone,
+            dataType: 'json',
+            multipart: true,
+            singleFileUploads: false,
+
+            start: function (e) {
+              $("#modal-progress").modal("show");
+            },
+
+            stop: function (e) {
+              $("#modal-progress").modal("hide");
+            },
+
+            progressall: function (e, data) {
+              var progress = parseInt(data.loaded / data.total * 100, 10);
+              var strProgress = progress + "%";
+              $(".progress-bar").css({"width": strProgress});
+              $(".progress-bar").text(strProgress);
+              if (progress == 100){
+                setTimeout(function(){
+                    $("#modal-progress").modal("hide");
+                    $("#chart").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>');
+                }, 1500);
+              }
+            },
+            done: function (e, data) {
+              var d = data.result
+              window.data = d.data;
+              window.title = d.title;
+              window.param = d.param;
+              window.schema = d.schema;
+              generate_json_data()
+              $.each(schema, function(index, value){
+                $(index).css(value)
+              })
+            }
+    });
+});
+</script>
+<script>
+
+
+
+function hoverlegend(){
+$("#chart").find("g.traces")
+    .mouseover( function(){
+    var legendText = $(this).find("text.legendtext").html()
+    $.each($($("#chart"))[0].data, function(index, value){
+        if(value.name == legendText){
+            Plotly.restyle(TESTER, {
+            line:{width: 2}
+            });
+            Plotly.restyle(TESTER, {
+                line:{width: 4}
+                }, index);
+        }
+    })
+    })
+    .mouseout( function(){
+    var legendText = $(this).find("text.legendtext").html()
+    $.each($($("#chart"))[0].data, function(index, value){
+        if(value.name == legendText){
+            Plotly.restyle(TESTER, {
+                line:{width: 2, index}
+            });
+        }
+    })
+    })
+}
+
+
+function generate_json_data(){
+    TESTER = document.getElementById('chart');
+    all_data=[]
+    colorscale=[]
+    Object.keys(data).forEach(function(key) {
+        if (['Tcapt', 'TcaptF', 'TbalS', 'TbalA', 'TalT', 'TpoeleB', 'TretC', 'TdepC', 'Text', 'Tcap2', 'TZ1', 'TZ2',
+         'TZ3', 'TZ4', 'T15', 'T16', 'Tcons1', 'Tcons2', 'Tcons3', 'Tcons4', 'TconsECS', 'DeltaTempCollecteur'].includes(key)){
+            var unit=' °C'
+        }else if(['C1', 'C2', 'C3', 'APP', 'SOL', 'BTC', 'C7', 'POSV3VSOL', 'POSV3VAPP', 'POSV3VOPT'].includes(key)){
+            var unit=' %'
+        }else{
+            var unit=''
+        }
+        if (!['Date', 'DemZ1', 'DemZ2', 'DemZ3', 'DemZ4', 'DemECS', 'dtcapt3mn', 'var_cir', 'def_T', 'def', 'index6S'].includes(key)){
+            if (param.hasOwnProperty(key)){
+                var visible = param[key].visible ? true : "legendonly"
+                var color = param[key].color
+            }else{
+                var visible = "legendonly"
+                var color = "#000000"
+            }
+            color = color
+            colorscale.push(param[key].color)
+            all_data.push({
+                x:data.Date,
+                y:data[key].data,
+                unit:unit,
+                yaxis: 'y1',
+                line: {shape: 'linear'},
+                type: 'scatter',
+                hovertemplate:'<b>Valeur:</b> %{y}'+unit,
+                name: param[key].name,
+                visible: visible
+                }
+            )
+        }
+    })
+    var selectorOptions = {
+        buttons: [{
+            step: 'day',
+            stepmode: 'backward',
+            count: 1,
+            label: '1 jour'
+        }, {
+            step: 'day',
+            stepmode: 'backward',
+            count: 7,
+            label: '1 semaine'
+        }, {
+            step: 'day',
+            stepmode: 'backward',
+            count: 14,
+            label: '2 semaines'
+        },{
+            step: 'mouth',
+            stepmode: 'backward',
+            count: 1,
+            label: '1 mois'
+        },{
+            step: 'all',
+            label: 'Tout'
+        }],
+    };
+    var layout={
+        title:title,
+        autosize: true,
+        height: 500,
+        hovermode:"closest",
+        plot_bgcolor: param.backgroundChart.color,
+        paper_bgcolor: param.backgroundChart.color,
+        xaxis:{
+            type: 'datetime',
+            autorange: true,
+            showspikes: true,
+            rangeselector: selectorOptions
+        },
+        yaxis: {
+            autorange: true,
+            showspikes: true,
+            spikemode: 'toaxis'
+            },
+        colorway: colorscale
+    }
+    var icon = {
+      'width': 500,
+      'path': 'M448 344v112a23.94 23.94 0 0 1-24 24H312c-21.39 0-32.09-25.9-17-41l36.2-36.2L224 295.6 116.77 402.9 153 439c15.09 15.1 4.39 41-17 41H24a23.94 23.94 0 0 1-24-24V344c0-21.4 25.89-32.1 41-17l36.19 36.2L184.46 256 77.18 148.7 41 185c-15.1 15.1-41 4.4-41-17V56a23.94 23.94 0 0 1 24-24h112c21.39 0 32.09 25.9 17 41l-36.2 36.2L224 216.4l107.23-107.3L295 73c-15.09-15.1-4.39-41 17-41h112a23.94 23.94 0 0 1 24 24v112c0 21.4-25.89 32.1-41 17l-36.19-36.2L263.54 256l107.28 107.3L407 327.1c15.1-15.2 41-4.5 41 16.9z',
+    'ascent': 500,
+    'descent': 0,
+    };
+    var listIcon={
+        'width': 500,
+        'path':"M464 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h416c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zM128 120c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zm0 96c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zm0 96c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zm288-136v-32c0-6.627-5.373-12-12-12H204c-6.627 0-12 5.373-12 12v32c0 6.627 5.373 12 12 12h200c6.627 0 12-5.373 12-12zm0 96v-32c0-6.627-5.373-12-12-12H204c-6.627 0-12 5.373-12 12v32c0 6.627 5.373 12 12 12h200c6.627 0 12-5.373 12-12zm0 96v-32c0-6.627-5.373-12-12-12H204c-6.627 0-12 5.373-12 12v32c0 6.627 5.373 12 12 12h200c6.627 0 12-5.373 12-12z",
+        'ascent': 500,
+        'descent': 0,
+    }
+
+    var config = {
+        scrollZoom: true,
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false,
+      modeBarButtonsToAdd: [
+        {
+          name: 'Toutes les étiquettes',
+          icon: listIcon,
+          direction: 'up',
+          click: function(gd) {
+            if($('#chart')[0].layout.hovermode == 'closest'){
+                TESTER = document.getElementById('chart')
+                Plotly.relayout(
+                    TESTER,
+                    {
+                        'hovermode': "x unified",
+                        'yaxis':{'showspikes':false}
+                    }
+                );
+            }else{
+                TESTER = document.getElementById('chart')
+                Plotly.relayout(
+                    TESTER,
+                    {
+                        'hovermode': "closest",
+                        'yaxis':{'showspikes':true}
+
+                    }
+                );
+            }
+          }
+        },
+    {
+      name: 'Plein écran',
+      icon: icon,
+      direction: 'up',
+      click: function(gd) {
+        if (document.fullscreenElement) {
+    document.exitFullscreen();
+    $("#chart").css('height','600px')
+  } else {
+    $('#chart').get(0).requestFullscreen();
+  }
+    }}]
+    }
+    $("#chart").html("")
+    Plotly.newPlot(TESTER, all_data, layout, config)
+    TESTER.on('plotly_click', function(data){
+    var pts = '';
+    for(var i=0; i < data.points.length; i++){
+        var x=data.points[i].x.replace(' ', 'T')+':00'
+        idx  = TESTER.data[0].x.indexOf(x)
+        rangeChange(idx)
+    }
+  })
+  rangeChange(1)
+  hoverlegend()
+  $(".schema").removeClass('d-none')
+}
+
+//POur le gradient de couleur
+function hex (c) {
+  var s = "0123456789abcdef";
+  var i = parseInt (c);
+  if (i == 0 || isNaN (c))
+    return "00";
+  i = Math.round (Math.min (Math.max (0, i), 255));
+  return s.charAt ((i - i % 16) / 16) + s.charAt (i % 16);
+}
+
+/* Convert an RGB triplet to a hex string */
+function convertToHex (rgb) {
+  return hex(rgb[0]) + hex(rgb[1]) + hex(rgb[2]);
+}
+
+/* Remove '#' in color hex string */
+function trim (s) { return (s.charAt(0) == '#') ? s.substring(1, 7) : s }
+
+/* Convert a hex string to an RGB triplet */
+function convertToRGB (hex) {
+  var color = [];
+  color[0] = parseInt ((trim(hex)).substring (0, 2), 16);
+  color[1] = parseInt ((trim(hex)).substring (2, 4), 16);
+  color[2] = parseInt ((trim(hex)).substring (4, 6), 16);
+  return color;
+}
+
+function generateColor(colorStart,colorEnd,colorCount){
+
+	// The beginning of your gradient
+	var start = convertToRGB (colorStart);
+
+	// The end of your gradient
+	var end   = convertToRGB (colorEnd);
+
+	// The number of colors to compute
+	var len = colorCount;
+
+	//Alpha blending amount
+	var alpha = 0.0;
+
+	var saida = [];
+
+	for (i = 0; i < len; i++) {
+		var c = [];
+		alpha += (1.0/len);
+
+		c[0] = start[0] * alpha + (1 - alpha) * end[0];
+		c[1] = start[1] * alpha + (1 - alpha) * end[1];
+		c[2] = start[2] * alpha + (1 - alpha) * end[2];
+
+		saida.push(convertToHex (c));
+
+	}
+
+	return saida;
+}
+
+colorGradient = generateColor("#ff0000","0000ff",125)
+
+function inputValue(id, key, range){
+    TESTER = document.getElementById('chart');
+    var T = Math.round(data[key]['data'][range] * 10) / 10
+    if (key.includes('TZ')){
+        cons = Math.round(data['Tcons' + key.split("TZ")[1]]['data'][range]* 10) / 10
+        $("#" + id).html(T + " °C/" + cons +' °C')
+        if(["1", "2", "3", "4"].includes(key.split("TZ")[1])){
+            var dem = data['DemZ' + key.split("TZ")[1]]['data'][range]
+            var div="#div" + id.replace('i', 'I')
+            $(div).children("span").remove()
+            if( dem == 1){
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-sun fa-spin"></i></span>')
+            }else if (dem == 2){
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-database fa-fade"></i></span>')
+            }else if (dem == 3){
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-shower fa-fade"></i></span>')
+            }else if (dem == 4){
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire fa-fade" ></i></span>')
+            }
+        }
+    }else if(key == "TbalA"){
+        //todo add DTAppECS(0) ici mis à 6
+        cons = Math.round(data['TconsECS']['data'][range]* 10) / 10 + Math.round(6 * 10) / 10
+        $("#" + id).html(T + " °C/" + cons +' °C')
+        $("#span" + id.replace('i', 'I')).children("span").remove()
+        if([1, 2].includes(data['DemECS']['data'][range])){
+            $("#div" + id.replace('i', 'I')).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire fa-fade" ></i></span>')
+        }
+    }else{
+        $("#" + id).html(T + " °C")
+    }
+    if(parseInt(T)+20 < 105){
+        $("#" + id).show()
+        $("#div" + id.replace('i', 'I')).show()
+        $("#" + id).css('color', "#" + colorGradient[parseInt(T)+20])
+    }else if(isNaN(T)){
+        $("#" + id).hide()
+        $("#div" + id.replace('i', 'I')).hide()
+    }else{
+        $("#" + id).show()
+        $("#div" + id.replace('i', 'I')).show()
+        $("#" + id).css('color', "#" + colorGradient.at(-1))
+    }
+}
+function CirculateurSpin(id, key, range){
+
+    var C=data[key]['data'][range]
+    if (C == 0){
+        $("#"+id).removeClass("fa-spin")
+    }else{
+        $("#"+id).addClass("fa-spin")
+    }
+
+}
+
+
+
+function rangeChange(idx){
+    index=parseInt(idx)
+    TESTER = document.getElementById('chart');
+    var clock = TESTER.data[0].x[index].replace('T', ' ')
+    $("#range").val(index)
+    $("#clock").val(clock)
+    correspondanceInput={
+        "inputT1":"Tcapt",
+        "inputT2":"TcaptF",
+        "inputT3":"TbalS",
+        "inputT4":"TbalA",
+        "inputT5": "TalT",
+        "inputT6": "TpoeleB",
+        "inputT7": "TretC",
+        "inputT8": "TdepC",
+        "inputT9": "Text",
+        "inputT10": 'Tcap2',
+        "inputT11": "TZ1",
+        "inputT12": "TZ2",
+        "inputT13": "TZ3",
+        "inputT14": "TZ4",
+        "inputT15": "T15",
+        "inputT16": "T16"
+    }
+    Object.keys(correspondanceInput).forEach(function(key) {
+        inputValue(key, correspondanceInput[key], index)
+    })
+    correspondanceCirculateur={
+        "C1":"C1",
+        "C2":"C2",
+        "C3":"C3",
+        "C4":"APP",
+        "C5":"SOL",
+        "C6":"BTC",
+        "C7":"C7"
+    }
+    Object.keys(correspondanceCirculateur).forEach(function(key) {
+        CirculateurSpin(key, correspondanceCirculateur[key], index)
+    })
+    if (data['POSV3VAPP']['data'][index] == 100){
+        $("#V3VAm100").show()
+        $("#V3VAm50").hide()
+        $("#V3VAm0").hide()
+    }else if (data['POSV3VAPP']['data'][index] == 0){
+        $("#V3VAm100").hide()
+        $("#V3VAm50").hide()
+        $("#V3VAm0").show()
+    }else{
+        $("#V3VAm100").hide()
+        $("#V3VAm50").show()
+        $("#V3VAm0").hide()
+    }
+    if (data['MD']['data'][index] > 0){
+        $("#MD").show()
+    }else{
+        $("#MD").hide()
+    }
+    if (data['S10']['data'][index] == 0){
+        $("#option1").html('<i class="fas fa-lightbulb text-danger"></i> <b class="text-black">Option1</b>')
+    }else{
+        $("#option1").html('<i class="fas fa-lightbulb text-success pulses"></i> <b class="text-black pulses">Option1</b>')
+    }
+    if (data['S11']['data'][index] == 0){
+        $("#option2").html('<i class="fas fa-lightbulb text-danger"></i> <b class="text-black">Option2</b>')
+    }else{
+        $("#option2").html('<i class="fas fa-lightbulb text-success pulses"></i> <b class="text-black pulses">Option2</b>')
+    }
+    if (data['POSV3VSOL']['data'][index] == 100){
+        $("#V3VSm100").show()
+        $("#V3VSm50").hide()
+        $("#V3VSm0").hide()
+    }else if (data['POSV3VSOL']['data'][index] == 0){
+        $("#V3VSm100").hide()
+        $("#V3VSm50").hide()
+        $("#V3VSm0").show()
+    }else{
+        $("#V3VSm100").hide()
+        $("#V3VSm50").show()
+        $("#V3VSm0").hide()
+    }
+    if(data['chdr1']['data'][index] == 100){
+        $("#appoint1").show()
+    }else{
+        $("#appoint1").hide()
+    }
+    if(data['chdr2']['data'][index] == 100){
+        $("#appoint2").show()
+    }else{
+        $("#appoint2").hide()
+    }
+
+    TESTER = document.getElementById('chart');
+    Plotly.relayout(TESTER, {
+        'shapes': [{
+              type: 'line',
+              x0: $('#chart')[0].data[0].x[index],
+              y0: 0,
+              x1: $('#chart')[0].data[0].x[index],
+              y1: 100,
+              line: {
+                color: 'rgb(55, 128, 191)',
+                width: 3
+              },
+              editable:true,
+        }]
+    })
+    date=Date.parse(data.Date[index])
+    $("#p_defauts").html('')
+    $.each(dft, function(key, value){
+        if (Date.parse(value['start']) <= date && Date.parse(value['end']) >= date ){
+            $("#p_defauts").append('<div class="alert alert-warning" role="alert"><i class="fas fa-exclamation-triangle"></i> '+value['type']+'</div>')
+        }
+    })
+
+}
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+$(".draggable")
+            .draggable( {
+                containment : "#div_schema",
+                handle: $(".inputSchema, input, g, span, b"),
+                cancel:"null"
+                })
+            .on( "dragstop",function(event,ui) {
+                var id = "#"+$(this)[0].id
+                var top = $(this).css("top")
+                var left = $(this).css("left")
+                schema[id]['top']= top
+                schema[id]['left']= left
+                    $.ajax({
+                        url: window.location.href,
+                            type:'post',
+                            data: {'schema': JSON.stringify(schema)},
+                            dataType: 'json',
+                            success: function (data) {
+                                console.log("saved")
+                            }
+                    })
+
+                }
+            )
+            .css('cursor', 'move')
+            .children().css('cursor', 'move')
+
+
+</script>
+
+{% if pk_install %}
+
+{{request.user.profil_user.solisgraph_json |json_script:"solisgraph_json"}}
+{{request.user.profil_user.solisgraph_json_schema |json_script:"solisgraph_json_schema"}}
+
+<script>
+    function generate_list_dft(){
+        $(".badge").html(dft.length)
+        $.each(dft, function(i, v){
+            $("tbody").append('<tr><td class="text-center">' + v.start.replace("T", " ").slice(0, 16) + '</td><td class="text-center">' + v.end.replace("T", " ").slice(0, 16) + '</td><td>' + v.type +'</td></tr>')
+        })
+    }
+
+    window.title = '{{install}}'
+    window.param = JSON.parse(document.getElementById('solisgraph_json').textContent);
+    window.schema = JSON.parse(document.getElementById('solisgraph_json_schema').textContent);
+    $.each(schema, function(index, value){
+        $(index).css(value)
+    })
+    $("#chart").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>');
+    $.ajax({
+        url: window.location.href,
+            type:'post',
+            data: {'pk_install':'{{pk_install}}', 'date':'{{date}}'},
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                if(data.message != ''){
+                    alert(data.message)
+                }
+                window.data=data.data
+                window.dft = data.default
+                generate_list_dft()
+                generate_json_data()
+            }
+    })
+    $("[name='param_chart']").on('click', function(){
+        var form = $(this).closest("form");
+        $("#modal-close").click()
+        $.ajax({
+            url: window.location.href,
+            type:'Post',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+                window.param = data.data
+                generate_json_data()
+            }
+    })
+    })
+
+</script>
+{%endif%}
+
+{%endblock%}

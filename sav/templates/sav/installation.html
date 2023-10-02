@@ -9,29 +9,9 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center m-3">{{title}}</h1>
-            <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
             <div class="row justify-content-center">
-                {%if instal.histo %}
-                <div class="col-9">
-                    {% if instal.schema_installation %}
-                    <canvas id="the-canvas" style="height:300px" class="m-auto"></canvas>
-                    {% else %}
-                    <img src="data:image/png;base64,{{instal.schema}}" class="mw-100 mh-70"/>
-                    {%endif%}
-                    </div>
-                <div class="col-3 text-center">
-                    <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}" class="btn btn-outline-primary m-auto">
-                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
-                        lien vers mySolisArt
-                  </a>
-                    <ul class="list-group m-2">
-                    {%for h in instal.histo%}
-                        <li class="list-group-item">{{h}}</li>
-                    {%endfor%}
-                    </ul>
-                </div>
-            </div>
-            {%else%}
+                <div class="col-6">
+
             <div class="col-12 text-center m-3">
                 <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
                    class="btn btn-outline-primary m-auto"
@@ -41,7 +21,56 @@
                         lien vers mySolisArt
                   </a>
             </div>
-            {%endif%}
+                </div>
+                <div class="col-6">
+                    <img src="{% static 'image/icon.ico' %}" alt="logo solisgraph" class="rounded mx-auto d-block" style="max-height: 75px" onclick="startsolisgraph()">
+                    {%for i in month_list%}
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input solisgraphmonth" type="checkbox" id="inlineCheckbox{{i}}" value="{{i}}" {% if forloop.counter == 1%} checked {%endif%} {% if forloop.counter > 2%} disabled{%endif%}>
+                      <label class="form-check-label" for="inlineCheckbox{{i}}">{{i}}</label>
+                    </div>
+                    {%endfor%}
+
+                    <script>
+                        $(".solisgraphmonth").on("change", function(){
+                            console.log('nb checked',$(".solisgraphmonth:checked").length )
+                            if ($(".solisgraphmonth:checked").length == 2){
+                                $(".solisgraphmonth:not(:checked)").prop('disabled', true)
+                            }else if($(".solisgraphmonth:checked").length == 1){
+                                var pp = $.map( $(".solisgraphmonth"), function( val, i ) {
+                                  return $(val).prop('checked')
+                                });
+                                $(".solisgraphmonth:not(:checked)").prop('disabled', true)
+                                $.each(pp, function(i, v){
+                                    if(i != pp.length - 1 && i>0 && v == true){
+                                            $($(".solisgraphmonth")[i-1]).prop('disabled', false)
+                                            $($(".solisgraphmonth")[i]).prop('disabled', false)
+                                            $($(".solisgraphmonth")[i+1]).prop('disabled', false)
+                                    }else if(i != pp.length - 1 && v == true){
+                                            $($(".solisgraphmonth")[i]).prop('disabled', false)
+                                            $($(".solisgraphmonth")[i+1]).prop('disabled', false)
+                                    }else if(i>0 && v == true){
+                                            $($(".solisgraphmonth")[i]).prop('disabled', false)
+                                            $($(".solisgraphmonth")[i-1]).prop('disabled', false)
+                                    }
+                                })
+                            }else{
+                                $(".solisgraphmonth:not(:checked)").prop('disabled', false)
+                            }
+                        })
+                        function startsolisgraph(){
+                            var url = '{{ request.scheme }}://{{ request.META.HTTP_HOST }}/tools/{{instal.pk}}/'
+                            $.each($(".solisgraphmonth:checked"), function(i, v){
+                                    url = url + $(v).val()
+                                    if (i != $(".solisgraphmonth:checked").length-1){
+                                        url =url+'_'
+                                    }
+                            })
+                            window.open(url, '_blank')
+                        }
+                    </script>
+                </div>
+
             {% if instal.schema_installation %}
             <script>
 
@@ -103,10 +132,10 @@ loadingTask.promise.then(function(pdf) {
         <div class="col">
             <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
+                <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <button class="nav-link active" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
                     <span>Historique
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Mise en Service" data-bs-content="Mises en service faites">
                         {{ instal.MES_count }}
@@ -244,7 +273,7 @@ loadingTask.promise.then(function(pdf) {
                         </div>
                       </div>
                     </div>
-              <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
+              <div class="tab-pane fade " id="description" role="tabpanel" aria-labelledby="home-tab">
                   <div class="accordion m-3" id="accordionPanelsStayOpenExample">
                       <div class="accordion-item">
                         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
@@ -317,7 +346,7 @@ loadingTask.promise.then(function(pdf) {
                       </div>
                   </div>
               </div>
-              <div class="tab-pane fade m-3" id="historique" role="tabpanel" aria-labelledby="profile-tab">
+              <div class="tab-pane fade m-3 show active" id="historique" role="tabpanel" aria-labelledby="profile-tab">
                   <button type="button"
                           class="btn btn-outline-primary"
                           data-bs-toggle="modal"

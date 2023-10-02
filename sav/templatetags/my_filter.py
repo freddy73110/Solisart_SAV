@@ -3,9 +3,11 @@ import re
 
 register = template.Library()
 
-@register.filter(name='has_group')
-def has_group(user, group_name):
-    return user.groups.filter(name=group_name).exists()
+@register.filter(name='lastmonthlist')
+def lastmonthlist(month):
+    print(month)
+    return ['2023-09', '2023-08']
+
 @register.filter(name='has_group')
 def has_group(user, group_name):
     return user.groups.filter(name=group_name).exists()

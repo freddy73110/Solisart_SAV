@@ -135,7 +135,7 @@ const socket = new WebSocket('ws://'+window.location.host+'/ws/updateDB/');
             $("#inputGroup").prop('disabled', true)
             if(!$("#modal-progress").hasClass("show")){
                 $("#modal-progress").modal("show")
-                $(".modal-title").html("mise à jour des " + d.total +" " + d.nature)
+                $(".modal-title").html("Mise à jour des " + d.total +" " + d.nature)
             }
             var progress = parseInt(d.index / d.total * 100, 10);
                   var strProgress = progress + "%";

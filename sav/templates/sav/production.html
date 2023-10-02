@@ -264,7 +264,7 @@ function operateFormatter(value, row, index) {
     return value == 100 ? '<a href="javascript:void(0)" class="'+classlike+'"><i class="far fa-check-circle text-success '+classlike+'"></i></a>' : '<a href="javascript:void(0)" class="'+classlike+'"><i class="far fa-circle text-danger '+classlike+'"></i></a>'
   }
 function CLTabformatter(value, row, index) {
-    return '<a href="javascript:void(0)" class="tabcl" onclick="afficherCLModal($(this).html())">' + value +'</a>'
+    return '<a href="javascript:void(0)" class="tabcl icon-link" onclick="afficherCLModal($(this).html())">' + value +'</a>'
 }
 window.operateEvents = {
     'click .like': function (e, value, row, index) {

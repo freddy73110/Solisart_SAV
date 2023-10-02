@@ -8,7 +8,7 @@
         <!-- for jquery -->
     <script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'jquery/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'jquery/jquery-ui-1.12.1/jquery-ui.css' %}">
+<!--    <link rel="stylesheet" href="{% static 'jquery/jquery-ui-1.12.1/jquery-ui.css' %}">-->
 
      <!-- for fontawesome -->
     <link rel="stylesheet" href="{% static 'fontawesome-free-5.15.2-web/css/all.css' %}">
@@ -119,6 +119,24 @@ ul.nav li a.active {
 .mt-45 {
   margin-top: 2rem!important;
 }
+
+.pulses {
+    transform: scale(1);
+	animation: pulse 2s infinite;
+}
+@keyframes pulse {
+	0% {
+		transform: scale(0.9);
+	}
+
+	70% {
+		transform: scale(1.2);
+	}
+
+	100% {
+		transform: scale(0.9);
+	}
+}
     </style>
 </head>
 <body>
@@ -175,7 +193,7 @@ ul.nav li a.active {
                    Export prix vers site commerciale'>
                     <span class="fa-layers fa-fw fa-4x">
                         <i class="far fa-circle text-info" style="color:black"></i>
-                        <i class="fas fa-sync-alt" data-fa-transform="shrink-8"></i>
+                        <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
             </li>
@@ -220,13 +238,12 @@ ul.nav li a.active {
                 </a>
             </li>
         </ul>
-
     </div>
-    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
-        <ul class="navbar-nav ml-auto">
+    <div class="navbar-collapse w-100 order-3 d-flex">
+        <ul class="navbar-nav ps-5">
             <li class="nav-item">
                 {% if user.is_authenticated %}
-        <div class="dropdown float-right">
+            <div class="dropdown float-right">
               <button type="button" class="btn btn-outline-primary dropdown-toggle m-3" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="far fa-user x-2"></i>
               </button>
@@ -236,7 +253,7 @@ ul.nav li a.active {
                     <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                 <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
               </ul>
-        </div>
+            </div>
         {%endif%}
             </li>
         </ul>

@@ -225,15 +225,15 @@ function pctFormatter(value) {
     if (row.remisepct == 100) {
       return {
               css: {
-                'font-weight': 'bold'
+                'font-weight': 'bold',
+                'color': 'red'
               }
             }
+    }else{
+        return {
+            classes: "text-center"
+        }
     }
-    return {
-              css: {
-                color: 'black'
-              }
-            }
 
   }
 </script>
