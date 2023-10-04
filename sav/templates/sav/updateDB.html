@@ -10,17 +10,28 @@
         <div class="col-12">
             <h1 class="text-center m-3">Import-Export entre base de données</h1>
             <ul class="nav nav-pills nav-justified m-3" id="pills-tab" role="tablist">
+               <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-json-tab" data-bs-toggle="pill" data-bs-target="#convert" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><i class="fas fa-map-signs"></i><br> Générer schéma exe et/ou hydro</button>
+              </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#import" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><i class="fas fa-download"></i><br> Importer depuis my.solisart</button>
+                <button class="nav-link" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#import" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><i class="fas fa-download"></i><br> Importer depuis my.solisart</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#export" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-upload"></i><br> Exporter vers site Commercial</button>
               </li>
             </ul>
-
         </div>
         <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div class="tab-pane fade show active" id="convert" role="tabpanel" aria-labelledby="pills-home-tab">
+                <h2 class="m-3">Convertir json en schema d'exe ou hydrolique, config.csv:</h2>
+                <div class="input-group">
+                  <input type="file" class="form-control" id="json_file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept="application/JSON">
+                  <button class="btn btn-outline-secondary api" type="button" id="hydro"><i class="fas fa-file-image"></i> Hydrolique</button>
+                  <button class="btn btn-outline-secondary  api" type="button" id="exe"><i class="fas fa-file-image"></i> Exe</button>
+                  <button class="btn btn-outline-secondary api" type="button" id="config"><i class="fas fa-file-csv"></i> Config</button>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="import" role="tabpanel" aria-labelledby="pills-home-tab">
                 <h2 class="m-3">Importer depuis my.solisart.fr</h2>
                 <h3 class="m-3">Dernière mise à jour:</h3>
                 <ul>
@@ -102,6 +113,40 @@
       </div>
     </div>
 </div>
+<script>
+    $(".api").on("click", function(){
+        var importedFile = $("#json_file")[0].files[0];
+        var typeOutput=this.id
+        var reader = new FileReader();
+        reader.onload = function() {
+            var fileContent = JSON.parse(reader.result);
+            fileContent.typeOutput=typeOutput
+            $.ajax({
+                url: window.location.href,
+                type:'post',
+                data: fileContent,
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function(response) {
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(response)
+                    if(typeOutput == "exe"){
+                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
+                    }else if (typeOutput == "hydro"){
+                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
+                    }else if (typeOutput == "config"){
+                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.csv');
+                    }
+                    document.body.appendChild(link);
+                    link.click();
+                }
+            });
+        };
+        reader.readAsText(importedFile)
+    })
+</script>
+
 <script>
 function exportprix(){
     $("#resulexport").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')

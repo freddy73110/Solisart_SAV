@@ -201,6 +201,40 @@ class updateDB (View):
                       )
 
     def post(self, request, *args, **kwargs):
+        if 'typeOutput' in request.POST:
+            dict_schematic = request.POST.dict()
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
+            import requests
+            if dict_schematic['typeOutput'] == 'hydro':
+                url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
+                resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
+                # Lire les données de l'image depuis la réponse
+                image_data = resp.content
+                # response = HttpResponse(Image.open(BytesIO(image_data)), content_type='image/png')
+                img = Image.open(BytesIO(image_data))
+                response = HttpResponse(content_type='image/png')
+                response['Content-Disposition'] = 'attachment; filename="output.png"'
+                img.save(response, "PNG")
+                return response
+
+            if dict_schematic['typeOutput'] == 'exe':
+                url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaExe'
+                resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
+                # Lire les données de l'image depuis la réponse
+                image_data = resp.content
+                img = Image.open(BytesIO(image_data))
+                response = HttpResponse(content_type='image/png')
+                response['Content-Disposition'] = 'attachment; filename="output.png"'
+                img.save(response, "PNG")
+                return response
+
+            if dict_schematic['typeOutput'] == 'config':
+                url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
+                resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
+                # Lire les données de l'image depuis la réponse
+                response = HttpResponse(resp.content, content_type='text/csv')
+                return response
+
 
         if 'exportprix' in request.POST:
             from .tasks import actualisePrixMySolisart
