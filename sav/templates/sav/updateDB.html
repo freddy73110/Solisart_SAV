@@ -30,6 +30,7 @@
                   <button class="btn btn-outline-secondary  api" type="button" id="exe"><i class="fas fa-file-image"></i> Exe</button>
                   <button class="btn btn-outline-secondary api" type="button" id="config"><i class="fas fa-file-csv"></i> Config</button>
                 </div>
+                <div id="imageResult" class="m-3"></div>
             </div>
             <div class="tab-pane fade" id="import" role="tabpanel" aria-labelledby="pills-home-tab">
                 <h2 class="m-3">Importer depuis my.solisart.fr</h2>
@@ -129,17 +130,29 @@
                     responseType: 'blob'
                 },
                 success: function(response) {
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(response)
-                    if(typeOutput == "exe"){
-                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
-                    }else if (typeOutput == "hydro"){
-                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
-                    }else if (typeOutput == "config"){
-                        link.download = $("#json_file")[0].files[0].name.replace('.json', '.csv');
+                    if(response.size != '0'){
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(response)
+                        if(typeOutput == "exe"){
+                            link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
+                            var image = new Image();
+                            image.src = URL.createObjectURL(response);
+                            image.className="img-fluid rounded mx-auto d-block"
+                            $("#imageResult").html(image);
+                        }else if (typeOutput == "hydro"){
+                            link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
+                            var image = new Image();
+                            image.src = URL.createObjectURL(response);
+                            image.className="img-fluid rounded mx-auto d-block"
+                    $("#imageResult").html(image);
+                        }else if (typeOutput == "config"){
+                            link.download = $("#json_file")[0].files[0].name.replace('.json', '.csv');
+                        }
+                        document.body.appendChild(link);
+                        link.click();
+                    }else{
+                        showToast("<li class='text-danger'><b> Le fichier n'est pas formaté comme il faut</b></li>")
                     }
-                    document.body.appendChild(link);
-                    link.click();
                 }
             });
         };
