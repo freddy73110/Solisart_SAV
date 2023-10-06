@@ -143,15 +143,16 @@ $("#id_capteur_nbre").on("change", function(){
         $("#id_capteur_nbre").val() == 0 ? $("#id_date_capteur_prevu").prop('disabled', true) : $("#id_date_capteur_prevu").prop('disabled', false)
     })
 $.each(['ballon', 'capteur', 'prepa_carte', 'montage', 'prepa'], function(index, value){
-
     $("#id_" + value).on("change", function(){
         $("#id_" + value).val() == "" ? $("#id_date_"+ value +"_prevu").prop('disabled', true) : $("#id_date_"+ value +"_prevu").prop('disabled', false)
     })
     if($("#id_date_" + value).val() == ""){
         $("#id_date_" + value).parent().append('<div class="col-1 d-flex flex-column justify-content-center"><a href="javascript:void(0)" class="'+ value +'"><i class="far fa-circle fa-lg align-middle fa-3x text-danger"></i></a></div>')
     }else{
-         $("#id_date_" + value).parent().append('<div class="col-1 d-flex flex-column justify-content-center"><a href="javascript:void(0)" class="'+ value +'"><i class="align-middle far fa-check-circle text-success fa-3x"></i></a></div>')
+        $("#id_date_" + value).val($("#id_date_" + value).val().split("-").reverse().join('-'))
+        $("#id_date_" + value).parent().append('<div class="col-1 d-flex flex-column justify-content-center"><a href="javascript:void(0)" class="'+ value +'"><i class="align-middle far fa-check-circle text-success fa-3x"></i></a></div>')
     }
+
     $("." + value).on('click', function(){
         if($($(this).find("svg")[0]).hasClass("text-success")){
             $(this).html('<i class="far fa-circle fa-lg align-middle fa-3x text-danger"></i>')
