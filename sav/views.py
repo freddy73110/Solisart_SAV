@@ -202,6 +202,7 @@ class updateDB (View):
 
     def post(self, request, *args, **kwargs):
         if 'typeOutput' in request.POST:
+            
             try:
                 dict_schematic = request.POST.dict()
                 url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
@@ -2216,9 +2217,6 @@ class tools(View):
     title = "Visualisation des courbes"
 
     def get(self, request, *args, **kwargs):
-        # for p in profil_user.objects.all():
-        #     p.solisgraph_json_schema = json_solisgraph_schema_default()
-        #     p.save()
 
         if kwargs:
             date = kwargs.pop('date')

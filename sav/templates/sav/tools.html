@@ -82,7 +82,7 @@
                 <button class="nav-link" id="schema-li" data-bs-toggle="tab" data-bs-target="#default_tab" type="button" role="tab" aria-controls="home" aria-selected="true">
                     <span>Défauts</span>
                     <span class="badge rounded-pill bg-success" tabindex="0" >
-                        0
+                        0 
                         </span>
                 </button>
               </li>
@@ -92,8 +92,59 @@
             <div class="tab-pane fade active show" id="chart_tab" >
                 <div class="col-12 upload-zone">
                     <p>
+                        <div>
+                            <div class="input-group mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select toolFilter" aria-label="Default select example" name="circulateur_seul" id="id_circulateur_seul" disabled>
+                                        <option value="Aucun">Aucune</option>
+                                        <option value="C1">C1 seul</option>
+                                        <option value="C2">C2 seul</option>
+                                        <option value="C3">C3 seul</option>
+                                        <option value="C4">C4 seul</option>
+                                        <option value="C7">C7 seul</option>
+                                    </select>
+                                    <label for="id_circulateur_seul">Afficher Circulateur seul</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select toolFilter" aria-label="Default select example" name="demande" id="id_demande" disabled>
+                                        <option value="Aucun">Aucune</option>
+                                        <option value="DemECS">Eau Chaude Sanitaire</option>
+                                        <option value="DemZ1">Zone 1</option>
+                                        <option value="DemZ2">Zone 2</option>
+                                        <option value="DemZ3">Zone 3</option>
+                                        <option value="DemZ4">Zone 4</option>
+                                    </select>
+                                    <label for="id_demande">Afficher demandes</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select toolFilter" aria-label="Default select example" name="afficher_groupe" id="id_afficher_groupe" disabled>
+                                        <option value="">----------</option>
+                                        <option value="Temperature">Température</option>
+                                        <option value="Circulateur">Circulateur</option>
+                                        <option value="Chaudiere">Chaudière</option>
+                                        <option value="Consigne">Consigne</option>
+                                    </select>
+                                    <label for="id_afficher_groupe">Afficher groupe</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select toolFilter" aria-label="Default select example" name="afficher_groupe" id="id_cacher_groupe" disabled>
+                                        <option value="">----------</option>
+                                        <option value="Temperature">Température</option>
+                                        <option value="Circulateur">Circulateur</option>
+                                        <option value="Chaudiere">Chaudière</option>
+                                        <option value="Consigne">Consigne</option>
+                                    </select>
+                                    <label for="id_cacher_groupe">Cacher groupe</label>
+                                </div>
+                            </div>
+
+
+
+                        </div>
                         <div class="well text-muted text-center todelete" style="padding-top: 4rem; padding-bottom: 4rem;height:700px" id="chart">
-                        <i class="fa fa-arrow-down fa-4x" aria-hidden="true"></i><h3>Déposer vos fichiers ici</h3></div>
+                            <i class="fa fa-arrow-down fa-4x" aria-hidden="true"></i>
+                            <h3>Déposer vos fichiers ici</h3>
+                        </div>
                         <input class="fileupload multi" type="file" name="fichier" multiple
                                      style="display: none;"
                                      data-url="{{ request.get_full_path }}"
@@ -488,6 +539,7 @@ function generate_json_data(){
   rangeChange(1)
   hoverlegend()
   $(".schema").removeClass('d-none')
+  $(".toolFilter").prop("disabled", false)
 }
 
 //POur le gradient de couleur
@@ -563,11 +615,11 @@ function inputValue(id, key, range){
             if( dem == 1){
                 $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-sun fa-spin"></i></span>')
             }else if (dem == 2){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-database fa-fade"></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-database"></i></span>')
             }else if (dem == 3){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-shower fa-fade"></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-shower"></i></span>')
             }else if (dem == 4){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire fa-fade" ></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire" ></i></span>')
             }
         }
     }else if(key == "TbalA"){
@@ -782,7 +834,6 @@ $(".draggable")
             data: {'pk_install':'{{pk_install}}', 'date':'{{date}}'},
             dataType: 'json',
             success: function (data) {
-                console.log(data)
                 if(data.message != ''){
                     alert(data.message)
                 }
@@ -807,6 +858,182 @@ $(".draggable")
     })
     })
 
+$("#id_cacher_groupe").on("click", function(){
+    var list=[]
+    switch($("#id_cacher_groupe").val()){
+        case "Temperature":
+            var tolegendOnly = ['TalT', 'Text', 'TbalA', 'TbalS', 'Tcapt','Tcap2','TcaptF', 'TdepC', 'TretC','TpoeleB', 'TZ1', 'TZ2', 'TZ3', 'TZ4', 'T15', 'T16']            
+            break;
+        case "Circulateur":
+            var tolegendOnly = ['APP', 'BTC', 'C1', 'C2', 'C3', 'C7', 'SOL']
+            break;
+        case "Chaudiere":
+            var tolegendOnly = ['chdr1', 'chdr2']
+            break;
+        case "Consigne":
+        var tolegendOnly = ['Tcons1', 'Tcons2', 'Tcons3', 'Tcons4', 'TconPisc', 'TconPisc_dep']
+            break;
+    }
+    $.each(TESTER.data, function(index, value){
+            var title= value.name        
+            $.each(param, function(i, v){
+                if(v.name == title && tolegendOnly.includes(i)){
+                    list.push(index)
+                }
+            })
+            
+        })
+        Plotly.restyle(TESTER, {visible:"legendonly"}, list)
+})
+$("#id_afficher_groupe").on("click", function(){
+    var list=[]
+    switch($("#id_afficher_groupe").val()){
+        case "Temperature":
+            var tolegendOnly = ['TalT', 'Text', 'TbalA', 'TbalS', 'Tcapt','Tcap2','TcaptF', 'TdepC', 'TretC','TpoeleB', 'TZ1', 'TZ2', 'TZ3', 'TZ4', 'T15', 'T16']            
+            break;
+        case "Circulateur":
+            var tolegendOnly = ['APP', 'BTC', 'C1', 'C2', 'C3', 'C7', 'SOL']
+            break;
+        case "Chaudiere":
+            var tolegendOnly = ['chdr1', 'chdr2']
+            break;
+        case "Consigne":
+        var tolegendOnly = ['Tcons1', 'Tcons2', 'Tcons3', 'Tcons4', 'TconPisc', 'TconPisc_dep']
+            break;
+    }
+    $.each(TESTER.data, function(index, value){
+            var title= value.name        
+            $.each(param, function(i, v){
+                if(v.name == title && tolegendOnly.includes(i)){
+                    list.push(index)
+                }
+            })
+            
+        })
+        Plotly.restyle(TESTER, {visible:true}, list)
+})
+
+function Circulateur(elem, tourne){
+    console.log(elem, tourne)
+    if(tourne){
+        var emptyIndexes = data[elem].data.reduce((acc, curr, index) => {
+        if (curr != 0) {
+            acc.push(index);
+        }
+        return acc;
+        }, []);
+
+    }else{
+        var emptyIndexes = data[elem].data.reduce((acc, curr, index) => {
+        if (curr == 0) {
+            acc.push(index);
+        }
+        return acc;
+        }, []);
+
+    }    
+    return emptyIndexes
+}
+
+
+$("#id_circulateur_seul").on("click", function(){
+    CxTourne = Circulateur($("#id_circulateur_seul").val(), true)
+    Circulateurs = ['C1', 'C2', 'C3', 'C4', 'C7']
+    for (const circ in Circulateur){
+        if(circ != $("#id_circulateur_seul").val()){
+            CxTourne = CxTourne.filter(e => data[circ].data.includes(e))
+        }
+    }
+    var band = []
+    var start, end
+    $.each(CxTourne, function(i, v){
+        if(i == 0){
+            start = v
+        }
+        if(i < CxTourne.length){
+            if(v+1 != CxTourne[i+1]){
+                band.push(
+                    {
+                        type:'rect',
+                        x0: $('#chart')[0].data[0].x[start],
+                        y0:0,
+                        x1: $('#chart')[0].data[0].x[v],
+                        y1: 100,
+                        fillcolor: 'rgb(55, 128, 191)',
+                        opacity: 0.4,
+                        line: {
+                            color: 'rgb(55, 128, 191)',
+                            width: 3
+                            }
+                    }
+                    )
+                start = CxTourne[i+1]
+            }
+        }else{
+            band.push([start, v])
+        }
+    })
+    Plotly.relayout(TESTER, {
+        'shapes': band
+    })
+})
+
+$("#id_demande").on("click", function(){
+    var band=[]
+    if ($(this).val() == "DemECS"){
+        var color = ['rgb(0, 0, 0)', 'rgb(255, 0, 0)']
+    }else{
+        var color = ['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'rgb(255, 255, 255)', 'rgb(0, 0, 255)', 'rgb(255, 0, 0)']
+    }
+    if ($(this).val() == "Aucun"){
+        Plotly.relayout(TESTER, {'shapes': []})
+    }else{
+        var start = 0
+        var dd = data[$(this).val()].data
+        $.each(dd, function(i, v){
+            if (i <dd.length){
+                if(v != dd[i+1]){
+                    if (v == 100){v=0}
+                    band.push(
+                    {
+                        type:'rect',
+                        x0: $('#chart')[0].data[0].x[start],
+                        y0:0,
+                        x1: $('#chart')[0].data[0].x[i],
+                        y1: 100,
+                        fillcolor: color[v],
+                        opacity: v != 0 ? 0.4 : 0,
+                        line: {
+                            color: color[v],
+                            width: 3
+                            }
+                    }
+                    )
+                    start = i+1
+                }
+            }else{
+                band.push(
+                    {
+                        type:'rect',
+                        x0: $('#chart')[0].data[0].x[start],
+                        y0:0,
+                        x1: $('#chart')[0].data[0].x[i],
+                        y1: 100,
+                        fillcolor: color[v],
+                        opacity: v == 0 ? 0 : 0.4,
+                        line: {
+                            color: color[v],
+                            width: 3
+                            }
+                    }
+                    )
+            }
+
+        })
+        Plotly.relayout(TESTER, {'shapes': band})
+    }
+
+})
 </script>
 {%endif%}
 
