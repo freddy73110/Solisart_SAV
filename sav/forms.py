@@ -568,7 +568,8 @@ class CL_Form(ModelForm):
                 self.fields[field].input_formats = ['%d-%m-%Y']
                 self.fields[field].help_text = ''
         self.fields['CL'].disabled = True
-        self.fields['installateur'].disabled = True
+        if not self.instance.installateur == client_herakles.objects.none():
+            self.fields['installateur'].disabled = True
         self.fields['date_livraison_prevu'].disabled = True
         self.fields['transporteur'].disabled = True
         self.fields['BL'].disabled = True

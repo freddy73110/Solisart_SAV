@@ -1984,10 +1984,14 @@ class production(View):
                         ballons += art['codouv']
                     else:
                         ballons += ' + ' + art['codouv']
-
+        
+            try:
+                client = client_herakles.objects.get(Code_Client = codechantier[0]['t601_12_code_client'])
+            except:
+                client = client_herakles.objects.none()
             formCL = CL_Form(initial = {
                 'CL': numCL,
-                'installateur':client_herakles.objects.get(Code_Client = codechantier[0]['t601_12_code_client']),
+                'installateur':client,
                 'information': codechantier[0]['t601_2_titre_du_chantier'],
                 "capteur": capt,
                 "capteur_nbre":capteur_nbre,

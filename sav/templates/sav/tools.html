@@ -615,11 +615,11 @@ function inputValue(id, key, range){
             if( dem == 1){
                 $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-sun fa-spin"></i></span>')
             }else if (dem == 2){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-database"></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-database pulse"></i></span>')
             }else if (dem == 3){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-shower"></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-shower pulse"></i></span>')
             }else if (dem == 4){
-                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire" ></i></span>')
+                $(div).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire pulse" ></i></span>')
             }
         }
     }else if(key == "TbalA"){
@@ -628,7 +628,7 @@ function inputValue(id, key, range){
         $("#" + id).html(T + " °C/" + cons +' °C')
         $("#span" + id.replace('i', 'I')).children("span").remove()
         if([1, 2].includes(data['DemECS']['data'][range])){
-            $("#div" + id.replace('i', 'I')).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire fa-fade" ></i></span>')
+            $("#div" + id.replace('i', 'I')).append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"><i class="fas fa-fire pulse" ></i></span>')
         }
     }else{
         $("#" + id).html(T + " °C")
