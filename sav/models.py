@@ -514,7 +514,25 @@ class installation(models.Model):
                 None
         except:
             return None
+        
+    def codePostale(self):
+        try:
+            CP = attribut_valeur.objects.get(installation=self,
+                                    attribut_def__description="Code postal").valeur
+            return CP
 
+        except:
+            return None
+        
+    def commune(self):
+        try:
+            commune = attribut_valeur.objects.get(installation=self,
+                                    attribut_def__description="Commune").valeur
+            return commune
+
+        except:
+            return None
+    
     def ticketencours(self):
         return ticket.objects.filter(evenement__installation=self).exclude(etat=2).count()
 
@@ -689,7 +707,7 @@ class BL_herakles(models.Model):
         ordering = ("-BL",)
 
 class client_herakles(models.Model):
-    Code_Client = models.CharField(verbose_name="Code Client", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs Client")
+    Code_Client = models.CharField(verbose_name="Code Client", max_length=25, help_text="Appuyer sur Ctrl pour sélectionner plusieurs Client", unique=True)
     Nom = models.CharField(verbose_name="Nom", max_length=60, null=True, blank=True, help_text="Appuyer sur Ctrl pour sélectionner plusieurs Client")
 
     def __str__(self):
@@ -983,7 +1001,7 @@ class transporteur(models.Model):
         return self.nom
 
 class CL_herakles(models.Model):
-    CL = models.CharField(verbose_name="CL", max_length=25, default="default")
+    CL = models.CharField(verbose_name="CL", max_length=25, default="default", unique=True)
     BL = models.ForeignKey("BL_herakles", on_delete=models.CASCADE, null=True, blank=True)
     installateur = models.ForeignKey("client_herakles", verbose_name="installateur", on_delete=models.CASCADE, null=True, blank=True)
     information = models.TextField(verbose_name="Information", null=True, blank=True)
