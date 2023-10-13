@@ -35,6 +35,20 @@
                   <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()">Rechercher</button>
                 </div>
             </form>
+            <fieldset class="border p-2 m-3" style = "border-width:3px">
+                <legend class="float-none w-auto"><b>Afficher</b></legend>
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="form-check form-switch col-3">
+                        <input class="form-check-input" type="checkbox" id="inputInstallateur">
+                        <label class="form-check-label" for="nputInstallateur">Installateurs</label>
+                    </div>
+                    <div class="form-check form-switch col-3">
+                        <input class="form-check-input" type="checkbox" id="inputInstallation">
+                        <label class="form-check-label" for="inputInstallation">Installations</label>
+                    </div>
+                </div>
+            </fieldset>            
             <div id="map" style="height: 800px"></div>
         </div>
         <div class="col-3">
@@ -52,7 +66,7 @@ const fontAwesomeIcon = L.divIcon({
     className: 'myDivIcon'
 });
 const fontAwesomeIconInstallateur = L.divIcon({
-    html: '<i class="fas fa-map-marker-alt text-success fa-4x"></i>',
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-tools fa-inverse" data-fa-transform="shrink-10"></i></span>',
     iconSize: [20, 20],
     iconAnchor: [30, 40],
     className: 'myDivIcon'
@@ -60,7 +74,8 @@ const fontAwesomeIconInstallateur = L.divIcon({
 const mymap = L.map('map').setView([45, 0],5);
             L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
 
-var markersCluster = new L.MarkerClusterGroup();
+var markersClusterInstallateur = new L.MarkerClusterGroup();
+var markersClusterInstallation = new L.MarkerClusterGroup();
 
 function ajoutDepartement(value, color){
     myStyle={'color':color}
@@ -68,44 +83,43 @@ function ajoutDepartement(value, color){
         style:myStyle
     }).addTo(mymap)
 }
-function onEachFeature(feature, layer) {
+function onEachFeature(feature, layer, myTag) {
     // does this feature have a property named popupContent?
     if (feature.properties && feature.properties.popupContent) {
         layer.bindPopup(feature.properties.popupContent);
     }
 }
 function generate_marker(start, stop){
-$.ajax({
-            url: window.location.href,
-            type:'post',
-            dataType: 'json',
-            data: 'start=' + start + '&stop=' + stop,
-            success: function (json) {
-                    L.geoJSON(json, {
-                        onEachFeature: onEachFeature,
-                        pointToLayer: function (feature, latlng) {
-                            return L.marker(latlng, { icon: fontAwesomeIcon});
-                        },
-                        filter: function(feature, layer) {
-                            return feature.properties.show_on_map;
-                        }
-                    }).addTo(markersCluster);
-                }
-          })
+    $.ajax({
+                url: window.location.href,
+                type:'post',
+                dataType: 'json',
+                data: 'start=' + start + '&stop=' + stop,
+                success: function (json) {
+                        L.geoJSON(json, {
+                            onEachFeature: function (feature, layer) { 
+                                layer.myTag = "myGeoJSONINstallation";
+                                if (feature.properties && feature.properties.popupContent) {
+                                    layer.bindPopup(feature.properties.popupContent);
+                                }
+                            },
+                            pointToLayer: function (feature, latlng) {
+                                return L.marker(latlng, { icon: fontAwesomeIcon});
+                            },
+                            filter: function(feature, layer) {
+                                return feature.properties.show_on_map;
+                            }
+                        }).addTo(markersClusterInstallation);
+                    }
+            })
 
-mymap.addLayer(markersCluster);
+    mymap.addLayer(markersClusterInstallation);
 
 }
 
 async function load() {
-        var install_total = {{install_total}}
-        var compter=0
-        var start =0
-        while(install_total>compter){
-            compter=compter+100
-            generate_marker(start, compter)
-            start=compter
-        }
+        
+        
         let url = '{% static "sav/geojson/geojsonFrance.json" %}';
         let geojsonFrance = await (await fetch(url)).json();
         color=["blue", "gray", "green", "red", "orange", "pink", "cyan", "red", "orange"]
@@ -136,10 +150,55 @@ async function load() {
                 ajoutDepartement(geojsonSuisse, v.color)
             }
           })
+        
 
 }
 
 window.onload = load();
+
+class DisplayMarker{
+
+    installation(){
+        var install_total = {{install_total}}
+        var compter=0
+        var start =0
+        while(install_total>compter){
+            compter=compter+100
+            generate_marker(start, compter)
+            start=compter
+        }
+        
+
+    }
+
+    installateur(){
+        $.ajax({
+                url: window.location.href,
+                type:'post',
+                dataType: 'json',
+                data: 'show=installateur',
+                success: function (json) {                    
+                    L.geoJSON(json, {
+                            onEachFeature: function (feature, layer) { 
+                                layer.myTag = "myGeoJSONINstallateur";
+                                if (feature.properties && feature.properties.popupContent) {
+                                    layer.bindPopup(feature.properties.popupContent);
+                                }
+                            },
+                            pointToLayer: function (feature, latlng) {
+                                return L.marker(latlng, { icon: fontAwesomeIconInstallateur});
+                            },
+                            filter: function(feature, layer) {
+                                return feature.properties.show_on_map;
+                            }
+                        }).addTo(markersClusterInstallateur);
+                    }
+            })
+
+        mymap.addLayer(markersClusterInstallateur);
+    }
+}
+const $DisplayMarker = new DisplayMarker()
 
 function search(){
     var form = $('#adresse').closest("form");
@@ -168,6 +227,37 @@ $('#adresse').keypress(function (e) {
     return false;
   }
 });
+
+var removeMarkers = function(tag) {
+        mymap.eachLayer( function(layer) {
+          if ( layer.myTag &&  layer.myTag === tag) {
+            mymap.removeLayer(layer)
+              }
+
+            });
+
+    }
+
+$("#inputInstallateur").on("change", function(){
+    if($(this).is(":checked")){
+        $DisplayMarker.installateur()
+        
+    }else{
+        removeMarkers("myGeoJSONINstallateur")
+        mymap.removeLayer(markersClusterInstallateur)
+        markersClusterInstallateur = new L.MarkerClusterGroup()
+    }
+
+})
+$("#inputInstallation").on("change", function(){
+    if($(this).is(":checked")){        
+        $DisplayMarker.installation()
+    }else{
+        removeMarkers("myGeoJSONINstallation")
+        mymap.removeLayer(markersClusterInstallation)
+        markersClusterInstallation = new L.MarkerClusterGroup()
+    }
+})
 </script>
 
 

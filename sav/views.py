@@ -1435,6 +1435,26 @@ class carte (View):
             import requests
             url = 'https://nominatim.openstreetmap.org/?q=' + request.POST['adresse'].replace(' ', '%') + '&format=json&polygon_geojson=1'
             return HttpResponse(requests.get(url), content_type='application/json; charset=utf-8')
+        
+        if "show" in request.POST:
+            installateur_localise=profil_user.objects.filter(Client_herakles__isnull=False, latitude__isnull=False, longitude__isnull=False)
+            list_installateur=[]
+            for installateur in installateur_localise:
+                popup='<b>Installateur : </b><a href="/utilisateur/'+ str(installateur.user.id) +'">' + str(installateur) + '</a><br><b>Entreprise: </b>' + str(installateur.Client_herakles)
+                list_installateur.append(
+                {'type':'Feature',
+                "properties": {
+                    "name": str(installateur),
+                    "show_on_map": True,
+                    "popupContent": popup
+
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [str(installateur.longitude), str(installateur.latitude)]
+                }
+                } )
+            return HttpResponse(json.dumps(list_installateur), content_type="application/json")
 
         test = attribut_valeur.objects.filter(attribut_def__description="Coordonnées GPS DD") \
             .exclude(valeur="nan")[int(request.POST['start']):int(request.POST['stop'])]
@@ -1554,15 +1574,19 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from django_celery_results.models import TaskResult
-        from django.db.models import Max
-        tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id'))
-        print(tasks)
+        print(profil_user.objects.filter(latitude=False))
+        #        return render(request, "widgets/client_herakles.html",
+        #                      {'client': {str(key).replace('t100_', '').replace('_', ' '): value for key, value in client.__dict__.items() }})
+        #from django_celery_results.models import TaskResult
+        #from django.db.models import Max
+        #tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id'))
+        #print(tasks)
         # send_channel_message('cartcreating', 'well done')
 
 
 
-        # from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult
+        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult, trouvercoordonneeGPSinstallateur
+        trouvercoordonneeGPSinstallateur()
         # cleanTaskResult()
         # actualisePrixMySolisart()
         # actualise_herakles.delay()

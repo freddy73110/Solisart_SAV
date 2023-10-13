@@ -16,7 +16,7 @@
     <a href="">Cliquer ici pour démarrer</a>
     {% else %}
 {%if not 'Chrome' in request.META.HTTP_USER_AGENT%}
-<h2>Nous garantissons un fonctiennement optinal avec Google Chrome.</h2>
+<h2 class="text-danger"><b>Nous garantissons un fonctionnement optinal avec Google Chrome.</b></h2>
 {%endif%}
 
 <div class="container">
@@ -29,7 +29,7 @@
                 {% csrf_token %}
                 {{ form|crispy }}
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-success me-md-2" id="connect">Connecter</button>
+                <button type="submit" class="btn btn-outline-success me-md-2" id="connect">Connecter</button>
                 </div>
             </form>
             <a href="/password_reset/" class="text-right">Mot de passe oublié?</a>

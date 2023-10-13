@@ -351,6 +351,9 @@ class profil_user(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profil_user.save()
+        if instance.profil_user.Client_herakles and not instance.profil_user.latitude:
+            from .tasks import trouvercoordonneeGPSinstallateur
+            trouvercoordonneeGPSinstallateur.delay()
 
     class Meta:
         app_label = 'sav'

@@ -281,6 +281,70 @@ def Recuperation_schema_my_solisart():
     driver.close()
 
 @shared_task
+def trouvercoordonneeGPSinstallateur(*args, **kwargs):
+    """
+    Cherche toutes les installateur qui n'ont pas de coordonnées GPS pour lui en affecter une
+    1. via l'adresse de l'install
+    2.via la commune de l'install
+    4. sinon pas d'affectation
+    :param *args:
+    :param **kwargs:
+    :return:
+    """
+    #liste de toutes les installation sans coordonnées GPS
+    installateur_whitout_GPS = profil_user.objects.filter(Client_herakles__isnull=False, latitude__isnull=True)
+    import requests
+    counter = 0
+    for installateur in installateur_whitout_GPS:
+        try:
+            adresse = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=installateur.Client_herakles)
+            url = 'https://nominatim.openstreetmap.org/?q=France'
+            for at in [adresse.t100_4_adresse_1, adresse.t100_6_cp, adresse.t100_7_ville_pays]:
+                url += '+' + str(at).replace(' ','%')
+            url += '&format=json'
+
+            resp = requests.get(url).json()
+
+            if not resp or not 'lon' in resp[0]:
+                url = 'https://nominatim.openstreetmap.org/?q=France'
+                for at in [adresse.t100_6_cp, adresse.t100_7_ville_pays]:
+                    url += '+' + str(at).replace(' ', '%')
+                url += '&format=json'
+                resp = requests.get(url).json()
+                if resp and 'lon' in resp[0]:
+                    GPS = resp[0]['lat'] + ',' + resp[0]['lon']
+                else:
+                    GPS = None
+                    pass
+            else:
+                GPS= resp[0]['lat'] + ',' + resp[0]['lon']
+
+            if GPS == '46.603354,1.8883335':
+                GPS = None
+
+            if GPS:
+                installateur.latitude = GPS.split(',')[0]
+                installateur.longitude = GPS.split(',')[1]
+                installateur.save()
+                counter += 1
+
+        except Exception as ex:
+
+            print(installateur)
+
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+            print(exc_type, fname, exc_tb.tb_lineno)
+
+            print(ex)
+    save_result_celery(args, kwargs, "SUCCESS", str(counter) + 'installateur localisé sur '+ str(installateur_whitout_GPS.count()))
+
+    return {'bilan', str(counter) + 'installateur localisé sur '+ str(installateur_whitout_GPS.count())}
+
+
+@shared_task
 def trouvercoordonneeGPS(*args, **kwargs):
     """
     Cherche toutes les inatallation qui n'ont pas de coordonnées GPS pour lui en affecter une
@@ -412,10 +476,14 @@ def actualise_client_herakles():
     result = {'Client': []}
     clients=C100Clients.objects.db_manager('herakles').all()
     for client in clients:
-        c, created = client_herakles.objects.get_or_create(
-            Code_Client=client.t100_1_code_client,
-            Nom=client.t100_3_nom
-        )
+        try:
+            client_herakles.objects.get(Code_Client=client.t100_1_code_client)
+            created = False
+        except:
+            c = client_herakles.objects.create(
+                Code_Client=client.t100_1_code_client,
+                Nom=client.t100_3_nom)
+            created=True
         if created:
             result['Client'].append(c.Code_Client)
     save_result_celery('args', {}, "SUCCESS", result)
