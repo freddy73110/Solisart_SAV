@@ -232,6 +232,7 @@
     </div>
 </div>
 <script>
+var ClToDisplay =[]  
 function afficherCLModal(CL){
     var $Modal=$("#ModalDiv")
                         $Modal.find(".modal-title").html()
@@ -337,7 +338,7 @@ function Refreshdata(){
              }
         })
 }
-Refreshdata()
+
 function formatDate(date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
@@ -361,17 +362,11 @@ function convertdate(date){
 lastScroll=0
 
 function ganttGenerator(){
-    if ($("#VisuCL").val() == 'tout'){
-        $("#client").val('tout')
-        searchByCustomer()
-    }
-    if ($("#VisuCL").val() == 'tout'){
-        $("#commercial").val('tout')
-        searchByCommercial()
-    }
+
     if($("#step").val() != "simple"){
         tasks=[]
         $.each(data, function(index, value){
+          if (ClToDisplay.includes(value['CL'])){
             if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
                 if (value['capteur'] != 'None' && ($("#step").val() == 'tout' || $("#step").val() == 'capteur')){
                     tasks.push(
@@ -454,11 +449,13 @@ function ganttGenerator(){
                   })
                 }
             }
+          }  
         })
 
     }else{
         var tasks=[]
         $.each(data, function(index, dict){
+          if (ClToDisplay.includes(dict['CL'])){
             if (dict['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
                 var values = $.map(dict, function(v, key) {return v})
                 var list_date = $.map(values, function(v, key){
@@ -493,7 +490,9 @@ function ganttGenerator(){
                         progress: prog
                       })
                 }
-            })
+            }
+          }
+            )
     }
     var tasks2=[]
         $.each(tasks, function(index, value){
@@ -690,15 +689,15 @@ function save(){
     }
 
 function showToast(Toastbody){
-var d = new Date();
-var n = d.toLocaleTimeString();
-$("#toastSmall").html(n)
-$(".toast-body").html(Toastbody)
-var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-  var toastList = toastElList.map(function(toastEl) {
-    return new bootstrap.Toast(toastEl)
-  })
-  toastList.forEach(toast => toast.show())
+  var d = new Date();
+  var n = d.toLocaleTimeString();
+  $("#toastSmall").html(n)
+  $(".toast-body").html(Toastbody)
+  var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function(toastEl) {
+      return new bootstrap.Toast(toastEl)
+    })
+    toastList.forEach(toast => toast.show())
     }
 
 function searchByCustomer(){
@@ -706,27 +705,41 @@ function searchByCustomer(){
                     url: window.location.href,
                     type:'post',
                     data: {'searchByCustomer': $("#client").val()},
-                    dataType: 'html',
-                    success: function (html) {
-                        $("#VisuCL").html(html)
+                    dataType: 'json',
+                    success: function (datal) {
                         $("#commercial").val("tout")
+                        ClToDisplay = datal.map((x) => x.CL)
+                        var html='<option value="tout" selected="">Visualiser tous les CL</option>'
+                        $.each(data, function(i, v){
+                          html = html + "<option value='"+ v.CL+"'>"+ v.CL +" - " + v.installateur + "</option>"
+                        })
+                        $("#VisuCL").html(html)
+                        ganttGenerator()
                      }
                 })
 
 }
+
 function searchByCommercial(){
  $.ajax({
                     url: window.location.href,
                     type:'post',
                     data: {'searchByCommercial': $("#commercial").val()},
-                    dataType: 'html',
-                    success: function (html) {
-                        $("#VisuCL").html(html)
+                    dataType: 'json',
+                    success: function (datal) {
                         $("#client").val("tout")
+                        ClToDisplay = datal.map((x) => x.CL)
+                        var html='<option value="tout" selected="">Visualiser tous les CL</option>'
+                        $.each(data, function(i, v){
+                          html = html + "<option value='"+ v.CL+"'>"+ v.CL +" - " + v.installateur + "</option>"
+                        })
+                        $("#VisuCL").html(html)
+                        ganttGenerator()
                      }
                 })
-
 }
+searchByCommercial()
+Refreshdata()
 </script>
 <script>
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');

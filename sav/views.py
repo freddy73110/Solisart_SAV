@@ -1968,7 +1968,7 @@ class production(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
+        
         from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
         if "numCL" in request.POST:
             numCL = request.POST['numCL']
@@ -2199,6 +2199,8 @@ class production(View):
                 CLs = CL_herakles.objects.all().order_by('-CL')
             for CL in CLs:
                 html+="<option value='"+ str(CL)+"'>"+str(CL)+" - " + str(CL.installateur)+ "</option>"
+            data = [{'CL':str(CL), 'installateur': str(CL.installateur)} for CL in CLs]
+            return JsonResponse(data, safe=False)
             return HttpResponse(html)
 
         if 'searchByCommercial' in request.POST:
@@ -2210,7 +2212,8 @@ class production(View):
                 CLs = CL_herakles.objects.filter(CL__in=listCLHerakles).order_by('-CL')
             for CL in CLs:
                 html+="<option value='"+ str(CL)+"'>"+str(CL)+" - " + str(CL.installateur)+ "</option>"
-            return HttpResponse(html)
+            data = [{'CL':str(CL), 'installateur': str(CL.installateur)} for CL in CLs]
+            return JsonResponse(data, safe=False)
 
         if 'file_CL' in request.POST:
             form = FilesForm(request.POST, request.FILES)
