@@ -8,24 +8,25 @@ from .models import *
 
 class Allinstallateur(SimpleListFilter):
     title = 'Tous les installateurs' # or use _('country') for translated title
-    parameter_name = 'installatezur'
+    parameter_name = 'installateur'
 
     def lookups(self, request, model_admin):
-        states = ['Tous','Administrateur', 'Technicien', 'Installateur', 'Propriétaire']
+        states = ['Tous','Administrateur', 'Technicien', 'Installateur', 'Propriétaire', 'Localisé']
         return [(c, c) for c in states]
 
     def queryset(self, request, queryset):
         from .models import acces
         if self.value() == "Tous" or not self.value():
             return queryset.all()
+        elif self.value() == "Localisé":
+            return queryset.filter(latitude__isnull = False)
         else:
             acces = acces.objects.filter(profil_type__name = self.value()).values_list('utilisateur__id', flat=True).distinct()
             return queryset.filter(user__id__in = acces)
 
 class profil_user_Admin(ModelAdmin):
-    list_display = ('user', 'Client_herakles')
-    list_display_links = None
-    list_editable = ('Client_herakles',)
+    list_display = ('user', 'Client_herakles', 'latitude', 'longitude')
+    search_fields = ['user__last_name', 'user__first_name']
     list_filter = (Allinstallateur,)
 
 class CL_HeraklesAdmin(admin.ModelAdmin):
@@ -35,7 +36,7 @@ class CL_HeraklesAdmin(admin.ModelAdmin):
     list_filter = ['CL']
     search_fields = ['CL']
 
-admin.site.register(profil_user,profil_user_Admin)
+admin.site.register(profil_user, profil_user_Admin)
 admin.site.register(profil_type)
 admin.site.register(installation)
 admin.site.register(acces)

@@ -872,7 +872,7 @@ class statistiques(View, SuccessMessageMixin):
                         total=F("prixunitaire") * F("qtet"),
                         totalremise=F("total") - F("remise")
                     ).\
-                    values("codouv", "titre", "qtet", "prixunitaire","remisepct", 'total','totalremise')
+                    values("codouv", "titre", "qtet", "prixunitaire","remisepct", 'total','totalremise', "codeof")
         ArticlesBl =list(ArticlesBl)
 
         try:
@@ -938,7 +938,7 @@ class statistiques(View, SuccessMessageMixin):
                 total=F("prixunitaire") * F("qtet"),
                 totalremise=F("total") - F("remise")
             ). \
-                values("codouv", "titre", "qtet", "prixunitaire", "remisepct", 'total', 'totalremise')
+                values("codouv", "titre", "qtet", "prixunitaire", "remisepct", 'total', 'totalremise', "codeof")
             ArticlesBl = list(ArticlesBl)
             return JsonResponse(ArticlesBl, safe=False)
 

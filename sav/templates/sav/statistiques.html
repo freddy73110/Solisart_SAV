@@ -158,14 +158,18 @@
                                     id="table"
                                     data-show-footer="true"
                                     data-footer-style="footerStyle"
-                                    data-row-style="rowStyle">
+                                    data-row-style="rowStyle"
+                                    data-search="true"
+                                    data-show-columns="true"
+                                    data-show-multi-sort="true">
                                 <thead>
-                                    <th class="text-center" data-field="codouv" data-footer-formatter="codouvFooter">Ref</th>
-                                    <th class="text-center" data-field="titre" >Titre</th>
-                                    <th class="text-center" data-field="qtet">Quantité</th>
-                                    <th class="text-center" data-field="remisepct" data-footer-formatter="remiseFooter" data-formatter="pctFormatter">Remise (%)</th>
-                                    <th class="text-center" data-field="total" data-footer-formatter="totalFooter" data-formatter="priceFormatter">Total</th>
-                                    <th class="text-center" data-field="totalremise" data-formatter="priceFormatter">Total remisé</th>
+                                    <th class="text-center" data-field="codouv" data-footer-formatter="codouvFooter" data-sortable="true">Ref</th>
+                                    <th class="text-center" data-field="codeof" data-sortable="true>BL</th>
+                                    <th class="text-center" data-field="titre" data-sortable="true">Titre</th>
+                                    <th class="text-center" data-field="qtet" data-sortable="true">Quantité</th>
+                                    <th class="text-center" data-field="remisepct" data-footer-formatter="remiseFooter" data-formatter="pctFormatter" data-sortable="true">Remise (%)</th>
+                                    <th class="text-center" data-field="total" data-footer-formatter="totalFooter" data-formatter="priceFormatter" data-sortable="true">Total</th>
+                                    <th class="text-center" data-field="totalremise" data-formatter="priceFormatter" data-sortable="true">Total remisé</th>
                                 </thead>
                             </table>
 <script>
