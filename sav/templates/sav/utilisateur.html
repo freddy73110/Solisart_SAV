@@ -5,13 +5,17 @@
 {% load my_filter %}
 {%block Titre%}{{title}}{%endblock%}
 
+{% block javascript %}
+<script src="{% static 'plotly2-26-0/plotly.js' %}"></script>
+{%endblock%}
+
 {%block article%}
 <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
 <script src="{% static 'leaflet/leaflet.js' %}"></script>
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">{{title}} {{util.profil_user.icon|safe}}</h1>
+            <h1 class="text-center m-3">{{title}} {{util.profil_user.icon|safe}} {{util.profil_user.evaluation_self_star|safe}}</h1>
         </div>
     </div>
 </div>
@@ -56,7 +60,138 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title" id="ModalEvenementLabel">Ajouter une nouvelle évaluation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+          <form method="post">
+        <div class="modal-body">
+            <div class="col-6">
+                <div id="div_id_date_evaluation" class="form-floating mb-3">
+                    <input type="text" name="date_evaluation" value="" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="id_date_end">
+                <script>
+                  $(function () {
+                    var today = new Date();
+                    var date = (today.getDate())+'-'+(today.getMonth()+1)+ '-'+ today.getFullYear();
+                     $("input[name='date_evaluation']").val(today.
+                              toLocaleString('fr-fr', {year: 'numeric', month: '2-digit', day: '2-digit'}).
+                              replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3'))
+                    $("input[name='date_evaluation']").datetimepicker({
+                      format: 'd-m-Y'
+                    }
+                    );
+                  });
+                  $("input[name='date_evaluation']").val($("input[name='date_evaluation']").val().substring(0,10).replace('\/', '-').replace('\/', '-'))
+                </script>
+                <label for="id_date_end">Date de l'évaluation</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <table class="table table-striped">
+                <thead>
+                    <th class="text-center">Critères</th>
+                    <th class="text-center">Note</th>
+                    <th class="text-center">Commentaires</th>
+                </thead>
+                <tbody>
+                    {% for crit in critere%}
+                    <tr>
+                        <td class="align-middle">{{crit}} <input type="hidden" name="critere" value="{{crit.id}}"></li>
+                        <td class="text-center star align-middle"><input type="hidden" name="star" value=1></td>   
+                        <td><textarea name="commentaire" cols="40" rows="10" class="textareaEmoji form-control" style="height: 40px; display: none;" placeholder="Commentaire" id="id_detail"></textarea></td> 
+                    </tr>
+                    {%endfor%}
+                </tbody>
+                </table>
+            
+            <script>
+                $('.star').append('<i class="fas fa-star star0 fullStar" style="color:yellow"></i><i class="far fa-star star1" style="color:yellow"></i><i class="far fa-star star2" style="color:yellow"></i><i class="far fa-star star3" style="color:yellow"></i><i class="far fa-star star4" style="color:yellow"></i>')
+                $('.star').click(function() {
+                    var $t = $(this)
+                    var t = event.target
+                    var j = true
+                    if ($(t).is("path")){
+                        t = $(t).parent()
+                    }
+                    starNumber = ""
+                    var svg_list = $(this).find("svg")
+                    $.each($(t).attr("class").split(/\s+/), function(index, value){
+                        switch (value){
+                            case 'star0':
+                                starNumber = 0
+                                console.log($t.find(".fullStar").length)
+                                if($t.find(".fullStar").length == 1){
+                                    j=false
+                                    $t.html("")
+                                    $t.append('<input type="hidden" name="star" value="0">')
+                                }else{
+                                    $t.html("")
+                                }
+                                break;
+                            case 'star1':
+                                starNumber = 1 
+                                $t.html("")  
+                                break; 
+                            case 'star2':
+                                starNumber = 2  
+                                $t.html("") 
+                                break;
+                            case 'star3':
+                                starNumber = 3  
+                                $t.html("") 
+                                break;
+                            case 'star4':
+                                starNumber = 4  
+                                $t.html("") 
+                                break;
+                        }
+                    })
+                    $.each(svg_list, function(i, v){
+                        var intre = i + 1
+                        if(j){
+                            $t.append('<i class="fas fa-star fullStar star'+ i+'" style="color:yellow"></i>')
+                            if(i == starNumber){
+                                $t.append('<input type="hidden" name="star" value="'+ intre +'">')
+                                j = false
+                            }
+                        }else{
+                                $t.append('<i class="far fa-star star'+ i+'" style="color:yellow"></i>')
+                        }
+                    })
+                })
+            </script>
+            </div>
+                
+                <script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({});});</script>
 
+        </div>
+    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-outline-primary" id="enregister">Enregister</button>
+          <script>
+            $("#enregister").on("click", function(){
+                var form = $(this).closest("form");
+                            $.ajax({
+                                    url: window.location.href,
+                                    type:'post',
+                                    data: form.serialize(),
+                                    dataType: 'json',
+                                    success: function (data) {
+                                    //todo faire un message de validation
+                                    location.reload()
+                                    }
+                            })
+            })
+          </script>
+        </div>
+          </form>
+      </div>
+    </div>
+  </div>
 <div class="container">
     <div class="row">
         <div class="col">
@@ -80,6 +215,13 @@
                         <span class="badge rounded-pill bg-danger" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Tickets en cours" data-bs-content="Tickets qui restent à régler">
                         {{ util.profil_user.ticket_open_count }}
                         </span>
+                    </span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eval-tab" data-bs-toggle="tab" data-bs-target="#eval" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    <span class="m-3">
+                        Evaluation
                     </span>
                 </button>
               </li>
@@ -191,6 +333,78 @@
         {% endfor %}
     </tbody>
 </table>
+              </div>
+              <div class="tab-pane fade" id="eval" role="tabpanel" aria-labelledby="home-tab">
+                <h1>Evaluation</h1>
+                <button class="btn btn-outline-primary m-3" type="button" id="addEvaluation"
+                data-bs-toggle="modal"
+                data-bs-target="#ModalEvenement"
+                data-bs-whatever="ticket"
+                >Ajouter une évaluation</button>
+                {{ evaluations|json_script:"evaluations" }}
+                <div id="myDiv" class="d-flex"></div>
+                <script>
+                    const evaluations = JSON.parse(document.getElementById('evaluations').textContent);
+                    var dataChart = {}
+                    $.each(evaluations, function(idx, x){
+                        var crit = x.critere
+                        var note=''
+                        for (let i = 0; i < x.note; i++) {
+                            note += "&#11088;";
+                        }
+                        if (!dataChart.hasOwnProperty(crit)){
+                            dataChart[crit]={
+                                'x': ['Date: ' + x.date.slice(0, 10)],
+                                'y': [x.note],
+                                'commentaire':[crit + ': ' + note + '<br>Commentaire: ' + x.commentaire],
+                                'text': [crit]
+                            }
+                            
+                        }else{
+                            dataChart[crit]['x'].push('Date: ' + x.date.slice(0, 10))
+                            dataChart[crit]['y'].push(x.note)
+                            dataChart[crit]['commentaire'].push(crit + ': ' + note + '<br>Commentaire: ' + x.commentaire)
+                            dataChart[crit]['text'].push(crit)
+                        }
+                    })
+                    data=[]
+                    for (var key in dataChart){
+                        data.push(
+                            {
+                                x : dataChart[key]['x'],
+                                y: dataChart[key]['y'],
+                                type: 'bar',
+                                name: key,
+                                text: dataChart[key]['text'],
+                                hovertemplate: dataChart[key]['commentaire'],
+                                textangle: 90,
+                                marker: {
+                                        opacity: 0.7,
+                                        line: {
+                                        width: 1.5
+                                        }
+                                    }
+                            }
+                        )
+                        
+                    }
+                    var layout = {
+                    title: 'Evolution des évaluations',
+                    xaxis: {
+                        title:{
+                            text: 'Date'
+                        },
+                        tickangle: -45
+                    },
+                    yaxis: {
+                        title: {
+                            text: '&#127775;'
+                        }
+                    },
+                    barmode: 'group'
+                    };
+                    Plotly.newPlot('myDiv', data, layout);
+                </script>
               </div>
               <div class="tab-pane fade" id="ticket_commercial" role="tabpanel" aria-labelledby="home-tab">
                   <div class="row g-3 align-items-center m-3">

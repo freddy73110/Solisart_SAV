@@ -15,7 +15,7 @@ from django.db import models
 from django.db.models.functions import Lower, Substr
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -260,10 +260,13 @@ class profil_user(models.Model):
 
     def get_full_name(self):
         return str(self.user.first_name) + ' ' + str(self.user.last_name)
+    
+    def profil(self):
+        return acces.objects.filter(utilisateur=self.user).order_by('profil_type').values_list('profil_type__name', flat=True).distinct()
 
     def icon(self):
-        profils = acces.objects.filter(utilisateur=self.user).order_by('profil_type').values_list('profil_type__name', flat=True).distinct()
         icon=''
+        profils=self.profil()
         if 'Administrateur' in profils:
             icon += '<i class="fas fa-users-cog m-1"></i>'
         if 'Technicien' in profils:
@@ -342,6 +345,33 @@ class profil_user(models.Model):
         else:
             None
 
+    def evaluation_solisart(self):
+        from django.db.models import Avg
+        try:
+            last_eval = evaluation.objects.filter(user = self).values_list('date', flat=True)[0]
+            print(last_eval, evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True).values())
+            return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True).aggregate(star=Avg('note'))['star']
+        except :
+            pass
+    
+    def evaluation_self(self):
+        from django.db.models import Avg
+        try:
+            last_eval = evaluation.objects.filter(user = self).values_list('date', flat=True)[0]
+            return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=False).aggregate(star=Avg('note'))['star']
+        except :
+            pass
+
+    def evaluation_self_star(self):
+        eval = self.evaluation_self()
+        star_text=''
+        if eval:
+            for i in range(round(eval)):
+                if i+1 <= eval:
+                    star_text += '<i class="fas fa-star" style="color:yellow"></i>'
+                elif i+1>eval and i < round(eval):
+                    star_text += '<i class="fas fa-star-half" style="color:yellow"></i>'
+        return star_text
 
     @receiver(post_save, sender=User)
     def create_user_profil(sender, instance, created, **kwargs):
@@ -371,7 +401,7 @@ class profil_type(models.Model):
     idsa = models.IntegerField(verbose_name='id solisart')
 
     def __str__(self):
-        return str(self.type) + ' ' + str(self.name)
+        return str(self.name)
 
 class installation(models.Model):
     TYPE_COMMUNICATION=(
@@ -394,8 +424,7 @@ class installation(models.Model):
                                            null=True, blank=True)
 
     def __str__(self):
-        text = self.idsa + ' / ' +str(self.proprio()) if self.proprio() else self.idsa
-        text+= " (" + str(self.departement()) +')' if self.departement() else ''
+        text = self.idsa 
         return text
 
     def MES_count(self):
@@ -535,6 +564,12 @@ class installation(models.Model):
     
     def ticketencours(self):
         return ticket.objects.filter(evenement__installation=self).exclude(etat=2).count()
+    
+    def CL(self):
+        try:
+            return CL_herakles.objects.get(installation = self)
+        except:
+            return None
 
     class Meta:
         app_label = 'sav'
@@ -1064,6 +1099,41 @@ class CL_herakles(models.Model):
         if self.old_information != self.information:
             self.date_last_update_information=timezone.now()
         super(CL_herakles, self).save(*args, **kwargs)
+
+
+class critere(models.Model):
+    critere = models.CharField(verbose_name="Critère", max_length=100)
+    profil_type = models.ForeignKey("profil_type", verbose_name="Type de profil", on_delete=models.CASCADE, default=1)
+    interne = models.BooleanField(verbose_name="Juger Solisart", default=True)
+
+    def __str__(self):
+        return self.critere
+
+class evaluation(models.Model):
+
+    user = models.ForeignKey('profil_user', on_delete=models.CASCADE, related_name='user_evaluation')
+    date = models.DateField(verbose_name="Date d'évaluation", default=timezone.now())
+    commentaire = models.TextField(verbose_name="Commentaire", null=True, blank=True)
+    note=models.IntegerField(default=0, verbose_name='Note', validators=[MinValueValidator(0),
+                                       MaxValueValidator(5)])
+    critere = models.ForeignKey('critere', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.date)+' '+ str(self.user) + ': ' + str(self.critere) + ':  '+str(self.note)
+    
+    def as_dict(self):
+        return {
+            "user": self.user.get_full_name(),
+            "date": self.date.strftime("%Y-%m-%d %H:%M:%S"),
+            "note": self.note,
+            "critere": str(self.critere),
+            "commentaire": self.commentaire
+        }
+    
+    class Meta:
+        app_label = 'sav'
+        ordering = ['user', '-date']
+    
 
 
 # class emailbox(models.Model):

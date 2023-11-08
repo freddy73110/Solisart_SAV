@@ -30,10 +30,8 @@ class profil_user_Admin(ModelAdmin):
     list_filter = (Allinstallateur,)
 
 class CL_HeraklesAdmin(admin.ModelAdmin):
-    list_display = ('CL', 'BL', 'date_livraison_prevu', 'date_livraison', 'date_capteur', 'date_capteur_prevu')
-    list_display_links = None
-    list_editable = ('CL', 'BL', 'date_livraison_prevu', 'date_livraison', 'date_capteur', 'date_capteur_prevu')
-    list_filter = ['CL']
+    list_display = ('CL', 'installation')
+    list_editable =('installation', )
     search_fields = ['CL']
 
 admin.site.register(profil_user, profil_user_Admin)
@@ -60,3 +58,5 @@ admin.site.register(solution)
 admin.site.register(module)
 admin.site.register(capteur)
 admin.site.register(transporteur)
+admin.site.register(critere)
+admin.site.register(evaluation)

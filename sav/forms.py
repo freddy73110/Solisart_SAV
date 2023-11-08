@@ -859,3 +859,22 @@ class CL_Form(ModelForm):
 
 
             )
+
+
+class Evaluation_form(ModelForm):
+
+    class Meta:
+        model = evaluation
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(Evaluation_form, self).__init__(*args, **kwargs)
+        self.profil = kwargs.pop('profil', '')
+        self.fields['profil']=self.profil
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            "id",
+            FloatingField("evenement"),
+            FloatingField("detail", style='height: 100px', row="5", css_class="textareaEmoji"),
+            HTML(emoji_str)
+        )

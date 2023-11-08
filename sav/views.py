@@ -1006,7 +1006,9 @@ class installation_view (View):
         self.add_MES_form = MES_form(prefix="MES")
         self.add_evenement = add_evenement_form(user=request.user, installation=self.instal)
         self.form_class=installation_form(instance=self.instal)
-        self.title = self.title + ' ' + str(self.instal)
+        self.title = self.title + ' ' + str(self.instal.idsa)
+        self.title = self.title + ' / ' + str(self.instal.proprio()) if self.instal.proprio() else self.instal.idsa
+        self.title += " (" + str(self.instal.departement()) +')' if self.instal.departement() else ''
         self.histo= historique.objects.filter(installation=self.instal)
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
@@ -1346,8 +1348,11 @@ class utilisateur_view (View):
         self.pk = kwargs.pop('pk')
         self.util = User.objects.get(pk=int(self.pk))
         self.profil=profil_user.objects.get(user=self.util)
-
-
+        if "Installateur" in self.profil.profil():
+            self.critere = critere.objects.filter(profil_type__name="Installateur")
+        else:
+            self.critere = critere.objects.filter(profil_type__name="Propriétaire")
+        self.evaluations = evaluation.objects.filter(user = self.profil)
         return super(utilisateur_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -1359,12 +1364,13 @@ class utilisateur_view (View):
                               'util': self.util,
                               'profil': self.profil,
                               'form': self.form_class(instance=self.util),
-                              'form_profil':form_profil
+                              'form_profil':form_profil,
+                              'critere': self.critere,
+                              'evaluations': [t.as_dict() for t in self.evaluations]
                           }
                       )
 
     def post(self, request, *args, **kwargs):
-
         if 'herakles' in request.POST:
             if self.profil.Client_herakles:
                 client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
@@ -1403,6 +1409,21 @@ class utilisateur_view (View):
                 except:
                     pass
             return JsonResponse(data, safe=False)
+        if "critere" in request.POST:
+            date_evalutaion = datetime.strptime(request.POST['date_evaluation'], '%d-%m-%Y')
+            critere_list = request.POST.getlist('critere')
+            evaluation_list = request.POST.getlist('star')
+            commentaire_list = request.POST.getlist('commentaire')
+            for idx, x in enumerate(critere_list):
+                eval = evaluation.objects.create(
+                    user = self.profil,
+                    date = date_evalutaion,
+                    note = int(evaluation_list[idx]),
+                    critere = critere.objects.get(pk=int(x)),
+                    commentaire = commentaire_list[idx]
+                )
+
+            return JsonResponse({'data':'OK'}, safe=False)
         else:
             return JsonResponse({'data':'error'}, safe=False)
 
@@ -1440,14 +1461,18 @@ class carte (View):
             installateur_localise=profil_user.objects.filter(Client_herakles__isnull=False, latitude__isnull=False, longitude__isnull=False)
             list_installateur=[]
             for installateur in installateur_localise:
-                popup='<b>Installateur : </b><a href="/utilisateur/'+ str(installateur.user.id) +'">' + str(installateur) + '</a><br><b>Entreprise: </b>' + str(installateur.Client_herakles)
+                popup='<b>Installateur : </b><a href="/utilisateur/'+ str(installateur.user.id) +'">' + str(installateur) + '</a>'
+                eval = installateur.evaluation_self()
+                star_text=''
+                if eval:
+                    popup += '<br><b>Note: </b>' + installateur.evaluation_self_star()
+                popup += '<br><b>Entreprise: </b>' + str(installateur.Client_herakles)
                 list_installateur.append(
                 {'type':'Feature',
                 "properties": {
                     "name": str(installateur),
                     "show_on_map": True,
                     "popupContent": popup
-
                 },
                 "geometry": {
                     "type": "Point",
@@ -2002,12 +2027,14 @@ class production(View):
                     modu = mod
 
             ballons=''
+            print(CLarticles)
             for art in CLarticles:
-                if art['titre'].lower().startswith("ballon-"):
-                    if not ballons:
-                        ballons += art['codouv']
-                    else:
-                        ballons += ' + ' + art['codouv']
+                if art['titre']:
+                    if art['titre'].lower().startswith("ballon-"):
+                        if not ballons:
+                            ballons += art['codouv']
+                        else:
+                            ballons += ' + ' + art['codouv']
         
             try:
                 client = client_herakles.objects.get(Code_Client = codechantier[0]['t601_12_code_client'])
