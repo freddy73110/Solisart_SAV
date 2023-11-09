@@ -250,6 +250,7 @@ class updateDB (View):
             df = pd.read_csv(uploaded_file, on_bad_lines='skip', header=None)
             dictionary = {
                 'Ã©': 'é',
+                 'ã‰': 'é',
                 'Ã¨': 'è',
                 'Ã«':'ë',
                 'Ã§':'ç',
@@ -2027,7 +2028,6 @@ class production(View):
                     modu = mod
 
             ballons=''
-            print(CLarticles)
             for art in CLarticles:
                 if art['titre']:
                     if art['titre'].lower().startswith("ballon-"):

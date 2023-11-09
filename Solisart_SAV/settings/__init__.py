@@ -105,7 +105,7 @@ DATABASES = {
          'NAME': 'DQE',
          'USER': 'sa',
           'PASSWORD': 'Her@kles',
-          'HOST': '192.168.10.253\HERAKLES',
+          'HOST': '192.168.10.13\HERAKLES',
          'PORT': '',
         "OPTIONS": {
             "driver": "ODBC Driver 17 for SQL Server",

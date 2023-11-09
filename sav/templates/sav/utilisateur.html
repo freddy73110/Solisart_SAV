@@ -342,7 +342,9 @@
                 data-bs-whatever="ticket"
                 >Ajouter une évaluation</button>
                 {{ evaluations|json_script:"evaluations" }}
+                {%if evaluations%}
                 <div id="myDiv" class="d-flex"></div>
+                {%endif%}
                 <script>
                     const evaluations = JSON.parse(document.getElementById('evaluations').textContent);
                     var dataChart = {}
@@ -352,14 +354,18 @@
                         for (let i = 0; i < x.note; i++) {
                             note += "&#11088;";
                         }
+                        if (x.note == 0){
+                            x.note = 0.5
+                            note='<span style="font-size:200%;color:yellow;">&#9734;</span>'
+
+                        }
                         if (!dataChart.hasOwnProperty(crit)){
                             dataChart[crit]={
                                 'x': ['Date: ' + x.date.slice(0, 10)],
                                 'y': [x.note],
                                 'commentaire':[crit + ': ' + note + '<br>Commentaire: ' + x.commentaire],
                                 'text': [crit]
-                            }
-                            
+                            }                            
                         }else{
                             dataChart[crit]['x'].push('Date: ' + x.date.slice(0, 10))
                             dataChart[crit]['y'].push(x.note)
