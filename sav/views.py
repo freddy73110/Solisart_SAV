@@ -1411,18 +1411,21 @@ class utilisateur_view (View):
                     pass
             return JsonResponse(data, safe=False)
         if "critere" in request.POST:
+            print(request.POST)
             date_evalutaion = datetime.strptime(request.POST['date_evaluation'], '%d-%m-%Y')
             critere_list = request.POST.getlist('critere')
             evaluation_list = request.POST.getlist('star')
             commentaire_list = request.POST.getlist('commentaire')
+            checkboxCrit_list = request.POST.getlist('checkboxCrit')
             for idx, x in enumerate(critere_list):
-                eval = evaluation.objects.create(
-                    user = self.profil,
-                    date = date_evalutaion,
-                    note = int(evaluation_list[idx]),
-                    critere = critere.objects.get(pk=int(x)),
-                    commentaire = commentaire_list[idx]
-                )
+                if checkboxCrit_list[idx] == 'true':
+                    eval = evaluation.objects.create(
+                        user = self.profil,
+                        date = date_evalutaion,
+                        note = int(evaluation_list[idx]),
+                        critere = critere.objects.get(pk=int(x)),
+                        commentaire = commentaire_list[idx]
+                    )
 
             return JsonResponse({'data':'OK'}, safe=False)
         else:
