@@ -1349,10 +1349,11 @@ class utilisateur_view (View):
         self.pk = kwargs.pop('pk')
         self.util = User.objects.get(pk=int(self.pk))
         self.profil=profil_user.objects.get(user=self.util)
+        self.critere= critere.objects.none()
         if "Installateur" in self.profil.profil():
-            self.critere = critere.objects.filter(profil_type__name="Installateur")
-        else:
-            self.critere = critere.objects.filter(profil_type__name="Propriétaire")
+            self.critere |= critere.objects.filter(profil_type__name="Installateur")
+        if "Propriétaire" in self.profil.profil():
+            self.critere |= critere.objects.filter(profil_type__name="Propriétaire")
         self.evaluations = evaluation.objects.filter(user = self.profil)
         return super(utilisateur_view, self).dispatch(request, *args, **kwargs)
 
@@ -1411,7 +1412,6 @@ class utilisateur_view (View):
                     pass
             return JsonResponse(data, safe=False)
         if "critere" in request.POST:
-            print(request.POST)
             date_evalutaion = datetime.strptime(request.POST['date_evaluation'], '%d-%m-%Y')
             critere_list = request.POST.getlist('critere')
             evaluation_list = request.POST.getlist('star')

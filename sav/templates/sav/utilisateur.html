@@ -90,7 +90,7 @@
                 </div>
             </div>
             <div class="col-12">
-                <table class="table table-striped">
+                <table class="table table-success table-striped table-hover table-bordered">
                 <thead>
                     <th class="text-center">Critères</th>                  
                     <th class="text-center">Note</th>
@@ -123,58 +123,60 @@
 
                 })
                 $('.star').append('<i class="fas fa-star star0 fullStar" style="color:yellow"></i><i class="far fa-star star1" style="color:yellow"></i><i class="far fa-star star2" style="color:yellow"></i><i class="far fa-star star3" style="color:yellow"></i><i class="far fa-star star4" style="color:yellow"></i>')
-                $('.star').click(function() {
+                $('.star').click(function() {                
                     var $t = $(this)
                     var t = event.target
                     var j = true
                     if ($(t).is("path")){
                         t = $(t).parent()
                     }
-                    starNumber = ""
-                    var svg_list = $(this).find("svg")
-                    $.each($(t).attr("class").split(/\s+/), function(index, value){
-                        switch (value){
-                            case 'star0':
-                                starNumber = 0
-                                console.log($t.find(".fullStar").length)
-                                if($t.find(".fullStar").length == 1){
-                                    j=false
-                                    $t.html("")
-                                    $t.append('<input type="hidden" name="star" value="0">')
-                                }else{
-                                    $t.html("")
-                                }
-                                break;
-                            case 'star1':
-                                starNumber = 1 
-                                $t.html("")  
-                                break; 
-                            case 'star2':
-                                starNumber = 2  
-                                $t.html("") 
-                                break;
-                            case 'star3':
-                                starNumber = 3  
-                                $t.html("") 
-                                break;
-                            case 'star4':
-                                starNumber = 4  
-                                $t.html("") 
-                                break;
-                        }
-                    })
-                    $.each(svg_list, function(i, v){
-                        var intre = i + 1
-                        if(j){
-                            $t.append('<i class="fas fa-star fullStar star'+ i+'" style="color:yellow"></i>')
-                            if(i == starNumber){
-                                $t.append('<input type="hidden" name="star" value="'+ intre +'">')
-                                j = false
+                    if(! $(t).is('td')){
+                        starNumber = ""
+                        var svg_list = $(this).find("svg")
+                        $.each($(t).attr("class").split(/\s+/), function(index, value){
+                            switch (value){
+                                case 'star0':
+                                    starNumber = 0
+                                    console.log($t.find(".fullStar").length)
+                                    if($t.find(".fullStar").length == 1){
+                                        j=false
+                                        $t.html("")
+                                        $t.append('<input type="hidden" name="star" value="0">')
+                                    }else{
+                                        $t.html("")
+                                    }
+                                    break;
+                                case 'star1':
+                                    starNumber = 1 
+                                    $t.html("")  
+                                    break; 
+                                case 'star2':
+                                    starNumber = 2  
+                                    $t.html("") 
+                                    break;
+                                case 'star3':
+                                    starNumber = 3  
+                                    $t.html("") 
+                                    break;
+                                case 'star4':
+                                    starNumber = 4  
+                                    $t.html("") 
+                                    break;
                             }
-                        }else{
-                                $t.append('<i class="far fa-star star'+ i+'" style="color:yellow"></i>')
-                        }
-                    })
+                        })
+                        $.each(svg_list, function(i, v){
+                            var intre = i + 1
+                            if(j){
+                                $t.append('<i class="fas fa-star fullStar star'+ i+'" style="color:yellow"></i>')
+                                if(i == starNumber){
+                                    $t.append('<input type="hidden" name="star" value="'+ intre +'">')
+                                    j = false
+                                }
+                            }else{
+                                    $t.append('<i class="far fa-star star'+ i+'" style="color:yellow"></i>')
+                            }
+                        })
+                    }
                 })
             </script>
             </div>

@@ -1132,7 +1132,7 @@ class evaluation(models.Model):
     
     class Meta:
         app_label = 'sav'
-        ordering = ['user', '-date']
+        ordering = ['user', '-date', 'critere__interne', 'critere__profil_type']
     
 
 
