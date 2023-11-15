@@ -2547,7 +2547,6 @@ class tools(View):
                                 first = zip_ref.infolist()[0]
                                 with zip_ref.open(first, "r") as fo:
                                     df_temp = self.convert_file_to_df(fo)
-
                 if not 'df' in locals():
                     df = df_temp
                 else:
@@ -2593,12 +2592,18 @@ class tools(View):
                         "visible": "legendonly"
                     }
 
-            return JsonResponse(
-                {
-                    'data': data,
-                    'message': message,
-                    'default': self.diag(df)
-                }, safe=False)
+                return JsonResponse(
+                    {
+                        'data': data,
+                        'message': message,
+                        'default': self.diag(df)
+                    }, safe=False)
+            else:
+                return JsonResponse(
+                    {
+                        'data': data,
+                        'message': message
+                    }, safe=False)
 
         if 'file' in request.POST:
             for i, f in enumerate(request.FILES.getlist('fichier')):

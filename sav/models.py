@@ -1108,6 +1108,10 @@ class critere(models.Model):
 
     def __str__(self):
         return self.critere
+    
+    class Meta:
+        app_label = 'sav'
+        ordering = ['profil_type', 'interne', 'critere']
 
 class evaluation(models.Model):
 
