@@ -6,25 +6,25 @@
     <div class="row">
         <ul class="nav nav-pills nav-justified">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="parameter-tab" data-bs-toggle="pill" data-bs-target="#parameter" type="button" role="tab" aria-controls="parameter" aria-selected="true">Paramètre de commande</button>
+            <button class="nav-link active" id="parameter-tab" data-bs-toggle="pill" data-bs-target="#parameter" type="button" role="tab"  aria-selected="true">Paramètre de commande</button>
           </li>
           <li class="nav-item" role="presentation">
-              <button class="nav-link" id="articles-tab" data-bs-toggle="pill" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="false">Liste des articles</button>
+              <button class="nav-link" id="articles-tab" data-bs-toggle="pill" data-bs-target="#articles" type="button" role="tab"  aria-selected="false">Liste des articles</button>
           </li>
           {%if not beforeAdd %}
           <li class="nav-item" role="presentation">
-              <button class="nav-link" id="fichier-tab" data-bs-toggle="pill" data-bs-target="#fichier" type="button" role="tab" aria-controls="fichiers" aria-selected="false">Liste des fichiers</button>
+              <button class="nav-link" id="fichier-tab" data-bs-toggle="pill" data-bs-target="#fichier" type="button" role="tab"  aria-selected="false">Liste des fichiers</button>
           </li>
           {%endif%}
         </ul>
         <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="parameter" role="tab" aria-labelledby="parameter-tab">
+            <div class="tab-pane fade show active" id="parameter" role="tab" >
                 <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto"><b>Paramètre de commande à Sauvegarder</b></legend>
                 {% crispy formCL %}
                 </fieldset>
             </div>
-            <div class="tab-pane fade" id="articles" role="tab" aria-labelledby="articles-tab">
+            <div class="tab-pane fade show" id="articles" role="tab" >
                 <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto"><b>Liste des articles</b></legend>
                 {% for article in CLarticles %}
@@ -32,7 +32,7 @@
                 {%endfor%}
             </fieldset>
             </div>
-            <div class="tab-pane fade" id="fichier" role="tab" aria-labelledby="articles-tab">
+            <div class="tab-pane fade show" id="fichier" role="tab" >
                 <fieldset class="border p-2 h-100 upload-zone">
                 <legend class="float-none w-auto"><b>Liste des Fichiers</b></legend>
                     <p></p>
@@ -44,7 +44,7 @@
                               >
                     <ul>
                         {% for f in CL.fichier.all %}
-                        <li><a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a></li>
+                        <li><a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a>( <i class="far fa-trash-alt deletefile" id="deletefile_{{f.id}}" onclick="deletefile(this, '{{f.titre}}')" ></i> )</li>
                         {%endfor%}
                     </ul>
 
@@ -54,6 +54,20 @@
     </div>
 </div>
 <script>
+    function deletefile(tt, title){
+        var text="Etes-vous sûr de vouloir supprimer le fichier " + title
+        if (confirm(text)){
+            $.ajax({
+                url: window.location.href,
+                type:'post',
+                data:{'delete_file': $(tt)[0].id.split('_')[1]},
+                dataType: 'json',
+                success: function (json) {
+                    $("#ButtonModalclose").click()
+                }
+            })
+        }        
+    }
     $("#enregister").on("click", function(){
     $("#modalForm :disabled").removeAttr('disabled');
     var form= $("#enregister").closest("form")

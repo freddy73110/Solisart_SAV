@@ -9,6 +9,8 @@ import time
 from datetime import timedelta
 from email.mime.image import MIMEImage
 from io import StringIO
+from typing import Any
+from django import http
 
 from django.core.files.storage import default_storage
 from django.utils import timezone
@@ -1603,39 +1605,7 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        print(profil_user.objects.filter(latitude=False))
-        #        return render(request, "widgets/client_herakles.html",
-        #                      {'client': {str(key).replace('t100_', '').replace('_', ' '): value for key, value in client.__dict__.items() }})
-        #from django_celery_results.models import TaskResult
-        #from django.db.models import Max
-        #tasks = TaskResult.objects.all().order_by("task_name").values('task_name').annotate(Max('id'))
-        #print(tasks)
-        # send_channel_message('cartcreating', 'well done')
-
-
-
-        from .tasks import actualisePrixMySolisart, actualise_herakles, actualise_client_herakles, cleanTaskResult, trouvercoordonneeGPSinstallateur
-        trouvercoordonneeGPSinstallateur()
-        # cleanTaskResult()
-        # actualisePrixMySolisart()
-        # actualise_herakles.delay()
-        # from django.db.models import CharField
-        # from django.db.models.functions import Length
-        # TextField.register_lookup(Length, 'length')
-        # instal = installation.objects.filter(
-        #     attribut_valeur__attribut_def__description="Code postal"
-        # ).annotate(
-        #     num_departement1=Subquery(
-        #     attribut_valeur.objects.filter(installation__pk=OuterRef("id"), attribut_def__description="Code postal").values('valeur')[:1]
-        #     ),
-        #     num_departement2 = Substr('num_departement1', 1, 2),
-        #     num_departement=Case(
-        #         When(num_departement1__length=4, then=Value(str(100))),
-        #         When(num_departement1__length=5, then='num_departement2'),
-        #         output_field=CharField())
-        # ).filter(num_departement__in=list(['100']))
-        # for i in instal:
-        #     print(i, i.num_departement)
+        print(CL_herakles.objects.get(CL="CL23-0696").commercial())
         return render(request,
                       self.template_name,
                           {
@@ -1866,35 +1836,61 @@ class cartcreator(View):
     template_name = 'sav/cartcreator.html'
     title = "Création d'une carte de régulation"
 
+    def dispatch(self, request, *args, **kwargs):
+        if kwargs:
+            self.CL = CL_herakles.objects.get(pk=kwargs.pop('pkCL'))
+        else:
+            self.CL=None
+        return super(cartcreator, self).dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
+        
         from .tasks import wrapperscapping
         installations = installation.objects.all().values('idsa')
         # from .scrapping import scrappingMySolisart
         # scrappingMySolisart().save_csv_configuration(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
-
         return render(request,
                       self.template_name,
                       {
                           'installations':installations,
-                          'title':self.title
+                          'title':self.title,
+                          'CL':self.CL                          
                       }
                       )
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
+        if 'installExiste' in request.POST:
+            """
+            Cherche dans la liste des installation à quel index de la semaine nous sommes
+            """
+            from django.db.models.functions import Reverse
+            listIndex = list(installation.objects.filter(idsa__icontains=request.POST['installExiste']).\
+                annotate(
+                    index = Cast(Reverse(Lower(Substr(Reverse('idsa'), 1, 2))), output_field=FloatField())
+                ).order_by('index').values_list('index', flat=True))
+            for i in range(10):
+                if i != 0 and not float(i) in listIndex:
+                    return JsonResponse({'SN': request.POST['installExiste'] + "{:02d}".format(i)}, safe=False)
+                    break
+            param={'SN': ''}
+            return JsonResponse(param, safe=False)
+
         if 'download' in request.POST:
             with open(os.path.dirname(__file__) + '/temp/config.csv') as myfile:
                 response = HttpResponse(myfile, content_type='text/csv')
                 response['Content-Disposition'] = 'attachment; filename=config.csv'
             return response
-
-        if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
-            file = request.FILES['file']
-            data = file.read()
+        
+        if request.POST['new_installation']:
+            if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
+                file = request.FILES['file']
+                data = file.read()
+            if self.CL and self.CL.json():
+                data = self.CL.json().fichier.file.read()
             import json
             param = json.loads(data)
-
             from .tasks import wrapperscapping
-            wrapperscapping.delay("cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param})
+            wrapperscapping.delay("cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)})
 
             # import os
             # from django.core.files.storage import FileSystemStorage
@@ -1997,7 +1993,9 @@ class production(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        
+        if 'delete_file' in request.POST:
+            Fichiers.objects.get(pk=request.POST['delete_file']).delete()
+            return JsonResponse({'Delete': 'OK'}, safe=False)
         from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
         if "numCL" in request.POST:
             numCL = request.POST['numCL']
@@ -2090,8 +2088,10 @@ class production(View):
             else:
                 print("error", form.errors)
             return HttpResponseRedirect(request.path_info)
+        
         if 'calendar' in request.POST:
             return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.all().order_by('date_livraison_prevu')]), safe=False)
+        
         if 'show' in request.POST:
             CL = CL_herakles.objects.get(CL = request.POST['show'])
             numCL = request.POST['show']
@@ -2107,10 +2107,10 @@ class production(View):
             return render(request,
                           "widgets/PresentCL.html",
                           {
-                              "formCL":formCL,
+                            "formCL":formCL,
                             'CLarticles': CLarticles,
-                              'CL':CL,
-                              "beforeAdd": False
+                            'CL':CL,
+                            "beforeAdd": False
                           }
                           )
 

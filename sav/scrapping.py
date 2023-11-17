@@ -15,6 +15,10 @@ import os
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, expected_conditions
 
+from .models import CL_herakles, installation
+
+from django.utils import timezone
+
 
 def get_download_path():
     """Returns the default downloads path for linux or windows"""
@@ -224,6 +228,8 @@ class scrappingMySolisart():
                     self.close()
                 else:
                     send_channel_message('cartcreating', {'message':'<i class="fas fa-check" style="color: #018303;"></i> Installation ' + installation + " dans la liste des installations"})
+                    installation.objects.create(idsa=installation)
+                    send_channel_message('cartcreating', {'message':"Installation " + installation +" enregistrée dans le solistools"})
                     send_channel_message('cartcreating', {'message':"Préparation de l'envoi de la configuration à " + installation})
                     self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
                     i = 0
@@ -266,35 +272,39 @@ class scrappingMySolisart():
         """
         self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
         i = 0
-        send_channel_message('cartcreating', 'Attente '+ installation +' que la carte se connecte')
+        send_channel_message('cartcreating', {'message':'Attente '+ installation +' que la carte se connecte'})
         while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
                 "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
             time.sleep(0.5)
             print("wait again")
             i += 1
         if i == 1200:
-            send_channel_message('cartcreating', "<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min")
+            send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
             self.close()
         else:
-            send_channel_message('cartcreating', 'La carte ' + installation + ' est connectée')
+            send_channel_message('cartcreating', {'message':'La carte ' + installation + ' est connectée'})
             assert self.driver.find_element(By.XPATH, '//label[@for="input-pages-info"]')
             time.sleep(2)
             self.driver.find_element(By.XPATH, '//label[@for="input-pages-info"]').click()
             time.sleep(2)
             self.driver.find_element(By.XPATH, '//a[@href="#onglet-info-suivi"]').click()
-
-            self.driver.find_element(By.ID, 'mail-defaut-adresses-solisart').clean()
             self.driver.find_element(By.ID, 'mail-defaut-adresses-solisart').send_keys("sav@solisart.fr")
-            if "adresse_mail" in dict_schematic:
+            print(dict_schematic)
+            if 'formulaire' in dict_schematic:
+                dict_schematictemp = dict_schematic['formulaire']
+            else:
+                dict_schematictemp = dict_schematic
+            if "adresse_mail" in dict_schematictemp:
                 self.driver.find_element(By.ID, 'mail-defaut-adresses-installateur').\
                     clear()
+                print(dict_schematictemp['adresse_mail'])
                 self.driver.find_element(By.ID, 'mail-defaut-adresses-installateur'). \
-                    send_keys(dict_schematic['adresse_mail'])
-            if "installateur" in dict_schematic:
+                    send_keys(dict_schematictemp['adresse_mail'])
+            if "installateur" in dict_schematictemp:
                 self.driver.find_element(By.ID, 'input-suivi-installateur'). \
                     clear()
                 self.driver.find_element(By.ID, 'input-suivi-installateur').\
-                    send_keys(dict_schematic['installateur'])
+                    send_keys(dict_schematictemp['installateur'])
 
             self.driver.find_element(By.XPATH, '//a[@href="#onglet-info-client"]').click()
             for key, value in {
@@ -303,11 +313,11 @@ class scrappingMySolisart():
                 "mail_client": 'input-client-email',
                 "tel_client": 'input-client-telephone1'
             }.items():
-                if key in dict_schematic:
+                if key in dict_schematictemp:
                     self.driver.find_element(By.ID, value). \
                     clear()
                     self.driver.find_element(By.ID, value).\
-                    send_keys(dict_schematic[key])
+                    send_keys(dict_schematictemp[key])
 
             self.driver.find_element(By.XPATH, '//a[@href="#onglet-info-localisation"]').click()
             for key, value in {
@@ -315,17 +325,17 @@ class scrappingMySolisart():
                 "code_postale_client": 'input-adresse-codepostal',
                 "ville_client": 'input-adresse-commune'
             }.items():
-                if key in dict_schematic:
+                if key in dict_schematictemp:
                     self.driver.find_element(By.ID, value). \
                         clear()
                     self.driver.find_element(By.ID, value). \
-                        send_keys(dict_schematic[key])
+                        send_keys(dict_schematictemp[key])
 
             try:
                 url = 'https://nominatim.openstreetmap.org/?q=France'
                 for at in ["adresse_client", "code_postale_client", "ville_client"]:
-                    if at in dict_schematic:
-                        url += '+' + dict_schematic[at].replace(' ', '%').replace('\'', '%').lower()
+                    if at in dict_schematictemp:
+                        url += '+' + dict_schematictemp[at].replace(' ', '%').replace('\'', '%').lower()
                 url += '&format=json'
                 import requests
                 resp = requests.get(url).json()
@@ -341,7 +351,6 @@ class scrappingMySolisart():
                     self.driver.find_element(By.ID, 'input-adresse-gps'). \
                         send_keys(GPS)
 
-
             except Exception as ex:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -351,12 +360,11 @@ class scrappingMySolisart():
                 print(exc_type, fname, exc_tb.tb_lineno)
 
                 print(ex)
-                send_channel_message('cartcreating', 'Les informations pour' + installation + ' ne sont pas enregistrées')
+                send_channel_message('cartcreating', {'message':'Les informations pour' + installation + ' ne sont pas enregistrées'})
         self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
         self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
         send_channel_message(
-            'cartcreating',
-            "<i class='fas fa-check' style='color: #018303;'</i> Les informations pour" + installation + " sont bien enregistrées"
+            'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
         )
 
     def cart_created_since_json(self, kwargs):
@@ -365,6 +373,7 @@ class scrappingMySolisart():
             import requests
             installation = kwargs['installation']
             dict_schematic = kwargs['dict_schematic']
+            CL = kwargs['CL']
             send_channel_message('cartcreating',
                                  {'message': "Recherche si l'installation " + installation + " existe déjà..."})
             list_install = self.list_installation()
@@ -473,10 +482,39 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être créé."})
 
         if self.connecting and created:
-            self.linkproprio(dict_schematic)
+            self.linkproprio(dict_schematic, installation)
         else:
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être affecté."})
+
+        #Affecte CL 
+        if not CL and 'fiche_prog' in dict_schematic:
+            if 'numCommande' in dict_schematic['fiche_prog']:
+                CL=dict_schematic['fiche_prog']['numCommande']
+
+        if self.connecting and CL:
+            CL = CL_herakles.objects.get(CL = CL)
+            CL.date_prepa_carte = timezone.now()
+            CL.installation = installation.objects.get(idsa=installation)
+            CL.save()
+            try:                    
+                commercial = CL_herakles.objects.get(CL = dict_schematic['fiche_prog']['numCommande']).commercial
+                if commercial == "NONGLA":
+                    self.linkcommercial('NONGLATON', installation)
+                elif commercial == "DURAND":
+                    self.linkcommercial('DURAND', installation)
+                elif commercial == "FOISSEY":
+                    self.linkcommercial('FOISSEY', installation)
+                elif commercial == "CLAVAREAU":
+                    self.linkcommercial('techniconsultant.cc@orange.fr', installation)  
+                send_channel_message('cartcreating',
+                                     {
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + commercial +" a été affecté à l'installation"})
+                     
+            except:
+                    send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
+
         if self.connecting:
             send_channel_message('cartcreating',
                              {
@@ -487,14 +525,29 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte n'est pas complètement prête."})
 
 
-    def linkproprio(self, dict_schematic):
+    def linkproprio(self, dict_schematic, installation):
+
+        if 'formulaire' in dict_schematic:
+            dict_schematic = dict_schematic['formulaire']
         try:
-            self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
-            self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
-            self.waitelement(By.XPATH, '//option[@value="'+dict_schematic['mail_client']+'"]', 'presence_of_element_located', 'click')
-            self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
-            self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
-            send_channel_message('cartcreating',
+            self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
+            i = 0
+            send_channel_message('cartcreating', {'message':'Attente '+ installation +' que la carte se connecte'})
+            while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
+                "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
+                time.sleep(0.5)
+                print("wait again")
+                i += 1
+            if i == 1200:
+                send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
+                self.close()
+            else:
+                self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="'+dict_schematic['mail_client']+'"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
+                send_channel_message('cartcreating',
                                  {
                                      'message': "<i class='fas fa-check' style='color: #018303;'></i> Le propriétaire a été affecté à l'installation"})
 
@@ -505,6 +558,43 @@ class scrappingMySolisart():
             print(ex)
             send_channel_message('cartcreating',
                                  {'message': "Erreur: " + str(exc_type) + str(fname) + str(exc_tb.tb_lineno) + str(ex)})
+            send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être affecté."})
+            self.close()
+
+    def linkcommercial(self, idsa_commercial, installation):
+
+        try:
+            self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
+            i = 0
+            send_channel_message('cartcreating', {'message':'Attente '+ installation +' que la carte se connecte'})
+            while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
+                "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
+                time.sleep(0.5)
+                print("wait again")
+                i += 1
+            if i == 1200:
+                send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
+                self.close()
+            else:
+                self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="'+ idsa_commercial +'"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
+                send_channel_message('cartcreating',
+                                 {
+                                     'message': "<i class='fas fa-check' style='color: #018303;'></i> Le propriétaire a été affecté à l'installation"})
+
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            send_channel_message('cartcreating',
+                                 {'message': "Erreur: " + str(exc_type) + str(fname) + str(exc_tb.tb_lineno) + str(ex)})
+            send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être affecté."})
             self.close()
 
     def record_png(self, installation):
@@ -513,7 +603,8 @@ class scrappingMySolisart():
             self.waitelement(By.XPATH, '//label[@for="input-pages-visualisation"]', 'presence_of_element_located', 'click')
             self.waitelement(By.XPATH, '//a[@href="#onglet-maintenance"]', 'presence_of_element_located', 'click')
             self.waitelement(By.ID, "schema-ajouter", 'presence_of_element_located', 'click')
-            self.driver.find_element(By.ID, "telechargement-schema-input-1").send_keys(os.path.dirname(__file__) + '/temp/image.png')
+            print(os.path.dirname(__file__) + '/temp/image.png')
+            self.driver.find_element(By.ID, "telechargement-schema-input-1").send_keys((os.path.dirname(__file__) + '/temp/image.png').replace('\\', '\\\\').replace('/', '\\\\'))
             self.waitelement(By.ID, "telechargement-schema-ajouter", 'element_to_be_clickable', 'click')
             send_channel_message('cartcreating',
                                  {
@@ -526,7 +617,9 @@ class scrappingMySolisart():
             print(ex)
             send_channel_message('cartcreating',
                                  {'message': "Erreur: " + str(exc_type) + str(fname) + str(exc_tb.tb_lineno) + str(ex)})
-            self.close()
+            send_channel_message('cartcreating',
+                                 {'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le schéma de l'installation n'a pas pu être affecté"})
+            
 
     def cart_created_since_csv_config(self, path_csv=None):
         """
@@ -554,12 +647,12 @@ class scrappingMySolisart():
                 time.sleep(0.5)
                 print("wait again")
                 i += 1
+  
             if i == 1200:
                 print("La carte SC_TEST ne s'est pas connecté en 10 min")
                 send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Pas de connection de SC_TEST en 10min."})
-                self.close()
+                self.close()              
             else:
-
                 if self.connecting:
                     self.update_regul('SC_TEST')
 
@@ -568,11 +661,11 @@ class scrappingMySolisart():
                 else:
                     send_channel_message('cartcreating', {
                         'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte de régulation n'a pas pu être mise à jour."})
+                        
                 if self.connecting:
                     send_channel_message('cartcreating',
                                          {'message': "Préparation de l'envoi de la configuration à SC_TEST"})
                     self.save_csv_configuration(path_csv=path_csv)
-
                 else:
                     send_channel_message('cartcreating', {
                         'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La nano carte n'a pas pu être mise à jour."})
@@ -582,8 +675,6 @@ class scrappingMySolisart():
                                  {
                                      'message': "<i class='fas fa-check' style='color: #018303;'></i> La carte est terminée."})
             self.close()
-
-
 
     def update_regul(self, installation):
         try:
@@ -597,7 +688,7 @@ class scrappingMySolisart():
             self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
             time.sleep(2)
             self.waitelement(By.XPATH, '//a[@href="#onglet-carte"]', 'presence_of_element_located', 'click')
-            time.sleep(2)
+            time.sleep(2)            
             self.driver.find_element(By.ID, "firmware-nouveau-button").click()
             #clique sur la dernier màj
             ul = self.driver.find_element(By.ID, "firmware-nouveau-menu")
@@ -638,22 +729,26 @@ class scrappingMySolisart():
             time.sleep(2)
             self.waitelement(By.XPATH, '//a[@href="#onglet-serveur"]', 'presence_of_element_located', 'click')
             time.sleep(2)
-            self.driver.find_element(By.ID, "appli-nouveau-button").click()
+            if self.driver.find_element(By.ID, "appli-courant").get_attribute("innerHTML") != \
+                self.driver.find_element(By.CLASS_NAME, "version").get_attribute("innerHTML"):
+                self.driver.find_element(By.ID, "appli-nouveau-button").click()
 
-            # clique sur la dernier màj
-            ul = self.driver.find_element(By.ID, "appli-nouveau-menu")
-            ul.find_elements(By.TAG_NAME, 'li')[2].click()
-            # Valide la màj
-            self.driver.find_element(By.ID, "appli-installer").click()
-            time.sleep(3)
-            # Ferme la fenêtre de message
-            self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
-            send_channel_message('cartcreating',
-                                 {
-                                     'message': "Le nano serveur de l'installation " + installation + ' est en cours de mise à jour'})
-            time.sleep(2)
-            self.waitelement(By.XPATH, '//*[@id="appli-maj"]/table/tbody/tr[2]/td[2]/img[@alt="Terminée avec succès"]',
-                                   'presence_of_element_located', '', time_max=1200)
+                # clique sur la dernier màj
+                ul = self.driver.find_element(By.ID, "appli-nouveau-menu")
+                ul.find_elements(By.TAG_NAME, 'li')[2].click()
+                # Valide la màj
+                self.driver.find_element(By.ID, "appli-installer").click()
+                time.sleep(3)
+                # Ferme la fenêtre de message
+                self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '////*[@id="appli-installer"]', 'presence_of_element_located', 'click')
+                send_channel_message('cartcreating',
+                                    {
+                                        'message': "Le nano serveur de l'installation " + installation + ' est en cours de mise à jour'})
+                time.sleep(2)
+
+                self.waitelement(By.XPATH, '//*[@id="appli-maj"]/table/tbody/tr[2]/td[2]/img[@alt="Terminée avec succès"]',
+                                    'presence_of_element_located', '', time_max=1200)
             print("Le nano-serveur est à la dernière version")
             send_channel_message('cartcreating',
                                  {
@@ -719,6 +814,8 @@ class scrappingMySolisart():
 
     def createuser(self, dict_schematic):
 
+        if 'formulaire' in dict_schematic:
+            dict_schematic=dict_schematic['formulaire']
         if 'mail_client' in dict_schematic:
             self.driver.get('https://my.solisart.fr/admin/index.php?page=creer_utilisateur')
             for key, value in {
@@ -744,8 +841,8 @@ class scrappingMySolisart():
                 clear()
             self.driver.find_element(By.XPATH, '//input[@name="pass_confirm"]'). \
                 send_keys('solaire')
-            # self.driver.find_element(By.XPATH, '//input[@name="creation"]'). \
-            #     click()
+            self.driver.find_element(By.XPATH, '//input[@name="creation"]'). \
+                click()
             send_channel_message('cartcreating', {'message':"<i class='fas fa-check' style='color: #018303;'></i> Le propriétaire "+ \
                 dict_schematic['prenom_client']+ \
                 " " + \

@@ -579,7 +579,6 @@ class CL_Form(ModelForm):
         self.helper.form_tag = False
         if self.instance.pk == None:
             self.fields['installation'].widget = HiddenInput()
-
             self.helper.layout = Layout(
             Row(
                 Column(
@@ -675,6 +674,10 @@ class CL_Form(ModelForm):
             self.fields['date_prepa'].widget = HiddenInput()
             self.fields['date_montage'].widget = HiddenInput()
             self.fields['date_capteur'].widget = HiddenInput()
+            if self.instance.date_prepa_carte:
+                html=''
+            else:
+                html='<a href="/cartcreator/'+ str(self.instance.pk) +'" class="btn btn-outline-primary">Créer carte</a>'
             self.helper.layout = Layout(
                 Row(
                     Column(
@@ -773,7 +776,9 @@ class CL_Form(ModelForm):
                                                              '<i class="fas fa-calendar-day"></i>',
                                                              wrapper_class='form-row',
                                                              template='widgets/prepended_appended_text_inline.html'),
+                                                HTML(html),
                                                 css_class="col-3"),
+
                                             Column(
                                                 AppendedText('date_prepa_carte',
                                                              '<i class="fas fa-calendar-check"></i>',
@@ -782,7 +787,7 @@ class CL_Form(ModelForm):
                                                 css_class="col-3"),
                                             css_class="m-1"
                                         )
-                                        )
+                        )
 
                     )
                 ),Row(

@@ -5,7 +5,7 @@
 {%block Titre%}{{title}}{%endblock%}
 
 {%block article%}
-<h1 class="text-center m-3">Création de carte de régulation</h1>
+<h1 class="text-center m-3">Création de carte de régulation {% if CL%}<br> pour la commande {{CL}}{%endif%}</h1>
 <div class="container">
     <div class="row">
         <div class="col-12">
@@ -13,10 +13,10 @@
                 <div class="input-group mb-3">
                   <label class="input-group-text" for="option">Options</label>
                   <select class="form-select" id="option" name="opt">
-                    <option >Choisir que faire...</option>
-                    <option value="json">A partir d'un json</option>
+                    {% if not CL %}<option >Choisir que faire...</option>{%endif%}
+                    <option value="json" {% if CL %} selected{%endif%}>A partir d'un json</option>
 <!--                    <option value="csv">A partir d'un fichier csv</option>-->
-                    <option value="installation">A partir d'une installation existente</option>
+                    {% if not CL %}<option value="installation">A partir d'une installation existente</option>{%endif%}
                   </select>
                 </div>
                 <div class="mb-3 d-none" id="divFile">
@@ -27,7 +27,14 @@
 
                   <div class="input-group mb-3">
                       <span class="input-group-text" id="basic-addon2">Nom de la nouvelle installation</span>
-                      <input type="text" name="new_installation" class="form-control" placeholder="SC2M..." value="SC2M20240000" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                      <select id="typeInstallation">
+                        <option value="SC1M">SC1M</option>
+                        <option value="SC2M">SC2M</option>
+                        <option value="SC1Z">SC1Z</option>
+                        <option value="SC2C">SC2C</option>
+                        <option value="SC2CF">SC2CF</option>
+                      </select>
+                      <input type="text" name="new_installation" class="form-control" placeholder="SC2M..." aria-label="Recipient's username" aria-describedby="basic-addon2">
                     </div>
                 </div>
                 <div class="input-group mb-3 d-none" id="divInstallation">
@@ -46,13 +53,41 @@
         </div>
     </div>
     <script>
+        $("#typeInstallation").on('change', function(){
+            var years = new Date().getFullYear()
+            currentDate = new Date();
+            startDate = new Date(currentDate.getFullYear(), 0, 1);
+            var days = Math.floor((currentDate - startDate) /
+                (24 * 60 * 60 * 1000));            
+            var weekNumber = Math.ceil(days / 7);
+            data = {"installExiste": years.toString() + weekNumber.toString()}
+            $.ajax({
+                 url: window.location.href,
+                 data: data,
+                 dataType: 'json',
+                 type: 'post',
+                 success: function (json) {
+                    $("[name=new_installation]").val($("#typeInstallation").val()+ json['SN'])
+                 },
+            })            
+        })
+        $("#typeInstallation").change()
         $("#option").on('change', function(){
         if($("#option").val() == "json"){
-            $("#divInstallation").addClass('d-none')
-            $("#divFile").removeClass('d-none')
-            $("label[for='formFile']").html("Sélectionner le json généré par la schématèque")
-            $('#formFile').attr("accept", "." + "json")
-            $("#submit").prop("disabled",false);
+            jsonInCl = {%if CL.json%}true{%else%}false{%endif%}
+            if (jsonInCl){
+                $("#divInstallation").addClass('d-none')
+                $("#divFile").removeClass('d-none')
+                $("#divFile").append("<span>La carte sera créée avec le fichier json de la commande {{CL}} </span>")
+                $("#divFile").find(".mb-3:first").addClass('d-none')                
+                $("#submit").prop("disabled",false);
+            }else{
+                $("#divInstallation").addClass('d-none')
+                $("#divFile").removeClass('d-none')
+                $("label[for='formFile']").html("Sélectionner le json généré par la schématèque")
+                $('#formFile').attr("accept", "." + "json")
+                $("#submit").prop("disabled",false);
+            }
         }else if($("#option").val() == "csv"){
             $("#divInstallation").addClass('d-none')
             $("#divFile").removeClass('d-none')
@@ -67,6 +102,7 @@
             $("#submit").prop("disabled",true);
         }
         })
+        {%if CL%}$("#option").change(){%endif%}
         $("#submit").on('click', function(e){
             e.preventDefault();
             var data = new FormData($('form').get(0))
@@ -148,6 +184,9 @@
                 if(processing == true){
                     $("#results").append('<li><i class="fas fa-sun fa-spin" style="color:yellow"></i></li>');
                 }
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("li:last").offset().top
+                }, 2000);
             }
 
 

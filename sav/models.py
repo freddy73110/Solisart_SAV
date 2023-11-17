@@ -1089,6 +1089,18 @@ class CL_herakles(models.Model):
                 serial[f.name] = getattr(self, f.name, None).strftime("%Y-%m-%d %H:%M") if getattr(self, f.name, None) else None
 
         return serial
+    
+    def json(self):
+        for fi in self.fichier.all():
+            print(fi, fi.extension())
+            if '.json' == fi.extension():
+                return fi
+                break
+        return None
+    
+    def commercial(self):
+        from heraklesinfo.models import C601ChantierEnTte
+        return str(C601ChantierEnTte.objects.db_manager('herakles').filter(t601_1_code_chantier = self.CL).values_list('t601_8_0_code_commercial', flat=True)[0])
 
     def __init__(self, *args, **kwargs):
         super(CL_herakles, self).__init__(*args, **kwargs)
