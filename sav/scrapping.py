@@ -228,22 +228,24 @@ class scrappingMySolisart():
                     self.close()
                 else:
                     send_channel_message('cartcreating', {'message':'<i class="fas fa-check" style="color: #018303;"></i> Installation ' + installation + " dans la liste des installations"})
-                    installation.objects.create(idsa=installation)
-                    send_channel_message('cartcreating', {'message':"Installation " + installation +" enregistrée dans le solistools"})
-                    send_channel_message('cartcreating', {'message':"Préparation de l'envoi de la configuration à " + installation})
-                    self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
+                    instal = installation
+                    from .models import installation
+                    installation.objects.create(idsa=instal)
+                    send_channel_message('cartcreating', {'message':"Installation " + instal +" enregistrée dans le solistools"})
+                    send_channel_message('cartcreating', {'message':"Préparation de l'envoi de la configuration à " + instal})
+                    self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + instal)
                     i = 0
-                    send_channel_message('cartcreating', {'message':'Attente que la carte ' + installation + ' se connecte'})
+                    send_channel_message('cartcreating', {'message':'Attente que la carte ' + instal + ' se connecte'})
                     while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
                             "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
                         time.sleep(0.5)
                         print("wait again")
                         i += 1
                     if i == 1200:
-                        print("La carte " + installation + " ne s'est pas connecté en 10 min")
+                        print("La carte " + instal + " ne s'est pas connecté en 10 min")
                     else:
-                        print("La carte " + installation + " est connectée")
-                        send_channel_message('cartcreating', {'message':"La carte " + installation + " est connectée"})
+                        print("La carte " + instal + " est connectée")
+                        send_channel_message('cartcreating', {'message':"La carte " + instal + " est connectée"})
                         time.sleep(2)
                         self.save_csv_configuration(path_csv=path_csv)
 
