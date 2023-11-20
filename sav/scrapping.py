@@ -220,10 +220,10 @@ class scrappingMySolisart():
                 i = 0
                 send_channel_message('cartcreating', {'message':"Recherche de l'installation " + installation + " dans la liste des installations"})
                 l = self.list_installation()
-                while i < 10 and not installation in l:
+                while i < 30 and not installation in l:
                     i += 1
                     l = self.list_installation()
-                if i == 10:
+                if i == 30:
                     send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Abandon de de recherche d'installation " + installation})
                     self.close()
                 else:
