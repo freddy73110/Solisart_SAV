@@ -460,7 +460,7 @@ class scrappingMySolisart():
             send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
             self.close()
 
-        self.cart_created_since_csv_config(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv')
+        self.cart_created_since_csv_config(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
 
         if self.connecting:
             self.savekey_installation(installation, dict_schematic)
