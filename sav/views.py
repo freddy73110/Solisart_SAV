@@ -1606,6 +1606,7 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
         print(CL_herakles.objects.get(CL="CL23-0696").commercial())
+        print(list(profil_user.objects.filter(user__email='contact@pesquet-chauffage.com').values_list('user__email', flat=True)))
         return render(request,
                       self.template_name,
                           {

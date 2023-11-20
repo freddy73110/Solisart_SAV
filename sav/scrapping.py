@@ -174,7 +174,7 @@ class scrappingMySolisart():
             time.sleep(2)
             self.waitelement(By.XPATH, '//a[@href="#onglet-config"]', 'presence_of_element_located', 'click')
             time.sleep(2)
-            self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv.replace('\\', '\\\\').replace('/', '\\\\'))
+            self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv)
             time.sleep(2)
             self.driver.find_element(By.ID, "bouton-telecharger").click()
             time.sleep(3)
@@ -388,7 +388,7 @@ class scrappingMySolisart():
                 from django.core.files.storage import FileSystemStorage
 
                 # Supprime tous les fichiers du dossier temp
-                files = glob.glob(os.path.dirname(__file__) + '/temp')
+                files = glob.glob(os.path.join(os.path.dirname(__file__), 'temp'))
                 for f in files:
                     try:
                         os.remove(f)
@@ -399,16 +399,16 @@ class scrappingMySolisart():
                 url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
                 response = requests.post(url, files = {'fichier': json.dumps(dict_schematic)})
                 # Ecrit le fichier config dans le dossier tmp
-                with open(os.path.dirname(__file__) + '/temp/configtmp.csv', 'w') as out:
+                with open(os.path.join(os.path.dirname(__file__), 'temp', 'configtmp.csv'), 'w') as out:
                     out.write(response.content.decode())
                 import csv
-                open_file = open(os.path.dirname(__file__) + '/temp/configtmp.csv')
+                open_file = open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
                 csv_file = csv.reader(open_file, delimiter=";")
                 lines = list(csv_file)
 
                 lines[3][2]=installation
                 lines[4][2] = dict_schematic['formulaire']['nom_client'].upper()
-                with open(os.path.dirname(__file__) + '/temp/config.csv', 'w', newline='') as file:
+                with open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'), 'w', newline='') as file:
                     writer = csv.writer(file, delimiter=';')
                     writer.writerows(lines)
 
@@ -460,7 +460,7 @@ class scrappingMySolisart():
             send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
             self.close()
 
-        self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+        self.cart_created_since_csv_config(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv')
 
         if self.connecting:
             self.savekey_installation(installation, dict_schematic)
@@ -514,6 +514,15 @@ class scrappingMySolisart():
             except:
                     send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
+
+            from .models import profil_user
+            if 'formulaire' in dict_schematic:
+                email_installateur = dict_schematic['formulaire']['adresse_mail']
+            else:
+                email_installateur = dict_schematic['adresse_mail']
+
+            for email in list(profil_user.objects.filter(user__email=email_installateur).values_list('user__email', flat=True)):
+                self.linkcommercial(email, installation)
 
         if self.connecting:
             send_channel_message('cartcreating',
@@ -789,13 +798,13 @@ class scrappingMySolisart():
                              })
         #le fichier ce trouve dans le dossier télécharger et on le déplace dans temp
         try:
-            os.remove(os.path.dirname(__file__) + '/temp/config.csv')
+            os.remove(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
         except:
             print("çà casse")
             pass
 
         try:
-            os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.dirname(__file__) + '/temp/config.csv')
+            os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
             send_channel_message('cartcreating',
                                  {
                                      'download': "-"
@@ -810,7 +819,7 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
                     fname) + str(exc_tb.tb_lineno) + str(ex)})
             self.close()
-        self.cart_created_since_csv_config(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+        self.cart_created_since_csv_config(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
 
     def createuser(self, dict_schematic):
 
