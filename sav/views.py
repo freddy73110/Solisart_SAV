@@ -204,16 +204,16 @@ class updateDB (View):
 
     def post(self, request, *args, **kwargs):
         if 'typeOutput' in request.POST:
-            
             try:
-                dict_schematic = request.POST.dict()
+                dict_schematic = json.loads(request.POST['jsonfile'])
                 url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
                 import requests
-                if dict_schematic['typeOutput'] == 'hydro':
-                    url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
+                if request.POST['typeOutput'] == 'hydro':
+                    url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrau'
                     resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
                     # Lire les données de l'image depuis la réponse
                     image_data = resp.content
+                    print(resp, resp.content, resp.status_code)
                     # response = HttpResponse(Image.open(BytesIO(image_data)), content_type='image/png')
                     img = Image.open(BytesIO(image_data))
                     response = HttpResponse(content_type='image/png')
@@ -221,7 +221,7 @@ class updateDB (View):
                     img.save(response, "PNG")
                     return response
 
-                if dict_schematic['typeOutput'] == 'exe':
+                if request.POST['typeOutput'] == 'exe':
                     url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaExe'
                     resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
                     # Lire les données de l'image depuis la réponse
@@ -232,13 +232,18 @@ class updateDB (View):
                     img.save(response, "PNG")
                     return response
 
-                if dict_schematic['typeOutput'] == 'config':
+                if request.POST['typeOutput'] == 'config':
                     url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
                     resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
                     # Lire les données de l'image depuis la réponse
                     response = HttpResponse(resp.content, content_type='text/csv')
                     return response
-            except:
+            except Exception as e:
+
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(e)
                 empty=''
                 return HttpResponse(empty, content_type='text/csv')
 

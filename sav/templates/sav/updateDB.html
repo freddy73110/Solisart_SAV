@@ -120,12 +120,14 @@
         var typeOutput=this.id
         var reader = new FileReader();
         reader.onload = function() {
-            var fileContent = JSON.parse(reader.result);
-            fileContent.typeOutput=typeOutput
+            var fileContent = JSON.stringify(JSON.parse(reader.result));
+            
+
+            console.log(fileContent)
             $.ajax({
                 url: window.location.href,
                 type:'post',
-                data: fileContent,
+                data: {'typeOutput':typeOutput,"jsonfile":fileContent},
                 xhrFields:{
                     responseType: 'blob'
                 },

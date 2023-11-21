@@ -448,8 +448,8 @@ class scrappingMySolisart():
                 image = Image.open(BytesIO(image_data))
 
                 import os
-                # SAuvegarder dans le dossier /temp
-                image.save(os.path.dirname(__file__) + '/temp/image.png')
+                # Sauvegarder dans le dossier /temp
+                image.save(os.path.join(os.path.dirname(__file__), 'temp', 'image.png'))
 
                 send_channel_message('cartcreating',
                                      {
@@ -502,13 +502,13 @@ class scrappingMySolisart():
             try:                    
                 commercial = CL_herakles.objects.get(CL = dict_schematic['fiche_prog']['numCommande']).commercial
                 if commercial == "NONGLA":
-                    self.linkcommercial('NONGLATON', installation)
+                    self.acces_installation('NONGLATON', installation, '2')
                 elif commercial == "DURAND":
-                    self.linkcommercial('DURAND', installation)
+                    self.acces_installationl('DURAND', installation, '2')
                 elif commercial == "FOISSEY":
-                    self.linkcommercial('FOISSEY', installation)
+                    self.acces_installation('FOISSEY', installation, '2')
                 elif commercial == "CLAVAREAU":
-                    self.linkcommercial('techniconsultant.cc@orange.fr', installation)  
+                    self.acces_installation('techniconsultant.cc@orange.fr', installation, '2')  
                 send_channel_message('cartcreating',
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + commercial +" a été affecté à l'installation"})
@@ -524,7 +524,7 @@ class scrappingMySolisart():
                 email_installateur = dict_schematic['adresse_mail']
 
             for email in list(profil_user.objects.filter(user__email=email_installateur).values_list('user__email', flat=True)):
-                self.linkcommercial(email, installation)
+                self.acces_installation(email, installation, '3')
 
         if self.connecting:
             send_channel_message('cartcreating',
@@ -541,27 +541,29 @@ class scrappingMySolisart():
         if 'formulaire' in dict_schematic:
             dict_schematic = dict_schematic['formulaire']
         try:
-            self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
-            i = 0
-            send_channel_message('cartcreating', {'message':'Attente '+ installation +' que la carte se connecte'})
-            while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
-                "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
-                time.sleep(0.5)
-                print("wait again")
-                i += 1
-            if i == 1200:
-                send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
-                self.close()
+            if dict_schematic['mail_client']:
+                self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
+                i = 0
+                send_channel_message('cartcreating', {'message':'Attente '+ installation +' que la carte se connecte'})
+                while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
+                    "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
+                    time.sleep(0.5)
+                    print("wait again")
+                    i += 1
+                if i == 1200:
+                    send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
+                    self.close()
+                else:
+                    self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
+                    self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
+                    self.waitelement(By.XPATH, '//option[@value="'+dict_schematic['mail_client']+'"]', 'presence_of_element_located', 'click')
+                    self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
+                    self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
+                    send_channel_message('cartcreating',
+                                    {
+                                        'message': "<i class='fas fa-check' style='color: #018303;'></i> Le propriétaire a été affecté à l'installation"})
             else:
-                self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//option[@value="'+dict_schematic['mail_client']+'"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
-                send_channel_message('cartcreating',
-                                 {
-                                     'message': "<i class='fas fa-check' style='color: #018303;'></i> Le propriétaire a été affecté à l'installation"})
-
+                send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Pas assez d'information pour créer le propriétaire"})
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -573,7 +575,7 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être affecté."})
             self.close()
 
-    def linkcommercial(self, idsa_commercial, installation):
+    def acces_installation(self, idsa, installation, level):
 
         try:
             self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id='+installation)
@@ -590,8 +592,8 @@ class scrappingMySolisart():
             else:
                 self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//option[@value="'+ idsa_commercial +'"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//option[@value="4"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="'+ idsa +'"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="'+ level +'"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
                 send_channel_message('cartcreating',
                                  {
