@@ -496,6 +496,7 @@ class scrappingMySolisart():
                 send_channel_message('cartcreating',
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affeté à l'installation."})
+                send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
                  
             except:
                 send_channel_message('cartcreating', {
@@ -531,10 +532,16 @@ class scrappingMySolisart():
             send_channel_message('cartcreating',
                              {
                                  'message': "<i class='fas fa-check' style='color: #018303;'></i> La carte est complètement prête"})
+            send_channel_message('cartcreating',
+                             {
+                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"'>Visualiser l'installation "+ installation+ " créée</a>"})
             self.close()
         else:
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte n'est pas complètement prête."})
+            send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"'>Visualiser l'installation "+ installation+ " créée</a>"})
+            self.close()
 
 
     def linkproprio(self, dict_schematic, installation):
@@ -594,7 +601,7 @@ class scrappingMySolisart():
                 self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//option[@value="'+ idsa +'"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '//option[@value="'+ level +'"]', 'presence_of_element_located', 'click')
+                self.waitelement(By.XPATH, '//option[@value="'+ str(level) +'"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')
                 send_channel_message('cartcreating',
                                  {
