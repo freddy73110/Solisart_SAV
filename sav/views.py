@@ -1866,6 +1866,7 @@ class cartcreator(View):
                       )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
         if 'installExiste' in request.POST:
             """
             Cherche dans la liste des installation à quel index de la semaine nous sommes
@@ -1889,6 +1890,7 @@ class cartcreator(View):
             return response
         
         if request.POST['new_installation']:
+            print(request.FILES)
             if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
                 file = request.FILES['file']
                 data = file.read()
@@ -1896,6 +1898,7 @@ class cartcreator(View):
                 data = self.CL.json().fichier.file.read()
             import json
             param = json.loads(data)
+            print(param)
             from .tasks import wrapperscapping
             wrapperscapping.delay("cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)})
 

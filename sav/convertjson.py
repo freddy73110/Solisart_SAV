@@ -33,7 +33,7 @@ class convertjson():
                     print("error", k)
                     pass
         from django.utils import timezone
-        df.columns=[timezone.now().strftime('%d/%m/%Y'), timezone.now().strftime('%H:%M:%S'), '']
+        df.columns=[timezone.now().strftime('%d/%m/%Y'), timezone.now().strftime('%H:%M:%S'), 'Configuration du ' + timezone.now().strftime('%d/%m/%Y à %H:%M')]
         if path:
             df.to_csv(path, sep=';', header=True, index=False, columns=None)
         else:
