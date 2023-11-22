@@ -233,11 +233,12 @@ class updateDB (View):
                     return response
 
                 if request.POST['typeOutput'] == 'config':
-                    url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
-                    resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
-                    # Lire les données de l'image depuis la réponse
-                    response = HttpResponse(resp.content, content_type='text/csv')
-                    return response
+                    from .convertjson import convertjson
+                    return convertjson.jsontocsv(
+                        installation_SN='ADefinir', 
+                        installation_name='install',
+                        dicttoconvert=dict_schematic
+                    )              
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1610,8 +1611,8 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        print(CL_herakles.objects.get(CL="CL23-0696").commercial())
-        print(list(profil_user.objects.filter(user__email='contact@pesquet-chauffage.com').values_list('user__email', flat=True)))
+        from .convertjson import convertjson
+        print(convertjson.jsontocsv(installation_SN="SC2M20240101", installation_name="TARTE"))
         return render(request,
                       self.template_name,
                           {

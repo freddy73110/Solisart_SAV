@@ -397,22 +397,15 @@ class scrappingMySolisart():
                     except:
                         pass
 
-                # url pour récupérer la confi.csv depuis le json
-                url = 'https://www.solisart.fr/schematics/api/getConfiguration.php'
-                response = requests.post(url, files = {'fichier': json.dumps(dict_schematic)})
-                # Ecrit le fichier config dans le dossier tmp
-                with open(os.path.join(os.path.dirname(__file__), 'temp', 'configtmp.csv'), 'w') as out:
-                    out.write(response.content.decode())
-                import csv
-                open_file = open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
-                csv_file = csv.reader(open_file, delimiter=";")
-                lines = list(csv_file)
+                # Créer config.csv depuis le json
+                from .convertjson import convertjson
+                convertjson.jsontocsv(
+                    installation_SN=installation, 
+                    installation_name=dict_schematic['formulaire']['nom_client'].upper(),
+                    path=os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'),
+                    dicttoconvert=dict_schematic
+                    )
 
-                lines[3][2]=installation
-                lines[4][2] = dict_schematic['formulaire']['nom_client'].upper()
-                with open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'), 'w', newline='') as file:
-                    writer = csv.writer(file, delimiter=';')
-                    writer.writerows(lines)
 
                 send_channel_message('cartcreating',
                                      {
@@ -514,7 +507,7 @@ class scrappingMySolisart():
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + commercial +" a été affecté à l'installation"})
                      
             except:
-                    send_channel_message('cartcreating', {
+                send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
 
             from .models import profil_user
