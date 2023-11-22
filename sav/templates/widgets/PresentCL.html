@@ -42,7 +42,7 @@
                                  data-url="{{ request.get_full_path }}"
                                  data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_CL":"{{CL.id}}"}'
                               >
-                    <ul>
+                    <ul id="files_list">
                         {% for f in CL.fichier.all %}
                         <li><a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a>( <i class="far fa-trash-alt deletefile" id="deletefile_{{f.id}}" onclick="deletefile(this, '{{f.titre}}')" ></i> )</li>
                         {%endfor%}
@@ -105,11 +105,13 @@ $('.upload-zone').each(function () {
             sequentialUploads: true,
 
             start: function (e) {
+              $("#ModalDiv").modal("hide")  
               $("#modal-progress").modal("show");
             },
 
             stop: function (e) {
               $("#modal-progress").modal("hide");
+              $("#ModalDiv").modal("show")  
             },
 
             progressall: function (e, data) {
@@ -126,10 +128,10 @@ $('.upload-zone').each(function () {
             done: function (e, data) {
               $('.todelete').remove()
               console.log(e, data)
-              if (data.is_valid == false){
-
+              if (data.is_valid != false){
+                    $("#files_list").append('<li><a href="'+data.url+'">'+ data.name +'</a>( <i class="far fa-trash-alt deletefile" id="deletefile_'+ file_id +'" onclick="deletefile(this, '+ data.name +')" ></i> )</li>')
               }else{
-
+                    alert("Une erreur est survenue pendant le téléchargement de(s) fichier(s)")
               }
 
             }

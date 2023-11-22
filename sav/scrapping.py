@@ -488,10 +488,18 @@ class scrappingMySolisart():
                 CL=dict_schematic['fiche_prog']['numCommande']
 
         if self.connecting and CL:
-            CL = CL_herakles.objects.get(CL = CL)
-            CL.date_prepa_carte = timezone.now()
-            CL.installation = installation.objects.get(idsa=installation)
-            CL.save()
+            try:
+                CLf = CL_herakles.objects.get(CL = CL)
+                CLf.date_prepa_carte = timezone.now().date()
+                CLf.installation = installation.objects.get(idsa=installation)
+                CLf.save()
+                send_channel_message('cartcreating',
+                                     {
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affeté à l'installation."})
+                 
+            except:
+                send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affeter à l'installation."})
             try:                    
                 commercial = CL_herakles.objects.get(CL = dict_schematic['fiche_prog']['numCommande']).commercial
                 if commercial == "NONGLA":

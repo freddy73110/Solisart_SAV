@@ -1890,7 +1890,6 @@ class cartcreator(View):
             return response
         
         if request.POST['new_installation']:
-            print(request.FILES)
             if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
                 file = request.FILES['file']
                 data = file.read()
