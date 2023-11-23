@@ -562,6 +562,7 @@ class scrappingMySolisart():
                     send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
                     self.close()
                 else:
+                    time.sleep(3)
                     self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
                     self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
                     self.waitelement(By.XPATH, '//option[@value="'+dict_schematic['mail_client']+'"]', 'presence_of_element_located', 'click')
@@ -597,6 +598,7 @@ class scrappingMySolisart():
                 send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> La carte "+installation+" ne s'est pas connecté en 10 min"})
                 self.close()
             else:
+                time.sleep(3)
                 self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//option[@value="'+ idsa +'"]', 'presence_of_element_located', 'click')

@@ -58,10 +58,10 @@
 57;VMinCircApp(1);100
 58;NonRecupCal(0);
 59;NonRecupCal(1);
-60;tlbl(11);T11 Amb. C1
-61;tlbl(12);T12 Amb. C2
-62;tlbl(13);T13 Amb. C3
-63;tlbl(14);T14 Amb. C7
+60;tlbl(11);
+61;tlbl(12);
+62;tlbl(13);
+63;tlbl(14);
 64;Type_Emetteur(0);2
 65;Type_Emetteur(1);0
 66;Type_Emetteur(2);0
@@ -520,19 +520,19 @@
 540;trilbl(02);C5 BAL Solaire
 541;trilbl(09);V3VAPP Solaire
 542;trilbl(03);C6 BAL Tampon
-543;trilbl(10);S10
-544;trilbl(04);C7 Appoint 2
-545;trilbl(11);S11
+543;trilbl(10);
+544;trilbl(04);
+545;trilbl(11);
 546;trilbl(05);C1 ZONE 1
 547;trilbl(12);V3VTAM Solaire
 548;trilbl(06);C2 ZONE 2
 549;trilbl(13);V3VTAM Tampon
 550;trilbl(07);C3 ZONE 3
-551;ModeleDebitmetre(0);0
-552;ModeleDebitmetre(1);0
-553;ModeleDebitmetre(2);0
-554;ModeleDebitmetre(3);0
-555;ModeleDebitmetre(4);0
+551;ModeleDebitmetre(0);14
+552;ModeleDebitmetre(1);14
+553;ModeleDebitmetre(2);14
+554;ModeleDebitmetre(3);14
+555;ModeleDebitmetre(4);14
 584;t(1);Dsc
 585;t(2);Dsc
 586;t(3);Dsc

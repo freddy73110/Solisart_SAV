@@ -1611,8 +1611,13 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        from .convertjson import convertjson
-        print(convertjson.jsontocsv(installation_SN="SC2M20240101", installation_name="TARTE"))
+
+        with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
+            data = json.load(json_file)
+        from .scrapping import scrappingMySolisart
+
+        scrappingMySolisart().linkproprio(data, 'SC1M20234708')
+
         return render(request,
                       self.template_name,
                           {

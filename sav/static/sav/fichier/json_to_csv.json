@@ -67,28 +67,32 @@
                 "tlbl(01)": "T1 Capt Chaud 1",
                 "tlbl(10)": "T10 Echangeur",
                 "tlbl(16)": "T16 Primaire",
-                "trilbl(10)": "Circ primaire"
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
             },
             "1 champ capteurs découplé sur échangeur sur T16" : {
 				"Nb_Champs_Capt":4,
                 "tlbl(01)": "T1 Capt Chaud 1",
                 "tlbl(10)": "T10 Echangeur",
                 "tlbl(16)": "T16 Primaire",
-                "trilbl(10)": "Circ primaire"
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
             },
             "1 champ capteurs découplé sur casse pression sur T15" : {
-				"Nb_Champs_Capt":5,
+				"Nb_Champs_Capt":4,
                 "tlbl(01)": "T1 Capt Chaud 1",
                 "tlbl(10)": "T10 Echangeur",
                 "tlbl(16)": "T16 Primaire",
-                "trilbl(10)": "Circ primaire"
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
             },
             "1 champ capteurs découplé sur échangeur sur T15" : {
-				"Nb_Champs_Capt":5,
+				"Nb_Champs_Capt":4,
                 "tlbl(01)": "T1 Capt Chaud 1",
                 "tlbl(10)": "T10 Echangeur",
                 "tlbl(16)": "T16 Primaire",
-                "trilbl(10)": "Circ primaire"
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
             },
             "2 champs capteurs découplés sur casse pression" : {
 				"Nb_Champs_Capt":5,
@@ -97,7 +101,9 @@
                 "tlbl(16)": "T16 Primaire",
                 "tlbl(15)": "T15 Capt Chaud 2",
                 "trilbl(10)": "S10 Circ prim",
-                "trilbl(11)": "S11 Circ prim"
+                "trilbl(11)": "S11 Circ prim",
+				"CircType(9)": 1,
+				"CircType(10)": 1
             },
             "2 champs capteurs découplés sur échangeur" : {
 				"Nb_Champs_Capt":5,
@@ -106,7 +112,9 @@
                 "tlbl(16)": "T16 Primaire",
                 "tlbl(15)": "T15 Capt Chaud 2",
                 "trilbl(10)": "S10 Circ prim",
-                "trilbl(11)": "S11 Circ prim"
+                "trilbl(11)": "S11 Circ prim",
+				"CircType(9)": 1,
+				"CircType(10)": 1
             }
 
         }
@@ -471,6 +479,7 @@
             },
             "Appoint granulé": {
 				"Type_Appoint(1)": 1,
+				"trilbl(04)":"C7 granul",
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 55,
 				"DTChdr(1)": 40,
@@ -483,6 +492,7 @@
 			},
             "Appoint bois": {
 				"Type_Appoint(1)": 2,
+				"trilbl(04)":"C7 Bois",
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 55,
 				"DTChdr(1)": 40,
@@ -534,17 +544,21 @@
     "circulateurC1":{
         "translation":{
             "Aucun":{"Type_Emetteur(0)":0,
-			"tlbl(11)":""
+			"tlbl(11)":"",
+			"trilbl(05)":""
 			},
             "Process":{"Type_Emetteur(0)":0,
-			"tlbl(11)":"Process"
+			"tlbl(11)":"Process",
+			"trilbl(05)":"Process"
 		},
             "Process sur échangeur V3V":{"Type_Emetteur(0)":0,
-			"tlbl(11)":"Process"
+			"tlbl(11)":"Process",
+			"trilbl(05)":"Process"
 		},
             "Plancher chauffant":{
 				"Type_Emetteur(0)":1,
 				"tlbl(11)":"T11 PC",
+				"trilbl(05)":"Zone 1 PC",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 4,
 				"DTOn(0)": 5,
@@ -557,6 +571,7 @@
             "Plancher chauffant sur V3V":{
 				"Type_Emetteur(0)":1,
 				"tlbl(11)":"T11 PC",
+				"trilbl(05)":"Zone 1 PC",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 4,
 				"DTOn(0)": 5,
@@ -569,6 +584,7 @@
             "Multi zones PC sur V3V":{
 				"Type_Emetteur(0)":1,
 				"tlbl(11)":"T11 Multi PC",
+				"trilbl(05)":"Zone 1 PC",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 4,
 				"DTOn(0)": 5,
@@ -581,6 +597,7 @@
             "Multi zones PC":{
 				"Type_Emetteur(0)":1,
 				"tlbl(11)":"T11 Multi PC",
+				"trilbl(05)":"Zone 1 PC",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 4,
 				"DTOn(0)": 5,
@@ -593,6 +610,7 @@
             "Radiateurs":{
 				"Type_Emetteur(0)":2,
 				"tlbl(11)":"T11 Radiateur",
+				"trilbl(05)":"Zone 1 Rad",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -605,6 +623,7 @@
             "Radiateurs sur échangeur à plaques":{
 				"Type_Emetteur(0)":2,
 				"tlbl(11)":"T11 Radiateur",
+				"trilbl(05)":"Zone 1 Rad",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -617,6 +636,7 @@
             "Radiateurs sur casse pression":{
 				"Type_Emetteur(0)":2,
 				"tlbl(11)":"T11 Radiateur",
+				"trilbl(05)":"Zone 1 Rad",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -629,6 +649,7 @@
             "Multi zones radiateurs":{
 				"Type_Emetteur(0)":2,
 				"tlbl(11)":"T11 Rad multi",
+				"trilbl(05)":"Zone 1 Rad",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -641,6 +662,7 @@
             "Piscine sur échangeur multi tubulaire":{
 				"Type_Emetteur(0)":3,
 				"tlbl(11)":"T11 Piscine",
+				"trilbl(05)":"Zone 1 Piscine",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -653,6 +675,7 @@
             "Piscine sur échangeur à plaques":{
 				"Type_Emetteur(0)":3,
 				"tlbl(11)":"T11 Piscine",
+				"trilbl(05)":"Zone 1 Piscine",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -665,6 +688,7 @@
             "Ventilo convecteur":{
 				"Type_Emetteur(0)":4,
 				"tlbl(11)":"T11 Ventilo",
+				"trilbl(05)":"Zone 1 Ventillo",
 				"DTMaxSol(0)": 3,
 				"DTEco(0)": 7,
 				"DTOn(0)": 5,
@@ -675,13 +699,16 @@
 				"TMaxEnvoi(0)": 65
 			},
             "Décharge sur zone":{"Type_Emetteur(0)":5,
-			"tlbl(11)":"Décharge"
+			"tlbl(11)":"Décharge",
+			"trilbl(05)":"Décharge"
 		},
             "Décharge sur zone PC":{"Type_Emetteur(0)":5,
-			"tlbl(11)":"T11 Décharge PC"
+			"tlbl(11)":"T11 Décharge PC",
+			"trilbl(05)":"Décharge PC"
 		},
             "Radiateur en réhausse":{"Type_Emetteur(0)":6,
-			"tlbl(11)":"T11 Rad réhaus"
+			"tlbl(11)":"T11 Rad réhaus",
+			"trilbl(05)":"Rad réhaus"
 		}
 
         }
@@ -690,19 +717,23 @@
         "translation":{
             "Aucun":{
                 "Type_Emetteur(1)":0,				
-				"tlbl(12)":""
+				"tlbl(12)":"",
+				"trilbl(06)":""
             },
             "Process":{
                 "Type_Emetteur(1)":0,				
-				"tlbl(12)":""
+				"tlbl(12)":"",
+				"trilbl(06)":""
             },
             "Process sur échangeur V3V":{
                 "Type_Emetteur(1)":0,				
-				"tlbl(12)":""
+				"tlbl(12)":"",
+				"trilbl(06)":""
             },
             "Plancher chauffant":{
 				"Type_Emetteur(1)":1,			
 				"tlbl(12)":"T12 PC",
+				"trilbl(06)":"Zone 2 PC",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 4,
 				"DTOn(1)": 5,
@@ -715,6 +746,7 @@
             "Plancher chauffant sur V3V":{
 				"Type_Emetteur(1)":1,			
 				"tlbl(12)":"T12 PC",
+				"trilbl(06)":"Zone 2 PC",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 4,
 				"DTOn(1)": 5,
@@ -727,6 +759,7 @@
             "Multi zones PC sur V3V":{
 				"Type_Emetteur(1)":1,			
 				"tlbl(12)":"T12 PC Multi",
+				"trilbl(06)":"Zone 2 PC",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 4,
 				"DTOn(1)": 5,
@@ -739,6 +772,7 @@
             "Multi zones PC":{
 				"Type_Emetteur(1)":1,			
 				"tlbl(12)":"T12 PC Multi",
+				"trilbl(06)":"Zone 2 PC",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 4,
 				"DTOn(1)": 5,
@@ -751,6 +785,7 @@
             "Radiateurs":{
 				"Type_Emetteur(1)":2,			
 				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"Zone 2 Rad",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -763,6 +798,7 @@
             "Radiateurs sur échangeur à plaques":{
 				"Type_Emetteur(1)":2,			
 				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"Zone 2 Rad",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -775,6 +811,7 @@
             "Radiateurs sur casse pression":{
 				"Type_Emetteur(1)":2,		
 				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"Zone 2 Rad",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -787,6 +824,7 @@
             "Multi zones radiateurs":{
 				"Type_Emetteur(1)":2,		
 				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"Zone 2 Rad",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -799,6 +837,7 @@
             "Piscine sur échangeur multi tubulaire":{
 				"Type_Emetteur(1)":3,		
 				"tlbl(12)":"T12 Piscine",
+				"trilbl(06)":"Zone 2 Piscine",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -811,6 +850,7 @@
             "Piscine sur échangeur à plaques":{
 				"Type_Emetteur(1)":3,
 				"tlbl(12)":"T12 Piscine",
+				"trilbl(06)":"Zone 2 Piscine",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -823,6 +863,7 @@
             "Ventilo convecteur":{
 				"Type_Emetteur(1)":4,
 				"tlbl(12)":"T12 Ventillo",
+				"trilbl(06)":"Zone 2 Ventillo",
 				"DTMaxSol(1)": 3,
 				"DTEco(1)": 7,
 				"DTOn(1)": 5,
@@ -834,19 +875,23 @@
 			},
             "Idem zone N-1":{
                 "Type_Emetteur(1)":6,
-				"tlbl(12)":"Idem Zone N-1"
+				"tlbl(12)":"Idem Zone N-1",
+				"trilbl(06)":"Idem Zone N-1"
             },
             "Décharge sur zone":{
                 "Type_Emetteur(1)":7,				
-				"tlbl(12)":"T12 Décharge"
+				"tlbl(12)":"T12 Décharge",
+				"trilbl(06)":"Décharge"
             },
             "Décharge sur zone PC":{
                 "Type_Emetteur(1)":7,				
-				"tlbl(12)":"T12 Décharge"
+				"tlbl(12)":"T12 Décharge",
+				"trilbl(06)":"Décharge"
             },
             "Radiateur en réhausse":{
                 "Type_Emetteur(1)":8,				
-				"tlbl(12)":"T12 rad réhau"
+				"tlbl(12)":"T12 rad réhau",
+				"trilbl(06)":"Rad réhauss"
             }
         }        
     },
@@ -854,19 +899,23 @@
         "translation":{
             "Aucun":{
                 "Type_Emetteur(2)":0,
-				"tlbl(13)":""
+				"tlbl(13)":"",
+				"trilbl(07)":""
             },
             "Process":{
                 "Type_Emetteur(2)":0,
-				"tlbl(13)":""
+				"tlbl(13)":"",
+				"trilbl(07)":""
             },
             "Process sur échangeur V3V":{
                 "Type_Emetteur(2)":0,
-				"tlbl(13)":""
+				"tlbl(13)":"",
+				"trilbl(07)":""
             },
             "Plancher chauffant":{
 				"Type_Emetteur(2)":1,
 				"tlbl(13)":"T13 PC",
+				"trilbl(07)":"Zone 3 PC",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 4,
 				"DTOn(2)": 5,
@@ -879,6 +928,7 @@
             "Plancher chauffant sur V3V":{
 				"Type_Emetteur(2)":1,
 				"tlbl(13)":"T13 PC",
+				"trilbl(07)":"Zone 3 PC",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 4,
 				"DTOn(2)": 5,
@@ -891,6 +941,7 @@
             "Multi zones PC sur V3V":{
 				"Type_Emetteur(2)":1,
 				"tlbl(13)":"T13 PC Multi",
+				"trilbl(07)":"Zone 3 PC",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 4,
 				"DTOn(2)": 5,
@@ -903,6 +954,7 @@
             "Multi zones PC":{
 				"Type_Emetteur(2)":1,
 				"tlbl(13)":"T13 PC Multi",
+				"trilbl(07)":"Zone 3 PC",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 4,
 				"DTOn(2)": 5,
@@ -915,6 +967,7 @@
             "Radiateurs":{
 				"Type_Emetteur(2)":2,
 				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"Zone 3 Rad",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -927,6 +980,7 @@
             "Radiateurs sur échangeur à plaques":{
 				"Type_Emetteur(2)":2,
 				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"Zone 3 Rad",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -939,6 +993,7 @@
             "Radiateurs sur casse pression":{
 				"Type_Emetteur(2)":2,
 				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"Zone 3 Rad",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -951,6 +1006,7 @@
             "Multi zones radiateurs":{
 				"Type_Emetteur(2)":2,
 				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"Zone 3 Rad",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -963,6 +1019,7 @@
             "Piscine sur échangeur multi tubulaire":{
 				"Type_Emetteur(2)":3,
 				"tlbl(13)":"T13 Piscine",
+				"trilbl(07)":"Zone 3 Piscine",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -975,6 +1032,7 @@
             "Piscine sur échangeur à plaques":{
 				"Type_Emetteur(2)":3,
 				"tlbl(13)":"T13 Piscine",
+				"trilbl(07)":"Zone 3 Piscine",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -987,6 +1045,7 @@
             "Ventilo convecteur":{
 				"Type_Emetteur(2)":4,
 				"tlbl(13)":"T13 Ventillo",
+				"trilbl(07)":"Zone 3 Ventillo",
 				"DTMaxSol(2)": 3,
 				"DTEco(2)": 7,
 				"DTOn(2)": 5,
@@ -1002,15 +1061,18 @@
             },
             "Décharge sur zone":{
                 "Type_Emetteur(2)":7,
-				"tlbl(13)":"T13 Décharge"
+				"tlbl(13)":"T13 Décharge",
+				"trilbl(07)":"Décharge"
             },
             "Décharge sur zone PC":{
                 "Type_Emetteur(2)":7,
-				"tlbl(13)":"T13 Décharge PC"
+				"tlbl(13)":"T13 Décharge PC",
+				"trilbl(07)":"Décharge PC"
             },
             "Radiateur en réhausse":{
                 "Type_Emetteur(2)":8,
-				"tlbl(13)":"T13 Rad réhaus"
+				"tlbl(13)":"T13 Rad réhaus",
+				"trilbl(07)":"Rad réhaus"
             }
         }
     },
@@ -1018,31 +1080,38 @@
         "translation":{
             "Aucun":{
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Appoint granulé": {
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Appoint bois": {
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Appoint multiple": {
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Process":{
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Process sur échangeur V3V":{
                 "Type_Emetteur(3)":0,
-				"tlbl(14)":""
+				"tlbl(14)":"",
+				"trilbl(04)":""
             },
             "Plancher chauffant":{
 				"Type_Emetteur(3)":1,
 				"tlbl(14)":"T14 PC",
+				"trilbl(04)":"Zone 4 PC",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 4,
 				"DTOn(3)": 5,
@@ -1055,6 +1124,7 @@
             "Plancher chauffant sur V3V":{
 				"Type_Emetteur(3)":1,
 				"tlbl(14)":"T14 PC",
+				"trilbl(04)":"Zone 4 PC",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 4,
 				"DTOn(3)": 5,
@@ -1067,6 +1137,7 @@
             "Multi zones PC sur V3V":{
 				"Type_Emetteur(3)":1,
 				"tlbl(14)":"T14 PC Multi",
+				"trilbl(04)":"Zone 4 PC",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 4,
 				"DTOn(3)": 5,
@@ -1079,6 +1150,7 @@
             "Multi zones PC":{
 				"Type_Emetteur(3)":1,
 				"tlbl(14)":"T14 PC Multi",
+				"trilbl(04)":"Zone 4 PC",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 4,
 				"DTOn(3)": 5,
@@ -1091,6 +1163,7 @@
             "Radiateurs":{
 				"Type_Emetteur(3)":2,
 				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"Zone 4 Rad",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1103,6 +1176,7 @@
             "Radiateurs sur échangeur à plaques":{
 				"Type_Emetteur(3)":2,
 				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"Zone 4 Rad",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1115,6 +1189,7 @@
             "Radiateurs sur casse pression":{
 				"Type_Emetteur(3)":2,
 				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"Zone 4 Rad",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1127,6 +1202,7 @@
             "Multi zones radiateurs":{
 				"Type_Emetteur(3)":2,
 				"tlbl(14)":"T14 Rad multi",
+				"trilbl(04)":"Zone 4 Rad",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1139,6 +1215,7 @@
             "Piscine sur échangeur multi tubulaire":{
 				"Type_Emetteur(3)":3,
 				"tlbl(14)":"T14 Piscine",
+				"trilbl(04)":"Zone 4 Piscine",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1151,6 +1228,7 @@
             "Piscine sur échangeur à plaques":{
 				"Type_Emetteur(3)":3,
 				"tlbl(14)":"T14 Piscine",
+				"trilbl(04)":"Zone 4 Piscine",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1163,6 +1241,7 @@
             "Ventilo convecteur":{
 				"Type_Emetteur(3)":4,
 				"tlbl(14)":"T14 Ventillo",
+				"trilbl(04)":"Zone 4 Ventillo",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 7,
 				"DTOn(3)": 5,
@@ -1178,15 +1257,18 @@
             },
             "Décharge sur zone":{
                 "Type_Emetteur(3)":7,
-				"tlbl(14)":"T14 Décharge"
+				"tlbl(14)":"T14 Décharge",
+				"trilbl(04)":"Décharge"
             },
             "Décharge sur zone PC":{
                 "Type_Emetteur(3)":7,
-				"tlbl(14)":"T14 Décharge"
+				"tlbl(14)":"T14 Décharge PC",
+				"trilbl(04)":"Décharge PC"
             },
             "Radiateur en réhausse":{
                 "Type_Emetteur(3)":8,
-				"tlbl(14)":"T14 Décharge rad"
+				"tlbl(14)":"T14 Décharge rad",
+				"trilbl(04)":"Décharge rad"
             }
         }
     }
