@@ -32,7 +32,7 @@
 31;Nb_Champs_Capt;2
 32;Sortie_48;24
 33;Sortie_49;255
-34;S48lbl;Sortie 48
+34;S48lbl;
 35;S49lbl;
 36;Type_Appoint(0);4
 37;Type_Appoint(1);0
@@ -503,12 +503,12 @@
 523;tlbl(10);
 524;tlbl(03);T3 Bal Solaire
 525;tlbl(04);T4 Bal Appoint
-526;tlbl(05);T5 Bal Tampon
-527;tlbl(06);T6 Appoint 2
+526;tlbl(05);
+527;tlbl(06);
 528;tlbl(07);T7 Coll Froid
-529;tlbl(15);T15
+529;tlbl(15);
 530;tlbl(08);T8 Coll Chaud
-531;tlbl(16);T16
+531;tlbl(16);
 532;fllbl(1);
 533;fllbl(2);
 534;fllbl(3);

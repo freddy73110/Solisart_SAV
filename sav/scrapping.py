@@ -581,7 +581,6 @@ class scrappingMySolisart():
                                  {'message': "Erreur: " + str(exc_type) + str(fname) + str(exc_tb.tb_lineno) + str(ex)})
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être affecté."})
-            self.close()
 
     def acces_installation(self, idsa, installation, level):
 
@@ -839,6 +838,8 @@ class scrappingMySolisart():
             dict_schematic=dict_schematic['formulaire']
         if 'mail_client' in dict_schematic:
             self.driver.get('https://my.solisart.fr/admin/index.php?page=creer_utilisateur')
+            if not dict_schematic['prenom']:
+                dict_schematic['prenom'] = '-'
             for key, value in {
                 "prenom_client": 'prenom',
                 "nom_client": 'nom',
