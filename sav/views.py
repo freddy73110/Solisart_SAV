@@ -1863,8 +1863,7 @@ class cartcreator(View):
         
         from .tasks import wrapperscapping
         installations = installation.objects.all().values('idsa')
-        # from .scrapping import scrappingMySolisart
-        # scrappingMySolisart().save_csv_configuration(path_csv=os.path.dirname(__file__) + '/temp/config.csv')
+
         return render(request,
                       self.template_name,
                       {
@@ -1885,7 +1884,7 @@ class cartcreator(View):
                 annotate(
                     index = Cast(Reverse(Lower(Substr(Reverse('idsa'), 1, 2))), output_field=FloatField())
                 ).order_by('index').values_list('index', flat=True))
-            for i in range(10):
+            for i in range(1000):
                 if i != 0 and not float(i) in listIndex:
                     return JsonResponse({'SN': request.POST['installExiste'] + "{:02d}".format(i)}, safe=False)
                     break

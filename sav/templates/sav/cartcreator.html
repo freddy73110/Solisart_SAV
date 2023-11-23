@@ -26,13 +26,13 @@
                   </div>
 
                   <div class="input-group mb-3">
-                      <span class="input-group-text" id="basic-addon2">Nom de la nouvelle installation</span>
+                      <span class="input-group-text" id="basic-addon2">Nom de la nouvelle installation {{CL.module.type}}</span>
                       <select id="typeInstallation">
-                        <option value="SC1M">SC1M</option>
-                        <option value="SC2M">SC2M</option>
-                        <option value="SC1Z">SC1Z</option>
-                        <option value="SC2C">SC2C</option>
-                        <option value="SC2CF">SC2CF</option>
+                        <option value="SC1M" {% if CL.module.type == "SC1"%} selected {%endif%}>SC1M</option>
+                        <option value="SC2M" {% if CL.module.type == "SC2"%} selected {%endif%}>SC2M</option>
+                        <option value="SC1Z" {% if CL.module.type == "SC1Z"%} selected {%endif%}>SC1Z</option>
+                        <option value="SC2C" {% if CL.module.type == "SC2C"%} selected {%endif%}>SC2C</option>
+                        <option value="SC2CF" {% if CL.module.type == "SC2CF"%} selected {%endif%}>SC2CF</option>
                       </select>
                       <input type="text" name="new_installation" class="form-control" placeholder="SC2M..." aria-label="Recipient's username" aria-describedby="basic-addon2">
                     </div>
