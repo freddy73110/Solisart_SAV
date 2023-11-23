@@ -17,7 +17,6 @@ class Cartcreating(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
-        print("Closed websocket with code: ", close_code)
         async_to_sync(self.channel_layer.group_discard)(
             'cartcreating',
             self.channel_name
@@ -26,13 +25,14 @@ class Cartcreating(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        expression = text_data_json['expression']
-        try:
-            result = eval(expression)
-        except Exception as e:
-            result = "Invalid Expression"
+        if 'stop' in text_data_json:
+            try:
+                from Solisart_SAV.celery import app
+                app.control.purge()
+            except:
+                pass
         self.send(text_data=json.dumps({
-            'message': result
+            'message': "Le processus est en cours d'arrêt"
         }))
 
     def channel_message(self, event):

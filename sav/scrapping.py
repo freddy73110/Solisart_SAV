@@ -161,7 +161,6 @@ class scrappingMySolisart():
         :param csv: path depuis le fichier csv de configuration
         :return:
         """
-
         try:
             import csv
             file = open(path_csv)
@@ -496,11 +495,11 @@ class scrappingMySolisart():
                 send_channel_message('cartcreating',
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affeté à l'installation."})
-                send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
                  
             except:
                 send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affeter à l'installation."})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affeté à l'installation."})
+                send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
             try:                    
                 commercial = CL_herakles.objects.get(CL = dict_schematic['fiche_prog']['numCommande']).commercial
                 if commercial == "NONGLA":
@@ -534,13 +533,13 @@ class scrappingMySolisart():
                                  'message': "<i class='fas fa-check' style='color: #018303;'></i> La carte est complètement prête"})
             send_channel_message('cartcreating',
                              {
-                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"'>Visualiser l'installation "+ installation+ " créée</a>"})
+                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
             self.close()
         else:
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte n'est pas complètement prête."})
             send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"'>Visualiser l'installation "+ installation+ " créée</a>"})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
             self.close()
 
 

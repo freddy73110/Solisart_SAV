@@ -48,6 +48,7 @@
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                   <button class="btn btn-outline-primary" type="button" id="submit" disabled>Lancer</button>
+                  <button class="btn btn-outline-primary d-none" type="button" id="stop" >Stopper le processus</button>
                 </div>
             </form>
         </div>
@@ -155,10 +156,12 @@
                 processing = data.processing
                 if (processing == true){
                     $("#submit").prop("disabled",true);
+                    $("stop").removeClass("d-none")
                     $("#submit").html('<i class="fas fa-sun fa-spin" style="color:yellow"></i> Processus en cours')
                 }else{
                     $("#submit").prop("disabled",false);
                     $("#submit").html('Lancer')
+                    $("stop").addClass("d-none")
                 }
             }
             if(data.hasOwnProperty("download")){
@@ -188,12 +191,8 @@
                     scrollTop: $("li:last").offset().top
                 }, 2000);
             }
-
-
-
         }
         socket.onclose = (e) => {
-            console.log("Socket closed!");
             var dt = new Date();
             var min, sec
             if(dt.getMinutes() < 10){
@@ -223,7 +222,11 @@
 <!--            document.querySelector("#results").value += "You: " + exp + "\n";-->
 <!--            inputfield.value = "";-->
 <!--        }-->
-
+$("#stop").on("click", function(){
+    socket.send(JSON.stringify({
+        stop: "stop"
+    }))
+})
 
 $("#formFile").on('change', function(event) {
   var reader = new FileReader();

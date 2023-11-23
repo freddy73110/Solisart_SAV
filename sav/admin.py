@@ -34,9 +34,12 @@ class CL_HeraklesAdmin(admin.ModelAdmin):
     list_editable =('installation', )
     search_fields = ['CL']
 
+class installationAdmin(admin.ModelAdmin):
+    search_fields = ['idsa']
+
 admin.site.register(profil_user, profil_user_Admin)
 admin.site.register(profil_type)
-admin.site.register(installation)
+admin.site.register(installation, installationAdmin)
 admin.site.register(acces)
 admin.site.register(attribut_def)
 admin.site.register(attribut_valeur)
