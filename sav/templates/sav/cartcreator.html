@@ -82,12 +82,14 @@
                 $("#divFile").append("<span>La carte sera créée avec le fichier json de la commande {{CL}} </span>")
                 $("#divFile").find(".mb-3:first").addClass('d-none')                
                 $("#submit").prop("disabled",false);
+                $("#stop").addClass('d-none')
             }else{
                 $("#divInstallation").addClass('d-none')
                 $("#divFile").removeClass('d-none')
                 $("label[for='formFile']").html("Sélectionner le json généré par la schématèque")
                 $('#formFile').attr("accept", "." + "json")
                 $("#submit").prop("disabled",false);
+                $("#stop").addClass('d-none')
             }
         }else if($("#option").val() == "csv"){
             $("#divInstallation").addClass('d-none')
@@ -95,12 +97,15 @@
             $("label[for='formFile']").html("Sélectionner le fichier csv de configuration de l'installation")
             $('#formFile').attr("accept", "." + "csv")
             $("#submit").prop("disabled",false);
+            $("#stop").addClass('d-none')
         }else if($("#option").val() == "installation"){
             $("#divFile").addClass('d-none')
             $("#divInstallation").removeClass("d-none")
             $("#submit").prop("disabled",false);
+            $("#stop").addClass('d-none')
         }else{
             $("#submit").prop("disabled",true);
+            $("#stop").removeClass('d-none')
         }
         })
         {%if CL%}$("#option").change(){%endif%}

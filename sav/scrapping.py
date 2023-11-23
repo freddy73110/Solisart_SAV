@@ -496,7 +496,7 @@ class scrappingMySolisart():
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affeté à l'installation."})
                  
-            except:
+            except Exception as ex:
                 send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affeté à l'installation."})
                 send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })

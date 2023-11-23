@@ -1874,7 +1874,6 @@ class cartcreator(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         if 'installExiste' in request.POST:
             """
             Cherche dans la liste des installation à quel index de la semaine nous sommes
@@ -2101,7 +2100,7 @@ class production(View):
                     'result': [CL],
                     'datereceptionclient': False
                 })
-                return JsonResponse({"data": ""}, safe=False)
+                return HttpResponseRedirect(request.path_info)
             else:
                 print("error", form.errors)
             return HttpResponseRedirect(request.path_info)
