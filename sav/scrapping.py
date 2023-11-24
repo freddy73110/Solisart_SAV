@@ -485,12 +485,13 @@ class scrappingMySolisart():
         if not CL and 'fiche_prog' in dict_schematic:
             if 'numCommande' in dict_schematic['fiche_prog']:
                 CL=dict_schematic['fiche_prog']['numCommande']
-
+        install = installation
         if self.connecting and CL:
             try:
                 CLf = CL_herakles.objects.get(CL = CL)
                 CLf.date_prepa_carte = timezone.now().date()
-                CLf.installation = installation.objects.get(idsa=installation)
+                from .models import installation
+                CLf.installation = installation.objects.get(idsa=install)
                 CLf.save()
                 send_channel_message('cartcreating',
                                      {
@@ -508,20 +509,26 @@ class scrappingMySolisart():
             try:                    
                 commercial = CL_herakles.objects.get(CL = CL).commercial
                 if commercial == "NONGLA":
-                    self.acces_installation('NONGLATON', installation, '2')
+                    self.acces_installation('NONGLATON', install, '2')
                 elif commercial == "DURAND":
-                    self.acces_installationl('DURAND', installation, '2')
+                    self.acces_installationl('DURAND', install, '2')
                 elif commercial == "FOISSEY":
-                    self.acces_installation('FOISSEY', installation, '2')
+                    self.acces_installation('FOISSEY', install, '2')
                 elif commercial == "CLAVAREAU":
-                    self.acces_installation('techniconsultant.cc@orange.fr', installation, '2')  
+                    self.acces_installation('techniconsultant.cc@orange.fr', install, '2')  
                 send_channel_message('cartcreating',
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + commercial +" a été affecté à l'installation"})
+                
                      
-            except:
+            except Exception as ex:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(ex)
                 send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
+                send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
 
             from .models import profil_user
             if 'formulaire' in dict_schematic:
@@ -538,13 +545,13 @@ class scrappingMySolisart():
                                  'message': "<i class='fas fa-check' style='color: #018303;'></i> La carte est complètement prête"})
             send_channel_message('cartcreating',
                              {
-                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
+                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install+"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
             self.close()
         else:
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte n'est pas complètement prête."})
             send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ installation +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
             self.close()
 
 
