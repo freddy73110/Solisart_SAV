@@ -1996,7 +1996,6 @@ class production(View):
               values_list('t601_8_0_code_commercial', flat=True)
                   )
 
-
         return render(request,
                       self.template_name,
                       {

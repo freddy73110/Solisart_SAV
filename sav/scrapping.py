@@ -494,14 +494,18 @@ class scrappingMySolisart():
                 CLf.save()
                 send_channel_message('cartcreating',
                                      {
-                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affeté à l'installation."})
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le CL est affecté à l'installation."})
                  
             except Exception as ex:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(ex)
                 send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affeté à l'installation."})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affecté à l'installation."})
                 send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
             try:                    
-                commercial = CL_herakles.objects.get(CL = dict_schematic['fiche_prog']['numCommande']).commercial
+                commercial = CL_herakles.objects.get(CL = CL).commercial
                 if commercial == "NONGLA":
                     self.acces_installation('NONGLATON', installation, '2')
                 elif commercial == "DURAND":
