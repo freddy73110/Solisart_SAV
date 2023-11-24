@@ -1611,16 +1611,13 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        CLf = CL_herakles.objects.get(CL = "CL23-0932")
-        CLf.date_prepa_carte = timezone.now().date()
-        CLf.installation = installation.objects.get(idsa="SC2M20234708")
-        CLf.save()
-        print(CLf)
-        # with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
-        #     data = json.load(json_file)
-        # from .scrapping import scrappingMySolisart
 
-        # scrappingMySolisart().linkproprio(data, 'SC1M20234708')
+        with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
+            data = json.load(json_file)
+        from .scrapping import scrappingMySolisart
+
+        # scrappingMySolisart().acces_installation('techniconsultant.cc@orange.fr', "SC2M20234710", '2')  
+        print(CL_herakles.objects.get(CL = "CL23-0948").commercial())
 
         return render(request,
                       self.template_name,

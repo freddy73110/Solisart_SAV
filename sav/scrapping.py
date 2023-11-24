@@ -518,7 +518,7 @@ class scrappingMySolisart():
                     self.acces_installation('techniconsultant.cc@orange.fr', install, '2')  
                 send_channel_message('cartcreating',
                                      {
-                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + commercial +" a été affecté à l'installation"})
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
                 
                      
             except Exception as ex:
@@ -611,7 +611,9 @@ class scrappingMySolisart():
             else:
                 time.sleep(3)
                 self.waitelement(By.XPATH, '//label[@for="input-pages-acces"]', 'presence_of_element_located', 'click')
+                time.sleep(2)
                 self.waitelement(By.XPATH, '//a[@href="#onglet-acces-ajout-utilisateur"]', 'presence_of_element_located', 'click')
+                time.sleep(2)
                 self.waitelement(By.XPATH, '//option[@value="'+ idsa +'"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.XPATH, '//option[@value="'+ str(level) +'"]', 'presence_of_element_located', 'click')
                 self.waitelement(By.ID, 'acces-utilisateur-ajouter', 'presence_of_element_located', 'click')

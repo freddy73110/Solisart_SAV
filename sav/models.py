@@ -1076,13 +1076,13 @@ class CL_herakles(models.Model):
         serial = {
             "CL": str(self.CL),
             "BL": str(self.BL),
-        "installateur": str(self.installateur),
-        "information" : self.information,
-        "module": str(self.module),
-        "capteur": str(self.capteur),
-        "capteur_nbre": self.capteur_nbre,
-        "ballon": str(self.ballon),
-        "transporteur": str(self.transporteur)
+            "installateur": str(self.installateur),
+            "information" : self.information,
+            "module": str(self.module),
+            "capteur": str(self.capteur),
+            "capteur_nbre": self.capteur_nbre,
+            "ballon": str(self.ballon),
+            "transporteur": str(self.transporteur)
         }
         for f in self._meta.fields:
             if 'date' in f.name and f.name != "date_reglement":
