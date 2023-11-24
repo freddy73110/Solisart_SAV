@@ -504,6 +504,7 @@ class scrappingMySolisart():
                 send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le CL n'a pas pu être affecté à l'installation."})
                 send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
+            
             try:                    
                 commercial = CL_herakles.objects.get(CL = CL).commercial
                 if commercial == "NONGLA":
