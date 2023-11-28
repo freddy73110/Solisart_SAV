@@ -921,5 +921,5 @@ class scrappingMySolisart():
                     'cartcreating',
                     {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être créé."}
                 )
-                return False
+            return False
 
