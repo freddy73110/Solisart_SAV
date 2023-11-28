@@ -333,18 +333,26 @@ class scrappingMySolisart():
                         send_keys(dict_schematictemp[key])
 
             try:
-                url = 'https://nominatim.openstreetmap.org/?q=France'
-                for at in ["adresse_client", "code_postale_client", "ville_client"]:
-                    if at in dict_schematictemp:
-                        url += '+' + dict_schematictemp[at].replace(' ', '%').replace('\'', '%').lower()
-                url += '&format=json'
+
+                url = 'https://api-adresse.data.gouv.fr/search/?q=' + dict_schematictemp['adresse_client'] +'&postcode='+ dict_schematictemp["code_postale_client"] + '&type=street'
                 import requests
                 resp = requests.get(url).json()
-                if not resp or not 'lon' in resp[0]:
-                    GPS = None
-                    pass
-                else:
-                    GPS = resp[0]['lat'] + ',' + resp[0]['lon']
+                print(resp['features'][0]['geometry']['coordinates'])
+                coordonnee=resp['features'][0]['geometry']['coordinates']
+                GPS=str(coordonnee[1])+ ','+str(coordonnee[0])
+
+                # url = 'https://nominatim.openstreetmap.org/?q=France'
+                # for at in ["adresse_client", "code_postale_client", "ville_client"]:
+                #     if at in dict_schematictemp:
+                #         url += '+' + dict_schematictemp[at].replace(' ', '%').replace('\'', '%').lower()
+                # url += '&format=json'
+                # import requests
+                # resp = requests.get(url).json()
+                # if not resp or not 'lon' in resp[0]:
+                #     GPS = None
+                #     pass
+                # else:
+                #     GPS = resp[0]['lat'] + ',' + resp[0]['lon']
 
                 if GPS == '46.603354,1.8883335':
                     GPS = None
@@ -361,7 +369,7 @@ class scrappingMySolisart():
                 print(exc_type, fname, exc_tb.tb_lineno)
 
                 print(ex)
-                send_channel_message('cartcreating', {'message':'Les informations pour' + installation + ' ne sont pas enregistrées'})
+                send_channel_message('cartcreating', {'message':'Les informations GPS pour' + installation + ' ne sont pas enregistrées'})
         self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
         self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
         send_channel_message(

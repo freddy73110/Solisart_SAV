@@ -160,7 +160,8 @@ class ticket_form(ModelForm):
         exclude = ("fichier",)
 
     def __init__(self, *args, **kwargs):
-        actualise_herakles.delay()
+        actualise_herakles.apply_async(priority=0)
+        # actualise_herakles.delay()
         # actualise_herakles()
         instal = kwargs.pop('installation', None)
         util = kwargs.pop('utilisateur', None)
@@ -674,10 +675,20 @@ class CL_Form(ModelForm):
             self.fields['date_prepa'].widget = HiddenInput()
             self.fields['date_montage'].widget = HiddenInput()
             self.fields['date_capteur'].widget = HiddenInput()
+            html2=''
+            try:
+                print(self.instance.json())
+                if self.instance.json():
+                    print("ok")
+                    html2='<button class="btn btn-outline-primary" type="button" onclick="downloadSchema('+ str(self.instance.pk)+')"><i class="fas fa-file-download"></i> Schéma pdf</button>'
+            except Exception as ex:
+                print(ex)
+                pass
             if self.instance.date_prepa_carte:
                 html=''
             else:
-                html='<a href="/cartcreator/'+ str(self.instance.pk) +'" class="btn btn-outline-primary">Créer carte</a>'
+                html='<a href="/cartcreator/'+ str(self.instance.pk) +'" class="btn btn-outline-primary" target="_blank">Créer carte</a>'
+
             self.helper.layout = Layout(
                 Row(
                     Column(
@@ -764,6 +775,7 @@ class CL_Form(ModelForm):
                                                              '<i class="fas fa-calendar-day"></i>',
                                                              wrapper_class='form-row',
                                                              template='widgets/prepended_appended_text_inline.html'),
+                                                HTML(html2),             
                                                 css_class="col-3"),
                                             Column(
                                                 AppendedText('date_montage',

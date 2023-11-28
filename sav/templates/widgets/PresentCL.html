@@ -44,7 +44,7 @@
                               >
                     <ul id="files_list">
                         {% for f in CL.fichier.all %}
-                        <li><a href="{{f.fichier.url}}">{{f.icon|safe}} {{f.titre}}</a>( <i class="far fa-trash-alt deletefile" id="deletefile_{{f.id}}" onclick="deletefile(this, '{{f.titre}}')" ></i> )</li>
+                        <li><a href="{{f.fichier.url}}" download>{{f.icon|safe}} {{f.titre}}</a> ( <i class="far fa-trash-alt deletefile" id="deletefile_{{f.id}}" onclick="deletefile(this, '{{f.titre}}')" ></i> )</li>
                         {%endfor%}
                     </ul>
 
@@ -78,7 +78,6 @@
                                                 data:d,
                                                 dataType: 'json',
                                                 success: function (json) {
-                                                    console.log(json)
                                                     $("#ButtonModalclose").click()
                                                  }
                                             })
@@ -185,6 +184,24 @@ $.each(['ballon', 'capteur', 'prepa_carte', 'montage', 'prepa'], function(index,
         }
     })
 })
+function downloadSchema(Cl_id){
+    $.ajax({
+                url: window.location.href,
+                type:'post',
+                data:{'downloadSchema': Cl_id},
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    var file = new Blob([data], { type: 'application/pdf' });
+                    var fileURL = URL.createObjectURL(file);
+                    window.open(fileURL);
+                },
+                error: function(){
+                    alert('error!');
+                }
+            })
+}
 </script>
 
 

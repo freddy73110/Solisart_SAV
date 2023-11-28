@@ -206,7 +206,6 @@ class updateDB (View):
         if 'typeOutput' in request.POST:
             try:
                 dict_schematic = json.loads(request.POST['jsonfile'])
-                url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend'
                 import requests
                 if request.POST['typeOutput'] == 'hydro':
                     url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrau'
@@ -1614,10 +1613,24 @@ class bidouille (View):
 
         with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
             data = json.load(json_file)
-        from .scrapping import scrappingMySolisart
+        url = 'https://api-adresse.data.gouv.fr/search/?q=' + data['formulaire']['adresse_client'] +'&postcode='+ data['formulaire']["code_postale_client"] + '&type=street'
+        print(url)
+        import requests
+        resp = requests.get(url).json()
+        print(resp['features'][0]['geometry']['coordinates'])
+        coordonnee=resp['features'][0]['geometry']['coordinates']
+        GPS=str(coordonnee[1])+ ','+str(coordonnee[0])
+        print(GPS)
+        # if not resp or not 'lon' in resp[0]:
+        #     GPS = None
+        #     pass
+        # else:
+        #     GPS = resp[0]['lat'] + ',' + resp[0]['lon']
 
-        # scrappingMySolisart().acces_installation('techniconsultant.cc@orange.fr', "SC2M20234710", '2')  
-        print(CL_herakles.objects.get(CL = "CL23-0948").commercial())
+        # if GPS == '46.603354,1.8883335':
+        #     GPS = None
+
+        # print(GPS)
 
         return render(request,
                       self.template_name,
@@ -1897,13 +1910,12 @@ class cartcreator(View):
             if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
                 file = request.FILES['file']
                 data = file.read()
-            if self.CL and self.CL.json():
-                data = self.CL.json().fichier.file.read()
-            import json
-            param = json.loads(data)
-            print(param)
-            from .tasks import wrapperscapping
-            wrapperscapping.delay("cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)})
+                if self.CL and self.CL.json():
+                    data = self.CL.json().fichier.file.read()
+                import json
+                param = json.loads(data)
+                from .tasks import wrapperscapping
+                wrapperscapping.apply_async(args=["cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)}], priority=9)
 
             # import os
             # from django.core.files.storage import FileSystemStorage
@@ -1956,12 +1968,12 @@ class cartcreator(View):
             # with open(os.path.dirname(__file__) +'/temp/config.csv', 'w') as out:
             #     out.write(response.content.decode())
 
-        elif request.POST['installation']:
-            from .tasks import wrapperscapping
-            wrapperscapping.delay("downloadConfigCsvInstallation", request.POST['installation'])
-            param = {"valide": "OK"}
-        else:
-            param ={"error":"erreur dans le fichier"}
+            elif request.POST['installation']:
+                from .tasks import wrapperscapping
+                wrapperscapping.apply_async(args=["downloadConfigCsvInstallation", request.POST['installation']], priority=9)
+                param = {"valide": "OK"}
+            else:
+                param ={"error":"erreur dans le fichier"}
 
         return JsonResponse(param, safe=False)
 
@@ -2270,6 +2282,35 @@ class production(View):
             print(data)
             return JsonResponse(data, safe=False)
 
+        if 'downloadSchema' in request.POST:
+            data = CL_herakles.objects.get(pk=request.POST['downloadSchema']).json().fichier.file.read()
+            import json
+            param = json.loads(data)
+            from PyPDF2 import PdfWriter, PdfReader
+            import requests
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf1_buffer = PdfReader(io.BytesIO(resp.content))
+
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaExe&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf2_buffer = PdfReader(io.BytesIO(resp.content))
+            buffer = io.BytesIO()
+                    
+            writer = PdfWriter()
+            print('len', len(pdf1_buffer.pages ), pdf1_buffer.metadata)
+            writer.append_pages_from_reader(pdf1_buffer)
+            writer.append_pages_from_reader(pdf2_buffer)
+            print(writer)
+            output_stream = BytesIO()
+            writer.write(output_stream)
+
+            response = HttpResponse(output_stream.getvalue(), content_type='application/pdf')
+            writer.close()
+
+            return response
         return HttpResponse("error ....")
 
 def bg_dark(request):

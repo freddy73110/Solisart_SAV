@@ -6,6 +6,10 @@ app = Celery("Solisart_SAV")
 app.config_from_object("django.conf:settings", namespace='CELERY')
 app.autodiscover_tasks()
 app.conf.timezone = 'UTC'
+app.conf.broker_transport_options = {
+    'priority_steps': list(range(10)),
+    'queue_order_strategy': 'priority',
+}
 
 import sav
 

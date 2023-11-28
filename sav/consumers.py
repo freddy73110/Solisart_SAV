@@ -27,12 +27,16 @@ class Cartcreating(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         if 'stop' in text_data_json:
             try:
-                from Solisart_SAV.celery import app
-                app.control.purge()
+                from selenium import webdriver
+                browser = webdriver.Firefox()
+                browser.close()
             except:
                 pass
         self.send(text_data=json.dumps({
-            'message': "Le processus est en cours d'arrêt"
+            'message': "Firefox a été arrêté."
+        }))
+        self.send(text_data=json.dumps({
+            'message': "Le processus est en cours d'arrêt."
         }))
 
     def channel_message(self, event):

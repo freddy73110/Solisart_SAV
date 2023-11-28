@@ -1092,7 +1092,6 @@ class CL_herakles(models.Model):
     
     def json(self):
         for fi in self.fichier.all():
-            print(fi, fi.extension())
             if '.json' == fi.extension():
                 return fi
                 break

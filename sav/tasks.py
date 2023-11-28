@@ -60,6 +60,7 @@ def save_result_celery(args, kwargs, status, result):
 @app.task
 def wrapperscapping(func, kwargs):
     from .scrapping import scrappingMySolisart
+    print(kwargs)
     return getattr(scrappingMySolisart(), func)(kwargs)
 
 
