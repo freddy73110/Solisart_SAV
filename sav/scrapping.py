@@ -180,24 +180,13 @@ class scrappingMySolisart():
             self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
             self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
             time.sleep(10)
-            try:
-                self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
-                time.sleep(2)
-                self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
-                send_channel_message('cartcreating', {'message':"<i class='fas fa-check' style='color: #018303;'></i> Configuration de l'installation " + installation + " sauvegardée"})
-            except Exception as ex:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
-                print(ex)
-                send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Aucune modification n'a été détecté pour l'installation " + installation})
+            self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
+            self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
+            send_channel_message(
+                'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+            )
+            SC_TEST = True
 
-
-            #to do ajouter si install n'est pas en ligne
-            if self.driver.current_url == 'https://my.solisart.fr/admin/index.php?page=installation&id=SC_TEST':
-                SC_TEST = True
-            else:
-                SC_TEST = False
             try:
                 self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
                 i = 0
@@ -708,6 +697,27 @@ class scrappingMySolisart():
                 if self.connecting:
                     send_channel_message('cartcreating',
                                          {'message': "Préparation de l'envoi de la configuration à SC_TEST"})
+                    
+                    time.sleep(2)
+                    self.driver.find_element(By.XPATH, '//label[@for="input-pages-administration"]').click()
+                    time.sleep(2)
+                    import csv
+                    file = open(path_csv)
+                    csv_file = csv.reader(file, delimiter=";")
+                    lines = list(csv_file)
+                    installation = lines[3][2]
+                    proprio = lines[4][2]
+                    file.close()
+                    self.driver.find_element(By.ID, 'input-admin-serveur-serie').clear()
+                    self.driver.find_element(By.ID, 'input-admin-serveur-serie').send_keys(installation)
+                    self.driver.find_element(By.ID, 'input-admin-serveur-id').clear()
+                    self.driver.find_element(By.ID, 'input-admin-serveur-id').send_keys(proprio)
+                    time.sleep(2)
+                    self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
+                    self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
+                    send_channel_message(
+                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+                    )
                     self.save_csv_configuration(path_csv=path_csv)
                 else:
                     send_channel_message('cartcreating', {
