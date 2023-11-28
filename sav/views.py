@@ -1884,6 +1884,7 @@ class cartcreator(View):
                       )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
         if 'installExiste' in request.POST:
             """
             Cherche dans la liste des installation à quel index de la semaine nous sommes
@@ -1907,9 +1908,10 @@ class cartcreator(View):
             return response
         
         if request.POST['new_installation']:
-            if request.POST['opt'] == "json" and 'file' in request.FILES and request.POST['new_installation']:
-                file = request.FILES['file']
-                data = file.read()
+            if request.POST['opt'] == "json" and request.POST['new_installation']:
+                if request.FILES:
+                    file = request.FILES['file']
+                    data = file.read()
                 if self.CL and self.CL.json():
                     data = self.CL.json().fichier.file.read()
                 import json
@@ -2300,10 +2302,9 @@ class production(View):
             buffer = io.BytesIO()
                     
             writer = PdfWriter()
-            print('len', len(pdf1_buffer.pages ), pdf1_buffer.metadata)
             writer.append_pages_from_reader(pdf1_buffer)
             writer.append_pages_from_reader(pdf2_buffer)
-            print(writer)
+
             output_stream = BytesIO()
             writer.write(output_stream)
 
