@@ -169,24 +169,6 @@ class scrappingMySolisart():
             lines = list(csv_file)
             installation = lines[3][2]
             file.close()
-            # time.sleep(2)
-            # self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
-            # time.sleep(2)
-            # self.waitelement(By.XPATH, '//a[@href="#onglet-config"]', 'presence_of_element_located', 'click')
-            # time.sleep(2)
-            # self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv)
-            # time.sleep(2)
-            # self.driver.find_element(By.ID, "bouton-telecharger").click()
-            # time.sleep(3)
-            # self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
-            # self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
-            # time.sleep(10)
-            # self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
-            # self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
-            # send_channel_message(
-            #     'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
-            # )
-            # SC_TEST = True
 
             try:
                 self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
