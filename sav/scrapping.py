@@ -170,30 +170,30 @@ class scrappingMySolisart():
             installation = lines[3][2]
             file.close()
 
-            try:
-                self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
-                i = 0
-                while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
-                        "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
-                    time.sleep(0.5)
-                    print("wait again")
-                    i += 1
-                if i == 1200:
-                    print("La carte " + installation + " ne s'est pas connecté en 10 min")
-                    installed_connecting = False
-                else:
-                    print("La carte " + installation + " est connectée")
-                    installed_connecting = True
-            except:
-                installed_connecting =False
+            # try:
+            #     self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
+            #     i = 0
+            #     while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
+            #             "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
+            #         time.sleep(0.5)
+            #         print("wait again")
+            #         i += 1
+            #     if i == 1200:
+            #         print("La carte " + installation + " ne s'est pas connecté en 10 min")
+            #         installed_connecting = False
+            #     else:
+            #         print("La carte " + installation + " est connectée")
+            #         installed_connecting = True
+            # except:
+            #     installed_connecting =False
 
-            if not installed_connecting:
+            if True:
                 i = 0
                 send_channel_message('cartcreating', {'message':"Recherche de l'installation " + installation + " dans la liste des installations"})
                 l = self.list_installation()
                 while i < 40 and not installation in l:
                     i += 1
-                    send_channel_message('cartcreating', {'message':"Tentative "+ i + "/40  de recherche de l'installation " + installation + "dans a liste des installations"})
+                    send_channel_message('cartcreating', {'message':"Tentative "+ str(i) + "/40  de recherche de l'installation " + installation + "dans a liste des installations"})
                     l = self.list_installation()
                 if i == 40:
                     send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Abandon de de recherche d'installation " + installation})
@@ -713,7 +713,7 @@ class scrappingMySolisart():
                     self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
                     self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
                     send_channel_message(
-                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST renommé " + installation + "."}
                     )
                     self.save_csv_configuration(path_csv=path_csv)
                 else:
