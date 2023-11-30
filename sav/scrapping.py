@@ -155,6 +155,7 @@ class scrappingMySolisart():
         for i in install:
             all_installs.append(i.get_attribute("innerHTML"))
         return all_installs
+    
     def save_csv_configuration(self, path_csv=None):
         """
         Depuis la page d'une installation, enregister le csv et sauvegarder les données
@@ -168,24 +169,24 @@ class scrappingMySolisart():
             lines = list(csv_file)
             installation = lines[3][2]
             file.close()
-            time.sleep(2)
-            self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
-            time.sleep(2)
-            self.waitelement(By.XPATH, '//a[@href="#onglet-config"]', 'presence_of_element_located', 'click')
-            time.sleep(2)
-            self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv)
-            time.sleep(2)
-            self.driver.find_element(By.ID, "bouton-telecharger").click()
-            time.sleep(3)
-            self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
-            self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
-            time.sleep(10)
-            self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
-            self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
-            send_channel_message(
-                'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
-            )
-            SC_TEST = True
+            # time.sleep(2)
+            # self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
+            # time.sleep(2)
+            # self.waitelement(By.XPATH, '//a[@href="#onglet-config"]', 'presence_of_element_located', 'click')
+            # time.sleep(2)
+            # self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv)
+            # time.sleep(2)
+            # self.driver.find_element(By.ID, "bouton-telecharger").click()
+            # time.sleep(3)
+            # self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
+            # self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
+            # time.sleep(10)
+            # self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
+            # self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
+            # send_channel_message(
+            #     'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+            # )
+            # SC_TEST = True
 
             try:
                 self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + installation)
@@ -204,14 +205,15 @@ class scrappingMySolisart():
             except:
                 installed_connecting =False
 
-            if SC_TEST and not installed_connecting:
+            if not installed_connecting:
                 i = 0
                 send_channel_message('cartcreating', {'message':"Recherche de l'installation " + installation + " dans la liste des installations"})
                 l = self.list_installation()
-                while i < 30 and not installation in l:
+                while i < 40 and not installation in l:
                     i += 1
+                    send_channel_message('cartcreating', {'message':"Tentative "+ i + "/40  de recherche de l'installation " + installation + "dans a liste des installations"})
                     l = self.list_installation()
-                if i == 30:
+                if i == 40:
                     send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Abandon de de recherche d'installation " + installation})
                     self.close()
                 else:
@@ -235,7 +237,23 @@ class scrappingMySolisart():
                         print("La carte " + instal + " est connectée")
                         send_channel_message('cartcreating', {'message':"La carte " + instal + " est connectée"})
                         time.sleep(2)
-                        self.save_csv_configuration(path_csv=path_csv)
+                        # time.sleep(2)
+                        self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
+                        time.sleep(2)
+                        self.waitelement(By.XPATH, '//a[@href="#onglet-config"]', 'presence_of_element_located', 'click')
+                        time.sleep(2)
+                        self.driver.find_element(By.ID, "upload-input-3").send_keys(path_csv)
+                        time.sleep(2)
+                        self.driver.find_element(By.ID, "bouton-telecharger").click()
+                        time.sleep(3)
+                        self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
+                        self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
+                        time.sleep(10)
+                        self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
+                        self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
+                        send_channel_message(
+                            'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+                        )
 
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -245,11 +263,6 @@ class scrappingMySolisart():
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
                     fname) + str(exc_tb.tb_lineno) + str(ex)})
-            self.close()
-
-        if SC_TEST and installed_connecting:
-            send_channel_message('cartcreating', {
-                    'message': "<i class='fas fa-times' style='color: #fe0101;'></i> L'installation est encore en ligne. Pour ne pas écraser la configuration, veuillez faire les paramètres en local."})
             self.close()
 
 
@@ -655,6 +668,7 @@ class scrappingMySolisart():
             
 
     def cart_created_since_csv_config(self, path_csv=None):
+
         """
         Configurer une carte à partir d'un fichier csv
         :param csv: path depuis le fichier csv
@@ -847,7 +861,14 @@ class scrappingMySolisart():
             pass
 
         try:
-            os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
+            if os.name == 'nt':
+                os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
+            else:
+                send_channel_message('cartcreating',
+                             {
+                                 'message': os.path.join(os.path.abspath(os.sep), "snap", "firefox", "3416") + "/*.csv"
+                             })
+                os.rename(glob.glob(os.path.join(os.path.abspath(os.sep), "snap", "firefox", "3416") + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
             send_channel_message('cartcreating',
                                  {
                                      'download': "-"
