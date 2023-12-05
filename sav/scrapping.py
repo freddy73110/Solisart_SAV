@@ -193,7 +193,7 @@ class scrappingMySolisart():
                 l = self.list_installation()
                 while i < 40 and not installation in l:
                     i += 1
-                    send_channel_message('cartcreating', {'message':"Tentative "+ str(i) + "/40  de recherche de l'installation " + installation + "dans a liste des installations"})
+                    send_channel_message('cartcreating', {'message':"Tentative "+ str(i) + "/40  de recherche de l'installation " + installation + " dans a liste des installations"})
                     l = self.list_installation()
                 if i == 40:
                     send_channel_message('cartcreating', {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Abandon de de recherche d'installation " + installation})
@@ -234,7 +234,7 @@ class scrappingMySolisart():
                         self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
                         self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
                         send_channel_message(
-                            'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + installation + " sont bien enregistrées."}
+                            'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + instal + " sont bien enregistrées."}
                         )
 
         except Exception as ex:
