@@ -31,7 +31,7 @@ def get_download_path():
         return location
 
     else:
-        return os.path.join(os.path.abspath(os.sep), 'root', 'snap', 'firefox', '2952')
+        return os.path.join(os.path.abspath(os.sep), 'root', 'snap', 'firefox', '3416')
 
 def send_channel_message(group_name, message):
     # Sous Windows
@@ -864,9 +864,9 @@ class scrappingMySolisart():
             else:
                 send_channel_message('cartcreating',
                              {
-                                 'message': os.path.join(os.path.abspath(os.sep), "snap", "firefox", "3416") + "/*.csv"
+                                 'message': os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416") + "/*.csv"
                              })
-                os.rename(glob.glob(os.path.join(os.path.abspath(os.sep), "snap", "firefox", "3416") + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
+                os.rename(glob.glob(os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416") + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
             send_channel_message('cartcreating',
                                  {
                                      'download': "-"
