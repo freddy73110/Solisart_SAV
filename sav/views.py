@@ -1613,14 +1613,7 @@ class bidouille (View):
 
         with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
             data = json.load(json_file)
-        url = 'https://api-adresse.data.gouv.fr/search/?q=' + data['formulaire']['adresse_client'] +'&postcode='+ data['formulaire']["code_postale_client"] + '&type=street'
-        print(url)
-        import requests
-        resp = requests.get(url).json()
-        print(resp['features'][0]['geometry']['coordinates'])
-        coordonnee=resp['features'][0]['geometry']['coordinates']
-        GPS=str(coordonnee[1])+ ','+str(coordonnee[0])
-        print(GPS)
+        print(data)
         # if not resp or not 'lon' in resp[0]:
         #     GPS = None
         #     pass

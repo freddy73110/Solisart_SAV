@@ -67,7 +67,7 @@ class scrappingMySolisart():
                 import subprocess
                 if subprocess.call("killall -9 firefox", shell=True) > 0:
                     send_channel_message('cartcreating', {
-                        'message': "Arrêt de Firefox"
+                        'message': "Une seule session Firefox est ouverte."
                     })
                 else:
                     send_channel_message('cartcreating', {
@@ -503,15 +503,28 @@ class scrappingMySolisart():
                 commercial = CL_herakles.objects.get(CL = CL).commercial
                 if commercial == "NONGLA":
                     self.acces_installation('NONGLATON', install, '2')
-                elif commercial == "DURAND":
-                    self.acces_installationl('DURAND', install, '2')
-                elif commercial == "FOISSEY":
-                    self.acces_installation('FOISSEY', install, '2')
-                elif commercial == "CLAVAREAU":
-                    self.acces_installation('techniconsultant.cc@orange.fr', install, '2')  
-                send_channel_message('cartcreating',
+                    send_channel_message('cartcreating',
                                      {
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
+                elif commercial == "DURAND":
+                    self.acces_installation('DURAND', install, '2')
+                    send_channel_message('cartcreating',
+                                     {
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
+                elif commercial == "FOISSEY":
+                    self.acces_installation('FOISSEY', install, '2')
+                    send_channel_message('cartcreating',
+                                     {
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
+                elif commercial == "CLAVAREAU":
+                    self.acces_installation('techniconsultant.cc@orange.fr', install, '2')  
+                    send_channel_message('cartcreating',
+                                     {
+                                         'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
+                else:
+                    send_channel_message('cartcreating', {
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
+                
                 
                      
             except Exception as ex:
@@ -530,7 +543,7 @@ class scrappingMySolisart():
                 email_installateur = dict_schematic['adresse_mail']
 
             for email in list(profil_user.objects.filter(user__email=email_installateur).values_list('user__email', flat=True)):
-                self.acces_installation(email, installation, '3')
+                self.acces_installation(email, install, '3')
 
         if self.connecting:
             send_channel_message('cartcreating',
@@ -538,13 +551,13 @@ class scrappingMySolisart():
                                  'message': "<i class='fas fa-check' style='color: #018303;'></i> La carte est complètement prête"})
             send_channel_message('cartcreating',
                              {
-                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install+"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
+                                 'message': "<i class='fas fa-check' style='color: #018303;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install+"' target='_blank'>Visualiser l'installation "+ install+ " créée</a>"})
             self.close()
         else:
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte n'est pas complètement prête."})
             send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install +"' target='_blank'>Visualiser l'installation "+ installation+ " créée</a>"})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i><a href='https://my.solisart.fr/admin/?page=installation&id="+ install +"' target='_blank'>Visualiser l'installation "+ install+ " créée</a>"})
             self.close()
 
 
@@ -623,7 +636,7 @@ class scrappingMySolisart():
                                  {'message': "Erreur: " + str(exc_type) + str(fname) + str(exc_tb.tb_lineno) + str(ex)})
             send_channel_message('cartcreating', {
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> "+ idsa +" n'a pas pu être affecté."})
-            self.close()
+
 
     def record_png(self, installation):
 
@@ -670,7 +683,6 @@ class scrappingMySolisart():
             send_channel_message('cartcreating', {'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST dans la liste des installations"})
             self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=SC_TEST')
             i = 0
-            send_channel_message('cartcreating', {'message':"Attente qu'une carte vierge en SC_TEST se connecte..."})
             while self.driver.find_element(By.ID, 'comm-statut').get_attribute(
                         "src") != 'https://my.solisart.fr/admin/image/bullet_green.png' and i < 1200:
                 time.sleep(0.5)
@@ -691,10 +703,7 @@ class scrappingMySolisart():
                     send_channel_message('cartcreating', {
                         'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La carte de régulation n'a pas pu être mise à jour."})
                         
-                if self.connecting:
-                    send_channel_message('cartcreating',
-                                         {'message': "Préparation de l'envoi de la configuration à SC_TEST"})
-                    
+                if self.connecting:                    
                     time.sleep(2)
                     self.driver.find_element(By.XPATH, '//label[@for="input-pages-administration"]').click()
                     time.sleep(2)
@@ -713,7 +722,7 @@ class scrappingMySolisart():
                     self.driver.find_element(By.XPATH, '//a[@href="#onglet-enregistrement"]').click()
                     self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
                     send_channel_message(
-                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST renommé " + installation + "."}
+                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST renommé en " + installation + "."}
                     )
                     self.save_csv_configuration(path_csv=path_csv)
                 else:

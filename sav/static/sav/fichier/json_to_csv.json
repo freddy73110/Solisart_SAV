@@ -481,6 +481,7 @@
             "Appoint granulé": {
 				"Type_Appoint(1)": 1,
 				"trilbl(04)":"C7 granul",
+				"tlbl(06)": "T6 granul",
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 55,
 				"DTChdr(1)": 40,
@@ -494,6 +495,7 @@
             "Appoint bois": {
 				"Type_Appoint(1)": 2,
 				"trilbl(04)":"C7 Bois",
+				"tlbl(06)": "T6 Bois",
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 55,
 				"DTChdr(1)": 40,
