@@ -500,7 +500,7 @@ class scrappingMySolisart():
                 send_channel_message('cartcreating', {'message':"Erreur: " + str(exc_type) + str(fname)+ "ligne:" + str(exc_tb.tb_lineno) + str(ex) })
             
             try:                    
-                commercial = CL_herakles.objects.get(CL = CL).commercial
+                commercial = CL_herakles.objects.get(CL = CL).commercial()
                 if commercial == "NONGLA":
                     self.acces_installation('NONGLATON', install, '2')
                     send_channel_message('cartcreating',
@@ -723,6 +723,13 @@ class scrappingMySolisart():
                     self.driver.find_element(By.ID, 'button-enregistrement-enregistrer').click()
                     send_channel_message(
                         'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST renommé en " + installation + "."}
+                    )
+                    send_channel_message(
+                        'cartcreating',{'message':"Première envoi de configuration pour l'installation " + installation + "."}
+                    )
+                    self.save_csv_configuration(path_csv=path_csv)
+                    send_channel_message(
+                        'cartcreating',{'message':"Seconde envoi de configuration pour l'installation " + installation + "."}
                     )
                     self.save_csv_configuration(path_csv=path_csv)
                 else:

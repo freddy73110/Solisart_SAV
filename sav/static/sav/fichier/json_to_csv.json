@@ -421,7 +421,7 @@
 				"MinOnDelay(0)": 20,
 				"MinOffDelay(0)": 1,
 				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
+				"VMinCircApp(0)": 100
 			},
             "Granulé": {
 				"Type_Appoint(0)":5,
@@ -457,7 +457,7 @@
 				"MinOnDelay(0)": 20,
 				"MinOffDelay(0)": 1,
 				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
+				"VMinCircApp(0)": 100
 			},
             "ON si APP2 en défaut": {
 				"Type_Appoint(0)":8,
@@ -479,7 +479,7 @@
                 "Type_Appoint(1)": 0
             },
             "Appoint granulé": {
-				"Type_Appoint(1)": 1,
+				"Type_Appoint(1)": 5,
 				"trilbl(04)":"C7 granul",
 				"tlbl(06)": "T6 granul",
 				"TMaxApp(1)": 92,
@@ -553,11 +553,11 @@
             "Process":{"Type_Emetteur(0)":0,
 			"tlbl(11)":"Process",
 			"trilbl(05)":"Process"
-		},
+			},
             "Process sur échangeur V3V":{"Type_Emetteur(0)":0,
 			"tlbl(11)":"Process",
 			"trilbl(05)":"Process"
-		},
+			},
             "Plancher chauffant":{
 				"Type_Emetteur(0)":1,
 				"tlbl(11)":"T11 PC",

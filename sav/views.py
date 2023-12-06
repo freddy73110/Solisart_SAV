@@ -1611,9 +1611,11 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
-        with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
-            data = json.load(json_file)
-        print(data)
+
+        print(CL_herakles.objects.get(CL = "CL23-1040").commercial())
+        # with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
+        #     data = json.load(json_file)
+        # print(data)
         # if not resp or not 'lon' in resp[0]:
         #     GPS = None
         #     pass
@@ -1877,7 +1879,7 @@ class cartcreator(View):
                       )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
+
         if 'installExiste' in request.POST:
             """
             Cherche dans la liste des installation à quel index de la semaine nous sommes

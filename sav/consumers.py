@@ -38,6 +38,12 @@ class Cartcreating(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'message': "Le processus est en cours d'arrêt."
         }))
+        import subprocess
+        subprocess.call("killall -9 firefox", shell=True)
+        self.send('cartcreating', {
+            'message':'Déconnexion au serveur my.solisart.fr',
+            'processing':False
+        })
 
     def channel_message(self, event):
         del event['type']
