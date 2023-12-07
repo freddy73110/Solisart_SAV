@@ -15,7 +15,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">{{title}} {{util.profil_user.icon|safe}} {{util.profil_user.evaluation_self_star|safe}}</h1>
+            <h1 class="text-center m-3" id="ident">{{title}} {{util.profil_user.icon|safe}} {{util.profil_user.evaluation_self_star|safe}}</h1>
         </div>
     </div>
 </div>
@@ -46,11 +46,11 @@
                     {% for inst in util.profil_user.installations %}
                     <tr>
                         <td class="text-center"><a href="{% url 'sav:installation' pk=inst.id %}">{{inst}}</a></td>
-                        <td class="text-center">{% if inst.proprio%}
-                            {% for p in inst.profil_user.proprio %}
-                            <a href="{% url 'sav:utilisateur' pk=p.id %}">{{p}}{{p.icon}}</a>
-                            {% if not forloop.last %}<br>{%endif%}
-                            {%endfor%}
+                        <td class="text-center">
+                            {% if inst.proprio.id%}
+                            <a href="{% url 'sav:utilisateur' pk=inst.proprio.id %}">{{inst.proprio}}</a>
+                            {%else%}
+                            -
                             {%endif%}
                         </td>
                     </tr>
@@ -526,16 +526,34 @@ var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
 <script>
 const fontAwesomeIcon = L.divIcon({
     html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-solar-panel fa-inverse" data-fa-transform="shrink-10"></i></span>',
-    iconSize: [20, 20],
-    iconAnchor: [30, 40],
-    className: 'myDivIcon'
+    iconSize: [60, 48],
+    iconAnchor: [30, 48],
+    popupAnchor:  [0, -48],
+    className: 'IconInstallation'
 });
 const fontAwesomeIconInstallateur = L.divIcon({
-    html: '<i class="fas fa-map-marker-alt text-danger fa-4x"></i>',
-    iconSize: [20, 20],
-    iconAnchor: [30, 40],
-    className: 'myDivIcon'
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-danger" style="color:black"></i><i class="fas fa-tools fa-inverse" data-fa-transform="shrink-10"></i></span>',
+    iconSize: [60, 48],
+    iconAnchor: [30, 48],
+    popupAnchor:  [0, -48],
+    className: 'IconInstallateur'
 });
+var onDrop = function (e) {
+	var latlng = this.getLatLng();
+    var t = this
+    console.log(latlng.lat, latlng.lng)
+    $.ajax({
+        url: window.location.href,
+        type:'post',
+        data:{lat:latlng.lat, lng: latlng.lng},
+        dataType: 'json',
+        success: function () {
+            console.log(t)
+            t._popup.setContent("<b>"+ $("#ident").html()+ "</b>")
+            t.openPopup()
+        }
+    })
+};
 const mymap = L.map('installation_carte',{
         center:[45, 0],
         zoom:6
@@ -544,12 +562,15 @@ const mymap = L.map('installation_carte',{
                     {%for t in util.profil_user.installations%}
                     {% if t.coordonnee_GPS.valeur and t.coordonnee_GPS.valeur != "nan" and t.coordonnee_GPS.valeur != "None"%}
                     L.marker([{{t.coordonnee_GPS.valeur}}],{ icon: fontAwesomeIcon}).addTo(mymap)
-                        .bindPopup("<a href='{% url 'sav:installation' pk=t.id%}' ><b>{{t}}-{{t.proprio.0}}</b></a>")
+                        .bindPopup("<a href='{% url 'sav:installation' pk=t.id%}' ><b>{{t}}{%if t.proprio%} - {{t.proprio}}{%endif%}</b></a>")
                   {%endif%}
                   {%endfor%}
                   {% if util.profil_user.geolocalisation %}
-                  L.marker({{util.profil_user.geolocalisation}},{ icon: fontAwesomeIconInstallateur}).addTo(mymap)
+                  L.marker({{util.profil_user.geolocalisation}},{ icon: fontAwesomeIconInstallateur , draggable:true})
+                  .addTo(mymap)
+                  .on('dragend', onDrop)
                    .bindPopup("<b>{{util}}</b>")
+                   
                   {%endif %}
 
 var arrayOfMarkers=[
@@ -564,6 +585,38 @@ var arrayOfMarkers=[
 ]
 var bounds = new L.LatLngBounds(arrayOfMarkers);
 mymap.fitBounds(bounds)
+
+function localise(){
+        $.ajax({
+                            url: window.location.href,
+                            type:'post',
+                            data:{localise: ''},
+                            dataType: 'json',
+                            success: function (json) {
+                                //to remove all markers with installateur
+                                for (const [key, value] of Object.entries(mymap._layers)) {
+                                    if (value.options.icon == fontAwesomeIconInstallateur){
+                                        mymap.removeLayer(value)
+                                    }
+                                }
+                                if (json.localisation == 'village'){
+                                    var precision= '<br> <i class="fas fa-exclamation-triangle text-danger"></i> Location imprécise'
+                                }else{
+                                    var precision= "<br> Location exacte"
+                                }
+                                var markerInstallateur = L.marker(
+                                    [json.lat, json.lon],
+                                    { icon: fontAwesomeIconInstallateur, draggable:true}
+                                    )
+                                    .addTo(mymap).bindPopup("<b>"+ $("#ident").html()+ precision +"</b>")
+                                    .openPopup()
+                                arrayOfMarkers.push([json.lat, json.lon])
+                                var bounds = new L.LatLngBounds(arrayOfMarkers);
+                                mymap.fitBounds(bounds);
+                                markerInstallateur.on('dragend', onDrop)
+                            }
+        })
+    }
 </script>
 <script>
 function infoHeraklesfunction(id){
@@ -577,5 +630,6 @@ function infoHeraklesfunction(id){
                  }
             })
 }
+
 </script>
 {%endblock%}

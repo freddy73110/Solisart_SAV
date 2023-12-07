@@ -1380,6 +1380,40 @@ class utilisateur_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+        if 'lat' in request.POST:
+            self.profil.latitude = request.POST['lat']
+            self.profil.longitude = request.POST['lng']
+            self.profil.save()
+        if 'localise' in request.POST:
+            client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
+            if client.pays == "FRANCE":
+                url = 'https://api-adresse.data.gouv.fr/search/?q=' + str(client.t100_4_adresse_1) +'&postcode='+ str(client.t100_6_cp) + '&type=street'
+                import requests
+                resp = requests.get(url).json()
+                try:
+                    coordonnee=resp['features'][0]['geometry']['coordinates']
+                    GPS=str(coordonnee[1])+ ','+str(coordonnee[0])
+
+                    data={'lat': coordonnee[1], 'lon': coordonnee[0], 'localisation': 'exact'}
+                    self.profil.latitude = coordonnee[1]
+                    self.profil.longitude = coordonnee[0]
+                    self.profil.save()
+                    return JsonResponse(data, safe=False)
+                except:
+                    url = 'https://api-adresse.data.gouv.fr/search/?q=postcode='+ str(client.t100_6_cp) + '&type=street'
+                    import requests
+                    resp = requests.get(url).json()
+                    try:
+                        coordonnee=resp['features'][0]['geometry']['coordinates']
+                        GPS=str(coordonnee[1])+ ','+str(coordonnee[0])
+                        data={'lat': coordonnee[1], 'lon': coordonnee[0], 'localisation': 'village'}
+                        self.profil.latitude = coordonnee[1]
+                        self.profil.longitude = coordonnee[0]
+                        self.profil.save()
+                        return JsonResponse(data, safe=False)
+                    except:                        
+                        pass
+                    pass
         if 'herakles' in request.POST:
             if self.profil.Client_herakles:
                 client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
@@ -1611,7 +1645,13 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
 
-
+        import csv
+        file = open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
+        csv_file = csv.reader(file, delimiter=";")
+        lines = list(csv_file)
+        installation = lines[3][2]
+        proprio = lines[4][2]
+        file.close()
         print(CL_herakles.objects.get(CL = "CL23-1040").commercial())
         # with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
         #     data = json.load(json_file)
@@ -1982,9 +2022,9 @@ class production(View):
     def get(self, request, *args, **kwargs):
         from .tasks import actualise_date_livraison_CL
         actualise_date_livraison_CL.delay()
-        from heraklesinfo.models import C7001Phases, C601ChantierEnTte
+        from heraklesinfo.models import C7001Phases, C601ChantierEnTte, C101DevisEnTte
         excludeCL= Q(codephase__icontains='-------')
-        CLs = CL_herakles.objects.all().order_by('-CL').values_list('CL', flat=True)
+        CLs = CL_herakles.objects.all().order_by('-CL')
         for Clsolistools in CLs:
             excludeCL |=  Q(codephase__icontains=str(Clsolistools))
         heraklesCLs = C7001Phases.objects.db_manager('herakles'). \
@@ -1996,7 +2036,7 @@ class production(View):
                   values_list('codephase', flat=True)
 
         commerciaux = set(C601ChantierEnTte.objects.db_manager('herakles'). \
-              filter(t601_1_code_chantier__in = list(CLs)). \
+              filter(t601_1_code_chantier__in = list(CLs.values_list('CL', flat=True))). \
               exclude (t601_8_0_code_commercial__isnull=True). \
               order_by('t601_8_0_code_commercial').\
               values_list('t601_8_0_code_commercial', flat=True)

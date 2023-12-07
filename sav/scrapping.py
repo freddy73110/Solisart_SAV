@@ -725,13 +725,19 @@ class scrappingMySolisart():
                         'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> SC_TEST renommé en " + installation + "."}
                     )
                     send_channel_message(
-                        'cartcreating',{'message':"Première envoi de configuration pour l'installation " + installation + "."}
+                        'cartcreating',{'message':"Début du première envoi de configuration pour l'installation " + installation + "."}
                     )
                     self.save_csv_configuration(path_csv=path_csv)
                     send_channel_message(
-                        'cartcreating',{'message':"Seconde envoi de configuration pour l'installation " + installation + "."}
+                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Première envoi de configuration pour l'installation " + installation + " réussi."}
+                    )
+                    send_channel_message(
+                        'cartcreating',{'message':"Début du seconde envoi de configuration pour l'installation " + installation + "."}
                     )
                     self.save_csv_configuration(path_csv=path_csv)
+                    send_channel_message(
+                        'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Second envoi de configuration pour l'installation " + installation + " réussi."}
+                    )
                 else:
                     send_channel_message('cartcreating', {
                         'message': "<i class='fas fa-times' style='color: #fe0101;'></i> La nano carte n'a pas pu être mise à jour."})
@@ -813,7 +819,6 @@ class scrappingMySolisart():
 
                 self.waitelement(By.XPATH, '//*[@id="appli-maj"]/table/tbody/tr[2]/td[2]/img[@alt="Terminée avec succès"]',
                                     'presence_of_element_located', '', time_max=1200)
-            print("Le nano-serveur est à la dernière version")
             send_channel_message('cartcreating',
                                  {
                                      'message': "<i class='fas fa-check' style='color: #018303;'></i> Le nano server de l'installation " + installation + ' est à la dernière version'})
@@ -830,7 +835,10 @@ class scrappingMySolisart():
 
         import os
         import glob
-        files = glob.glob(get_download_path() + "\*.csv")
+        if os.name == 'nt':
+            files = glob.glob(get_download_path() + "\*.csv")
+        else:
+            files = glob.glob(os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416") + "/*.csv")
         for f in files:
             try:
                 os.remove(f)
@@ -859,6 +867,7 @@ class scrappingMySolisart():
             pass
 
         try:
+            #if windows:
             if os.name == 'nt':
                 os.rename(glob.glob(get_download_path() + "/*.csv")[0], os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
             else:

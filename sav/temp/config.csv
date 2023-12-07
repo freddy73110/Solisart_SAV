@@ -1,8 +1,8 @@
-22/11/2023;13:02:02;
+06/12/2023;17:01:17;Configuration du 06/12/2023 à 17:01
 1;srv_name;gestion.solisart.fr
 2;srv_req; update.php 
-3;serial;SC2M20234705
-4;srv_id;LAMBERT
+3;serial;SC1M20234709
+4;srv_id;DELTOUR
 5;srv_port;80
 6;req_T;300
 7;TMarcheDeg;103
@@ -29,16 +29,16 @@
 28;DTCapteurOn;10
 29;DTCapteurOff;4
 30;VMinCircCapteur;50
-31;Nb_Champs_Capt;2
+31;Nb_Champs_Capt;1
 32;Sortie_48;255
 33;Sortie_49;255
 34;S48lbl;Sortie 48
-35;S49lbl;
-36;Type_Appoint(0);3
+35;S49lbl;Sortie 49
+36;Type_Appoint(0);1
 37;Type_Appoint(1);0
 38;TMaxApp(0);92
 39;TMaxApp(1);100
-40;TRetMinChdr(0);35
+40;TRetMinChdr(0);40
 41;TRetMinChdr(1);47
 42;DTChdr(0);20
 43;DTChdr(1);7
@@ -58,17 +58,17 @@
 57;VMinCircApp(1);100
 58;NonRecupCal(0);
 59;NonRecupCal(1);
-60;tlbl(11);T11 Amb. C1
-61;tlbl(12);T12 Amb. C2
-62;tlbl(13);T13 Amb. C3
-63;tlbl(14);T14 Amb. C7
+60;tlbl(11);T11 Radiateur
+61;tlbl(12);
+62;tlbl(13);
+63;tlbl(14);
 64;Type_Emetteur(0);2
 65;Type_Emetteur(1);0
 66;Type_Emetteur(2);0
 67;Type_Emetteur(3);0
 68;Type_Emetteur(4);0
 69;Type_Emetteur(5);0
-70;DTMaxSol(0);3
+70;DTMaxSol(0);3.0
 71;DTMaxSol(1);0.0
 72;DTMaxSol(2);0.0
 73;DTMaxSol(3);0.0
@@ -92,7 +92,7 @@
 91;DTOff(3);0
 92;DTOff(4);2
 93;DTOff(5);2
-94;DTCorrTA(0);0
+94;DTCorrTA(0);0.0
 95;DTCorrTA(1);0.0
 96;DTCorrTA(2);0.0
 97;DTCorrTA(3);0.0
@@ -475,8 +475,8 @@
 480;P(6,6,3);255
 481;P(6,6,4);255
 482;P(6,6,5);255
-497;firmware_rev;SRB_32MX_vD.18+6
-499;config_mac;b8:27:eb:0a:ca:e2
+497;firmware_rev;SRB_32MX_vD.34+6
+499;config_mac;b8:27:eb:c3:87:8b
 500;ip(0);0
 501;ip(1);0
 502;ip(2);0
@@ -492,7 +492,7 @@
 512;pdn(0);192
 513;pdn(1);168
 514;pdn(2);10
-515;pdn(3);252
+515;pdn(3);11
 516;sdn(0);0
 517;sdn(1);0
 518;sdn(2);0
@@ -503,12 +503,12 @@
 523;tlbl(10);
 524;tlbl(03);T3 Bal Solaire
 525;tlbl(04);T4 Bal Appoint
-526;tlbl(05);T5 Bal Tampon
-527;tlbl(06);T6 Appoint 2
+526;tlbl(05);
+527;tlbl(06);
 528;tlbl(07);T7 Coll Froid
-529;tlbl(15);T15
+529;tlbl(15);
 530;tlbl(08);T8 Coll Chaud
-531;tlbl(16);T16
+531;tlbl(16);
 532;fllbl(1);
 533;fllbl(2);
 534;fllbl(3);
@@ -519,28 +519,28 @@
 539;trilbl(08);V3VAPP Appoint
 540;trilbl(02);C5 BAL Solaire
 541;trilbl(09);V3VAPP Solaire
-542;trilbl(03);C6 BAL Tampon
-543;trilbl(10);S10
-544;trilbl(04);C7 Appoint 2
-545;trilbl(11);S11
-546;trilbl(05);C1 ZONE 1
-547;trilbl(12);V3VTAM Solaire
-548;trilbl(06);C2 ZONE 2
-549;trilbl(13);V3VTAM Tampon
-550;trilbl(07);C3 ZONE 3
-551;ModeleDebitmetre(0);0
-552;ModeleDebitmetre(1);0
-553;ModeleDebitmetre(2);0
-554;ModeleDebitmetre(3);0
-555;ModeleDebitmetre(4);0
+542;trilbl(03);
+543;trilbl(10);
+544;trilbl(04);
+545;trilbl(11);
+546;trilbl(05);Zone 1 Rad
+547;trilbl(12);
+548;trilbl(06);
+549;trilbl(13);
+550;trilbl(07);
+551;ModeleDebitmetre(0);14
+552;ModeleDebitmetre(1);14
+553;ModeleDebitmetre(2);14
+554;ModeleDebitmetre(3);14
+555;ModeleDebitmetre(4);14
 584;t(1);Dsc
-585;t(2);Dsc
-586;t(3);Dsc
-587;t(4);Dsc
+585;t(2);19.7 dC
+586;t(3);18.5 dC
+587;t(4);18.5 dC
 588;t(5);Dsc
 589;t(6);Dsc
-590;t(7);Dsc
-591;t(8);Dsc
+590;t(7);52.5 dC
+591;t(8);19.3 dC
 592;t(9);Dsc
 593;t(10);Dsc
 594;t(11);Dsc
@@ -549,11 +549,11 @@
 597;t(14);Dsc
 598;t(15);Dsc
 599;t(16);Dsc
-600;fl(1);Off
-601;fl(2);Off
-602;fl(3);Off
-603;fl(4);Off
-604;fl(5);Off
+600;fl(1);0.0 l mn
+601;fl(2);0.0 l mn
+602;fl(3);0.0 l mn
+603;fl(4);0.0 l mn
+604;fl(5);0.0 l mn
 605;fl(6);Off
 606;rl(0);Off
 610;rl(4);Off
@@ -565,14 +565,14 @@
 619;tr(6);0pC
 620;tr(7);0pC
 621;tr(8);0pC
-622;tr(9);100pC
+622;tr(9);0pC
 623;tr(10);0pC
-624;tr(11);100pC
-625;tr(12);100pC
+624;tr(11);0pC
+625;tr(12);0pC
 626;tr(13);0pC
-627;v3v(0);1
-628;v3v(1);1
-629;v3v(2);100
+627;v3v(0);0
+628;v3v(1);0
+629;v3v(2);26
 630;flpws;1
 631;Tcons(0);0.0
 632;Tcons(1);0.0
@@ -582,22 +582,22 @@
 636;Dem(0);0
 637;Dem(1);0
 638;Dem(2);0
-639;Dem(3);0
+639;Dem(3);1
 640;Dem(6);0
-641;MD;-71.7
-642;dtcapt3mn;16384.0
+641;MD;-62.3
+642;dtcapt3mn;0.0
 643;TconPisc_dep;30
 644;Tcaptcalc;14.9
-645;anticc_chd;3.0
+645;anticc_chd;8.0
 646;var_cir;0.0
 647;demPisc_D;0
-648;def_T;975
+648;def_T;257
 649;def;0
-650;CircType(0);0
-651;CircType(1);0
+650;CircType(0);1
+651;CircType(1);1
 652;CircType(2);0
 653;CircType(3);0
-654;CircType(4);0
+654;CircType(4);1
 655;CircType(5);0
 656;CircType(6);0
 657;CircType(9);0
@@ -608,7 +608,7 @@
 662;index3;0.0
 663;index4;0.0
 664;index5;0.0
-665;index6;0.0
+665;index6;14.3
 666;index1S;0.0
 667;index2S;0.0
 668;index3S;0.0
@@ -622,17 +622,29 @@
 676;rebour_derog_z5;0
 677;rebour_derog_z6;0
 678;rebour_derog_ECS;0
-981;CarteCompteur;0
+981;CarteCompteur;10
 987;tlbl(17); Zone 7
+
 988;tlbl(18); Zone 8
+
 989;tlbl(19); Zone 9
+
 990;tlbl(20); Zone 10
+
 991;tlbl(21); Zone 11
+
 992;tlbl(22); Zone 12
+
 993;tlbl(23); Zone 13
+
 994;tlbl(24); Zone 14
+
 995;tlbl(25); Zone 15
+
 996;tlbl(26); Zone 16
+
 997;tlbl(27); Zone 17
+
 998;tlbl(28); Zone 18
+
 999;tlbl(29); Zone 19
