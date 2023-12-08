@@ -2388,22 +2388,28 @@ class tools(View):
                       )
     def convert_file_to_df (self, bin):
         pathnewfile = os.path.dirname(__file__) + '/temp/chart.csv'
-        # print("path", tmp_file, pathnewfile)
         oldfile=bin
         bad_words = ['Date', 'SolisConfrt']
+        maxcolumns = ''
         with open(pathnewfile, 'w') as newfile:
             lines = oldfile.readlines()
+            for x, line in enumerate(lines):
+                line = line.decode('utf-8')
+                if 'Date' in line and len(maxcolumns) < len(line):
+                    maxcolumns = line
+            columns = maxcolumns.replace('\n', '').split(";")
             try:
                 for x, line in enumerate(lines):
                     line = line.decode('utf-8')
                     if x == 1:
-                        newfile.write(line)
+                        newfile.write(maxcolumns)
                     elif x == len(lines) - 1:
                         break
                     elif any(bad_word in lines[x + 1].decode('utf-8') for bad_word in bad_words) and x != 1:
                         pass
                     elif not any(bad_word in line for bad_word in bad_words) and x != 2:
-                        newfile.write(line.replace(' l mn', '').replace('?', 'null').replace('C-c', 'null').replace('dsc', 'null'))
+                        newfile.write(line.rstrip().replace(' l mn', '').replace('?', 'null').replace('dsc', 'null') + ';'*(len(columns)-line.count(';')))
+                        newfile.write("\n")
             except Exception as ex:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -2414,7 +2420,9 @@ class tools(View):
                             chunksize=1000,
                             na_values=['null', ''],
                             sep=";",
-                            on_bad_lines='skip'
+                            on_bad_lines='skip',
+                            keep_default_na=False,
+                            usecols=columns
                             )
 
         # Concataine tous les chunk entre eux
@@ -2640,9 +2648,9 @@ class tools(View):
                     df = df_temp
                 else:
                     if df_temp.Date[len(df_temp) - 1] <= df.Date[0]:
-                        df = pd.concat([df_temp, df]).reset_index(drop=True)
+                        df = pd.concat([df_temp, df], axis=0, ignore_index=True).reset_index(drop=True)
                     elif df.Date[len(df) - 1] <= df_temp.Date[0]:
-                        df = pd.concat([df, df_temp]).reset_index(drop=True)
+                        df = pd.concat([df, df_temp], axis=0, ignore_index=True).reset_index(drop=True)
                     else:
                         index = df[df.Date >= df_temp['Date'][0]].first_valid_index()
                         try:
@@ -2650,7 +2658,7 @@ class tools(View):
                                 index += 1
                         except:
                             pass
-                        df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]]).reset_index(drop=True)
+                        df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]], axis=0, ignore_index=True).reset_index(drop=True)
 
             data = {}
             if 'df' in locals():
