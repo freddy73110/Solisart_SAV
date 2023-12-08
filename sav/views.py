@@ -2386,6 +2386,7 @@ class tools(View):
                           'title': self.title
                       }
                       )
+   
     def convert_file_to_df (self, bin):
         pathnewfile = os.path.dirname(__file__) + '/temp/chart.csv'
         oldfile=bin
@@ -2599,7 +2600,6 @@ class tools(View):
                 {
                     'data': param
                 }, safe=False)
-
 
         if "schema" in request.POST:
             json_schema = json.loads(request.POST['schema'])

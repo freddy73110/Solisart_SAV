@@ -361,10 +361,11 @@ function convertdate(date){
 }
 lastScroll=0
 
-function ganttGenerator(){
+async function ganttGenerator(){
 
     if($("#step").val() != "simple"){
         tasks=[]
+        await data
         $.each(data, function(index, value){
           if (ClToDisplay.includes(value['CL'])){
             if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
@@ -710,7 +711,7 @@ function searchByCustomer(){
                         $("#commercial").val("tout")
                         ClToDisplay = datal.map((x) => x.CL)
                         var html='<option value="tout" selected="">Visualiser tous les CL</option>'
-                        $.each(data, function(i, v){
+                        $.each(datal, function(i, v){
                           html = html + "<option value='"+ v.CL+"'>"+ v.CL +" - " + v.installateur + "</option>"
                         })
                         $("#VisuCL").html(html)
@@ -730,7 +731,7 @@ function searchByCommercial(){
                         $("#client").val("tout")
                         ClToDisplay = datal.map((x) => x.CL)
                         var html='<option value="tout" selected="">Visualiser tous les CL</option>'
-                        $.each(data, function(i, v){
+                        $.each(datal, function(i, v){
                           html = html + "<option value='"+ v.CL+"'>"+ v.CL +" - " + v.installateur + "</option>"
                         })
                         $("#VisuCL").html(html)
@@ -738,8 +739,9 @@ function searchByCommercial(){
                      }
                 })
 }
-searchByCommercial()
+
 Refreshdata()
+searchByCommercial()
 </script>
 <script>
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');

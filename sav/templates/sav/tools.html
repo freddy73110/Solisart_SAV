@@ -399,13 +399,15 @@ function generate_json_data(){
         if (!['Date', 'DemZ1', 'DemZ2', 'DemZ3', 'DemZ4', 'DemECS', 'dtcapt3mn', 'var_cir', 'def_T', 'def', 'index6S'].includes(key)){
             if (param.hasOwnProperty(key)){
                 var visible = param[key].visible ? true : "legendonly"
-                var color = param[key].color
+                var color = (param[key].hasOwnProperty("color"))? param[key].color : "#000000"
+                var name = param[key].name
             }else{
                 var visible = "legendonly"
                 var color = "#000000"
+                var name = key
             }
             color = color
-            colorscale.push(param[key].color)
+            colorscale.push(color)
             all_data.push({
                 x:data.Date,
                 y:data[key].data,
@@ -414,7 +416,7 @@ function generate_json_data(){
                 line: {shape: 'linear'},
                 type: 'scatter',
                 hovertemplate:'<b>Valeur:</b> %{y}'+unit,
-                name: param[key].name,
+                name: name,
                 visible: visible
                 }
             )

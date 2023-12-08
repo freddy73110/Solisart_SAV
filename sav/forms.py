@@ -677,9 +677,7 @@ class CL_Form(ModelForm):
             self.fields['date_capteur'].widget = HiddenInput()
             html2=''
             try:
-                print(self.instance.json())
                 if self.instance.json():
-                    print("ok")
                     html2='<button class="btn btn-outline-primary" type="button" onclick="downloadSchema('+ str(self.instance.pk)+')"><i class="fas fa-file-download"></i> Schéma pdf</button>'
             except Exception as ex:
                 print(ex)
