@@ -202,8 +202,9 @@ class scrappingMySolisart():
                     send_channel_message('cartcreating', {'message':'<i class="fas fa-check" style="color: #018303;"></i> Installation ' + installation + " dans la liste des installations"})
                     instal = installation
                     from .models import installation
-                    installation.objects.create(idsa=instal)
-                    send_channel_message('cartcreating', {'message':"Installation " + instal +" enregistrée dans le solistools"})
+                    ins, created = installation.objects.get_or_create(idsa=instal)
+                    if created:
+                        send_channel_message('cartcreating', {'message':"Installation " + instal +" enregistrée dans le solistools"})
                     send_channel_message('cartcreating', {'message':"Préparation de l'envoi de la configuration à " + instal})
                     self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + instal)
                     i = 0
