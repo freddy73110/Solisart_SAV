@@ -194,7 +194,6 @@ class ticket_form(ModelForm):
                         'dataType: "html",' \
                         'type: "post",' \
                         'success: function(data) {' \
-                        'console.log(data);' \
                         '$("#SolutionDiv").html(data)' \
                         '}' \
                         '})' \

@@ -1053,9 +1053,13 @@ class installation_view (View):
                 solutions = cause.objects.get(pk=request.POST["dynamicsolution"]).solution.all()
                 if solutions:
                     html='<h3>Solutions associées:</h3><ul>'
+                    cartcreator = ''
                     for s in solutions:
                         html+='<li>'+ str(s) + '</li>'
-                    html+='</ul>'
+                        if 'Remplacement de la carte de régulation' in str(s):
+                            cartcreator='<a class="btn btn-outline-primary m-1" href="/cartcreator/installation/'+ str(self.instal.id)+'" target="_blank">Créer une carte</a>'
+                    html+='</ul>' + cartcreator
+
                 else:
                     html = ''
             else:
@@ -1899,9 +1903,15 @@ class cartcreator(View):
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs:
-            self.CL = CL_herakles.objects.get(pk=kwargs.pop('pkCL'))
-        else:
-            self.CL=None
+            if 'pkCL' in kwargs:
+                self.CL = CL_herakles.objects.get(pk=kwargs.pop('pkCL'))
+            else:
+                self.CL=None
+            if 'pkinstal' in kwargs:
+                self.instal = installation.objects.get(pk=kwargs.pop('pkinstal'))
+            else:
+                self.instal = None
+            
         return super(cartcreator, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -1913,6 +1923,7 @@ class cartcreator(View):
                       self.template_name,
                       {
                           'installations':installations,
+                          'installation': self.instal,
                           'title':self.title,
                           'CL':self.CL                          
                       }
