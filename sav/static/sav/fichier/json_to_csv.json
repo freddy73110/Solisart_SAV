@@ -493,7 +493,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Appoint bois": {
-				"Type_Appoint(1)": 2,
+				"Type_Appoint(1)": 6,
 				"trilbl(04)":"C7 Bois",
 				"tlbl(06)": "T6 Bois",
 				"TMaxApp(1)": 92,
@@ -507,7 +507,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Sortie ECS appoint 1": {
-				"Type_Appoint(1)": 3,
+				"Type_Appoint(1)": 7,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
@@ -519,7 +519,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Cascade Appoint 1": {
-				"Type_Appoint(1)": 4,
+				"Type_Appoint(1)": 9,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
@@ -531,7 +531,7 @@
 				"VMinCircApp(1)": 70
 			},
             "ON si APP1 en défaut": {
-				"Type_Appoint(1)": 5,
+				"Type_Appoint(1)": 10,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
@@ -564,7 +564,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Appoint bois": {
-				"Type_Appoint(1)": 2,
+				"Type_Appoint(1)": 6,
 				"trilbl(04)":"C7 Bois",
 				"tlbl(06)": "T6 Bois",
 				"TMaxApp(1)": 92,
@@ -578,7 +578,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Sortie ECS appoint 1": {
-				"Type_Appoint(1)": 3,
+				"Type_Appoint(1)": 7,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
@@ -590,7 +590,7 @@
 				"VMinCircApp(1)": 70
 			},
             "Cascade Appoint 1": {
-				"Type_Appoint(1)": 4,
+				"Type_Appoint(1)": 9,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
@@ -602,7 +602,7 @@
 				"VMinCircApp(1)": 70
 			},
             "ON si APP1 en défaut": {
-				"Type_Appoint(1)": 5,
+				"Type_Appoint(1)": 10,
 				"TMaxApp(1)": 92,
 				"TRetMinChdr(1)": 40,
 				"DTChdr(1)": 20,
