@@ -2420,7 +2420,7 @@ class tools(View):
                     elif any(bad_word in lines[x + 1].decode('utf-8') for bad_word in bad_words) and x != 1:
                         pass
                     elif not any(bad_word in line for bad_word in bad_words) and x != 2:
-                        newfile.write(line.rstrip().replace(' l mn', '').replace('?', 'null').replace('dsc', 'null') + ';'*(len(columns)-line.count(';')))
+                        newfile.write(line.rstrip().replace(' l mn', '').replace('?', 'null').replace('dsc', '0') + ';'*(len(columns)-line.count(';')))
                         newfile.write("\n")
             except Exception as ex:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
