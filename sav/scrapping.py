@@ -812,7 +812,7 @@ class scrappingMySolisart():
                 time.sleep(3)
                 # Ferme la fenêtre de message
                 self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
-                self.waitelement(By.XPATH, '////*[@id="appli-installer"]', 'presence_of_element_located', 'click')
+                #self.waitelement(By.XPATH, '////*[@id="appli-installer"]', 'presence_of_element_located', 'click')
                 send_channel_message('cartcreating',
                                     {
                                         'message': "Le nano serveur de l'installation " + installation + ' est en cours de mise à jour'})

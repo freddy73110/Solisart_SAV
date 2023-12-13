@@ -2640,6 +2640,7 @@ class tools(View):
                             pk=pk_install).idsa + "-" + d + ".zip"
                         with requests.Session() as s:
                             download = s.get(url, stream=True)
+                            print(download, download.headers)
                             if download.headers['Content-length'] == str(0):
                                 # If not exist test with zip
                                 url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
