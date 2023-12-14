@@ -14,12 +14,33 @@
                 "trilbl(03)": "C6 BAL Tampon",
                 "trilbl(12)": "V3VTAM Solaire",
                 "trilbl(13)": "V3VTAM Tampon"
+            },
+            "2 ballons tampons en série": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            },
+            "3 ballons tampons en série": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            },
+            "ballon tampon en eau chaude sanitaire": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
             }
         }
     },
     "ballonECS":{
         "translation":{
-            "Default":{
+            "Ballon hygiénique avec 1 echangeur":{
                 "Type_Ballon_S": 0
             },
             "ballon ECS et ballon appoint en série": {
