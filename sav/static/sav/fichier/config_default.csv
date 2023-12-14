@@ -30,7 +30,7 @@
 29;DTCapteurOff;4
 30;VMinCircCapteur;50
 31;Nb_Champs_Capt;1
-32;Sortie_48;24
+32;Sortie_48;255
 33;Sortie_49;255
 34;S48lbl;
 35;S49lbl;
