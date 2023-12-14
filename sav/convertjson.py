@@ -9,7 +9,6 @@ class convertjson():
         pathtocsvdefault=os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','config_default.csv')
         df =pd.read_csv(pathtocsvdefault, skiprows=1, sep=';', header=None)
         df.columns=['idx', 'key', 'value']
-        print(df)
         if installation_SN:
             df.value[df.key =='serial'] = installation_SN
         if installation_name:

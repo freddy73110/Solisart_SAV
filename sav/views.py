@@ -1902,15 +1902,14 @@ class cartcreator(View):
     title = "Création d'une carte de régulation"
 
     def dispatch(self, request, *args, **kwargs):
+
+        self.CL=None
+        self.instal = None
         if kwargs:
             if 'pkCL' in kwargs:
                 self.CL = CL_herakles.objects.get(pk=kwargs.pop('pkCL'))
-            else:
-                self.CL=None
             if 'pkinstal' in kwargs:
                 self.instal = installation.objects.get(pk=kwargs.pop('pkinstal'))
-            else:
-                self.instal = None
             
         return super(cartcreator, self).dispatch(request, *args, **kwargs)
 

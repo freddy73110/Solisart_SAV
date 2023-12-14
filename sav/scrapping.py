@@ -232,8 +232,8 @@ class scrappingMySolisart():
                         self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
                         self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
                         time.sleep(10)
-                        self.waitelement(By.XPATH, '//a[@href="#onglet-enregistrement"]', 'click')
-                        self.waitelement(By.ID, 'button-enregistrement-enregistrer', 'click')
+                        self.waitelement(By.XPATH, '//a[@href="#onglet-enregistrement"]', 'presence_of_element_located', 'click')
+                        self.waitelement(By.ID, 'button-enregistrement-enregistrer', 'presence_of_element_located', 'click')
                         send_channel_message(
                             'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + instal + " sont bien enregistrées."}
                         )
