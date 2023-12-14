@@ -9,6 +9,7 @@ class convertjson():
         pathtocsvdefault=os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','config_default.csv')
         df =pd.read_csv(pathtocsvdefault, skiprows=1, sep=';', header=None)
         df.columns=['idx', 'key', 'value']
+        print(df)
         if installation_SN:
             df.value[df.key =='serial'] = installation_SN
         if installation_name:
@@ -24,6 +25,7 @@ class convertjson():
             if k in convertjson:
                 try:
                     for key, value in convertjson[k]["translation"][v].items():
+                        print(k, key, value)
                         df.value[df.key == key] = value
                 except Exception as ex:
                     exc_type, exc_obj, exc_tb = sys.exc_info()

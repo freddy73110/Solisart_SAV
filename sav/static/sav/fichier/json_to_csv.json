@@ -1153,39 +1153,27 @@
     "circulateurC7":{
         "translation":{
             "Aucun":{
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Appoint granulé": {
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Appoint bois": {
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Appoint multiple": {
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Process":{
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Process sur échangeur V3V":{
-                "Type_Emetteur(3)":0,
-				"tlbl(14)":"",
-				"trilbl(04)":""
+                "Type_Emetteur(3)":0
             },
             "Plancher chauffant":{
 				"Type_Emetteur(3)":1,
 				"tlbl(14)":"T14 PC",
-				"trilbl(04)":"v PC",
+				"trilbl(04)":"C7 PC",
 				"DTMaxSol(3)": 3,
 				"DTEco(3)": 4,
 				"DTOn(3)": 5,
