@@ -78,6 +78,7 @@ class scrappingMySolisart():
                 from selenium.webdriver import FirefoxOptions
                 opts = FirefoxOptions()
                 opts.add_argument("--headless")
+                opts.set_preference("browser.download.alwaysOpenPanel", False)
                 self.driver = webdriver.Firefox(options=opts)
             else:
                 from selenium import webdriver
@@ -112,6 +113,34 @@ class scrappingMySolisart():
                 'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Erreur: " + str(exc_type) + str(
                     fname) + str(exc_tb.tb_lineno) + str(ex)})
 
+    def listExportData (self, instal=None):
+        self.driver.get('https://my.solisart.fr/admin/index.php?page=installation&id=' + instal)
+        time.sleep(1)
+        self.waitelement(By.XPATH, '//label[@for="input-pages-maj"]', 'presence_of_element_located', 'click')
+        time.sleep(1)
+        self.waitelement(By.XPATH, '//a[@href="#onglet-export"]', 'presence_of_element_located', 'click')
+        time.sleep(1)
+        dates = self.waitelement(By.XPATH, '//*[@class="liste_colonne_impaire"]/a', 'presence_of_all_elements_located', None, time_max=120)
+        all_dates = []
+        for i in dates:
+            all_dates.append(i.get_attribute("href"))
+        return all_dates
+    
+    def downloadDatascv (self, instal=None, date=None):
+        matchers = str(date).split("_")
+        for link in [s for s in self.listExportData(instal=instal) if any(xs in s for xs in matchers)]:
+            # self.driver.get(link)
+            self.waitelement(By.XPATH, '//a[@href="'+ link.split('admin/')[1] +'"]', 'presence_of_element_located', 'click')         
+            try:
+                os.remove(os.path.join(os.path.dirname(__file__), 'temp', link.split('=')[1]))
+            except OSError:
+                pass
+            #if windows:
+            if os.name == 'nt':
+                os.rename(os.path.join(get_download_path(),link.split('=')[1]), os.path.join(os.path.dirname(__file__), 'temp', link.split('=')[1]))
+            else:
+                os.rename(glob.glob(os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416") + "/" + link.split('=')[1])[0], os.path.join(os.path.dirname(__file__), 'temp', link.split('=')[1]))
+        self.close()
 
     def waitelement(self, by, element, func, action, time_max=None):
         if not time_max:
@@ -231,8 +260,9 @@ class scrappingMySolisart():
                         time.sleep(3)
                         self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
                         self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
-                        time.sleep(10)
+                        time.sleep(5)
                         self.waitelement(By.XPATH, '//a[@href="#onglet-enregistrement"]', 'presence_of_element_located', 'click')
+                        time.sleep(5)
                         self.waitelement(By.ID, 'button-enregistrement-enregistrer', 'presence_of_element_located', 'click')
                         send_channel_message(
                             'cartcreating',{'message':"<i class='fas fa-check' style='color: #018303;'></i> Les informations pour " + instal + " sont bien enregistrées."}
@@ -897,7 +927,8 @@ class scrappingMySolisart():
         try:
             if 'formulaire' in dict_schematic:
                 dict_schematic=dict_schematic['formulaire']
-            if 'mail_client' in dict_schematic:
+            
+            if 'mail_client' in dict_schematic and len(dict_schematic['mail_client'])<32:
                 self.driver.get('https://my.solisart.fr/admin/index.php?page=creer_utilisateur')
                 if not dict_schematic['prenom_client']:
                     dict_schematic['prenom_client'] = '-'
@@ -933,7 +964,13 @@ class scrappingMySolisart():
                     " a correctement été enregistré."})
                 return True
             else:
-                send_channel_message(
+                if len(dict_schematic['mail_client'])>=32:
+                    send_channel_message(
+                    'cartcreating',
+                    {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être créé car email fait plus de 32 caractères."}
+                )
+                else:
+                    send_channel_message(
                     'cartcreating',
                     {'message':"<i class='fas fa-times' style='color: #fe0101;'></i> Le propriétaire n'a pas pu être créé."}
                 )

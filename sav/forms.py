@@ -677,7 +677,8 @@ class CL_Form(ModelForm):
             html2=''
             try:
                 if self.instance.json():
-                    html2='<button class="btn btn-outline-primary" type="button" onclick="downloadSchema('+ str(self.instance.pk)+')"><i class="fas fa-file-download"></i> Schéma pdf</button>'
+                    html2='<div class="btn-group" role="group"><button class="btn btn-outline-primary" type="button" onclick="downloadSchema('+ str(self.instance.pk)+')"><i class="fas fa-file-download"></i><br>Schéma pdf</button>'\
+                    + '<button class="btn btn-outline-primary" type="button" onclick="downloadSchemaPrincipe('+ str(self.instance.pk)+')"><i class="fas fa-file-download"></i><br>Fiche prod</button></div>'
             except Exception as ex:
                 print(ex)
                 pass

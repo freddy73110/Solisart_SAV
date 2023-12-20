@@ -2357,6 +2357,30 @@ class production(View):
             writer.close()
 
             return response
+        
+        if 'downloadSchemaPrincipe' in request.POST:
+            data = CL_herakles.objects.get(pk=request.POST['downloadSchema']).json().fichier.file.read()
+            import json
+            param = json.loads(data)
+            from PyPDF2 import PdfWriter, PdfReader
+            import requests
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=ImageFicheProg&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf1_buffer = PdfReader(io.BytesIO(resp.content))
+
+            buffer = io.BytesIO()
+                    
+            writer = PdfWriter()
+            writer.append_pages_from_reader(pdf1_buffer)
+
+            output_stream = BytesIO()
+            writer.write(output_stream)
+
+            response = HttpResponse(output_stream.getvalue(), content_type='application/pdf')
+            writer.close()
+
+            return response
         return HttpResponse("error ....")
 
 def bg_dark(request):
@@ -2624,52 +2648,81 @@ class tools(View):
             date = request.POST['date']
             pk_install = request.POST['pk_install']
             message = ''
+            from .scrapping import scrappingMySolisart
+            scrappingMySolisart().downloadDatascv(
+                    instal = str(installation.objects.get(pk=pk_install)),
+                    date= str(date)
+                    )
+            try:
+                os.remove(os.path.join(os.path.dirname(__file__), 'temp', 'chart.csv'))
+            except:
+                pass
+            df_temp = pd.DataFrame()
             for i, d in enumerate(str(date).split("_")):
-                url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
-                    pk=pk_install).idsa + "-" + d + ".csv"
-                import requests
-                with requests.Session() as s:
-                    download = s.get(url, stream=True)
-                    # "Check if file exist"
-                    if download.headers['Content-length'] != str(0):
-                        df_temp = self.convert_file_to_df(BytesIO(download.content))
-                    else:
-                        # If not exist test with zip
-                        url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
-                            pk=pk_install).idsa + "-" + d + ".zip"
-                        with requests.Session() as s:
-                            download = s.get(url, stream=True)
-                            print(download, download.headers)
-                            if download.headers['Content-length'] == str(0):
-                                # If not exist test with zip
-                                url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
-                                    pk=pk_install).idsa + "-" + d + "-debut.zip"
-                                with requests.Session() as s:
-                                    download = s.get(url, stream=True)
-                                    if download.headers['Content-length'] == str(0):
-                                        print("pas de donnée pour " + d)
-                                        message += "pas de donnée pour " + d
-                                        continue
+                import glob
+                for link in glob.glob(os.path.join(os.path.dirname(__file__), 'temp', '*.*')):
+                    if d in link:
+                        with open(link, "rb") as fh:
+                            buf = BytesIO(fh.read())
+                        if '.csv' in link:                            
+                            df_temp = self.convert_file_to_df(buf)                            
+                        if '.zip' in link:
                             import zipfile
-                            with zipfile.ZipFile(BytesIO(download.content), 'r') as zip_ref:
+                            with zipfile.ZipFile(buf, 'r') as zip_ref:
                                 first = zip_ref.infolist()[0]
                                 with zip_ref.open(first, "r") as fo:
                                     df_temp = self.convert_file_to_df(fo)
-                if not 'df' in locals():
-                    df = df_temp
-                else:
-                    if df_temp.Date[len(df_temp) - 1] <= df.Date[0]:
-                        df = pd.concat([df_temp, df], axis=0, ignore_index=True).reset_index(drop=True)
-                    elif df.Date[len(df) - 1] <= df_temp.Date[0]:
-                        df = pd.concat([df, df_temp], axis=0, ignore_index=True).reset_index(drop=True)
-                    else:
-                        index = df[df.Date >= df_temp['Date'][0]].first_valid_index()
-                        try:
-                            if df.Date[index] == df.Date[index + 1]:
-                                index += 1
-                        except:
-                            pass
-                        df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]], axis=0, ignore_index=True).reset_index(drop=True)
+                        else:
+                            print("pas de donnée pour " + d)
+                            message += "pas de donnée pour " + d
+                            df_temp = pd.DataFrame()
+                            continue
+                        os.remove(link)
+
+                # url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                #     pk=pk_install).idsa + "-" + d + ".csv"
+                # import requests
+                # with requests.Session() as s:
+                #     download = s.get(url, stream=True)
+                #     # "Check if file exist"
+                #     if download.headers['Content-length'] != str(0):
+                #         df_temp = self.convert_file_to_df(BytesIO(download.content))
+                #     else:
+                #         # If not exist test with zip
+                #         url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                #             pk=pk_install).idsa + "-" + d + ".zip"
+                #         with requests.Session() as s:
+                #             download = s.get(url, stream=True)
+                #             if download.headers['Content-length'] == str(0):
+                #                 # If not exist test with zip
+                #                 url = "https://my.solisart.fr/admin/export.php?fichier=donnees-" + installation.objects.get(
+                #                     pk=pk_install).idsa + "-" + d + "-debut.zip"
+                #                 with requests.Session() as s:
+                #                     download = s.get(url, stream=True)
+                #                     if download.headers['Content-length'] == str(0):
+                #                         print("pas de donnée pour " + d)
+                #                         message += "pas de donnée pour " + d
+                #                         continue
+                #             import zipfile
+                #             with zipfile.ZipFile(BytesIO(download.content), 'r') as zip_ref:
+                #                 first = zip_ref.infolist()[0]
+                #                 with zip_ref.open(first, "r") as fo:
+                #                     df_temp = self.convert_file_to_df(fo)
+                        if not 'df' in locals():
+                            df = df_temp
+                        else:
+                            if df_temp.Date[len(df_temp) - 1] <= df.Date[0]:
+                                df = pd.concat([df_temp, df], axis=0, ignore_index=True).reset_index(drop=True)
+                            elif df.Date[len(df) - 1] <= df_temp.Date[0]:
+                                df = pd.concat([df, df_temp], axis=0, ignore_index=True).reset_index(drop=True)
+                            else:
+                                index = df[df.Date >= df_temp['Date'][0]].first_valid_index()
+                                try:
+                                    if df.Date[index] == df.Date[index + 1]:
+                                        index += 1
+                                except:
+                                    pass
+                                df = pd.concat([df.iloc[:index + 1], df_temp, df.iloc[index + 1:]], axis=0, ignore_index=True).reset_index(drop=True)
 
             data = {}
             if 'df' in locals():

@@ -202,6 +202,24 @@ function downloadSchema(Cl_id){
                 }
             })
 }
+function downloadSchemaPrincipe(Cl_id){
+    $.ajax({
+                url: window.location.href,
+                type:'post',
+                data:{'downloadSchema': Cl_id},
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    var file = new Blob([data], { type: 'application/pdf' });
+                    var fileURL = URL.createObjectURL(file);
+                    window.open(fileURL);
+                },
+                error: function(){
+                    alert('error!');
+                }
+            })
+}
 </script>
 
 
