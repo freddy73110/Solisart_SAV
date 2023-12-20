@@ -2359,7 +2359,7 @@ class production(View):
             return response
         
         if 'downloadSchemaPrincipe' in request.POST:
-            data = CL_herakles.objects.get(pk=request.POST['downloadSchema']).json().fichier.file.read()
+            data = CL_herakles.objects.get(pk=request.POST['downloadSchemaPrincipe']).json().fichier.file.read()
             import json
             param = json.loads(data)
             from PyPDF2 import PdfWriter, PdfReader

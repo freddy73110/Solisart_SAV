@@ -11,20 +11,26 @@
             <h1 class="text-center m-3">{{title}}</h1>
             <div class="row justify-content-center">
                 <div class="col-6">
-
-            <div class="col-12 text-center m-3">
-                <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
-                   class="btn btn-outline-primary m-auto"
-                   target="_blank"
-                >
-                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
-                        lien vers mySolisArt
-                  </a>
-            </div>
+                  <div class="col-12 text-center m-3">
+                      <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
+                        class="btn btn-outline-primary m-auto"
+                        target="_blank"
+                      >
+                            <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
+                              lien vers mySolisArt
+                        </a>
+                  </div>
                 </div>
                 <div class="col-6">
-                    <img src="{% static 'image/icon.ico' %}" alt="logo solisgraph" class="rounded mx-auto d-block" style="max-height: 75px" onclick="startsolisgraph()">
-                    {%for i in month_list%}
+                  <div class="col-12 text-center m-3">
+                    <a href="{%url 'sav:tools' %}"
+                    class="btn btn-outline-primary m-auto"
+                    target="_blank"
+                    >
+                    <img src="{% static 'image/icon.ico' %}" alt="logo solisgraph" class="rounded mx-auto d-block" style="max-height: 75px">lien vers SolisGraph
+                </a>
+              </div>
+                    {% comment %} {%for i in month_list%}
                     <div class="form-check form-check-inline">
                       <input class="form-check-input solisgraphmonth" type="checkbox" id="inlineCheckbox{{i}}" value="{{i}}" {% if forloop.counter == 1%} checked {%endif%} {% if forloop.counter > 2%} disabled{%endif%}>
                       <label class="form-check-label" for="inlineCheckbox{{i}}">{{i}}</label>
@@ -68,7 +74,7 @@
                             })
                             window.open(url, '_blank')
                         }
-                    </script>
+                    </script> {% endcomment %}
                 </div>
 
             {% if instal.schema_installation %}

@@ -809,11 +809,18 @@ $(".draggable")
 
 </script>
 
-{% if pk_install %}
-
 {{request.user.profil_user.solisgraph_json |json_script:"solisgraph_json"}}
 {{request.user.profil_user.solisgraph_json_schema |json_script:"solisgraph_json_schema"}}
+<script>
+window.title = '{{install}}'
+    window.param = JSON.parse(document.getElementById('solisgraph_json').textContent);
+    window.schema = JSON.parse(document.getElementById('solisgraph_json_schema').textContent);
+    $.each(schema, function(index, value){
+        $(index).css(value)
+    })
+</script>
 
+{% if pk_install %}
 <script>
     function generate_list_dft(){
         $(".badge").html(dft.length)
@@ -821,10 +828,6 @@ $(".draggable")
             $("tbody").append('<tr><td class="text-center">' + v.start.replace("T", " ").slice(0, 16) + '</td><td class="text-center">' + v.end.replace("T", " ").slice(0, 16) + '</td><td>' + v.type +'</td></tr>')
         })
     }
-
-    window.title = '{{install}}'
-    window.param = JSON.parse(document.getElementById('solisgraph_json').textContent);
-    window.schema = JSON.parse(document.getElementById('solisgraph_json_schema').textContent);
     $.each(schema, function(index, value){
         $(index).css(value)
     })
