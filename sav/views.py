@@ -2083,16 +2083,19 @@ class production(View):
 
             capt=None
             capteur_nbre=0
-            for cap in capteur.objects.all():
-                if cap.type == "SID":
-                    str_seach = "SI"
-                else:
-                    str_seach = cap.type
-                if any(s.startswith(str_seach) for s in list_codouv):
-                    capt = capteur.objects.get(type=str_seach)
-                    for article in CLarticles:
-                        if article['codouv'].startswith(str_seach):
-                            capteur_nbre = int(article['codouv'][-1]) * article['qte']
+            try:
+                for cap in capteur.objects.all():
+                    if cap.type == "SID":
+                        str_seach = "SI"
+                    else:
+                        str_seach = cap.type
+                    if any(s.startswith(str_seach) for s in list_codouv):
+                        capt = capteur.objects.get(type=str_seach)
+                        for article in CLarticles:
+                            if article['codouv'].startswith(str_seach):
+                                capteur_nbre = int(article['codouv'][-1]) * article['qte']
+            except:
+                pass
 
             modu=None
             for mod in module.objects.all():
@@ -2155,11 +2158,11 @@ class production(View):
                     'result': [CL],
                     'datereceptionclient': False
                 })
-                return HttpResponseRedirect(request.path_info)
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             else:
                 print("error", form.errors)
-            return HttpResponseRedirect(request.path_info)
-        
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            
         if 'calendar' in request.POST:
             return JsonResponse(list([i.as_dict() for i in CL_herakles.objects.all().order_by('date_livraison_prevu')]), safe=False)
         
@@ -2358,6 +2361,30 @@ class production(View):
 
             return response
         
+        if'Etiquetage'in request.POST:
+            data = CL_herakles.objects.get(pk=request.POST['Etiquetage']).json().fichier.file.read()
+            import json
+            param = json.loads(data)
+            from PyPDF2 import PdfWriter, PdfReader
+            import requests
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=Etiquetage&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf1_buffer = PdfReader(io.BytesIO(resp.content))
+
+            buffer = io.BytesIO()
+                    
+            writer = PdfWriter()
+            writer.append_pages_from_reader(pdf1_buffer)
+
+            output_stream = BytesIO()
+            writer.write(output_stream)
+
+            response = HttpResponse(output_stream.getvalue(), content_type='application/pdf')
+            writer.close()
+
+            return response
+
         if 'downloadSchemaPrincipe' in request.POST:
             data = CL_herakles.objects.get(pk=request.POST['downloadSchemaPrincipe']).json().fichier.file.read()
             import json
