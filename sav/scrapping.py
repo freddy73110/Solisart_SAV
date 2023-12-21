@@ -259,7 +259,10 @@ class scrappingMySolisart():
                         self.driver.find_element(By.ID, "bouton-telecharger").click()
                         time.sleep(3)
                         self.driver.find_element(By.XPATH, '//*[@id="liste-configs"]/table/tbody/tr[2]/td[4]/a[1]').click()
-                        self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
+                        try:
+                            self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
+                        except:
+                            pass
                         time.sleep(5)
                         self.waitelement(By.XPATH, '//a[@href="#onglet-enregistrement"]', 'presence_of_element_located', 'click')
                         time.sleep(5)
