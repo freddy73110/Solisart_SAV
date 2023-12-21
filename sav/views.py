@@ -2347,11 +2347,25 @@ class production(View):
             resp = requests.post(url, files={'fichier': json.dumps(param)})
             # Lire les données de l'image depuis la réponse
             pdf2_buffer = PdfReader(io.BytesIO(resp.content))
+
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=Etiquetage&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf3_buffer = PdfReader(io.BytesIO(resp.content))
+
+            url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=ImageFicheProg&format=PDF'
+            resp = requests.post(url, files={'fichier': json.dumps(param)})
+            # Lire les données de l'image depuis la réponse
+            pdf4_buffer = PdfReader(io.BytesIO(resp.content))
+
+
             buffer = io.BytesIO()
                     
             writer = PdfWriter()
             writer.append_pages_from_reader(pdf1_buffer)
             writer.append_pages_from_reader(pdf2_buffer)
+            writer.append_pages_from_reader(pdf3_buffer)
+            writer.append_pages_from_reader(pdf4_buffer)
 
             output_stream = BytesIO()
             writer.write(output_stream)
