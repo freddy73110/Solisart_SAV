@@ -4,6 +4,43 @@
 {% load static %}
 {%block Titre%}{{title}}{%endblock%}
 
+{% block toast %}
+{%for util in acces%}
+{%if util.utilisateur.profil_user.evaluation_self_star or util.utilisateur.profil_user.evaluation_solisart_star%}
+<div class="p-3" style="z-index: 11">
+  <div class="toast" role="alert" aria-live="polite" aria-atomic="true">
+      <div role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="...">
+          <strong class="me-auto">Solistools</strong>
+          <small id="toastSmall"></small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          {{util.utilisateur.profil_user.icon|safe}} {{util.utilisateur}}:
+          <ul>
+            {%if util.utilisateur.profil_user.evaluation_self_star%}
+            <li>Note: {{util.utilisateur.profil_user.evaluation_self_star|safe}}</li>
+            {%endif%}
+            {%if util.utilisateur.profil_user.evaluation_solisart_star%}
+            <li>Appréciation Solisart: {{util.utilisateur.profil_user.evaluation_solisart_star|safe}}</li>
+            {%endif%}
+          </ul>
+        </div>
+      </div>
+  </div>
+</div>
+<script>
+  var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function(toastEl) {
+      return new bootstrap.Toast(toastEl)
+    })
+    toastList.forEach(toast => toast.show())
+</script>
+{%endif%}
+{%endfor%}
+{%endblock%}
+
 {%block article%}
 <div class="container">
     <div class="row">

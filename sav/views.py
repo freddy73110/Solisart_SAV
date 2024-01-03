@@ -1390,7 +1390,7 @@ class utilisateur_view (View):
             self.profil.save()
         if 'localise' in request.POST:
             client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
-            if client.pays == "FRANCE":
+            if client.pays == "FRANCE" or client.pays == "":
                 url = 'https://api-adresse.data.gouv.fr/search/?q=' + str(client.t100_4_adresse_1) +'&postcode='+ str(client.t100_6_cp) + '&type=street'
                 import requests
                 resp = requests.get(url).json()
@@ -1418,6 +1418,7 @@ class utilisateur_view (View):
                     except:                        
                         pass
                     pass
+            return JsonResponse({'data':''}, safe=False)
         if 'herakles' in request.POST:
             if self.profil.Client_herakles:
                 client = C100Clients.objects.db_manager('herakles').get(t100_1_code_client__exact=self.profil.Client_herakles)
@@ -2869,3 +2870,6 @@ class tools(View):
                     'param': request.user.profil_user.solisgraph_json,
                     'schema': request.user.profil_user.solisgraph_json_schema
                 }, safe=False)
+
+##################Serializer#############################
+        

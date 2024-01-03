@@ -47,13 +47,13 @@
                 "Type_Ballon_S": 1
             },
             "ballon elec en sortie ballon solaire avec bouclage sanitaire":{
-                "Type_Ballon_S": 1
+                "Type_Ballon_S": 0
             },
             "ballon d'eau chaude sur échangeur":{
-                "Type_Ballon_S": 1
+                "Type_Ballon_S": 0
             },
 			"ballon ECS 2 échangeurs":{
-                "Type_Ballon_S": 1
+                "Type_Ballon_S": 0
             }
         }
     },

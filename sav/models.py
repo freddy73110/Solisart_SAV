@@ -348,8 +348,9 @@ class profil_user(models.Model):
     def evaluation_solisart(self):
         from django.db.models import Avg
         try:
-            last_eval = evaluation.objects.filter(user = self).values_list('date', flat=True)[0]
-            print(last_eval, evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True).values())
+            last_eval = evaluation.objects.filter(user = self, critere__interne=True).values_list('date', flat=True)[0]
+            for i in evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True):
+                print(i)
             return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True).aggregate(star=Avg('note'))['star']
         except :
             pass
@@ -357,10 +358,21 @@ class profil_user(models.Model):
     def evaluation_self(self):
         from django.db.models import Avg
         try:
-            last_eval = evaluation.objects.filter(user = self).values_list('date', flat=True)[0]
+            last_eval = evaluation.objects.filter(user = self, critere__interne=False).values_list('date', flat=True)[0]
             return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=False).aggregate(star=Avg('note'))['star']
         except :
             pass
+
+    def evaluation_solisart_star(self):
+        eval = self.evaluation_solisart()
+        star_text=''
+        if eval:
+            for i in range(round(eval)):
+                if i+1 <= eval:
+                    star_text += '<i class="fas fa-star" style="color:yellow"></i>'
+                elif i+1>eval and i < round(eval):
+                    star_text += '<i class="fas fa-star-half" style="color:yellow"></i>'
+        return star_text
 
     def evaluation_self_star(self):
         eval = self.evaluation_self()

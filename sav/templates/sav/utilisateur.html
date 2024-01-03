@@ -556,14 +556,12 @@ const fontAwesomeIconInstallateur = L.divIcon({
 var onDrop = function (e) {
 	var latlng = this.getLatLng();
     var t = this
-    console.log(latlng.lat, latlng.lng)
     $.ajax({
         url: window.location.href,
         type:'post',
         data:{lat:latlng.lat, lng: latlng.lng},
         dataType: 'json',
         success: function () {
-            console.log(t)
             t._popup.setContent("<b>"+ $("#ident").html()+ "</b>")
             t.openPopup()
         }
@@ -608,6 +606,7 @@ function localise(){
                             data:{localise: ''},
                             dataType: 'json',
                             success: function (json) {
+                                console.log(json)
                                 //to remove all markers with installateur
                                 for (const [key, value] of Object.entries(mymap._layers)) {
                                     if (value.options.icon == fontAwesomeIconInstallateur){

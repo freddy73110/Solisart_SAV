@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     'django_celery_beat',
     'django_celery_results',
+    'corsheaders',
+    'rest_framework',
 ]
 
 
@@ -62,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'Solisart_SAV.urls'
@@ -234,5 +237,16 @@ ASGI_APPLICATION = 'Solisart_SAV.asgi.application'
 GRAPH_MODELS ={
 'all_applications': True,
 'graph_models': True,
+}
+
+#for React js
+# suite tuto https://stacklima.com/integration-de-django-avec-reactjs-a-l-aide-de-django-rest-framework/
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
