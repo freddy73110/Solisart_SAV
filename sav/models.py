@@ -345,12 +345,24 @@ class profil_user(models.Model):
         else:
             None
 
+    def last_evaluation_solisart(self):
+        try:
+            last_eval = evaluation.objects.filter(user = self, critere__interne=True).values_list('date', flat=True)[0]
+            return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True)
+        except :
+            pass
+    
+    def last_evaluation_self(self):
+        try:
+            last_eval = evaluation.objects.filter(user = self, critere__interne=False).values_list('date', flat=True)[0]
+            return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=False)
+        except :
+            pass
+    
     def evaluation_solisart(self):
         from django.db.models import Avg
         try:
             last_eval = evaluation.objects.filter(user = self, critere__interne=True).values_list('date', flat=True)[0]
-            for i in evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True):
-                print(i)
             return evaluation.objects.filter(user = self, date__gte=last_eval, critere__interne=True).aggregate(star=Avg('note'))['star']
         except :
             pass
@@ -372,17 +384,21 @@ class profil_user(models.Model):
                     star_text += '<i class="fas fa-star" style="color:yellow"></i>'
                 elif i+1>eval and i < round(eval):
                     star_text += '<i class="fas fa-star-half" style="color:yellow"></i>'
+            if star_text=="":
+                star_text='<i class="far fa-star"></i>'
         return star_text
 
     def evaluation_self_star(self):
         eval = self.evaluation_self()
         star_text=''
-        if eval:
+        if eval or eval == 0:
             for i in range(round(eval)):
                 if i+1 <= eval:
                     star_text += '<i class="fas fa-star" style="color:yellow"></i>'
                 elif i+1>eval and i < round(eval):
                     star_text += '<i class="fas fa-star-half" style="color:yellow"></i>'
+            if star_text=="":
+                star_text='<i class="far fa-star"></i>'
         return star_text
 
     @receiver(post_save, sender=User)

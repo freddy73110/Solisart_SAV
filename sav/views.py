@@ -573,7 +573,7 @@ class statistiques(View, SuccessMessageMixin):
             when2 = [When(cause=v.id, then=Value(str(v))) for v in cause.objects.all()]
             when3 = [When(evenement__installation__idsa__icontains=str(v), then=Value(v)) for v in range(2014, datetime.now().year+ 1, 1)]
 
-            if P and P["repartition"] == 'acces':
+            if P and 'acces' in P["repartition"]:
                 queryset = queryset.annotate(
                     installation_id=F('evenement__installation')
                 ).values("installation_id", "utilisateur").annotate(profil_type_id=Subquery(
@@ -629,10 +629,17 @@ class statistiques(View, SuccessMessageMixin):
             return None
 
     def chart_repartition_pb_cause(self, periode=None, P=None):
+        if P:
+            if "annuel" in P.getlist('repartition')[0]:
+                path = ['annee','pb', 'cause']
+            else:
+                path = ['pb', 'cause']
+        else:
+            path = ['pb', 'cause']
         from django.db.models import CharField
         try:
             df=self.chart_repartition_pb_cause_df(periode=periode, P=P)
-            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=['annee','pb', 'cause'],
+            fig2 = px.sunburst({columns: list(df[columns]) for columns in df}, path=path,
                                values='count', height=1000)
             fig2.update_traces(
                 textinfo="label+value+percent parent + percent entry + text"
@@ -1963,7 +1970,7 @@ class cartcreator(View):
                 import json
                 param = json.loads(data)
                 from .tasks import wrapperscapping
-                wrapperscapping.apply_async(args=["cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)}], priority=9)
+                wrapperscapping.apply_async(args=["cart_created_since_json", {'installation':request.POST['new_installation'], 'dict_schematic':param, 'CL': str(self.CL)}], priority=0)
 
             # import os
             # from django.core.files.storage import FileSystemStorage
@@ -2069,6 +2076,7 @@ class production(View):
             Fichiers.objects.get(pk=request.POST['delete_file']).delete()
             return JsonResponse({'Delete': 'OK'}, safe=False)
         from heraklesinfo.models import C701Ouvraof, C601ChantierEnTte
+        
         if "numCL" in request.POST:
             numCL = request.POST['numCL']
             CLarticles = C701Ouvraof.objects.db_manager('herakles'). \
@@ -2152,14 +2160,14 @@ class production(View):
                 f = form.save(commit=False)
                 f.CL = CL
                 f.installateur = installateur
-                f.date_livraison_prevu =  date_livraison_prevu
+                f.date_livraison_prevu = date_livraison_prevu
                 CL= f.save()
                 send_channel_message('production', {
                     'message': "Création d'une nouvelles commande",
                     'result': [CL],
                     'datereceptionclient': False
                 })
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                return JsonResponse({"data": ""}, safe=False)
             else:
                 print("error", form.errors)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

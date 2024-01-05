@@ -30,7 +30,7 @@
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="button" class="btn btn-outline-primary" id="enregister" name="tutu">Ajouter</button>
+                            <button type="button" class="btn btn-outline-primary" id="enregistrer" name="tutu">Ajouter</button>
                           </div>
                             </form>
                         </div>
@@ -248,8 +248,8 @@ function afficherCLModal(CL){
                             success: function (html) {
                             //todo faire un message de validation
                                 $Modal.find(".modal-body").html(html)
-                                $("#enregister").attr('name', 'update')
-                                $("#enregister").html('Mettre à jour')
+                                $("#enregistrer").attr('name', 'update')
+                                $("#enregistrer").html('Mettre à jour')
                              }
                         })
 }
@@ -321,8 +321,8 @@ $("#numCL").prop('disabled', false)
             success: function (html) {
             //todo faire un message de validation
                 $Modal.find(".modal-body").html(html)
-                $("#enregister").attr('name', 'add_CL')
-                $("#enregister").html('Ajouter')
+                $("#enregistrer").attr('name', 'add_CL')
+                $("#enregistrer").html('Ajouter')
              }
         })
     }

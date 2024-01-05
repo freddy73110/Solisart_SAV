@@ -160,7 +160,7 @@ class ticket_form(ModelForm):
         exclude = ("fichier",)
 
     def __init__(self, *args, **kwargs):
-        actualise_herakles.apply_async(priority=0)
+        actualise_herakles.apply_async(priority=9)
         # actualise_herakles.delay()
         # actualise_herakles()
         instal = kwargs.pop('installation', None)

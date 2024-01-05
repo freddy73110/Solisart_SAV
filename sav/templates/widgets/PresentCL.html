@@ -68,10 +68,10 @@
             })
         }        
     }
-    $("#enregister").on("click", function(){
+    $("#enregistrer").on("click", function(){
     $("#modalForm :disabled").removeAttr('disabled');
-    var form= $("#enregister").closest("form")
-    var d =  form.serialize() + "&" + $("#enregister").attr("name") + "=" +$("#enregister").attr("name")
+    var form= $("#enregistrer").closest("form")
+    var d =  form.serialize() + "&" + $("#enregistrer").attr("name") + "=" +$("#enregistrer").attr("name")
     $.ajax({
                                                 url: window.location.href,
                                                 type:'post',
@@ -79,6 +79,7 @@
                                                 dataType: 'json',
                                                 success: function (json) {
                                                     $("#ButtonModalclose").click()
+                                                    Refreshdata()
                                                  }
                                             })
     })
@@ -139,13 +140,13 @@ $('.upload-zone').each(function () {
 $("#id_date_livraison, #id_date_ballon_prevu, #id_date_capteur_prevu, #id_date_montage_prevu, #id_date_prepa_carte_prevu, #id_date_prepa_prevu").on("change", function(){
     if ($(this).val()==''){
         $(this).addClass("is-invalid")
-        $("#enregister").prop("disabled",true)
+        $("#enregistrer").prop("disabled",true)
         if(!$(this).parent().parent().parent().find("small").length){
             $(this).parent().parent().parent().append("<small class='text-danger'>Doit être obligatoirement complété</small>")
         }
     }else{
         $(this).removeClass("is-invalid")
-        $("#enregister").prop("disabled",false)
+        $("#enregistrer").prop("disabled",false)
         $(this).parent().parent().parent().find("small").remove()
     }
 })

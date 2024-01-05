@@ -6,10 +6,10 @@
 
 {% block toast %}
 {%for util in acces%}
-{%if util.utilisateur.profil_user.evaluation_self_star or util.utilisateur.profil_user.evaluation_solisart_star%}
+{%if util.utilisateur.profil_user.evaluation_self or util.utilisateur.profil_user.evaluation_solisart%}
 <div class="p-3" style="z-index: 11">
-  <div class="toast" role="alert" aria-live="polite" aria-atomic="true">
-      <div role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="false">
+      <div role="alert" aria-live="assertive" aria-atomic="true" >
         <div class="toast-header">
           <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="...">
           <strong class="me-auto">Solistools</strong>
@@ -20,10 +20,26 @@
           {{util.utilisateur.profil_user.icon|safe}} {{util.utilisateur}}:
           <ul>
             {%if util.utilisateur.profil_user.evaluation_self_star%}
-            <li>Note: {{util.utilisateur.profil_user.evaluation_self_star|safe}}</li>
+            <li onclick="$($(this).parent().find('ul')[0]).toggleClass('d-none')">Note: {{util.utilisateur.profil_user.evaluation_self_star|safe}}</li>
+            <ul class="d-none list-group">
+              {% for eval in util.utilisateur.profil_user.last_evaluation_self%}
+              <li class="list-group-item">
+                <b>{{eval.critere}}:</b>
+                <span class="fa-layers fa-fw fa-2x" style="color:yellow">
+                  <i class="fas fa-star"></i>
+                  <span class="fa-layers-text" data-fa-transform="shrink-8" style="font-weight:1200; color:black">{{eval.note}}</span>
+                </span><br>
+                {{eval.commentaire}}</li>
+              {%endfor%}
+            </ul>
             {%endif%}
             {%if util.utilisateur.profil_user.evaluation_solisart_star%}
             <li>Appréciation Solisart: {{util.utilisateur.profil_user.evaluation_solisart_star|safe}}</li>
+            <ul>
+              {% for eval in util.utilisateur.profil_user.last_evaluation_solisart%}
+              <li>{{eval.critere}}: {{eval.note}} - {{eval.commentaire}}</li>
+              {%endfor%}
+            </ul>
             {%endif%}
           </ul>
         </div>
