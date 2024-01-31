@@ -8,8 +8,9 @@ from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
 from django.db.models import F, Value as V, Subquery, OuterRef
 from django.db.models.functions import Concat
 from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
+from django.db.models import Max
 
-from heraklesinfo.models import C701Ouvraof
+from heraklesinfo.models import C701Ouvraof, B50Composants
 from .crispy_layout import *
 
 from django.utils import timezone
@@ -151,6 +152,51 @@ class MES_form(ModelForm):
             HTML(emoji_str)
         )
 
+class noncompliance_form(ModelForm):
+    id=IntegerField(required=False)
+    CHOICES = ((a.t50_2_code_comp, str(a.t50_2_code_comp)+'-'+str(a.t50_37_titre_du_composant)) for a in B50Composants.objects.db_manager('herakles').all().order_by('t50_2_code_comp'))
+    list_ref_herakles = forms.ChoiceField(choices=CHOICES)
+
+    class Meta:
+        model = noncompliance
+        exclude = ("fichier","ticket","numero",)
+
+    def __init__(self, *args, **kwargs):
+
+        super(noncompliance_form, self).__init__(*args, **kwargs)
+        self.fields['ref_herakles'].widget=HiddenInput()
+        # self.fields['id'].widget=HiddenInput()
+        if self.instance.id:
+            self.fields['id'].initial=self.instance.id
+            self.fields['list_ref_herakles'].initial = self.instance.ref_herakles
+            title = 'Non Conformité ' + str(noncompliance.objects.get(pk=self.instance.id))
+        else:
+            title = 'Non Conformité'
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Custom_Fieldset(title,
+                            "id",
+                            Row(
+                                Column(FloatingField("list_ref_herakles"), css_class="col-8"),
+                                HTML('<script>$("#id_noncompliance-list_ref_herakles").on("change", function(){$("#id_noncompliance-ref_herakles").val($(this).val())})</script>'),
+                                Column(FloatingField("ref_herakles"), css_class="col-6")
+                            ),
+                            Row(
+                                Column(FloatingField("status"), css_class="col-6"),
+                                Column("avoir", css_class="col-6"),
+                                css_class="align-items-center"
+                            ),
+                            Row(
+                                Column(
+                                    FloatingField("detail", style='height: 100px',css_class="textareaEmoji")
+                                )
+                            ))
+            
+            )
+
+
+
 class ticket_form(ModelForm):
 
     id=IntegerField(required=False)
@@ -199,6 +245,15 @@ class ticket_form(ModelForm):
                         '})' \
                         '})' \
                         '</script>'
+        
+
+        #if noncompliance
+        try:
+            NC = noncompliance.objects.get(ticket__id=self.instance.id)
+            htmlnoncompliance='<div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="Noncompliance" id="InputNoncompliance" checked disabled><label class="form-check-label" for="flexCheckDefault">Non conformité ' + str(NC)+ '</label></div>'
+        except:
+            htmlnoncompliance='<div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="Noncompliance" id="InputNoncompliance"><label class="form-check-label" for="flexCheckDefault">Non conformité</label></div>'
+
         from operator import itemgetter
         items = probleme.objects.all().values('categorie', 'sous_categorie', 'id').order_by('categorie', 'sous_categorie')
         rows = groupby(items, itemgetter('categorie'))
@@ -265,7 +320,8 @@ class ticket_form(ModelForm):
                 Column("BL", css_class="col-6")
             ),
             HTML(dynamiccauses),
-            HTML(dynamicsolution)
+            HTML(dynamicsolution),
+            HTML(htmlnoncompliance)
         )
 
 class add_problem_form(ModelForm):

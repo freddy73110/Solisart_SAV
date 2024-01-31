@@ -5,3 +5,19 @@
                                 <div id="ticket_modal" name="modal_form">
                                 {% crispy add_ticket_form %}
                                 </div>
+                                <div id="noncompliance" class="d-none">
+                                  {% crispy noncompliance_form %}
+                                </div>
+<script>
+  function displayNonCompliance(){
+    if($("#InputNoncompliance").is(':checked'))
+      $('#noncompliance').fadeIn(1000).removeClass('d-none')
+    else{
+      $('#noncompliance').fadeOut(1000)
+    }
+  }
+  $("#InputNoncompliance").on('change', function(){
+    displayNonCompliance()
+  })
+  displayNonCompliance()
+</script>

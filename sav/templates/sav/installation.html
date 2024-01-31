@@ -222,6 +222,17 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">Bon de  commande lié</button>
               </li>
                 {%endif%}
+                {%if instal.noncompliance %}
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="Noncompliance-tab" data-bs-toggle="tab" data-bs-target="#navNoncompliance" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                  <span>Non Conformité
+                    <span class="badge rounded-pill bg-danger" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Non Conformité" data-bs-content="Nombre de Non conformité sur cette installation">
+                    {{ instal.noncompliance|length }}
+                    </span>
+                </span>
+               </button>
+              </li>
+                {%endif%}
             </ul>
         </div>
     </div>
@@ -332,6 +343,44 @@ loadingTask.promise.then(function(pdf) {
                         </div>
                       </div>
                 </div>
+                {%if instal.noncompliance %}
+                <div class="tab-pane fade " id="navNoncompliance" role="tabpanel" aria-labelledby="home-tab">
+                  <h1>Non Conformité</h1>
+                  <table
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-show-columns-toggle-all="true"
+                    data-show-refresh="false"
+                    data-show-fullscreen="true"
+                    data-show-export="true"
+                    data-page-list="[10, 25, 50, 100, all]"
+                    data-pagination="true"
+                    data-filter-control="true"
+                    data-show-search-clear-button="true">
+                <thead>
+                    <th class="text-center">Numéro</th>
+                    <th class="text-center">Date</th>
+                    <th class="text-center">référence</th>
+                </thead>
+                <tbody>
+                  {%for NC in instal.noncompliance%}
+                  <tr>
+                    <td class="text-center">
+                      <a data-bs-toggle="modal"
+                      data-bs-target="#ModalEvenement"
+                      data-bs-whatever="ticket"
+                      href="#" 
+                      onclick="updateTicket({{NC.ticket.id}})"
+                      >{{NC.numero}}</a></td>
+                    <td class="text-center">{{NC.ticket.evenement.date}}</td>  
+                    <td class="text-center">{{NC.ref_herakles}}</td>  
+                  </tr>
+                  {%endfor%}
+                </tbody>
+              </table>
+                </div> 
+                {%endif%} 
               <div class="tab-pane fade " id="description" role="tabpanel" aria-labelledby="home-tab">
                   <div class="accordion m-3" id="accordionPanelsStayOpenExample">
                       <div class="accordion-item">
@@ -443,7 +492,7 @@ loadingTask.promise.then(function(pdf) {
                               >
                               <p></p>
                               <div class="row">
-                                  <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL %}8{%else%}12{%endif%}">
+                                  <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL  or e.ticket.NC %}8{%else%}12{%endif%}">
                                   <button class="btn btn-outline-primary m-1"
                                           type="button"
                                           data-bs-toggle="modal"
@@ -456,7 +505,7 @@ loadingTask.promise.then(function(pdf) {
                                       <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))">{{e.ticket.detail}}</textarea>
                                   </div>
                                   </div>
-                                  {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL %}
+                                  {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL or e.ticket.NC %}
                                   <div class="col-4">
                                       <div class="row">
                                           <div class="col-12">
@@ -471,6 +520,11 @@ loadingTask.promise.then(function(pdf) {
                                                   {{B}}
                                                 </button>
                                             {% endfor %}
+                                            {%if e.ticket.NC%}
+                                            <button type="button" class="btn btn-warning BL" >
+                                              {{e.ticket.NC}}
+                                            </button>
+                                            {%endif%}
                                         {%endif%}
                                               </div>
                                           </div>

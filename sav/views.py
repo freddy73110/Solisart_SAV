@@ -1012,6 +1012,7 @@ class installation_view (View):
 
     def dispatch(self, request, *args, **kwargs):
 
+        
         self.pk = kwargs.pop('pk')
         self.instal = installation.objects.get(pk=self.pk)
         self.acces = acces.objects.filter(installation=self.instal).order_by('id').distinct()
@@ -1025,6 +1026,7 @@ class installation_view (View):
         self.title = self.title + ' / ' + str(self.instal.proprio()) if self.instal.proprio() else self.instal.idsa
         self.title += " (" + str(self.instal.departement()) +')' if self.instal.departement() else ''
         self.histo= historique.objects.filter(installation=self.instal)
+        self.NC_form = noncompliance_form(prefix='noncompliance')
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -1049,12 +1051,13 @@ class installation_view (View):
                           'form': self.form_class,
                           'acces': self.acces,
                           'CL': CL_herakles.objects.filter(installation__id=self.pk),
-                          'month_list': result
+                          'month_list': result,
+                          'noncompliance_form':self.NC_form
                       }
                       )
 
     def post(self, request, *args, **kwargs):
-
+        
         if "dynamicsolution" in request.POST:
             if request.POST["dynamicsolution"]:
                 solutions = cause.objects.get(pk=request.POST["dynamicsolution"]).solution.all()
@@ -1257,15 +1260,28 @@ class installation_view (View):
 
         elif request.POST['nature_form'] == "update-ticket":
             tick=ticket.objects.get(pk=int(request.POST['id']))
+            try: 
+                NC = noncompliance.objects.get(ticket=tick)
+                self.NC_form = noncompliance_form(request.POST, instance=NC, prefix='noncompliance')
+            except:
+                self.NC_form = noncompliance_form(request.POST,prefix='noncompliance')
             add_ticket_form = ticket_form(request.POST, instance=tick)
             add_evenement = add_evenement_form(request.POST, instance=evenement.objects.get(ticket=tick),
                 user=request.user,
                 installation=self.instal)
-
             if add_evenement.is_valid():
                 add_evenement.save()
             if add_ticket_form.is_valid():
-                add_ticket_form.save()
+                tick = add_ticket_form.save()
+                print("after save tick")
+                if self.NC_form.is_valid():
+                    NC = self.NC_form.save(commit=False)
+                    NC.ticket = tick
+                    NC.save()  
+                    print("NC", NC)
+                else:
+                    print("errors", self.NC_form.errors)
+
             return JsonResponse({
                 "update_ticket": "done"
             }, safe=False)
@@ -1291,9 +1307,18 @@ class installation_view (View):
                 if 'devis' in request.POST:
                     for d in request.POST.getlist('devis'):
                         tick.devis.add(devis_herakles.objects.get(pk=d))
-                return JsonResponse({
-                    "ticket": "ok"
-                }, safe=False)
+                responsejson={'ticket':'ok'}
+                if 'Noncompliance' in request.POST:
+                    noncompliance_form_result=noncompliance_form(request.POST, prefix='noncompliance')
+                    if noncompliance_form_result.is_valid():
+                        NC = noncompliance_form_result.save(commit=False)
+                        NC.ticket = tick
+                        NC.save()
+                        responsejson['NC']='ok'
+                    else:
+                        responsejson['NC']='nok'
+                        responsejson['error']=noncompliance_form_result.errors
+                return JsonResponse(responsejson, safe=False)
             else:
                 return JsonResponse({
                     "ticket": "nok",
@@ -1330,16 +1355,23 @@ class installation_view (View):
                 add_evenement = add_evenement_form(
                     user=request.user,
                     installation=self.instal)
+                NC = noncompliance_form(prefix='noncompliance')
             else:
                 add_ticket_form=ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])),installation=self.instal)
                 add_evenement=add_evenement_form(
                     instance=evenement.objects.get(ticket__pk=int(request.POST['id'])),
                     user=request.user,
                     installation=self.instal)
+                try:
+                    NC = noncompliance_form(prefix='noncompliance', instance = noncompliance.objects.get(ticket__id = int(request.POST['id'])))
+                except:
+                    NC = noncompliance_form(prefix='noncompliance')
 
             return render(request,"widgets/crispy_form.html",
                           {'add_ticket_form': add_ticket_form,
-                           'add_evenement':add_evenement})
+                           'add_evenement':add_evenement,
+                           'noncompliance_form': NC
+                           })
 
         elif request.POST['nature_form'] == "delete_file":
             f=Fichiers.objects.get(pk=int(request.POST['delete_file_input'].replace('deletefile_', '')))
@@ -1567,7 +1599,7 @@ class carte (View):
 class ticket_view(View):
     login_url = '/login/'
     template_name = 'sav/ticket.html'
-    title = 'Tickets ouverts'
+    title = 'Tickets et non conformité ouverts'
 
     def get(self, request, *args, **kwargs):
 
@@ -1581,11 +1613,8 @@ class ticket_view(View):
                                                                             function='to_char',
                                                                             output_field=CharField()
                                                                             ))
-        at=all_ticket_open.values()
-        at2=[]
-        for i in at:
-            at2.append(i)
         form_even = add_evenement_form(user=User.objects.get(pk=all_ticket_open[0].evenement.technicien_sav.id))
+        noncompliances = noncompliance.objects.exclude(status=3)
         return render(request,
                       self.template_name,
                       {
@@ -1593,25 +1622,34 @@ class ticket_view(View):
                           'all_ticket_open':all_ticket_open,
                           'form_even':form_even,
                           'form_ticket':ticket_form,
-                          'at_json': at2
-                      }
+                          'noncompliances': noncompliances
+                      }    
         )
 
     def post(self, request, *args, **kwargs):
-
         if "nature_form" in request.POST:
             add_ticket_form = ticket_form(instance=ticket.objects.get(pk=int(request.POST['id'])), installation=ticket.objects.get(pk=int(request.POST['id'])).evenement.installation)
             add_evenement = add_evenement_form(
                 instance=evenement.objects.get(ticket__pk=int(request.POST['id'])),
                 user=ticket.objects.get(pk=int(request.POST['id'])).evenement.technicien_sav,
                 installation=ticket.objects.get(pk=int(request.POST['id'])).evenement.installation)
-
+            try:
+                NC_form = noncompliance_form(instance = noncompliance.objects.get(ticket__id=int(request.POST['id'])), prefix='noncompliance')
+            except:
+                NC_form = noncompliance_form(prefix='noncompliance')
             return render(request, "widgets/crispy_form.html",
                       {'add_ticket_form': add_ticket_form,
-                       'add_evenement': add_evenement})
+                       'add_evenement': add_evenement,
+                       'noncompliance_form':NC_form})
         else:
+            tick = ticket.objects.get(pk=request.POST['id'])
             form_evenement=add_evenement_form(request.POST, instance=evenement.objects.get(pk=request.POST['evenement']), user=User.objects.get(pk=int(request.POST['technicien_sav'])))
-            form_ticket=ticket_form(request.POST, instance=ticket.objects.get(pk=request.POST['id']))
+            form_ticket=ticket_form(request.POST, instance=tick)
+            try: 
+                NC = noncompliance.objects.get(ticket=tick)
+                NC_form = noncompliance_form(request.POST, instance=NC, prefix='noncompliance')
+            except:
+                NC_form = noncompliance_form(request.POST,prefix='noncompliance')
             data={}
             if form_evenement.is_valid():
                 form_evenement.save()
@@ -1622,6 +1660,13 @@ class ticket_view(View):
             if form_ticket.is_valid():
                 form_ticket.save()
                 data['ticket']='ok'
+                if NC_form.is_valid():
+                    NC = NC_form.save(commit=False)
+                    NC.ticket = tick
+                    NC.save()  
+                    data['NC'] = "ok"
+                else:
+                    data['NC'] = NC_form.errors           
             else:
                 data['ticket'] = form_evenement.errors
 
@@ -2879,5 +2924,16 @@ class tools(View):
                     'schema': request.user.profil_user.solisgraph_json_schema
                 }, safe=False)
 
-##################Serializer#############################
-        
+class tool2(View):
+    login_url = '/login/'
+    template_name = 'sav/tool2.html'
+    title = "Raccordement hydauliques Capteur Modules"
+
+    def get(self, request, *args, **kwargs):
+
+        return render(request,
+                      self.template_name,
+                      {
+                          'title': self.title
+                      }
+                      )

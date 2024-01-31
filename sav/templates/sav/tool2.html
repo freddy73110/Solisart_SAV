@@ -1,0 +1,187 @@
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+{%block Titre%}{{title}}{%endblock%}
+
+{% block javascript %}
+
+{%endblock%}
+
+{%block article%}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title}}</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                <th colspan="2" class="text-center">Mémo</th>                
+                </tr>
+                <tr>
+                    <th class="text-center">DN flexible (mm)</th>
+                    <th class="text-center">Raccord Femelle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">16</td>
+                    <td class="text-center">3/4"</td>
+                </tr>    
+                <tr>
+                    <td class="text-center">20</td>
+                    <td class="text-center">1"</td>
+                </tr>  
+                <tr>
+                    <td class="text-center">25</td>
+                    <td class="text-center">1"1/4</td>
+                </tr>   
+                <tr>
+                    <td class="text-center">30</td>
+                    <td class="text-center">1"1/2</td>
+                </tr> 
+            </tbody>            
+        </table>    
+            
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <fieldset class="border p-2 h-100">
+                <legend class="float-none w-auto"><b>Paramètres d'entrée pour des SI 2.5/S7 / SM:</b></legend>
+                <form>
+                    <div class="input-group mb-3">
+                        <div class="form-floating">
+                        <select class="form-select" id="capteur">
+                            <option >Type de Capteur</option>
+                            <option value="1" selected>S7 2,5 / S7 / SM</option>
+                        </select>                        
+                        <label for="capteur">Type Capteur</label>
+                        </div>
+                        <div class="form-floating">
+                            <select class="form-select" id="diameter">
+                                <option value="16" selected>&#8960; 16</option>
+                                <option value="20">&#8960; 20</option>
+                                <option value="25">&#8960; 25</option>
+                                <option value="30">&#8960; 30</option>
+                            </select>                           
+                            <label  for="DNBitube">Diamètre DN</label>
+                        </div>
+                        <div class="form-floating">
+                            <input class="form-control" type="number" value=1 id="champ" step="1" min=1>
+                            <label for="champ">Nombre de champs</label>
+                        </div>
+                    </div>
+                    <div class="col-6"> 
+                    <div class="input-group mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" id="echangeur">
+                                <option value="Sans" selected>Sans</option>
+                                <option value="CP7">Casse-pression 7,5mCE</option>
+                                <option value="CP14">Casse-pression 14mCE</option>
+                                <option value="CP14GD">Casse-pression 14mCE gros débit</option>
+                                <option value="E35">Echangeur à plaque 58kW vase 35L</option>
+                                <option value="E50">Echangeur à plaque 58kW vase 50L</option>
+                                <option value="E80">Echangeur à plaque 58kW vase 80L</option>
+                            </select>
+                            <label for="champ">Echangeur</label>
+                        </div>
+                        <span class="input-group-text">V3V</span>
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" id="V3V">
+                        </div>                          
+                      </div>
+                    </div>
+                </form>
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="3" class="text-center" id="diameter">&#8960;</th>                           
+                        <tr>
+                            <th class="text-center">Référence</th>
+                            <th class="text-center">Désignation</th>
+                            <th class="text-center">Quantité</th>  
+                        </tr>                       
+                    </thead>
+                    <tbody id="result">
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<script>
+    function raccordement (){
+        $("#result").html("")
+        $("#champ").attr("disabled", false)
+        $("#champ").attr({
+            "min" : 1          // values (or variables) here
+         });
+        switch($("#capteur").val()){
+            case "1":
+                var superficie = $("#superficie").val()                
+                switch(true){
+                    case (superficie <= 8):
+                        $("#diameter").html("Diametère &#8960;16")
+                        var list=[
+                            {article:"Kit de raccordement DN16", ref:"MOD0226", quantity: 1},
+                            {article:'Réduction 1"F * 3/4"M', ref:"MOD0083", quantity: 2},
+                            {article:'Coude 3/4"M * 22 conique', ref:"MOD0697", quantity: 2}
+                        ]
+                        list.forEach((element) => $("#result").append("<tr><td class='text-center'>"+ element.article +"</td><td class='text-center'>"+ element.ref+ "</td><td class='text-center'>"+ element.quantity+ "</td></tr>"));
+                        break;
+                    case (superficie > 8 && superficie <=17.5):
+                        $("#diameter").html("Diametère &#8960;20")                       
+                        var quantity = 1
+                        if ($('#echangeur').val() == 'Echangeur'){
+                            $("#result").append("<tr><td class='text-center'>Kit échangeur 56kW + vase 50L (6bar)</td><td class='text-center'>KITSSC070</td><td class='text-center'>1</td></tr>")
+                        }
+                        if ($('#echangeur').val() != 'Sans'){
+                            quantity += 1
+                        }
+                        quantity = quantity + ($('#champ').val()-1)
+                        var list=[
+                            {article:"Kit de raccordement DN20", ref:"MOD0307", quantity: quantity}
+                        ]
+                        list.forEach((element) => $("#result").append("<tr><td class='text-center'>"+ element.article +"</td><td class='text-center'>"+ element.ref+ "</td><td class='text-center'>"+ element.quantity+ "</td></tr>"));
+                        break;
+                    case (superficie > 17.5):
+                        if($("#champ").val() == 1){
+                            $("#champ").val("2")
+                        }
+                        $("#champ").attr({
+                            "min" : 2          // values (or variables) here
+                         });
+                        $("#diameter").html("Diametère &#8960;25")
+                        var quantityK=2
+                        var quantityR = 6
+                        if ($('#Echangeur').is(":checked")){
+                            quantityK = 3
+                            quantityR = 10
+                        }
+                        var list=[
+                            {article:"Kit de raccordement D25", ref:"MOD0335", quantity: quantityK},
+                            {article:'Réduction 1"1/4M * 1"F', ref:"MOD0520", quantity: quantityR}
+                        ]
+                        list.forEach((element) => $("#result").append("<tr><td class='text-center'>"+ element.article +"</td><td class='text-center'>"+ element.ref+ "</td><td class='text-center'>"+ element.quantity+ "</td></tr>"));
+                        break;
+                        break;
+                }
+                break;
+            case "2":
+            break;
+        }        
+    };
+    $("form :input").change(function() {
+        raccordement()
+    });
+    raccordement ()  
+</script>
+{%endblock%}

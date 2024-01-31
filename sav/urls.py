@@ -22,6 +22,7 @@ urlpatterns = [
     path('cartcreator/<int:pkCL>', login_required(views.cartcreator.as_view()), name='cartcreator'),
     path('production', login_required(views.production.as_view()), name='production'),
     path('tools', login_required(views.tools.as_view()), name='tools' ),
+    path('tool2', login_required(views.tool2.as_view()), name='tool2' ),
     path('tools/<int:pk_instal>/<slug:date>', login_required(views.tools.as_view()), name='tools' ),
     path('bg_dark', views.bg_dark, name='bg_dark')
 ]

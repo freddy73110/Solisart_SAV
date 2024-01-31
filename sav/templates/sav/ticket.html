@@ -9,73 +9,127 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center m-3">{{title}}</h1>
-            {{at_json|json_script:'at_json' }}
-            <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
-                              <div class="modal-dialog modal-xl">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <h5 class="modal-title" id="ModalLabel"></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-                                      <form id="ticket_form">
-                                       </form>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                    <button type="button" class="btn btn-primary" onclick="submit_ticket()">Sauvegarder changements</button>
-                                  </div>
-                                </div>
-                              </div>
+            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+                <li class="nav-item " role="presentation">
+                  <button class="nav-link active" id="ticket-tab" data-bs-toggle="tab" data-bs-target="#ticket" type="button" role="tab" aria-controls="home" aria-selected="true">Tickets en cours</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="noncompliance-tab" data-bs-toggle="tab" data-bs-target="#NC" type="button" role="tab" aria-controls="home" aria-selected="false">Non Conformités en cours</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="ModalLabel"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <table
-                    data-toolbar="#toolbar"
-                    data-toggle="table"
-                    data-search="true"
-                    data-show-columns="true"
-                    data-show-columns-toggle-all="true"
-                    data-show-refresh="false"
-                    data-show-fullscreen="true"
-                    data-show-export="true"
-                    data-page-list="[10, 25, 50, 100, all]"
-                    data-pagination="true"
-                    data-filter-control="true"
-                    data-show-search-clear-button="true">
-                <thead>
-                    <th class="text-center">Installation</th>
-                    <th class="text-center">Probleme</th>
-                    <th class="text-center">Causes</th>
-                    <th class="text-center">Date (durée)</th>
-                    <th class="text-center">Etat</th>
-                    <th class="text-center">Technicen SAV</th>
-                    <th class="text-center">Modifier</th>
-                </thead>
-                <tbody>
-                    {% for ticket in all_ticket_open %}
-                    <tr>
-                        <td class="text-center"><a href="{% url 'sav:installation' pk=ticket.evenement.installation.id %}">{{ticket.evenement.installation}}</a></td>
-                        <td class="text-center">{{ticket.probleme}}</td>
-                        <td class="text-center">{{ticket.cause}}</td>
-                        <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
-                        <td class="text-center">{{ticket.icon_etat|safe}} {{ticket.get_etat_display}}</td>
-                        <td class="text-center">{{ticket.icon_technicien_sav|safe}}</td>
-                        <td>
-                            <i class="fas fa-pen"
-                                data-bs-toggle="modal"
-                                   data-bs-target="#Modal"
-                                   data-bs-whatever="@getbootstrap"
-                                onclick="modaldisplay(this)"
-                                id="ticket_{{ticket.id}}"></i>
-                        </td>
-                    </tr>
-                {%endfor%}
-                </tbody>
-            </table>
+            <div class="modal-body">
+                <form id="ticket_form">
+                 </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+              <button type="button" class="btn btn-primary" onclick="submit_ticket()">Sauvegarder changements</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="tab-content" id="myTabContent">         
+                <div class="tab-pane fade m-3 show active" id="ticket" role="tabpanel" aria-labelledby="profile-tab">
+                    <table
+                            data-toolbar="#toolbar"
+                            data-toggle="table"
+                            data-search="true"
+                            data-show-columns="true"
+                            data-show-columns-toggle-all="true"
+                            data-show-refresh="false"
+                            data-show-fullscreen="true"
+                            data-show-export="true"
+                            data-page-list="[10, 25, 50, 100, all]"
+                            data-pagination="true"
+                            data-filter-control="true"
+                            data-show-search-clear-button="true">
+                        <thead>
+                            <th class="text-center">Installation</th>
+                            <th class="text-center">Probleme</th>
+                            <th class="text-center">Causes</th>
+                            <th class="text-center">Date (durée)</th>
+                            <th class="text-center">Etat</th>
+                            <th class="text-center">Technicen SAV</th>
+                            <th class="text-center">Modifier</th>
+                        </thead>
+                        <tbody>
+                            {% for ticket in all_ticket_open %}
+                            <tr>
+                                <td class="text-center"><a href="{% url 'sav:installation' pk=ticket.evenement.installation.id %}">{{ticket.evenement.installation}}</a></td>
+                                <td class="text-center">{{ticket.probleme}}</td>
+                                <td class="text-center">{%if ticket.cause %}{{ticket.cause}}{%else%}-{%endif%}</td>
+                                <td class="text-center">{{ticket.evenement.date|date:"d M Y"}} {{ticket.evenement.date|time:"H:i"}} ({{ticket.evenement.date|timesince}})</td>
+                                <td class="text-center">{{ticket.icon_etat|safe}} {{ticket.get_etat_display}}</td>
+                                <td class="text-center">{{ticket.icon_technicien_sav|safe}}</td>
+                                <td>
+                                    <i class="fas fa-pen"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#Modal"
+                                        data-bs-whatever="@getbootstrap"
+                                        onclick="modaldisplay(this)"
+                                        id="ticket_{{ticket.id}}"></i>
+                                </td>
+                            </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade m-3" id="NC" role="tabpanel" aria-labelledby="profile-tab">
+                    <h1>coucou</h1>
+                    <table
+                            data-toolbar="#toolbar"
+                            data-toggle="table"
+                            data-search="true"
+                            data-show-columns="true"
+                            data-show-columns-toggle-all="true"
+                            data-show-refresh="false"
+                            data-show-fullscreen="true"
+                            data-show-export="true"
+                            data-page-list="[10, 25, 50, 100, all]"
+                            data-pagination="true"
+                            data-filter-control="true"
+                            data-show-search-clear-button="true">
+                        <thead>
+                            <th class="text-center">Numéro</th>
+                            <th class="text-center">Ref Héraklès</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Modifier</th>
+                        </thead>
+                        <tbody>
+                            {%for NC in noncompliances %}
+                            <tr>
+                                <td class="text-center">{{NC}}</td>
+                                <td class="text-center">{{NC.ref_herakles}}</td>
+                                <td class="text-center">{{NC.get_status_display}}</td>
+                                <td>
+                                    <i class="fas fa-pen"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#Modal"
+                                        data-bs-whatever="@getbootstrap"
+                                        onclick="modaldisplay(this)"
+                                        id="ticket_{{NC.ticket.id}}"></i>
+                                </td>
+                            </tr>
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>    
         </div>
     </div>
 </div>
 <script>
-const json_at = JSON.parse(document.getElementById('at_json').textContent);
 
 function modaldisplay(t){
     var id=$(t)[0].id.replace('ticket_', '')
@@ -100,11 +154,18 @@ $.ajax({
      dataType: 'json',
      type: 'Post',
      success: function (data) {
+            console.log(data)
            if(data.even == "ok" && data.ticket=="ok"){
                 if(data.ticketChanged.etat == 3){
                     $("#ticket_" + data.ticketChanged.id).closest('tr').remove()
                 }
-                $("#Modal").hide()
+                var myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('Modal'));
+                myModal.hide();
+                if ("ticketChanged" in data){
+                    if (data['ticketChanged'] == 3){
+                        location.reload()
+                    }
+                }        
            }else{
             $.each(data.ticket.error, function(index, value){
                                                 $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
@@ -112,6 +173,9 @@ $.ajax({
             $.each(data.even.error, function(index, value){
                                                 $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
                                             })
+            $.each(data.NC.error, function(index, value){
+                                                $("[name="+index+"]").addClass("is-invalid").removeClass("is-valid").after("<small class='text-danger'>"+value+"</small>")
+                                            })                                
            }
      }
 })

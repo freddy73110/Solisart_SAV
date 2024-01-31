@@ -598,6 +598,9 @@ class installation(models.Model):
             return CL_herakles.objects.get(installation = self)
         except:
             return None
+        
+    def noncompliance(self):
+        return noncompliance.objects.filter(ticket__evenement__installation = self)
 
     class Meta:
         app_label = 'sav'
@@ -806,7 +809,6 @@ class ticket(models.Model):
             "detail": str(self.detail),
             "fichier": [f.titre for f in self.fichier.all()]
         }
-
     def icon_technicien_sav(self):
         try:
 
@@ -839,7 +841,11 @@ class ticket(models.Model):
             return '<i class="fas fa-comments"></i>'
         if self.forme ==3:
             return '<i class="fas fa-exclamation-triangle"></i>'
-
+    def NC(self):
+        try:
+            return noncompliance.objects.get(ticket__id=self.id)
+        except:
+            return None
     def __str__(self):
         try:
             strl=str(self.evenement) + ' ' + str(etat(self.etat).name) + ' ' + str(self.probleme)
@@ -1176,8 +1182,50 @@ class evaluation(models.Model):
     class Meta:
         app_label = 'sav'
         ordering = ['user', '-date', 'critere__interne', 'critere__profil_type']
-    
 
+
+class noncompliance_status(models.IntegerChoices):
+
+    ATTENTE = 0, 'Attente retour marchandise défectueuse'
+    EXPERTISE = 1, 'En Expertise'
+    EXPERT_FOURNISSEUR = 2, 'Envoi chez le fournisseur pour expertise et suite'
+    CLOTURER = 3, 'Clôturé'
+
+class noncompliance (models.Model):
+
+    ticket = models.ForeignKey('ticket', on_delete=models.CASCADE, related_name='ticket_noncompliance')
+    numero = models.CharField(verbose_name='Numéro', max_length=10, default = "NC-")
+    ref_herakles = models.TextField(verbose_name="Référence Héraklès", null=True, blank=True)
+    status = models.IntegerField(default=noncompliance_status.ATTENTE, choices=noncompliance_status.choices, verbose_name='Status')
+    avoir = models.BooleanField(verbose_name="A donner lieu à un avoir", default=False)
+    detail = models.TextField(verbose_name="Détail", null=True, blank=True)
+    fichier = models.ManyToManyField('Fichiers', verbose_name="Fichiers", null=True, blank=True)
+
+    def _get_next_code(self):
+        # Renvoie le prochain code disponible
+        if not self.pk:
+            return '001'
+        else:
+            from django.db.models import Max
+            return "%03d" % noncompliance.objects.filter(numero__startswith=f"NC-{self.year()}").aggregate(Max("numero"))["numero__max"] + 1
+
+    def year(self):
+        try:
+            return str(self.ticket.evenement.date.year)[2:4]
+        except:
+            return timezone.now().year
+        
+    def save(self, *args, **kwargs):
+        if self.numero == 'NC-':
+            self.numero = f"NC-{self.year()}{self._get_next_code()}"
+        super(noncompliance, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        try :
+            return self.numero
+        except:
+            return ''
+    
 
 # class emailbox(models.Model):
 #
