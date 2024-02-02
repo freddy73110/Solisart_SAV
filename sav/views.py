@@ -1273,12 +1273,10 @@ class installation_view (View):
                 add_evenement.save()
             if add_ticket_form.is_valid():
                 tick = add_ticket_form.save()
-                print("after save tick")
-                if self.NC_form.is_valid():
+                if self.NC_form.is_valid() and 'Noncompliance' in request.POST:
                     NC = self.NC_form.save(commit=False)
                     NC.ticket = tick
                     NC.save()  
-                    print("NC", NC)
                 else:
                     print("errors", self.NC_form.errors)
 
@@ -1660,7 +1658,7 @@ class ticket_view(View):
             if form_ticket.is_valid():
                 form_ticket.save()
                 data['ticket']='ok'
-                if NC_form.is_valid():
+                if NC_form.is_valid() and 'Noncompliance' in request.POST:
                     NC = NC_form.save(commit=False)
                     NC.ticket = tick
                     NC.save()  
@@ -1701,33 +1699,17 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
+        
 
-        import csv
-        file = open(os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'))
-        csv_file = csv.reader(file, delimiter=";")
-        lines = list(csv_file)
-        installation = lines[3][2]
-        proprio = lines[4][2]
-        file.close()
-        print(CL_herakles.objects.get(CL = "CL23-1040").commercial())
-        # with open(os.path.join(os.path.abspath(os.getcwd()), 'sav','static','sav','fichier','json.json'), encoding='utf-8') as json_file:
-        #     data = json.load(json_file)
-        # print(data)
-        # if not resp or not 'lon' in resp[0]:
-        #     GPS = None
-        #     pass
-        # else:
-        #     GPS = resp[0]['lat'] + ',' + resp[0]['lon']
+        c = noncompliance.objects.all()[0]
+        print("get", type(c._get_next_code()))
 
-        # if GPS == '46.603354,1.8883335':
-        #     GPS = None
-
-        # print(GPS)
 
         return render(request,
                       self.template_name,
                           {
-                              'title':self.title
+                              'title':self.title,
+                              "installations":installation.objects.exclude(attribut_valeur__attribut_def__description = "Coordonnées GPS DD")
                           }
                       )
 

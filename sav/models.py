@@ -1207,13 +1207,16 @@ class noncompliance (models.Model):
             return '001'
         else:
             from django.db.models import Max
-            return "%03d" % noncompliance.objects.filter(numero__startswith=f"NC-{self.year()}").aggregate(Max("numero"))["numero__max"] + 1
+            a = int(noncompliance.objects.filter(numero__startswith=f"NC-{self.year()}").aggregate(Max("numero"))["numero__max"][-3:])+1
+            print(a)
+
+            return "%03d" % a
 
     def year(self):
         try:
             return str(self.ticket.evenement.date.year)[2:4]
         except:
-            return timezone.now().year
+            return str(timezone.now().year[2:4])
         
     def save(self, *args, **kwargs):
         if self.numero == 'NC-':

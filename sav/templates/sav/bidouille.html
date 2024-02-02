@@ -5,6 +5,14 @@
 {%block Titre%}{{title}}{%endblock%}
 
 {%block article%}
+<ul>
+{% for instal in installations%}
+<li><a href="{% url 'sav:installation' instal.id %}" target="_blank">{{instal}}</a></li>
+{%endfor%}
+</ul>
+
+
+
  <textarea name="ta" id="results" cols="30" rows="10">
 
     </textarea><br>
