@@ -23,3 +23,19 @@ class InstallationSerializer(serializers.ModelSerializer):
     class Meta:
         model = installation
         fields = ('id', 'idsa')
+
+class FischierSerializer(serializers.ModelSerializer):
+ 
+    # create a meta class
+    class Meta:
+        model = Fichiers
+        fields = "__all__"
+
+class TicketSerializer(serializers.ModelSerializer):
+
+    instal = serializers.CharField(source='evenement.installation')
+ 
+    # create a meta class
+    class Meta:
+        model = ticket
+        fields = "__all__"

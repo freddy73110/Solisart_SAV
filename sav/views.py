@@ -1012,7 +1012,7 @@ class installation_view (View):
 
     def dispatch(self, request, *args, **kwargs):
 
-        
+
         self.pk = kwargs.pop('pk')
         self.instal = installation.objects.get(pk=self.pk)
         self.acces = acces.objects.filter(installation=self.instal).order_by('id').distinct()
@@ -1057,6 +1057,7 @@ class installation_view (View):
                       )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
         
         if "dynamicsolution" in request.POST:
             if request.POST["dynamicsolution"]:
@@ -1264,8 +1265,8 @@ class installation_view (View):
                 NC = noncompliance.objects.get(ticket=tick)
                 self.NC_form = noncompliance_form(request.POST, instance=NC, prefix='noncompliance')
             except:
-                self.NC_form = noncompliance_form(request.POST,prefix='noncompliance')
-            add_ticket_form = ticket_form(request.POST, instance=tick)
+                self.NC_form = noncompliance_form(request.POST,request.FILES, prefix='noncompliance')
+            add_ticket_form = ticket_form(request.POST, request.FILES, instance=tick)
             add_evenement = add_evenement_form(request.POST, instance=evenement.objects.get(ticket=tick),
                 user=request.user,
                 installation=self.instal)
@@ -1273,10 +1274,23 @@ class installation_view (View):
                 add_evenement.save()
             if add_ticket_form.is_valid():
                 tick = add_ticket_form.save()
+                print(request.POST)
+                print(self.NC_form.is_valid(),  'Noncompliance' in request.POST)
                 if self.NC_form.is_valid() and 'Noncompliance' in request.POST:
                     NC = self.NC_form.save(commit=False)
                     NC.ticket = tick
                     NC.save()  
+                    if request.FILES:
+                        for file in request.FILES.getlist('noncompliance-fichier'):
+                            form = FilesForm(request.POST, request.FILES, prefix='noncompliance')
+                            if form.is_valid():
+                                obj = form.save(commit=False)
+                                obj.fichier = file
+                                obj.save()
+                                NC.fichier.add(obj)
+                            else:
+                                print(form.errors)
+                    
                 else:
                     print("errors", self.NC_form.errors)
 
@@ -1645,9 +1659,9 @@ class ticket_view(View):
             form_ticket=ticket_form(request.POST, instance=tick)
             try: 
                 NC = noncompliance.objects.get(ticket=tick)
-                NC_form = noncompliance_form(request.POST, instance=NC, prefix='noncompliance')
+                NC_form = noncompliance_form(request.POST or None, request.FILES or None, instance=NC, prefix='noncompliance')
             except:
-                NC_form = noncompliance_form(request.POST,prefix='noncompliance')
+                NC_form = noncompliance_form(request.POST or None, request.FILES or None, prefix='noncompliance')
             data={}
             if form_evenement.is_valid():
                 form_evenement.save()
@@ -1662,8 +1676,19 @@ class ticket_view(View):
                     NC = NC_form.save(commit=False)
                     NC.ticket = tick
                     NC.save()  
+                    if request.FILES:
+                        for file in request.FILES.getlist('noncompliance-fichier'):
+                            form = FilesForm(request.POST, request.FILES, prefix='noncompliance')
+                            if form.is_valid():
+                                obj = form.save(commit=False)
+                                obj.fichier = file
+                                obj.save()
+                                NC.fichier.add(obj)
+                            else:
+                                print(form.errors)
                     data['NC'] = "ok"
                 else:
+                    print(NC_form.errors)
                     data['NC'] = NC_form.errors           
             else:
                 data['ticket'] = form_evenement.errors

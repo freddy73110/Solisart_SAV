@@ -10,14 +10,36 @@
                                 </div>
 <script>
   function displayNonCompliance(){
-    if($("#InputNoncompliance").is(':checked'))
+    if($("#InputNoncompliance").is(':checked')){
       $('#noncompliance').fadeIn(1000).removeClass('d-none')
-    else{
+      $('#InputNoncompliance').val("0")
+    }else{
       $('#noncompliance').fadeOut(1000)
+      $('#InputNoncompliance').val("")
     }
   }
   $("#InputNoncompliance").on('change', function(){
     displayNonCompliance()
   })
   displayNonCompliance()
+  function deleteNCFile(id){
+    var titre
+    $.ajax({
+      url: "/api/fichiers/" + id,
+          type:'get',
+          dataType: 'json',
+          success: function (json) {
+            if (window.confirm("Êtes-vous sûr de vouloir supprimer le fichier: " + json.titre +"?")) {
+              $.ajax({
+                url: "/api/fichiers/" + id,
+                    type:'delete',
+                    dataType: 'json',
+                    success: function (json) {
+                      location.reload();
+                    }
+              }) 
+            }
+          }
+    })    
+  }
 </script>

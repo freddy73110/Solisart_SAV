@@ -11,6 +11,8 @@ router = routers.DefaultRouter()
 router.register(r'users', serializerViews.UserViewSet)
 router.register(r'groups', serializerViews.GroupViewSet)
 router.register(r'installations', serializerViews.InstallationViewSet)
+router.register(r'fichiers', serializerViews.FichierViewSet)
+router.register(r'tickets', serializerViews.TicketViewSet)
 
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),

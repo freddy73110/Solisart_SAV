@@ -154,22 +154,31 @@ class MES_form(ModelForm):
 
 class noncompliance_form(ModelForm):
     id=IntegerField(required=False)
+    fichier = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), help_text="Fichier à joindre à la non conformité", label="Fichier", required=False)
+
     CHOICES = ((a.t50_2_code_comp, str(a.t50_2_code_comp)+'-'+str(a.t50_37_titre_du_composant)) for a in B50Composants.objects.db_manager('herakles').all().order_by('t50_2_code_comp'))
     list_ref_herakles = forms.ChoiceField(choices=CHOICES)
 
     class Meta:
         model = noncompliance
-        exclude = ("fichier","ticket","numero",)
+        exclude = ("ticket","numero",)
 
     def __init__(self, *args, **kwargs):
 
         super(noncompliance_form, self).__init__(*args, **kwargs)
         self.fields['ref_herakles'].widget=HiddenInput()
-        # self.fields['id'].widget=HiddenInput()
+        self.fields['id'].widget=HiddenInput()
+        file_list=''
         if self.instance.id:
+            NC = noncompliance.objects.get(pk=self.instance.id)
             self.fields['id'].initial=self.instance.id
             self.fields['list_ref_herakles'].initial = self.instance.ref_herakles
-            title = 'Non Conformité ' + str(noncompliance.objects.get(pk=self.instance.id))
+            title = 'Non Conformité ' + str(NC)
+            if NC.fichier:
+                file_list='<ul>'
+                for f in NC.fichier.all():
+                    file_list+="<li><a href='" + f.fichier.url+ "'>"+str(f.icon()) + ' '+ str(f) + "</a> (<span onclick='deleteNCFile("+ str(f.id) +")'><i class='far fa-trash-alt'></i></span>)</li>"
+                file_list+="</ul>"
         else:
             title = 'Non Conformité'
         self.helper = FormHelper()
@@ -191,7 +200,18 @@ class noncompliance_form(ModelForm):
                                 Column(
                                     FloatingField("detail", style='height: 100px',css_class="textareaEmoji")
                                 )
-                            ))
+                            ),
+                            Row(
+                                Column(
+                                    'fichier'
+                                )
+                            ),
+                            Row(
+                                Column(
+                                    HTML(file_list)
+                                )
+                            )
+            )
             
             )
 
@@ -250,7 +270,7 @@ class ticket_form(ModelForm):
         #if noncompliance
         try:
             NC = noncompliance.objects.get(ticket__id=self.instance.id)
-            htmlnoncompliance='<div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="Noncompliance" id="InputNoncompliance" checked disabled><label class="form-check-label" for="flexCheckDefault">Non conformité ' + str(NC)+ '</label></div>'
+            htmlnoncompliance='<div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="Noncompliance" id="InputNoncompliance" checked disabled value="0"><label class="form-check-label" for="flexCheckDefault">Non conformité ' + str(NC)+ '</label></div>'
         except:
             htmlnoncompliance='<div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="Noncompliance" id="InputNoncompliance"><label class="form-check-label" for="flexCheckDefault">Non conformité</label></div>'
 

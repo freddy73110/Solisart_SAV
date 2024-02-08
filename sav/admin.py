@@ -37,6 +37,9 @@ class CL_HeraklesAdmin(admin.ModelAdmin):
 class installationAdmin(admin.ModelAdmin):
     search_fields = ['idsa']
 
+class fichiersAdmin(admin.ModelAdmin):
+    search_fields = ['titre']
+
 admin.site.register(profil_user, profil_user_Admin)
 admin.site.register(profil_type)
 admin.site.register(installation, installationAdmin)
@@ -46,7 +49,7 @@ admin.site.register(attribut_valeur)
 admin.site.register(probleme)
 admin.site.register(ticket)
 admin.site.register(evenement)
-admin.site.register(Fichiers)
+admin.site.register(Fichiers, fichiersAdmin)
 admin.site.register(historique)
 admin.site.register(donnee)
 admin.site.register(cause)
