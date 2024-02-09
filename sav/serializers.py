@@ -24,7 +24,7 @@ class InstallationSerializer(serializers.ModelSerializer):
         model = installation
         fields = ('id', 'idsa')
 
-class FischierSerializer(serializers.ModelSerializer):
+class FichierSerializer(serializers.ModelSerializer):
  
     # create a meta class
     class Meta:
@@ -38,4 +38,13 @@ class TicketSerializer(serializers.ModelSerializer):
     # create a meta class
     class Meta:
         model = ticket
+        fields = "__all__"
+
+class NCSerializer(serializers.ModelSerializer):
+
+    date = serializers.DateTimeField(source='ticket.evenement.date')
+
+    # create a meta class
+    class Meta:
+        model = noncompliance
         fields = "__all__"

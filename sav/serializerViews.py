@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
-from sav.serializers import GroupSerializer, UserSerializer, InstallationSerializer, FischierSerializer, TicketSerializer
+from sav.serializers import GroupSerializer, UserSerializer, InstallationSerializer, FichierSerializer, TicketSerializer, NCSerializer
 
 from .models import *
 
@@ -37,7 +37,7 @@ class FichierViewSet(viewsets.ModelViewSet):
     API endpoint that allows groups to be viewed or edited.
     """
     queryset = Fichiers.objects.all()
-    serializer_class = FischierSerializer
+    serializer_class = FichierSerializer
     permission_classes = [permissions.IsAuthenticated]  
 
 class TicketViewSet(viewsets.ModelViewSet):
@@ -46,4 +46,12 @@ class TicketViewSet(viewsets.ModelViewSet):
     """
     queryset = ticket.objects.all()
     serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class NCViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = noncompliance.objects.all()
+    serializer_class = NCSerializer
     permission_classes = [permissions.IsAuthenticated]

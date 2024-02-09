@@ -13,6 +13,7 @@ router.register(r'groups', serializerViews.GroupViewSet)
 router.register(r'installations', serializerViews.InstallationViewSet)
 router.register(r'fichiers', serializerViews.FichierViewSet)
 router.register(r'tickets', serializerViews.TicketViewSet)
+router.register(r'NC', serializerViews.NCViewSet)
 
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),

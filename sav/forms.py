@@ -154,7 +154,16 @@ class MES_form(ModelForm):
 
 class noncompliance_form(ModelForm):
     id=IntegerField(required=False)
-    fichier = forms.FileField( help_text="Fichier à joindre à la non conformité", label="Fichier", required=False)
+    fichier = forms.FileField( 
+        widget = forms.TextInput(attrs={
+            "name": "images",
+            "type": "File",
+            "class": "form-control",
+            "multiple": "True",
+        }),
+        help_text="Fichier à joindre à la non conformité", 
+        label="Fichier", 
+        required=False)
 
     CHOICES = ((a.t50_2_code_comp, str(a.t50_2_code_comp)+'-'+str(a.t50_37_titre_du_composant)) for a in B50Composants.objects.db_manager('herakles').all().order_by('t50_2_code_comp'))
     list_ref_herakles = forms.ChoiceField(choices=CHOICES)

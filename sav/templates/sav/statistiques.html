@@ -19,6 +19,9 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pills-BL-tab" data-bs-toggle="pill" data-bs-target="#stat_BL" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-truck"></i><br> Statistiques BL</button>
               </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-NC-tab" data-bs-toggle="pill" data-bs-target="#stat_NC" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="fas fa-book-dead"></i><br> Statistiques NC</button>
+              </li>
             </ul>
         </div>
         <div class="tab-content" id="pills-tabContent">
@@ -167,7 +170,7 @@
                                     data-show-multi-sort="true">
                                 <thead>
                                     <th class="text-center" data-field="codouv" data-footer-formatter="codouvFooter" data-sortable="true">Ref</th>
-                                    <th class="text-center" data-field="codeof" data-sortable="true>BL</th>
+                                    <th class="text-center" data-field="codeof" data-sortable="true">BL</th>
                                     <th class="text-center" data-field="titre" data-sortable="true">Titre</th>
                                     <th class="text-center" data-field="qtet" data-sortable="true">Quantité</th>
                                     <th class="text-center" data-field="remisepct" data-footer-formatter="remiseFooter" data-formatter="pctFormatter" data-sortable="true">Remise (%)</th>
@@ -175,9 +178,11 @@
                                     <th class="text-center" data-field="totalremise" data-formatter="priceFormatter" data-sortable="true">Total remisé</th>
                                 </thead>
                             </table>
-<script>
+
+                            <script>
   var $table = $('#table')
   var data = JSON.parse(document.getElementById('data1').textContent);
+  console.log(data)
     $table.bootstrapTable({data: data})
   function refreshBLStat(t){
     form = $("#form_BL")
@@ -249,6 +254,53 @@ function pctFormatter(value) {
                 </div>
             </div>
         </div>
+        <div class="tab-pane fade" id="stat_NC" role="tabpanel" aria-labelledby="pills-profile-tab">
+          <div class="container">
+              <div class="row">
+                  <div class="col-12">
+                    <h1>Statistique sur les non-conformités</h1>
+                    <table
+                                    id="tableNC"
+                                    data-toggle="table"
+                                    data-ajax="ajaxRequest"
+                                    data-search="true"
+                                    data-show-columns="true"
+                                    data-show-multi-sort="true">
+                                <thead>
+                                    <th class="text-center" data-field="numero"  data-sortable="true">Numéro</th>
+                                    <th class="text-center" data-field="date"  data-formatter="dateFormat" data-sortable="true">Date</th>
+                                    <th class="text-center" data-field="ref_herakles" data-sortable="true">Matériel</th>
+                                    <th class="text-center" data-field="avoir" data-formatter="avoirFormat" data-sortable="true">Avoir</th>
+                                </thead>
+                            </table>
+                            <script>
+                            function ajaxRequest(params) {
+                              var url = 'api/NC'
+                              $.get(url).then(function (res) {
+                                params.success({
+                                  "rows": res.results,
+                                  "total": res.results.length
+                              },null,{})
+                              })
+                            }
+                            function avoirFormat(value){
+                              if(value){
+                                return '<i class="fas fa-dollar-sign text-danger"></i>'
+                              }else{
+                                return ''
+                              }
+                            }
+                            function dateFormat(value){
+                              dd = new Date(value)
+                              return dd.toLocaleString()
+                            }
+                            
+                            </script>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>  
     </div>
 </div>
 <script>
