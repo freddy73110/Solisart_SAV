@@ -1203,14 +1203,9 @@ class noncompliance (models.Model):
 
     def _get_next_code(self):
         # Renvoie le prochain code disponible
-        if not self.pk:
-            return '001'
-        else:
-            from django.db.models import Max
-            a = int(noncompliance.objects.filter(numero__startswith=f"NC-{self.year()}").aggregate(Max("numero"))["numero__max"][-3:])+1
-            print(a)
-
-            return "%03d" % a
+        from django.db.models import Max
+        a = int(noncompliance.objects.filter(numero__startswith=f"NC-{self.year()}").aggregate(Max("numero"))["numero__max"][-3:])+1
+        return "%03d" % a
 
     def year(self):
         try:
