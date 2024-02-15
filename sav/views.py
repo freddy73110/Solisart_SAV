@@ -1725,7 +1725,7 @@ class bidouille (View):
 
     def get(self, request, *args, **kwargs):
         
-
+        print(int(noncompliance.objects.filter(numero__startswith=f"NC-24").aggregate(Max("numero"))["numero__max"][-3:])+1)
         c = noncompliance.objects.all()[0]
         print("get", type(c._get_next_code()))
 
