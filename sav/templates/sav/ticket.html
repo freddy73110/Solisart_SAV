@@ -87,7 +87,7 @@
                     </table>
                 </div>
                 <div class="tab-pane fade m-3" id="NC" role="tabpanel" aria-labelledby="profile-tab">
-                    <h1>coucou</h1>
+                    <h1>Non conformité</h1>
                     <table
                             data-toolbar="#toolbar"
                             data-toggle="table"
@@ -103,6 +103,7 @@
                             data-show-search-clear-button="true">
                         <thead>
                             <th class="text-center">Numéro</th>
+                            <th class="text-center">Installation</th>
                             <th class="text-center">Ref Héraklès</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Modifier</th>
@@ -111,6 +112,7 @@
                             {%for NC in noncompliances %}
                             <tr>
                                 <td class="text-center">{{NC}}</td>
+                                <td class="text-center"><a href="{% url 'sav:installation' pk=NC.ticket.evenement.installation.id %}">{{NC.ticket.evenement.installation}}</a></td>
                                 <td class="text-center">{{NC.ref_herakles}}</td>
                                 <td class="text-center">{{NC.get_status_display}}</td>
                                 <td>
