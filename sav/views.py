@@ -212,7 +212,6 @@ class updateDB (View):
                     resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
                     # Lire les données de l'image depuis la réponse
                     image_data = resp.content
-                    print(resp, resp.content, resp.status_code)
                     # response = HttpResponse(Image.open(BytesIO(image_data)), content_type='image/png')
                     img = Image.open(BytesIO(image_data))
                     response = HttpResponse(content_type='image/png')
@@ -222,6 +221,17 @@ class updateDB (View):
 
                 if request.POST['typeOutput'] == 'exe':
                     url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaExe'
+                    resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
+                    # Lire les données de l'image depuis la réponse
+                    image_data = resp.content
+                    img = Image.open(BytesIO(image_data))
+                    response = HttpResponse(content_type='image/png')
+                    response['Content-Disposition'] = 'attachment; filename="output.png"'
+                    img.save(response, "PNG")
+                    return response
+                
+                if request.POST['typeOutput'] == 'ficheProg':
+                    url = 'https://www.solisart.fr/schematics/api/getSchema.php?image=ImageFicheProg'
                     resp = requests.post(url, files={'fichier': json.dumps(dict_schematic)})
                     # Lire les données de l'image depuis la réponse
                     image_data = resp.content
@@ -2090,8 +2100,9 @@ class production(View):
     title = "Gestion de production"
 
     def get(self, request, *args, **kwargs):
-        from .tasks import actualise_date_livraison_CL
+        from .tasks import actualise_date_livraison_CL, actualise_client_herakles
         actualise_date_livraison_CL.delay()
+        actualise_client_herakles.delay()
         from heraklesinfo.models import C7001Phases, C601ChantierEnTte, C101DevisEnTte
         excludeCL= Q(codephase__icontains='-------')
         CLs = CL_herakles.objects.all().order_by('-CL')
@@ -2205,7 +2216,7 @@ class production(View):
 
         if "add_CL" in request.POST:
             form = CL_Form(data=request.POST)
-            CL  = request.POST['CL']
+            CL  = request.POST['CL']            
             installateur = client_herakles.objects.get(pk=request.POST['installateur'])
             date_livraison_prevu = datetime.strptime(request.POST['date_livraison_prevu'], '%d-%m-%Y')
             if form.is_valid():

@@ -511,7 +511,7 @@ loadingTask.promise.then(function(pdf) {
                                   ><i class="fas fa-wrench" ></i> Mettre à jour</button>
                                   <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
                                   <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))">{{e.ticket.detail}}</textarea>
+                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))" spellcheck="true">{{e.ticket.detail}}</textarea>
                                   </div>
                                   </div>
                                   {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL or e.ticket.NC %}
@@ -606,7 +606,7 @@ loadingTask.promise.then(function(pdf) {
                                   <div class="col-{%if e.MES.fichier.all.count %}8{%else%}12{%endif%}">
                                   <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
                                   <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_MES_{{e.MES.id}}" onchange="growall($(this))">{{e.MES.detail}}</textarea>
+                                      <textarea class="form-control textarea_update" id="ta_MES_{{e.MES.id}}" onchange="growall($(this))" spellcheck="true">{{e.MES.detail}}</textarea>
                                   </div>
                                   </div>
                                   {%if e.MES.fichier.all.count %}
@@ -999,6 +999,10 @@ var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
 <script>
 $(document).ready(function() {
   $('textarea.textarea_update').emojioneArea({
+    attributes: {
+      spellcheck : true,
+      autocomplete   : "on",
+  },
     events: {
       change: function(editor, event) {
         txt=editor.html()

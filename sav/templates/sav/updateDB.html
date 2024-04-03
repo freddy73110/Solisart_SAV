@@ -28,6 +28,7 @@
                   <input type="file" class="form-control" id="json_file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept="application/JSON">
                   <button class="btn btn-outline-secondary api" type="button" id="hydro"><i class="fas fa-file-image"></i> Hydrolique</button>
                   <button class="btn btn-outline-secondary  api" type="button" id="exe"><i class="fas fa-file-image"></i> Exe</button>
+                  <button class="btn btn-outline-secondary api" type="button" id="ficheProg"><i class="fas fa-file-csv"></i> ficheProg</button>
                   <button class="btn btn-outline-secondary api" type="button" id="config"><i class="fas fa-file-csv"></i> Config</button>
                 </div>
                 <div id="imageResult" class="m-3"></div>
@@ -120,10 +121,7 @@
         var typeOutput=this.id
         var reader = new FileReader();
         reader.onload = function() {
-            var fileContent = JSON.stringify(JSON.parse(reader.result));
-            
-
-            console.log(fileContent)
+            var fileContent = JSON.stringify(JSON.parse(reader.result));            
             $.ajax({
                 url: window.location.href,
                 type:'post',
@@ -146,7 +144,13 @@
                             var image = new Image();
                             image.src = URL.createObjectURL(response);
                             image.className="img-fluid rounded mx-auto d-block"
-                    $("#imageResult").html(image);
+                            $("#imageResult").html(image);
+                        }else if (typeOutput == "ficheProg"){
+                            link.download = $("#json_file")[0].files[0].name.replace('.json', '.png');
+                            var image = new Image();
+                            image.src = URL.createObjectURL(response);
+                            image.className="img-fluid rounded mx-auto d-block"
+                            $("#imageResult").html(image);
                         }else if (typeOutput == "config"){
                             link.download = $("#json_file")[0].files[0].name.replace('.json', '.csv');
                         }
