@@ -1,0 +1,7 @@
+- voir ce que l'on fait avec les débitmètre
+- gérer les différentes options
+- Vérifier le fonctionnnemnt de la dérogation (condition si oui ou non avec compte à rebours)
+
+
+POssibles:
+faire une timeline pour la visualisation des données

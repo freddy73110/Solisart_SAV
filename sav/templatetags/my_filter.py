@@ -1,7 +1,17 @@
 from django import template
 import re
+import random, string
 
 register = template.Library()
+
+def randomword(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
+
+@register.filter(name='randomfile')
+def randomfile(number):
+    return randomword(10)
 
 @register.filter(name='lastmonthlist')
 def lastmonthlist(month):

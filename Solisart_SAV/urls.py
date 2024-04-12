@@ -19,6 +19,7 @@ urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', include(('sav.urls', 'sav'), namespace='sav')),
     path('herakles', include(('heraklesinfo.urls', 'heraklesinfo'), namespace='herakles')),
+    path('mysolisart2/', include(('mysolisart2.urls', 'heraklesinfo'), namespace='mysolisart2')),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/', include(router.urls))

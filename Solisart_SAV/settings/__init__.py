@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'daphne',
     'sav',
     'heraklesinfo',
+    'mysolisart2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

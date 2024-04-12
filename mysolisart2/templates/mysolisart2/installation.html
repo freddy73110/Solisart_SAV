@@ -1,0 +1,1387 @@
+{% load static %}
+{% load my_filter %}
+<html>
+    <head>
+        <title>Solisart</title>
+        
+  <link rel="shortcut icon" href="{% static 'img/favion.png' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Bootstrap 5-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!--Fontawesome icons-->
+    <script src="https://kit.fontawesome.com/a5d91fabe3.js" crossorigin="anonymous"></script>
+    <!--jquery-->
+    <script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
+<!--datepicker-->
+<script src="https://cdn.jsdelivr.net/npm/jquery-datetime-picker@2.5.11/build/jquery.datetimepicker.full.min.js" integrity="sha256-ptCFteBa9gzHPnbHLsFaC6n2j+u9F60jtR6AwEKEaeM=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-datetime-picker@2.5.11/jquery.datetimepicker.min.css">
+
+<!--Plotly-->
+
+<script src="{% static 'js/plotly-1.58.5/plotly.js' %}"></script>
+
+
+  <style>
+
+/* Style pour coller au site commercial */
+body{
+  font-family: 'Roboto', sans-serif;
+}
+body.wait, body.wait *{
+  cursor: wait !important;   
+}
+.nav{
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  text-transform: uppercase
+}
+h1, h2, h3, h4, h5, legend{
+  font-family:"Oswald", sans-serif
+}
+h1{
+  font-weight: bold;
+}
+.btn {
+  background-color: #fdfd96;
+    color: black;
+    font-family: 'Roboto', sans-serif;    
+    padding: 5px 10px;
+    text-decoration: none;
+    font-weight: bold;
+    border:0
+}
+.btn:hover, .btn-check:hover{
+  background-color: #FFC105 !important;
+  color:black !important
+}
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active{
+  color: black;
+  background-color: #FFC105;
+}
+.btn-check:hover{
+  background-color: #FFC105 !important
+}
+.nav{
+  color: white;
+  text-transform: uppercase
+}
+.nav-tabs .nav-item.show, .nav-tabs {
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    text-transform: uppercase
+}
+.nav-link{  
+  color: white;
+  background-color: black;
+  text-transform: uppercase
+}
+.nav-link:hover{
+  color:#fdfd96;
+}
+.nav-link.active{
+    color: white;
+    background-color: rgb(73, 73, 73);
+    opacity: 0.8;
+    border-color: var(--bs-nav-tabs-link-active-border-color);
+    font-family: 'Roboto', sans-serif;
+}
+
+
+fieldset.border-top{
+  border-color:#FFC105 !important
+}
+legend{
+  font-family: "Oswald", sans-serif;;
+  font-weight: normal;
+}
+
+footer{
+  background-color: black;
+  color:white
+}
+.copyright{
+  text-transform: uppercase;
+  background-color:#181818;  
+  color: #838383;
+}
+
+
+/* Style pour toutes les animations du schéma dynamic */
+.progress{
+  height: 10px;
+}
+
+.progress-bar-vertical {
+  width: 10px;
+  min-height: 100px;
+  display: flex;
+  align-items: flex-end;
+  margin-right: 20px;
+  float: left;
+}
+
+.progress-bar-animatedreserve {
+    animation: 1s linear infinite progress-bar-stripes;
+    animation-direction: reverse;
+}
+
+.progress-bar-vertical .progress-bar {
+  width: 100%;
+  height: 0;
+  -webkit-transition: height 0.6s ease;
+  -o-transition: height 0.6s ease;
+  transition: height 0.6s ease;
+}
+
+.progress.vertical {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  width: 10px;;
+}
+
+.standbyeBallon{
+  background: linear-gradient(-180deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 100% 100%;
+	height: 100vh;
+}
+.fillBallon {
+	background: linear-gradient(45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 15s ease infinite;
+	height: 100vh;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+  </style>
+</head>
+    
+<script type="text/javascript"> 
+  const urlParams = new URLSearchParams(window.location.search);
+  const userType = urlParams.get('userType');
+  console.log(userType)
+</script>
+
+<body>
+      <!--Canvas-->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <fieldset class="border-top p-2">
+            <legend class="float-none w-auto m-auto">Recherche installation</legend>
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">@</span>
+              <div class="form-floating">
+                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <label for="floatingInput">Nom</label>
+              </div>
+              <div class="form-floating">
+                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <label for="floatingInput">SN</label>
+              </div>
+            </div>
+            <div class="d-flex">
+              <a class="btn mx-auto"><i class="fa-solid fa-magnifying-glass"></i> Lancer</a> 
+            </div>
+          </fieldset>
+          <fieldset class="border-top p-2">
+            <legend class="float-none w-auto m-auto text-center">Traitement</legend>
+            <div class="d-flex">
+              <a class="btn mx-auto"><i class="fa-solid fa-gears"></i> Traitement</a> 
+            </div>           
+          </fieldset>
+          <fieldset class="border-top p-2">
+            <legend class="float-none w-auto m-auto">Utilisateur</legend>
+            <div class="d-flex">
+              <a class="btn mx-auto"><i class="fa-solid fa-user-plus"></i> Créer</a>            
+              <a class="btn mx-auto"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</a>      
+            </div>      
+          </fieldset>
+          <fieldset class="border-top p-2">
+            <legend class="float-none w-auto m-auto">Groupe</legend>
+            <div class="d-flex">
+              <a class="btn mx-auto"><i class="fa-solid fa-user-group"></i> Créer</a>            
+              <a class="btn mx-auto"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</a>      
+            </div>            
+          </fieldset>
+          <fieldset class="border-top p-2">
+            <legend class="float-none w-auto m-auto">Injecter config</legend>
+            <div class="">
+              <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1"><i class="fas fa-link"></i></span>
+              <div class="form-floating">
+                <input type="file" class="form-control" id="inputLinkConfig">
+                <label for="floatingInput">lien d'une config</label>
+              </div>  
+            </div>    
+               
+            </div>            
+          </fieldset>
+        </div>
+      </div>
+      
+      <!-- Modal -->
+<div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-black text-white">
+        <h5 class="modal-title">Programmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>      
+        <div class="container" style="background-color: #EDEDED;">
+            <div class="row mt-5">
+                <div class="col-2">
+                  <!--Pour profil sup et égal à installateurs-->
+                  <button class="btn btn-outline-primary m-3 text-start float-right" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"><i class="fas fa-bars"></i></button>
+                </div>
+                <div class="col-8 ">                  
+                </div>
+                <div class="col-2 ">
+                  <div class="navbar-collapse w-100 order-3 d-flex float-left">
+                    <ul class="navbar-nav ps-5">
+                        <li class="nav-item">
+                        <div class="dropdown float-right">
+                          <button type="button" class="btn btn-outline-primary dropdown-toggle m-3" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="far fa-user x-2"></i>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item"><i class="fas fa-user"></i> Antoine Durant</a></li>
+                                <li><a class="dropdown-item"><i class="fas fa-cog"></i> Paramètres</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
+                            <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Déconnecter</a>
+                          </ul>
+                        </div>
+                        </li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+        </div>
+      <div>  
+      <div class="container-md">
+        <div class="row" >
+          <div class="col-4 position-relative">
+            <a href="https://www.solisart.fr" class="position-absolute top-50 start-50 translate-middle">
+                <img src="{% static 'img/Logo-solisart-fabricant-chauffage-solaire2.png.png' %}" class="img-fluid">  
+            </a>
+          </div>
+          <div class="col-8">
+            <h1 class="text-center align-middle m-5" id="installationName"></h1>                      
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div id="message">
+              <!--Message si pas de connexion et blocage de toutes modification-->
+              <div class="alert alert-danger" role="alert"><span class="fw-bold"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                Pas de connexion depuis le 26/03/2024 à 8h58. <b>Aucune modification n'est possible!</b>
+              </div>
+            </div>  
+          </div>
+        </div>
+      </div>   
+      <div class="container-md">
+        <div class="row">
+            <div class="col-12">  
+                <ul class="nav nav-pill nav-justified" role="tablist">
+                  <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#installation" type="button" role="tab"  aria-selected="true">
+                      <i class="fas fa-laptop-house"></i><span class="d-none d-sm-block">Installation</span></button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#acces" type="button" role="tab"  aria-selected="false">
+                      <i class="fas fa-link"></i><span class="d-none d-sm-block">Connexion</span></button>
+                  </li>                  
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#MaJ" type="button" role="tab"  aria-selected="false">
+                      <i class="fa-solid fa-rotate"></i><span class="d-none d-sm-block">Mise à jour</span></button>
+                  </li>                  
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#donnees" type="button" role="tab" aria-selected="false" onclick="Plotly.relayout('evolutionChart', {'xaxis.autorange': true,'yaxis.autorange': true})">
+                      <i class="fa-solid fa-chart-line"></i><span class="d-none d-sm-block">Données</span></button>
+                  </li>
+                </ul>
+              <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="installation" role="tabpanel" aria-labelledby="pills-home-tab"> 
+                  <div class="container">
+                  <div class="row">
+                    <div class="col-12 AddAvailable m-3">                                           
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="card mb-3 border-dark text-bg-light" style="max-width: auto;--bs-bg-opacity: .5;">
+                        <div class="row g-0">
+                          <div class="col-12 col-md-6">
+                            <div class="container" id="schema">
+                              <!--Capteurs-->
+                                <div class="row border ps-3 pe-3 divCapteurs">                                   
+                                  <div class="col-12 position-relative" style="height:100px;">                                   
+                                    <div class="position-absolute start-0 w-100 divCapteur1" style="height: 10px; top:20%">
+                                      <div class="progress w-100" style="transform: rotate(180deg)">
+                                        <div class="progress-bar CC" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar CF" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                    </div>  
+                                    <div class="position-absolute top-0 end-0">
+                                      <span class="badge rounded-pill bg-secondary fw-bold T9"></span>
+                                    </div>  
+                                    <!--Vignette Mode excédent En--> 
+                                    <div class="position-absolute top-0" style="left:20%">
+                                      <span class="badge rounded-pill bg-warning fw-bold MD fa-beat-fade" disabled><i class="fa-solid fa-temperature-arrow-up"></i> Excédent d'Energie</span>
+                                    </div>                                  
+                                    <!--Capteur 1-->
+                                    <div class="position-absolute translate-middle divCapteur1" style="top:10%;left:calc(50% - 24px); width: 40px; height: 32px;">
+                                      <i class="fa-solid fa-solar-panel bg-white fa-2x position-absolute top-50 start-50">                                       
+                                      </i>
+                                      <div class="position-absolute top-0 start-100 divT1Capteur1">
+                                        <span class="badge rounded-pill bg-secondary fw-bold T1"></span>
+                                      </div>
+                                      <div class="position-absolute top-0 end-50 divT10Capteur1">
+                                        <span class="badge rounded-pill bg-secondary fw-bold T10"></span>
+                                      </div>                                                                             
+                                    </div>     
+                                    <!--Capteur 2 //-->      
+                                    <div class="position-absolute start-0 w-100 divCapteur2" style="height: 10px; bottom:20%">
+                                      <div class="progress w-100" style="transform: rotate(180deg)">
+                                        <div class="progress-bar CC" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar CF" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                    </div>
+                                    <div class="position-absolute translate-middle divCapteur2" style="bottom:15%;left:calc(50% - 24px);width: 40px; height: 32px;">
+                                      <i class="fa-solid fa-solar-panel bg-white fa-2x position-absolute top-50 start-50">                                       
+                                      </i>
+                                      <div class="position-absolute top-0 start-100 divT10Capteur2" >
+                                        <span class="badge rounded-pill bg-secondary fw-bold T10" >76.3°C</span>
+                                      </div>
+                                    </div>                           
+                                    <!--Collecteur chaud-->
+                                    <div class="position-absolute end-0" style="top:20%">
+                                      <div class="progress vertical" style="height:80px;">
+                                        <div class="progress-bar CC h-100" role="progressbar" style="height:40px" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar CC h-100" role="progressbar" style="height:40px" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                    </div>
+                                    <!--Collecteur Froid-->
+                                    <div class="position-absolute start-0" style="top:20%">
+                                      <div class="progress vertical" style="height:80px">
+                                        <div class="progress-bar CF h-100" role="progressbar" style="height:40px" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar CF h-100" role="progressbar" style="height:40px" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                    </div>
+                                    <!--S10-->
+                                    <div class="position-absolute divS11Capteur" style="top:10%; left:10%">
+                                      <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"> <span class="CircS10">51%</span></span>
+                                    </div>
+                                    <!--S11-->
+                                    <div class="position-absolute divS10Capteur" style="top:60%; left:10%">
+                                      <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"> <span class="CircS11">51%</span></span>
+                                    </div>
+                                    <!--V3V Capteur--> 
+                                    <div class="position-absolute translate-middle divV3VCapteur" style="bottom:2%; left:0%; width:60px; height:60px">
+                                      <i class="fas fa-play fa-xl fa-rotate-180 position-absolute" style="left:60%; top:80%"></i>                                    
+                                      <i class="fas fa-play fa-xl fa-rotate-90 position-absolute" style="left:45%; top:60%"></i>                                   
+                                      <i class="fas fa-play fa-xl fa-rotate-270 position-absolute" style="left:45%; top:98%"></i>                                  
+                                      <i class="fas fa-play fa-xl position-absolute" style="left:60%; top:60%; transform: rotate(7deg)"></i>
+                                    </div> 
+                                  </div>                                  
+                                </div> 
+                              <!--Piscine Déportée-->
+                              <div class="row border ps-3 pe-3" style="display: none;">                                   
+                                <div class="col-12 position-relative" style="height:50px;">
+                                  <!--Piscine déportée-->  
+                                  <div class="position-absolute translation-middle-x start-0 top-50 w-100" style="height: 10px;">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar " role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                      <div class="progress-bar " role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute bg-white translation-middle" style="left:calc(50% - 17px); top:calc(50% - 18px)">
+                                    <i class="fa-solid fa-water-ladder fa-2x"></i>
+                                  </div>
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute top-0 start-0">
+                                    <div class="progress vertical" style="height:50px;">
+                                      <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute top-0 end-0">
+                                    <div class="progress vertical" style="height:50px;">
+                                      <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--S11-->
+                                  <div class="position-absolute" style="top:30%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"> <span>51%</span></span>
+                                  </div>
+                                </div>
+                              </div> 
+                              <!--Barrage Primaire-->
+                              <div class="row border ps-3 pe-3 divDecouplagePrimaire">                                   
+                                <div class="col-12 position-relative" style="height:100px;">                                  
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute top-0 start-0">
+                                    <div class="progress vertical" style="height:100px;">
+                                      <div class="progress-bar CF h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CF h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute top-0 end-0">
+                                    <div class="progress vertical" style="height:100px;">
+                                      <div class="progress-bar CC h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CC h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <!--DecouplagePrimaire-->
+                                  <div class="position-absolute bg-white border border-secondary border-5 rounded-3 top-50 start-50 w-100 translate-middle text-secondary" style="height: 40%;">                           
+                                  </div> 
+                                  <div class="position-absolute bottom-0 end-0 divT10DecouplagePrimaire">
+                                    <span class="badge rounded-pill bg-secondary fw-bold T10">54.3°C</span>
+                                  </div> 
+                                  <div class="position-absolute top-0 divT16DecouplagePrimaire">
+                                    <span class="badge rounded-pill bg-secondary fw-bold T16">44.3°C</span>
+                                  </div>
+                                </div>                                
+                              </div>
+                              <!--Tampon-->
+                              <div class="row border ps-3 pe-3 divTampon">                                
+                                <div class="col-12 position-relative" style="height:100px;"> 
+                                  <!--ShuntC6-->  
+                                  <div class="position-absolute w-100" style="height: 10px; bottom:56%; left:0%">
+                                    <div class="progress" style="width: 26.5%;">
+                                      <div class="progress-bar shuntC6" role="progressbar" aria-label="Segment one" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <div class="position-absolute" style="top:35%; left:25%">
+                                    <div class="progress vertical" style="height:40px;">
+                                      <div class="progress-bar shuntC6 h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>    
+                                  <!--progressC6-->                             
+                                  <div class="position-absolute start-0 w-100" style="height: 10px; top:70%">
+                                    <div class="progress" style="width: 45%;">
+                                      <div class="progress-bar progressC6" role="progressbar" aria-label="Segment one" style="width: 55%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar progressC6" role="progressbar" aria-label="Segment one" style="width: 45%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--SortieBallonTampon-->
+                                  <div class="position-absolute w-100" style="height: 10px; top:20%; left:55%">
+                                    <div class="progress" style="width: 45%;">                                      
+                                      <div class="progress-bar exitTampon" role="progressbar" aria-label="Segment two" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Froid vertical-->
+                                  <div class="position-absolute top-0 start-0 h-100">
+                                    <div class="progress vertical" style="height:100px;">
+                                      <div class="progress-bar CF" style="height:35px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CF" style="height:40px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CF" style="height:25px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <!--Collecteur Chaud vertical-->
+                                  <div class="position-absolute top-0 end-0">
+                                    <div class="progress vertical" style="height:100px;">
+                                      <div class="progress-bar CC" style="height:20px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CC" style="height:80px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <!--Tampon-->
+                                  <div class="position-absolute border border-warning border-5 rounded-pill tampon standbyeBallon" style="height: 90%;width: 15%;left:42%"></div>                               
+                                  
+                                  <!--T5-->
+                                  <span class="position-absolute translate-middle top-50 start-50 fw-bold T5">-°C</span>                                   
+                                  <!--C6-->
+                                  <div class="position-absolute C6" style="bottom:10%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"><span>51%</span></span>
+                                  </div> 
+                                  <!--V3V Tampon--> 
+                                  <div class="position-absolute translate-middle v3vSol" style="bottom:20%; left:0%; width:60px; height:60px">
+                                    <i class="fas fa-play fa-xl fa-rotate-180 position-absolute" style="left:60%; top:80%"></i>                                    
+                                    <i class="fas fa-play fa-xl fa-rotate-90 position-absolute" style="left:45%; top:68%"></i>                                   
+                                    <i class="fas fa-play fa-xl fa-rotate-270 position-absolute" style="left:45%; top:98%"></i>                                  
+                                    <i class="fas fa-play fa-xl position-absolute" style="left:60%; top:60%; transform: rotate(7deg)"></i>
+                                  </div>                           
+                                </div>
+
+                              </div>
+                              <!--Ballon sanitaire Appoint 1-->
+                              <div class="row border ps-3 pe-3 divBallonSanitaire">                                
+                                <div class="col-12 position-relative" style="height:200px;">                                     
+                                  <!--Chaud C4-->
+                                  <div class="position-absolute w-100" style="height: 10px; top:10%; left:55%">
+                                    <div class="progress" style="width: 20%;">                                      
+                                      <div class="progress-bar C4CC" role="progressbar" aria-label="Segment two" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute" style="top:10%; right:25%">
+                                    <div class="progress vertical" style="height:175px;">
+                                      <div class="progress-bar C4CC h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute w-100" style="height: 10px; bottom:0%; left:73%">
+                                    <div class="progress" style="width: 25.5%;">
+                                      <div class="progress-bar C4CC" role="progressbar" aria-label="Segment one" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Froid C4-->
+                                  <div class="position-absolute w-100" style="height: 10px; top:29%; left:25%">
+                                    <div class="progress" style="width: 19%;">
+                                      <div class="progress-bar C4CF" role="progressbar" aria-label="Segment one" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>                                  
+                                  <div class="position-absolute" style="top:29%; left:25%">
+                                    <div class="progress vertical" style="height:140px;">
+                                      <div class="progress-bar C4CF h-100" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute w-100" style="height: 10px; bottom:0%; left:0%">
+                                    <div class="progress" style="width: 26.5%;">
+                                      <div class="progress-bar C4CF" role="progressbar" aria-label="Segment one" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Chaud C5-->
+                                  <div class="position-absolute w-100" style="height: 10px; top:40%; left:55%">
+                                    <div class="progress" style="width: 45%;">                                      
+                                      <div class="progress-bar C5CC" role="progressbar" aria-label="Segment two" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Froid C5-->                               
+                                  <div class="position-absolute start-0 w-100" style="height: 10px; top:55%">
+                                    <div class="progress" style="width: 45%;">
+                                      <div class="progress-bar C5CF" role="progressbar" aria-label="Segment one" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>                                  
+                                  <!--Ballon-->
+                                  <div class="position-absolute border border-warning border-5 rounded-pill BallonSanitaire standbyeBallon" style="height:70%;width: 15%; top:0%; left:43%">
+                                    <span class="position-absolute badge rounded-pill bg-primary" style="top:-5%; left: 90%;">
+                                      <i class="fa-solid fa-fire fa-beat-fade text-warning"></i>
+                                      <span>45x°C</span>+ <span>6°C</span>
+                                  </span>
+                                  </div>                               
+                                  <!--Appoint 1-->
+                                  <div class="position-absolute start-0 w-100 divAppoint1" style="height: 10px;bottom:20%">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute border border-secondary border-5 rounded-pill bg-white text-center fw-bold d-flex align-items-center justify-content-center appoint1" style="height:30%;width:25%; top:70%; left:37%">
+                                  </div>
+                                   <!--C5-->
+                                  <div class="position-absolute C5" style="bottom:35%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"> <span>51%</span></span>
+                                  </div>
+                                  <!--C4--> 
+                                  <div class="position-absolute C4" style="bottom:-5%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-spin fa-2x"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary"> <span>51%</span></span>
+                                  </div>
+                                  <!--T4-->
+                                  <div class="position-absolute start-50" style="top:17%">
+                                    <span class="fw-bold position-absolute top-50 start-50 translate-middle T4">48°C</span>                                    
+                                  </div>    
+                                  <!--T3-->
+                                  <span class="position-absolute translate-middle start-50 T3 fw-bold" style="top:50%">25°C</span>                                    
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute top-0 start-0">
+                                    <div class="progress vertical" style="height:200px;">
+                                      <div class="progress-bar CF" style="height:110px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CF" style="height:40px;"role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CF" style="height:50px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute top-0 end-0">
+                                    <div class="progress vertical" style="height:200px;">
+                                      <div class="progress-bar CC" style="height:90px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CC" style="height:60px;"role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar CC" style="height:50px;" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--T7-->
+                                  <span class="position-absolute T7 fw-bold badge rounded-pill bg-secondary" style="top:85%; left:0%">67°C</span>
+                                  <!--T8-->
+                                  <span class="position-absolute T8 fw-bold badge rounded-pill bg-secondary" style="top:85%; right:0%">68°C</span> 
+                                  <!--V3V Appoint--> 
+                                  <div class="position-absolute translate-middle v3vApp" style="bottom:2%; left:0%; width:60px; height:60px">
+                                    <i class="fas fa-play fa-xl fa-rotate-180 position-absolute" style="left:60%; top:80%"></i>                                    
+                                    <i class="fas fa-play fa-xl fa-rotate-90 position-absolute" style="left:45%; top:68%"></i>                                   
+                                    <i class="fas fa-play fa-xl fa-rotate-270 position-absolute" style="left:45%; top:98%"></i>                                  
+                                    <i class="fas fa-play fa-xl position-absolute" style="left:60%; top:60%; transform: rotate(7deg)"></i>
+                                  </div>                      
+                                </div>
+                              </div>
+                              <!--Appoint 2-->
+                              <div class="row border ps-3 pe-3 divAppoint2">                                
+                                <div class="col-12 position-relative" style="height:100px;">
+                                  <!--Appoint 2-->
+                                  <div class="position-absolute start-0 top-50 w-100" style="height: 100px">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar  CF" style='width:50%'role="progressbar" aria-label="Segment one" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar  CC" style='width:50%' role="progressbar" aria-label="Segment two"  aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud-->
+                                  <div class="position-absolute end-0" style="top:0%">
+                                    <div class="progress vertical" style="height:65px;">
+                                      <div class="progress-bar h-100 CC" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute start-0" style="top:0%">
+                                    <div class="progress vertical" style="height:65px;">
+                                      <div class="progress-bar h-100 CF" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="position-absolute  start-50 border border-secondary border-5 rounded-pill translate-middle-x bg-white text-center fw-bold appoint2" style="height:65%;width:25%; bottom:8%">
+                                  </div>
+                                  <!--C7-->
+                                  <div class="position-absolute C7" style=" left:10%; bottom:31%">
+                                  </div>
+                                </div>
+                              </div>
+                              <!--Zone 4-->                              
+                              <div class="row border ps-3 pe-3 divZone4">                                                             
+                                <div class="col-12 position-relative" style="height:100px;"> 
+                                  <div class="position-absolute top-50 start-0 w-100" style="height: 10px;">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar CF" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                      <div class="progress-bar CC" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div> 
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute start-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar bg-primary  h-100 CF" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute end-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar h-100 CC" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <span class="position-absolute translate-middle-x top-0 start-50 fw-bold labelT14">Label Zone4</span>                                  
+                                  <!--C7--> 
+                                  <div class="position-absolute position-relative C7" style="bottom:27%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-2x"></i>                                    
+                                  </div> 
+                                  <!--T14-->
+                                  <div class="position-absolute border border-secondary border-5 rounded-pill bg-white text-center align-middle zone" style="height:65%;width:25%; bottom:10%; left:38%">
+                                    <span class="position-absolute start-50 top-50 translate-middle fw-bold T14">15.0°C</span>
+                                    <span class="badge position-absolute top-0 start-100 translate-middle rounded-pill bg-primary fw-bold badgeT14"></span>
+                                  </div>                                   
+                                </div>
+                              </div>
+                              <!--Zone 3-->                              
+                              <div class="row border ps-3 pe-3 divZone3">                                                             
+                                <div class="col-12 position-relative" style="height:100px;">
+                                  <div class="position-absolute top-50 start-0 w-100" style="height: 10px;">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar CF" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                      <div class="progress-bar CC" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>  
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute start-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px">
+                                      <div class="progress-bar bg-primary  h-100 CF" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <span class="position-absolute translate-middle-x top-0 start-50 fw-bold labelT13">Label Zone3</span>                                   
+                                  <div class="position-absolute end-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar h-100 CC" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div>
+                                  <!--C3--> 
+                                  <div class="position-absolute position-relative C3" style="bottom:27%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-2x"></i>                                    
+                                  </div> 
+                                  <!--T13-->
+                                  <div class="position-absolute border border-secondary border-5 rounded-pill bg-white text-center align-middle zone" style="height:65%;width:25%; bottom:10%; left:38%">
+                                    <span class="position-absolute start-50 top-50 translate-middle fw-bold T13">15.0°C</span>
+                                    <span class="badge position-absolute top-0 start-100 translate-middle rounded-pill bg-primary fw-bold badgeT13"></span>
+                                  </div>                                   
+                                </div>
+                              </div>
+                              <!--Zone 2-->                              
+                              <div class="row border ps-3 pe-3 divZone2">                                                             
+                                <div class="col-12 position-relative" style="height:100px;"> 
+                                  <div class="position-absolute top-50 start-0 w-100" style="height: 10px;">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar CF" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                      <div class="progress-bar CC" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div> 
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute start-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar bg-primary  h-100 CF" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute end-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar h-100 CC" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <span class="position-absolute translate-middle-x top-0 start-50 fw-bold labelT12">Label Zone2</span>                                  
+                                  <!--C2--> 
+                                  <div class="position-absolute position-relative C2" style="bottom:27%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-2x"></i>                                    
+                                  </div> 
+                                  <!--T12-->
+                                  <div class="position-absolute border border-secondary border-5 rounded-pill bg-white text-center align-middle zone" style="height:65%;width:25%; bottom:10%; left:38%">
+                                    <span class="position-absolute start-50 top-50 translate-middle fw-bold T12">15.0°C</span>
+                                    <span class="badge position-absolute top-0 start-100 translate-middle rounded-pill bg-primary fw-bold badgeT12"></span>
+                                  </div>                                   
+                                </div>
+                              </div>
+                              <!--Zone 1-->                              
+                              <div class="row border ps-3 pe-3 divZone1">                                                             
+                                <div class="col-12 position-relative" style="height:100px;"> 
+                                  <div class="position-absolute top-50 start-0 w-100" style="height: 10px;">
+                                    <div class="progress w-100">
+                                      <div class="progress-bar CF" role="progressbar" aria-label="Segment one" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                      <div class="progress-bar CC" role="progressbar" aria-label="Segment two" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div> 
+                                  <!--Collecteur Froid-->
+                                  <div class="position-absolute start-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar bg-primary  h-100 CF" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!--Collecteur Chaud--> 
+                                  <div class="position-absolute end-0" style="top:-45%">
+                                    <div class="progress vertical" style="height:105px;">
+                                      <div class="progress-bar h-100 CC" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                  </div> 
+                                  <span class="position-absolute translate-middle-x top-0 start-50 fw-bold labelT11">Label Zone1</span>                                  
+                                  <!--C1--> 
+                                  <div class="position-absolute position-relative C1" style="bottom:27%; left:10%">
+                                    <i class="fa-solid fa-circle-play fa-2x "></i>                                    
+                                  </div> 
+                                  <!--T11-->
+                                  <div class="position-absolute border border-secondary border-5 rounded-pill bg-white text-center align-middle zone" style="height:65%;width:25%; bottom:10%; left:38%">
+                                    <span class="position-absolute start-50 top-50 translate-middle fw-bold T11"></span>
+                                    <span class="badge position-absolute top-0 start-100 translate-middle rounded-pill bg-primary fw-bold badgeT11"></span>
+                                  </div>                                   
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <div class="card-body">                              
+                              <div class="col-12" id="description"></div>
+                              <div class="col-12" id="parametreUtilisateur">                                
+                              </div>
+                              <div class="col-12" id="parametreInstallateur"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="acces" role="tabpanel" aria-labelledby="pills-home-tab">  
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <fieldset class="border-top p-2">
+                        <legend class="float-none w-auto m-auto">Accès</legend>
+                        <div class="row">
+                          <!--Si profil propriétaire-->
+                          <div class="col-6">
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="fas fa-key"></i></span>
+                              <div class="form-floating">
+                                <!--Valeur générée avec shaXX et le numéro de la semaine uniquement pour le propriétaire-->
+                                <input type="text" class="form-control" id="Code secret" disabled value="657894">
+                                <label>Code Secret</label>
+                              </div>
+                            </div> 
+                          </div>
+                          <div class="col-6 d-grid gap-2">
+                            <button class="btn " type="button" data-bs-toggle="modal" data-bs-target="#Modal" onclick="Ajoututilisateur()"><i class="fas fa-user-plus"></i> Ajouter utilisateur</button>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-12">
+                            <table class="table border-warning">
+                              <thead>
+                                <tr>
+                                  <th class="text-center">Personne/Groupe</th>
+                                  <th class="text-center">Profil</th>
+                                  <th class="text-center">Autorisation</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td class="text-center">Solisart</td>
+                                  <td class="text-center">Admin</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="text-center">Dupont Maurice</td>
+                                  <td class="text-center">Proprio</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="text-center">Durant Antoine</td>
+                                  <td class="text-center">Installateur</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <!--Impossible de supprimer son propre accès-->
+                                      <input class="form-check-input" type="checkbox" checked disabled>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="text-center">Sébastien Nonglaton</td>
+                                  <td class="text-center">Technicien</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+
+                            </table>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <fieldset class="border-top p-2 text-center">
+                        <legend class="float-none w-auto">Paramètre de connexion</legend>
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fa-solid fa-tag"></i></span>
+                              <div class="form-floating">
+                                <input type="text" class="form-control" id="SN" disabled>
+                                <label>Numéro de série</label>
+                              </div>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="nomInstallation">
+                                <label>Nom de l'installation</label>
+                              </div>
+                            </div> 
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fa-solid fa-ethernet"></i></span>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="adresseMac" disabled>
+                                <label>Adresse MAC</label>
+                              </div>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="adresseIP">
+                                <label>Adresse IP</label>
+                              </div>
+                            </div> 
+                          </div> 
+                          <div class="col-12">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fa-solid fa-ethernet"></i></span>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="sousReseau">
+                                <label>Masque de sous-réseau</label>
+                              </div>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="Passerelle">
+                                <label>Passerelle</label>
+                              </div>
+                            </div> 
+                          </div>  
+                          <div class="col-12">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fa-solid fa-ethernet"></i></span>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="DNS1">
+                                <label>DNS primaire</label>
+                              </div>
+                              <div class="form-floating">
+                                <!--Disponible si administrateur ou installateur-->
+                                <input type="text" class="form-control" id="DNS2">
+                                <label>DNS secondaire</label>
+                              </div>
+                            </div>
+                          </div> 
+                        </div>                    
+                      </fieldset>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <fieldset class="border-top p-2 text-center">
+                        <legend class="float-none w-auto">Suivi Installateur</legend>
+                        <div class="row">
+                          <div class="col-12">
+                            <table class="table text-center border-warning">
+                              <thead>
+                                <th>Paramètre</th>
+                                <th>Valeurs</th>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>Email en cas de défaut</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>Liste Solisart</td>
+                                  <td>
+                                    <div class="input-group mb-3">
+                                      <span class="input-group-text" id="basic-addon1">@</span>
+                                      <div class="form-floating">
+                                        <textarea class="form-control"></textarea>
+                                        <label for="floatingPassword">Séparé par un espace</label>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>Liste Installateur</td>
+                                  <td>
+                                    <div class="input-group mb-3">
+                                      <span class="input-group-text" id="basic-addon1">@</span>
+                                      <div class="form-floating">
+                                        <textarea class="form-control"></textarea>
+                                        <label for="floatingPassword">Séparé par un espace</label>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <fieldset class="border-top p-2 text-center">
+                        <legend class="float-none w-auto">Suivi Propriétaire</legend>
+                        <div class="row">
+                          <div class="col-12">
+                            <table class="table text-center border-warning">
+                              <thead>
+                                <th>Paramètre</th>
+                                <th>Valeurs</th>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>Email en cas de déconnexion</td>
+                                  <td class="text-center position-relative">
+                                    <div class="form-check form-switch position-absolute top-50 start-50 translate-middle">
+                                      <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div> 
+                <div class="tab-pane fade" id="MaJ" role="tabpanel" aria-labelledby="pills-home-tab">
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <fieldset class="border-top p-2">
+                        <legend class="float-none w-auto m-auto">Carte de Régulation</legend>
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                          <button class="btn btn-primary m-3">Redémarrage</button>
+                        </div>
+                        <div class="input-group mb-3">
+                              <span class="input-group-text"><i class="fa-solid fa-code-branch"></i></span>
+                              <div class="form-floating">
+                                <input type="text" class="form-control" disabled value="657894">
+                                <label>Version Actuelle</label>
+                              </div>
+                              <div class="form-floating">
+                                <select class="form-select">
+                                  <option value="">D48</option>                                  
+                                  <option value="">D47</option>
+                                </select> 
+                                <label>Versions</label>
+                              </div>
+                              <button class="btn btn-outline-secondary" type="button"><i class="fa-solid fa-rotate"></i> Mettre à jour</button>
+                        </div> 
+                        <table class="table text-center">
+                          <thead>
+                            <tr>
+                              <th colspan="2">Historique</th>
+                            </tr>
+                            <tr>
+                              <th>Version</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>D48</td>
+                              <td>26/03/2024 17:54</td>
+                            </tr>
+                            <tr>
+                              <td>D33</td>
+                              <td>13/03/2024 16:05</td>
+                            </tr>
+                          </tbody>
+                        </table>                      
+                      </fieldset>
+                    </div>
+                    <div class="col-12 col-md-6" >
+                      <fieldset class="border-top p-2">
+                        <legend class="float-none w-auto m-auto">Carte de Communication</legend>
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                          <button class="btn btn-primary m-3">Redémarrage</button>
+                        </div>
+                        <div class="input-group mb-3">
+                          <span class="input-group-text"><i class="fa-solid fa-code-branch"></i></span>
+                          <div class="form-floating">
+                            <input type="text" class="form-control" disabled value="3.0.15">
+                            <label>Version Actuelle</label>
+                          </div>
+                          <div class="form-floating">
+                            <select class="form-select">
+                              <option value="">4.0.17</option>                                  
+                              <option value="">4.0.18</option>
+                            </select> 
+                            <label>Versions</label>
+                          </div>
+                          <button class="btn btn-outline-secondary" type="button"><i class="fa-solid fa-rotate"></i> Mettre à jour</button>
+                        </div>                          
+                        <table class="table text-center">
+                          <thead>
+                            <tr>
+                              <th colspan="2">Historique</th>
+                            </tr>
+                            <tr>
+                              <th>Version</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>                            
+                            <tr>
+                              <td>3.0.15</td>
+                              <td>15/03/2023 14:25</td>
+                            </tr>
+                            <tr>
+                              <td>3.0.11</td>
+                              <td>15/02/2023 08:05</td>
+                            </tr>
+                          </tbody>
+                        </table> 
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="donnees" role="tabpanel" aria-labelledby="pills-home-tab">
+                  <div class="row">
+                    <div class="col-12 m-3" id="plage">
+                      <fieldset class="border-top p-2">
+                        <legend class="float-none w-auto m-auto">Plage d'analyse</legend>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" value="03/2024">
+                          <label class="form-check-label" for="inlineCheckbox1">03/2024</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" value="02/2024">
+                          <label class="form-check-label" for="inlineCheckbox2">02/2024</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" value="01/2024">
+                          <label class="form-check-label" for="inlineCheckbox3">01/2024</label>
+                        </div>                      
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" value="12/2023">
+                          <label class="form-check-label" for="inlineCheckbox3">12/2023</label>
+                        </div>
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i class="fas fa-file-csv"></i></span>
+                          <div class="form-floating">
+                            <input type="file" class="form-control" id="inputLinkData">
+                            <label for="floatingInput">Fichier csv</label>
+                          </div>  
+                        </div> 
+                        <div class="d-grid gap-2 col-6 d-md-block">                            
+                          <button class="btn btn-primary m-3" onclick="new generateChart(data).createData('{% static 'file/donnees.csv' %}')">Lancer</button>
+                          <button class="btn btn-primary m-3">Télécharger</button>
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div class="col-12">
+                      <ul class="nav justify-content-center nav-pill text-center">
+                        <li class="nav-item">
+                          <a class="nav-link active" 
+                          data-bs-toggle="pill" 
+                          href="#evolution" 
+                          type="button" role="tab" aria-selected="false" onclick="Plotly.relayout('evolutionChart', {'xaxis.autorange': true,'yaxis.autorange': true})">
+                            <i class="fa-solid fa-chart-line"></i><br>Evolution
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" data-bs-toggle="pill" href="#diagnostique" type="button" role="tab" aria-selected="false">
+                            <i class="fa-solid fa-stethoscope"></i><br>Diagnostique <span class="badge rounded-pill bg-warning text-dark" id="badgeTotalDefault">0</span>
+                          </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                          <a 
+                              class="nav-link dropdown-toggle" 
+                              href="#performance" 
+                              data-bs-toggle="pill" 
+                              type="button"
+                              data-bs-auto-close="outside" 
+                              role="tab" 
+                              data-bs-toggle="dropdown" 
+                              aria-expanded="false"   
+                              onclick="ResizePerformChart()"                             
+                            >
+                            <i class="fa-solid fa-chart-pie"></i><br>Performance
+                          </a>
+                          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="#performanceAppointDiv" >Appoints</a></li>
+                            <li><a class="dropdown-item" href="#performanceZone">Zones</a></li>
+                            <li><a class="dropdown-item" href="#performanceCapteur" >Capteurs</a></li>
+                          </ul>
+                        </li>
+                      </ul>
+                      <div class="tab-content">
+                        <div class="tab-pane fade show active" id="evolution">
+                          <div class="col-12 mt-3">
+                            <div class="input-group mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" aria-label="Default select example" name="circulateur_seul" id="id_circulateur_seul">
+                                        <option value="Aucun">Aucune</option>
+                                        <option value="C1">C1 seul</option>
+                                        <option value="C2">C2 seul</option>
+                                        <option value="C3">C3 seul</option>
+                                        <option value="C4">C4 seul</option>
+                                        <option value="C7">C7 seul</option>
+                                    </select>
+                                    <label for="id_circulateur_seul">Afficher Circulateur seul</label>
+                                </div>
+                                <!-- <div class="form-floating">
+                                    <select class="form-select" aria-label="Default select example" name="defaut" id="id_defaut">
+                                        <option value="Aucun">Aucune</option>
+                                        <option value="def">Def</option>
+                                        <option value="var_cir">Var Circ</option>
+                                        <option value="dtcapt3mn">dtcapt_3mn</option>
+                                        <option value="index6S">Index 6S</option>
+                                    </select>
+                                    <label for="id_defaut">Afficher défauts</label>
+                                </div> -->
+                                <div class="form-floating">
+                                    <select class="form-select" aria-label="Default select example" name="demande" id="id_demande">
+                                        <option value="Aucun">Aucune</option>
+                                        <option value="DemECS">Eau Chaude Sanitaire</option>
+                                        <option value="DemZ1">Zone 1</option>
+                                        <option value="DemZ2">Zone 2</option>
+                                        <option value="DemZ3">Zone 3</option>
+                                        <option value="DemZ4">Zone 4</option>
+                                    </select>
+                                    <label for="id_demande">Afficher demandes</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" aria-label="Default select example" name="afficher_groupe" id="id_afficher_groupe">
+                                        <option value="">----------</option>
+                                        <option value="Temperature">Température</option>
+                                        <option value="Circulateur">Circulateur</option>
+                                        <option value="Chaudiere">Chaudière</option>
+                                        <option value="Consigne">Consigne</option>
+                                    </select>
+                                    <label for="id_afficher_groupe">Afficher groupe</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" aria-label="Default select example" name="afficher_groupe" id="id_cacher_groupe">
+                                        <option value="">----------</option>
+                                        <option value="Temperature">Température</option>
+                                        <option value="Circulateur">Circulateur</option>
+                                        <option value="Chaudiere">Chaudière</option>
+                                        <option value="Consigne">Consigne</option>
+                                    </select>
+                                    <label for="id_cacher_groupe">Cacher groupe</label>
+                                </div>
+                            </div>
+                        </div>
+                          <div id="evolutionChart" class="m-3 d-flex"></div>
+                          <div id="schemaAnime" class="col-12 col-md-8 mx-auto"></div>
+                        </div>  
+                        <div class="tab-pane fade" id="diagnostique">
+                          <div class="row">
+                            <div class="col-8 mx-auto"> 
+                              <table id="DiagTable" class="table text-center m-3 border-warning">
+                                <thead>
+                                  <th>Défauts</th>
+                                  <th>Début</th>
+                                  <th>Fin</th>
+                                  <th>Informations</th>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>                          
+                        </div> 
+                        <div class="tab-pane fade" id="performance">
+                          <div id="performanceAppointDiv" class="m-3 row d-flex">
+                            <div id="performanceAppoint" class="m-3 d-flex">
+                            </div>
+                            <div class="col-6 mx-auto">
+                              <table class="table text-center border-warning" id="TableAppoint">
+                                <thead>
+                                  <th></th>
+                                  <th></th>
+                                  <th></th>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>Dernier démarrage</td>
+                                    <td></td>
+                                    <td></td>
+                                  </tr>
+                                  <tr>
+                                    <td>Nombre de démarrage</td>
+                                    <td></td>
+                                    <td></td>
+                                  </tr>
+                                  <tr>
+                                    <td>Durée moyenne</td>
+                                    <td></td>
+                                    <td></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          <div id="performanceZone" class="m-3 m-auto">
+                            <div class="row">
+                              <div class="col-12">
+                                <div id="performanceZoneDem" class="m-3 d-flex"></div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-12">
+                                <div id="performanceZoneConsigne" class="m-3 d-flex"></div>
+                              </div>
+                            </div>
+                          </div>                         
+                          <div id="performanceCapteur" class="m-3"></div>
+                        </div> 
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>    
+    </body> 
+    <footer>
+      <div class="container-md">
+      <div class="row p-4">
+        <div class="col-md-4 border-end border-white p-4 ">
+          <h2 style='font-family: "Oswald", sans-serif; color:white; font-size: 16px; font-weight: bold' class="mb-4">SOLISART</h2>
+          <p style='color:white; font-family: "Trebuchet MS", Helvetica, sans-serif;'><strong>Fabricant français</strong> et leader du <strong>chauffage solaire thermique</strong></p>
+        </div>
+        <div class="col-md-4 border-end border-white p-4" style='font-size: 16px;font-family: "Trebuchet MS", Helvetica, sans-serif;'>
+          <p>SolisArt reçoit le <a href="https://www.solisart.fr/solisart-labelisee-solar-impulse/" data-type="URL" data-id="https://www.solisart.fr/solisart-labelisee-solar-impulse/" style="color:#FCB901; text-decoration: none;"><strong><mark style="background-color:rgba(0, 0, 0, 0); color:#FCB901; text-decoration: none;" class="has-inline-color has-luminous-vivid-amber-color">label Solar Impulse Efficient Solution</mark></strong> </a>de la Fondation Bertrand Piccard en faisant partie des <mark style="background-color:rgba(0, 0, 0, 0); color:#FCB901" class="has-inline-color has-luminous-vivid-amber-color"><strong>1000 solutions </strong></mark>qui peuvent protéger l'environnement de manière durable. </p>
+          
+        </div>
+        <div class="col-md-4 p-4">
+          <h2 style='font-family: "Oswald", sans-serif; color:white; font-size: 16px; font-weight: bold;' class="mb-4">CONTACT</h2>
+          <p>220, voie Aristide Bergès<br>
+            73800 SAINTE HÉLÈNE DU LAC<br>
+            <strong><em>04 79 60 42 06</em></strong></p>
+            <a class="btn rounded-pill p-3" href="https://www.solisart.fr/contact/" style="margin-right: 20px;color:#F6C436"><span style='color:black; font-family: "Trebuchet MS", Helvetica, sans-serif;'>CONTACTEZ-NOUS</span></a>
+        </div>
+      </div>
+      <div class="row copyright">
+        <div class="col-12 text-center" style="font-size: 14px;">
+          <div class="">COPYRIGHT 2024 SOLISART, TOUS DROITS RESERVES - <a href="https://www.solisart.fr/mentions-legales/" >Mentions Légales </a> 
+          </div>
+        </div>
+      </div>
+    </div>
+    </footer>   
+    <script src="{% static 'js/donnees.js' %}?{{ 10|randomfile }}"></script>
+    <script src="{% static 'js/defauts.js' %}?{{ 10|randomfile }}"></script>
+    <script src="{% static 'js/connexion.js' %}?{{ 10|randomfile }}"></script>
+    <script src="{% static 'js/installation.js' %}?{{ 10|randomfile }}"></script>    
+</html>

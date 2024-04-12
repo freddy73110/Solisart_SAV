@@ -1,0 +1,1485 @@
+{
+    "ballonTampon":{
+        "translation":{
+            "Aucun": {
+                "Type_Ballon_C": 0,
+                "tlbl(05)": "",
+                "trilbl(03)": "",
+                "trilbl(12)": "",
+                "trilbl(13)": ""
+            },
+            "Ballon tampon": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            },
+            "2 ballons tampons en série": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            },
+            "3 ballons tampons en série": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            },
+            "ballon tampon en eau chaude sanitaire": {				
+                "Type_Ballon_C": 1,
+                "tlbl(05)": "T5 Bal Tampon",
+                "trilbl(03)": "C6 BAL Tampon",
+                "trilbl(12)": "V3VTAM Solaire",
+                "trilbl(13)": "V3VTAM Tampon"
+            }
+        }
+    },
+    "ballonECS":{
+        "translation":{
+            "Ballon hygiénique avec 1 echangeur":{
+                "Type_Ballon_S": 0
+            },
+            "ballon ECS et ballon appoint en série": {
+                "Type_Ballon_S": 1
+            },
+            "ballon elec en sortie ballon solaire avec bouclage sanitaire":{
+                "Type_Ballon_S": 0
+            },
+            "ballon d'eau chaude sur échangeur":{
+                "Type_Ballon_S": 0
+            },
+			"ballon ECS 2 échangeurs":{
+                "Type_Ballon_S": 0
+            }
+        }
+    },
+    "champCapteur":{
+        "translation":{
+            "Aucun" : {
+				"Nb_Champs_Capt":0,
+                "tlbl(01)": "",
+                "tlbl(10)": ""
+            },
+            "1 champ capteurs" : {
+				"Nb_Champs_Capt":1,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": ""               
+            },
+            "2 champs capteurs sur V3V" : {
+				"Nb_Champs_Capt":2,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Capt Chaud 2"
+            },
+            "2 champs capteurs en parallèle" : {
+				"Nb_Champs_Capt":2,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Capt Chaud 2"
+            },
+            "2 champs capteurs en série" : {
+				"Nb_Champs_Capt":3,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Capt Chaud 2"
+            },
+            "1 champ capteurs découplé sur casse pression sur T16" : {
+				"Nb_Champs_Capt":4,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
+            },
+            "1 champ capteurs découplé sur échangeur sur T16" : {
+				"Nb_Champs_Capt":4,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
+            },
+            "1 champ capteurs découplé sur casse pression sur T15" : {
+				"Nb_Champs_Capt":4,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
+            },
+            "1 champ capteurs découplé sur échangeur sur T15" : {
+				"Nb_Champs_Capt":4,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "trilbl(10)": "Circ primaire",
+				"CircType(9)": 1
+            },
+            "2 champs capteurs découplés sur casse pression" : {
+				"Nb_Champs_Capt":5,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "tlbl(15)": "T15 Capt Chaud 2",
+                "trilbl(10)": "S10 Circ prim",
+                "trilbl(11)": "S11 Circ prim",
+				"CircType(9)": 1,
+				"CircType(10)": 1
+            },
+            "2 champs capteurs découplés sur échangeur" : {
+				"Nb_Champs_Capt":5,
+                "tlbl(01)": "T1 Capt Chaud 1",
+                "tlbl(10)": "T10 Echangeur",
+                "tlbl(16)": "T16 Primaire",
+                "tlbl(15)": "T15 Capt Chaud 2",
+                "trilbl(10)": "S10 Circ prim",
+                "trilbl(11)": "S11 Circ prim",
+				"CircType(9)": 1,
+				"CircType(10)": 1
+            }
+
+        }
+    },
+    "optionS10":{
+        "translation":{
+            "V3V bypass appoint 1": {
+				"Sortie_48": 0
+			},
+			"V3V retour bouclage sanitaire solaire": {
+				"Sortie_48": 1
+			},
+			"Activable par case à cocher": {
+				"Sortie_48": 4
+			},
+			"Décharge sur zone plancher": {
+				"Sortie_48": 5
+			},
+			"ON en mode solaire": {
+				"Sortie_48": 6
+			},
+			"Sortie Idem C4": {
+				"Sortie_48": 7
+			},
+			"Circulateur chaudière 1":{
+				"Sortie_48": 8
+			},
+			"V3V décharge zone 1": {
+				"Sortie_48": 9
+			},
+			"Electrovanne Appoint 1 ou Flow Switch":{
+				"Sortie_48": 10
+			},
+			"Aquastat différentiel si T15>T16":{
+				"Sortie_48": 11
+			},
+			"CESI déportée sur T16":{
+				"Sortie_48": 12
+			} ,
+			"Horloge ON de 5h à 8h, 11h30 à 14h et 16h30 à 23h": {
+				"Sortie_48": 13
+			} ,
+			"Sortie Idem C1":{
+				"Sortie_48": 14
+			},
+			"Sortie Idem C2":{
+				"Sortie_48": 15
+			},
+			"Sortie Idem C3": {
+				"Sortie_48": 16
+			},
+            "ON en mode excédent d'énergie l'été": {
+				"Sortie_48": 17
+			},
+            "Circulateur chaudière 2": {
+				"Sortie_48": 18
+			},
+            "Sortie Idem C5": {
+				"Sortie_48": 19
+			},
+            "Sortie Idem C6": {
+				"Sortie_48": 20
+			},
+            "Sortie Idem C7": {
+				"Sortie_48": 21
+			},
+            "Sortie Idem S10": {
+				"Sortie_48": 22
+			},
+            "CESI déportée sur T15": {
+				"Sortie_48": 23
+			},
+            "ON buches en demande": {
+				"Sortie_48": 24
+			},
+            "V3V 2 points bypass appoint 1": {
+				"Sortie_48": 25
+			},
+            "Free Cooling Zone 1": {
+				"Sortie_48": 26
+			},
+            "Free Cooling Zone 2": {
+				"Sortie_48": 27
+			},
+            "Free Cooling Zone 3": {
+				"Sortie_48": 28
+			},
+            "Horloge ON de 7h à 10h et 18h à 22h": {
+				"Sortie_48": 29
+			},
+            "CESI déporté sur T15 en APP2": {
+				"Sortie_48": 30
+			},
+            "Recharge nappes géothermiques sur T15": {
+				"Sortie_48": 31
+			},
+            "Aquastat différentiel ON si T15 > T5": {
+				"Sortie_48": 32
+			},
+            "Charge BTC si excédent APP1 sur T16 & T6 > T5": {
+				"Sortie_48": 33
+			},
+            "Charge BTC si excédent APP1 sur T16 & T6 < T5": {
+				"Sortie_48": 34
+			},
+            "Réhaussement des retours ON si T15>T6": {
+				"Sortie_48": 35
+			},
+            "Réhaussement des retours ON si T15<T6": {
+				"Sortie_48": 36
+			},
+            "Aucun": {
+				"Sortie_48": 255,
+				"S48lbl": ""
+			}
+        }
+    },
+    "optionS11":{
+        "translation":{
+            "V3V bypass appoint 1": {
+				"Sortie_49": 0
+			},
+            "V3V retour bouclage sanitaire solaire": {
+				"Sortie_49": 1
+			},
+            "Activable par case à cocher": {
+				"Sortie_49": 4
+			},
+            "Décharge sur zone plancher": {
+				"Sortie_49": 5
+			},
+            "ON en mode solaire": {
+				"Sortie_49": 6
+			},
+            "Sortie Idem C4": {
+				"Sortie_49": 7
+			},
+            "Circulateur chaudière 1": {
+				"Sortie_49": 8
+			},
+            "V3V décharge zone 1": {
+				"Sortie_49": 9
+			},
+            "Electrovanne Appoint 1 ou Flow Switch": {
+				"Sortie_49": 10
+			},
+            "Aquastat différentiel si T15>T16": {
+				"Sortie_49": 11
+			},
+            "CESI déportée sur T16": {
+				"Sortie_49": 12
+			},
+            "Horloge ON de 5h à 8h, 11h30 à 14h et 16h30 à 23h": {
+				"Sortie_49": 13
+			},
+            "Sortie Idem C1": {
+				"Sortie_49": 14
+			},
+            "Sortie Idem C2": {
+				"Sortie_49": 15
+			},
+            "Sortie Idem C3": {
+				"Sortie_49": 16
+			},
+            "ON en mode excédent d'énergie l'été": {
+				"Sortie_49": 17
+			},
+            "Circulateur chaudière 2": {
+				"Sortie_49": 18
+			},
+            "Sortie Idem C5": {
+				"Sortie_49": 19
+			},
+            "Sortie Idem C6": {
+				"Sortie_49": 20
+			},
+            "Sortie Idem C7": {
+				"Sortie_49": 21
+			},
+            "Sortie Idem S10": {
+				"Sortie_49": 22
+			},
+            "CESI déportée sur T15": {
+				"Sortie_49": 23
+			},
+            "ON buches en demande": {
+				"Sortie_49": 24
+			},
+            "V3V 2 points bypass appoint 1": {
+				"Sortie_49": 25
+			},
+            "Free Cooling Zone 1": {
+				"Sortie_49": 26
+			},
+            "Free Cooling Zone 2": {
+				"Sortie_49": 27
+			},
+            "Free Cooling Zone 3": {
+				"Sortie_49": 28
+			},
+            "Horloge ON de 7h à 10h et 18h à 22h": {
+				"Sortie_49": 29
+			},
+            "CESI déporté sur T15 en APP2": {
+				"Sortie_49": 30
+			},
+            "Recharge nappes géothermiques sur T15": {
+				"Sortie_49": 31
+			},
+            "Aquastat différentiel ON si T15 > T5": {
+				"Sortie_49": 32
+			},
+            "Charge BTC si excédent APP1 sur T16 & T6 > T5": {
+				"Sortie_49": 33
+			},
+            "Charge BTC si excédent APP1 sur T16 & T6 < T5": {
+				"Sortie_49": 34
+			},
+            "Réhaussement des retours ON si T15>T6": {
+				"Sortie_49": 35
+			},
+            "Réhaussement des retours ON si T15<T6": {
+				"Sortie_49": 36
+			},
+            "Aucun": {
+				"Sortie_49": 255,
+				"S49lbl": ""
+			}
+        }
+    },
+	"appoint1":{
+        "translation":{
+            "Aucun": {
+				"Type_Appoint(0)":0
+			},
+            "gaz": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "gaz condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "electrique": {
+				"Type_Appoint(0)":3,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "PAC": {
+				"Type_Appoint(0)":4,
+				"TMaxApp(0)": 60,
+				"TRetMinChdr(0)": 47,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "Granulé": {
+				"Type_Appoint(0)":5,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 8,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Bois": {
+				"Type_Appoint(0)":6,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Electrique ECS seul": {
+				"Type_Appoint(0)":7,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "ON si APP2 en défaut": {
+				"Type_Appoint(0)":8,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			}
+        }
+    },
+    "typeAppoint1":{
+        "translation":{
+            "Aucun": {
+				"Type_Appoint(0)":0
+			},
+            "gaz": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "gaz condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "electrique": {
+				"Type_Appoint(0)":3,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "PAC": {
+				"Type_Appoint(0)":4,
+				"TMaxApp(0)": 60,
+				"TRetMinChdr(0)": 47,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "Granulé": {
+				"Type_Appoint(0)":5,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 8,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Bois": {
+				"Type_Appoint(0)":6,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Electrique ECS seul": {
+				"Type_Appoint(0)":7,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "ON si APP2 en défaut": {
+				"Type_Appoint(0)":8,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			}
+        }
+    },
+    "appoint2":{
+        "translation":{
+            "Aucun": {
+                "Type_Appoint(1)": 0
+            },
+            "Appoint granulé": {
+				"Type_Appoint(1)": 5,
+				"trilbl(04)":"C7 granul",
+				"tlbl(06)": "T6 granul",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 8,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Appoint bois": {
+				"Type_Appoint(1)": 6,
+				"trilbl(04)":"C7 Bois",
+				"tlbl(06)": "T6 Bois",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Sortie ECS appoint 1": {
+				"Type_Appoint(1)": 7,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Cascade Appoint 1": {
+				"Type_Appoint(1)": 9,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "ON si APP1 en défaut": {
+				"Type_Appoint(1)": 10,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			}
+        }
+    },
+	"typeAppoint2":{
+        "translation":{
+            "Aucun": {
+                "Type_Appoint(1)": 0
+            },
+            "Appoint granulé": {
+				"Type_Appoint(1)": 5,
+				"trilbl(04)":"C7 granul",
+				"tlbl(06)": "T6 granul",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 8,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Appoint bois": {
+				"Type_Appoint(1)": 6,
+				"trilbl(04)":"C7 Bois",
+				"tlbl(06)": "T6 Bois",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Sortie ECS appoint 1": {
+				"Type_Appoint(1)": 7,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Cascade Appoint 1": {
+				"Type_Appoint(1)": 9,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "ON si APP1 en défaut": {
+				"Type_Appoint(1)": 10,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			}
+        }
+    },
+    "circulateurC1":{
+        "translation":{
+            "Aucun":{"Type_Emetteur(0)":0,
+			"tlbl(11)":"",
+			"trilbl(05)":""
+			},
+            "Process":{"Type_Emetteur(0)":0,
+			"tlbl(11)":"Process",
+			"trilbl(05)":"Process"
+			},
+            "Process sur échangeur V3V":{"Type_Emetteur(0)":0,
+			"tlbl(11)":"Process",
+			"trilbl(05)":"Process"
+			},
+            "Plancher chauffant":{
+				"Type_Emetteur(0)":1,
+				"tlbl(11)":"T11 PC",
+				"trilbl(05)":"C1 PC",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 4,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 37,
+				"TMinEnvoi(0)": 27,
+				"TMaxEnvoi(0)": 38
+			},
+            "Plancher chauffant sur V3V":{
+				"Type_Emetteur(0)":1,
+				"tlbl(11)":"T11 PC",
+				"trilbl(05)":"C1 PC",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 4,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 37,
+				"TMinEnvoi(0)": 27,
+				"TMaxEnvoi(0)": 38
+			},
+            "Multi zones PC sur V3V":{
+				"Type_Emetteur(0)":1,
+				"tlbl(11)":"T11 Multi PC",
+				"trilbl(05)":"C1 PC",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 4,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 37,
+				"TMinEnvoi(0)": 27,
+				"TMaxEnvoi(0)": 38
+			},
+            "Multi zones PC":{
+				"Type_Emetteur(0)":1,
+				"tlbl(11)":"T11 Multi PC",
+				"trilbl(05)":"C1 PC",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 4,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 37,
+				"TMinEnvoi(0)": 27,
+				"TMaxEnvoi(0)": 38
+			},
+            "Radiateurs":{
+				"Type_Emetteur(0)":2,
+				"tlbl(11)":"T11 Rad",
+				"trilbl(05)":"C1 Rad",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 55,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 65
+			},
+            "Radiateurs sur échangeur à plaques":{
+				"Type_Emetteur(0)":2,
+				"tlbl(11)":"T11 Rad",
+				"trilbl(05)":"C1 Rad",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 55,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 65
+			},
+            "Radiateurs sur casse pression":{
+				"Type_Emetteur(0)":2,
+				"tlbl(11)":"T11 Rad",
+				"trilbl(05)":"C1 Rad",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 55,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 65
+			},
+            "Multi zones radiateurs":{
+				"Type_Emetteur(0)":2,
+				"tlbl(11)":"T11 Rad multi",
+				"trilbl(05)":"C1 Rad",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 55,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 65
+			},
+            "Piscine sur échangeur multi tubulaire":{
+				"Type_Emetteur(0)":3,
+				"tlbl(11)":"T11 Piscine",
+				"trilbl(05)":"C1 Piscine",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 40,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 45
+			},
+            "Piscine sur échangeur à plaques":{
+				"Type_Emetteur(0)":3,
+				"tlbl(11)":"T11 Piscine",
+				"trilbl(05)":"C1 Piscine",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 40,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 45
+			},
+            "Ventilo convecteur":{
+				"Type_Emetteur(0)":4,
+				"tlbl(11)":"T11 Ventilo",
+				"trilbl(05)":"C1 Ventillo",
+				"DTMaxSol(0)": 3,
+				"DTEco(0)": 7,
+				"DTOn(0)": 5,
+				"DTOff(0)": 2,
+				"DTCorrTA(0)": 0,
+				"TBaseEnvoi(0)": 55,
+				"TMinEnvoi(0)": 30,
+				"TMaxEnvoi(0)": 65
+			},
+            "Décharge sur zone":{"Type_Emetteur(0)":5,
+			"tlbl(11)":"Décharge",
+			"trilbl(05)":"Décharge"
+		},
+            "Décharge sur zone PC":{"Type_Emetteur(0)":5,
+			"tlbl(11)":"T11 Décharge PC",
+			"trilbl(05)":"Décharge PC"
+		},
+            "Radiateur en réhausse":{"Type_Emetteur(0)":6,
+			"tlbl(11)":"T11 Rad réhaus",
+			"trilbl(05)":"Rad réhaus"
+		}
+
+        }
+    },
+    "circulateurC2":{
+        "translation":{
+            "Aucun":{
+                "Type_Emetteur(1)":0,				
+				"tlbl(12)":"",
+				"trilbl(06)":""
+            },
+            "Process":{
+                "Type_Emetteur(1)":0,				
+				"tlbl(12)":"",
+				"trilbl(06)":""
+            },
+            "Process sur échangeur V3V":{
+                "Type_Emetteur(1)":0,				
+				"tlbl(12)":"",
+				"trilbl(06)":""
+            },
+            "Plancher chauffant":{
+				"Type_Emetteur(1)":1,			
+				"tlbl(12)":"T12 PC",
+				"trilbl(06)":"C2 PC",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 4,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 37,
+				"TMinEnvoi(1)": 27,
+				"TMaxEnvoi(1)": 38
+			},
+            "Plancher chauffant sur V3V":{
+				"Type_Emetteur(1)":1,			
+				"tlbl(12)":"T12 PC",
+				"trilbl(06)":"C2 PC",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 4,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 37,
+				"TMinEnvoi(1)": 27,
+				"TMaxEnvoi(1)": 38
+			},
+            "Multi zones PC sur V3V":{
+				"Type_Emetteur(1)":1,			
+				"tlbl(12)":"T12 PC Multi",
+				"trilbl(06)":"C2 PC",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 4,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 37,
+				"TMinEnvoi(1)": 27,
+				"TMaxEnvoi(1)": 38
+			},
+            "Multi zones PC":{
+				"Type_Emetteur(1)":1,			
+				"tlbl(12)":"T12 PC Multi",
+				"trilbl(06)":"C2 PC",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 4,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 37,
+				"TMinEnvoi(1)": 27,
+				"TMaxEnvoi(1)": 38
+			},
+            "Radiateurs":{
+				"Type_Emetteur(1)":2,			
+				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"C2 Rad",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 55,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 65
+			},
+            "Radiateurs sur échangeur à plaques":{
+				"Type_Emetteur(1)":2,			
+				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"C2 Rad",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 55,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 65
+			},
+            "Radiateurs sur casse pression":{
+				"Type_Emetteur(1)":2,		
+				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"C2 Rad",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 55,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 65
+			},
+            "Multi zones radiateurs":{
+				"Type_Emetteur(1)":2,		
+				"tlbl(12)":"T12 Rad",
+				"trilbl(06)":"C2 Rad",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 55,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 65
+			},
+            "Piscine sur échangeur multi tubulaire":{
+				"Type_Emetteur(1)":3,		
+				"tlbl(12)":"T12 Piscine",
+				"trilbl(06)":"C2 Piscine",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 40,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 45
+			},
+            "Piscine sur échangeur à plaques":{
+				"Type_Emetteur(1)":3,
+				"tlbl(12)":"T12 Piscine",
+				"trilbl(06)":"C2 Piscine",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 40,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 45
+			},
+            "Ventilo convecteur":{
+				"Type_Emetteur(1)":4,
+				"tlbl(12)":"T12 Ventillo",
+				"trilbl(06)":"C2 Ventillo",
+				"DTMaxSol(1)": 3,
+				"DTEco(1)": 7,
+				"DTOn(1)": 5,
+				"DTOff(1)": 2,
+				"DTCorrTA(1)": 0,
+				"TBaseEnvoi(1)": 55,
+				"TMinEnvoi(1)": 30,
+				"TMaxEnvoi(1)": 65
+			},
+            "Idem zone N-1":{
+                "Type_Emetteur(1)":6,
+				"tlbl(12)":"Idem Zone N-1",
+				"trilbl(06)":"Idem Zone N-1"
+            },
+            "Décharge sur zone":{
+                "Type_Emetteur(1)":7,				
+				"tlbl(12)":"T12 Décharge",
+				"trilbl(06)":"Décharge"
+            },
+            "Décharge sur zone PC":{
+                "Type_Emetteur(1)":7,				
+				"tlbl(12)":"T12 Décharge",
+				"trilbl(06)":"Décharge"
+            },
+            "Radiateur en réhausse":{
+                "Type_Emetteur(1)":8,				
+				"tlbl(12)":"T12 rad réhau",
+				"trilbl(06)":"Rad réhauss"
+            }
+        }        
+    },
+    "circulateurC3":{
+        "translation":{
+            "Aucun":{
+                "Type_Emetteur(2)":0,
+				"tlbl(13)":"",
+				"trilbl(07)":""
+            },
+            "Process":{
+                "Type_Emetteur(2)":0,
+				"tlbl(13)":"",
+				"trilbl(07)":""
+            },
+            "Process sur échangeur V3V":{
+                "Type_Emetteur(2)":0,
+				"tlbl(13)":"",
+				"trilbl(07)":""
+            },
+            "Plancher chauffant":{
+				"Type_Emetteur(2)":1,
+				"tlbl(13)":"T13 PC",
+				"trilbl(07)":"C3 PC",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 4,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 37,
+				"TMinEnvoi(2)": 27,
+				"TMaxEnvoi(2)": 38
+			},
+            "Plancher chauffant sur V3V":{
+				"Type_Emetteur(2)":1,
+				"tlbl(13)":"T13 PC",
+				"trilbl(07)":"C3 PC",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 4,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 37,
+				"TMinEnvoi(2)": 27,
+				"TMaxEnvoi(2)": 38
+			},
+            "Multi zones PC sur V3V":{
+				"Type_Emetteur(2)":1,
+				"tlbl(13)":"T13 PC Multi",
+				"trilbl(07)":"C3 PC",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 4,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 37,
+				"TMinEnvoi(2)": 27,
+				"TMaxEnvoi(2)": 38
+			},
+            "Multi zones PC":{
+				"Type_Emetteur(2)":1,
+				"tlbl(13)":"T13 PC Multi",
+				"trilbl(07)":"C3 PC",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 4,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 37,
+				"TMinEnvoi(2)": 27,
+				"TMaxEnvoi(2)": 38
+			},
+            "Radiateurs":{
+				"Type_Emetteur(2)":2,
+				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"C3 Rad",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 55,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 65
+			},
+            "Radiateurs sur échangeur à plaques":{
+				"Type_Emetteur(2)":2,
+				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"C3 Rad",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 55,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 65
+			},
+            "Radiateurs sur casse pression":{
+				"Type_Emetteur(2)":2,
+				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"C3 Rad",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 55,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 65
+			},
+            "Multi zones radiateurs":{
+				"Type_Emetteur(2)":2,
+				"tlbl(13)":"T13 Rad",
+				"trilbl(07)":"C3 Rad",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 55,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 65
+			},
+            "Piscine sur échangeur multi tubulaire":{
+				"Type_Emetteur(2)":3,
+				"tlbl(13)":"T13 Piscine",
+				"trilbl(07)":"C3 Piscine",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 40,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 45
+			},
+            "Piscine sur échangeur à plaques":{
+				"Type_Emetteur(2)":3,
+				"tlbl(13)":"T13 Piscine",
+				"trilbl(07)":"C3 Piscine",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 40,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 45
+			},
+            "Ventilo convecteur":{
+				"Type_Emetteur(2)":4,
+				"tlbl(13)":"T13 Ventillo",
+				"trilbl(07)":"C3 Ventillo",
+				"DTMaxSol(2)": 3,
+				"DTEco(2)": 7,
+				"DTOn(2)": 5,
+				"DTOff(2)": 2,
+				"DTCorrTA(2)": 0,
+				"TBaseEnvoi(2)": 55,
+				"TMinEnvoi(2)": 30,
+				"TMaxEnvoi(2)": 65
+			},
+            "Idem zone N-1":{
+                "Type_Emetteur(2)":6,
+				"tlbl(13)":"T13 Idem N-1"
+            },
+            "Décharge sur zone":{
+                "Type_Emetteur(2)":7,
+				"tlbl(13)":"T13 Décharge",
+				"trilbl(07)":"Décharge"
+            },
+            "Décharge sur zone PC":{
+                "Type_Emetteur(2)":7,
+				"tlbl(13)":"T13 Décharge PC",
+				"trilbl(07)":"Décharge PC"
+            },
+            "Radiateur en réhausse":{
+                "Type_Emetteur(2)":8,
+				"tlbl(13)":"T13 Rad réhaus",
+				"trilbl(07)":"Rad réhaus"
+            }
+        }
+    },
+    "circulateurC7":{
+        "translation":{
+            "Aucun":{
+                "Type_Emetteur(3)":0
+            },
+            "Appoint granulé": {
+                "Type_Emetteur(3)":0
+            },
+            "Appoint bois": {
+                "Type_Emetteur(3)":0
+            },
+            "Appoint multiple": {
+                "Type_Emetteur(3)":0
+            },
+            "Process":{
+                "Type_Emetteur(3)":0
+            },
+            "Process sur échangeur V3V":{
+                "Type_Emetteur(3)":0
+            },
+            "Plancher chauffant":{
+				"Type_Emetteur(3)":1,
+				"tlbl(14)":"T14 PC",
+				"trilbl(04)":"C7 PC",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 4,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 37,
+				"TMinEnvoi(3)": 27,
+				"TMaxEnvoi(3)": 38
+			},
+            "Plancher chauffant sur V3V":{
+				"Type_Emetteur(3)":1,
+				"tlbl(14)":"T14 PC",
+				"trilbl(04)":"C7 PC",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 4,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 37,
+				"TMinEnvoi(3)": 27,
+				"TMaxEnvoi(3)": 38
+			},
+            "Multi zones PC sur V3V":{
+				"Type_Emetteur(3)":1,
+				"tlbl(14)":"T14 PC Multi",
+				"trilbl(04)":"C7 PC",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 4,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 37,
+				"TMinEnvoi(3)": 27,
+				"TMaxEnvoi(3)": 38
+			},
+            "Multi zones PC":{
+				"Type_Emetteur(3)":1,
+				"tlbl(14)":"T14 PC Multi",
+				"trilbl(04)":"C7 PC",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 4,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 37,
+				"TMinEnvoi(3)": 27,
+				"TMaxEnvoi(3)": 38
+			},
+            "Radiateurs":{
+				"Type_Emetteur(3)":2,
+				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"C7 Rad",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 55,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 65
+			},
+            "Radiateurs sur échangeur à plaques":{
+				"Type_Emetteur(3)":2,
+				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"C7 Rad",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 55,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 65
+			},
+            "Radiateurs sur casse pression":{
+				"Type_Emetteur(3)":2,
+				"tlbl(14)":"T14 Rad",
+				"trilbl(04)":"C7 Rad",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 55,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 65
+			},
+            "Multi zones radiateurs":{
+				"Type_Emetteur(3)":2,
+				"tlbl(14)":"T14 Rad multi",
+				"trilbl(04)":"C7 Rad",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 55,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 65
+			},
+            "Piscine sur échangeur multi tubulaire":{
+				"Type_Emetteur(3)":3,
+				"tlbl(14)":"T14 Piscine",
+				"trilbl(04)":"C7 Piscine",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 40,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 45
+			},
+            "Piscine sur échangeur à plaques":{
+				"Type_Emetteur(3)":3,
+				"tlbl(14)":"T14 Piscine",
+				"trilbl(04)":"C7 Piscine",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 40,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 45
+			},
+            "Ventilo convecteur":{
+				"Type_Emetteur(3)":4,
+				"tlbl(14)":"T14 Ventillo",
+				"trilbl(04)":"C7 Ventillo",
+				"DTMaxSol(3)": 3,
+				"DTEco(3)": 7,
+				"DTOn(3)": 5,
+				"DTOff(3)": 2,
+				"DTCorrTA(3)": 0,
+				"TBaseEnvoi(3)": 55,
+				"TMinEnvoi(3)": 30,
+				"TMaxEnvoi(3)": 65
+			},
+            "Idem zone N-1":{
+                "Type_Emetteur(3)":6,
+				"tlbl(14)":"T14 Idem N-1"
+            },
+            "Décharge sur zone":{
+                "Type_Emetteur(3)":7,
+				"tlbl(14)":"T14 Décharge",
+				"trilbl(04)":"Décharge"
+            },
+            "Décharge sur zone PC":{
+                "Type_Emetteur(3)":7,
+				"tlbl(14)":"T14 Décharge PC",
+				"trilbl(04)":"Décharge PC"
+            },
+            "Radiateur en réhausse":{
+                "Type_Emetteur(3)":8,
+				"tlbl(14)":"T14 Décharge rad",
+				"trilbl(04)":"Décharge rad"
+            }
+        }
+    }
+}
