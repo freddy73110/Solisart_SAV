@@ -211,6 +211,7 @@ class generateChart {
             })
             Plotly.relayout(TESTER, {'shapes': shapes});
         })
+        //Afficher des bandes en fct des demandes des zones ou ECS
         $("#id_demande").val("Aucun").on("change", function(){
             var TESTER = document.getElementById('evolutionChart')
             var shapes = []
@@ -291,6 +292,79 @@ class generateChart {
                 })
             })
             Plotly.relayout(TESTER, {'shapes': shapes});
+        })
+        //Afficher des groupes de courbes
+        $("#id_afficher_groupe").val("Aucun").on("change", function(){
+            var idxvisible=[]
+            switch($("#id_afficher_groupe").val()){
+                case "Temperature":
+                    Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['Tcapt', 'TcaptF', 'TbalS', 'TbalA', 'TalT', 'TpoeleB', 'TretC', 'TdepC', 'Text', 'Tcap2', 'TZ1', 'TZ2', 'TZ3', 'TZ4', 'T15', 'T16'].includes(key)){                            
+                            console.log(index, key, value)
+                            idxvisible.push(index-1)
+                        }
+                    })
+                    break;
+                case "Circulateur":                    
+                Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['C1', 'C2', 'C3', 'APP', 'SOL', 'BTC', 'C7'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    })                 
+                    break;
+                case "Chaudiere":                    
+                Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['chdr1', 'chdr2'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    })                  
+                    break;
+                case "Consigne":                    
+                    Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['Tcons1', 'Tcons2', 'Tcons3', 'Tcons4','TconsECS'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    })                    
+                    break;
+            }
+            var TESTER = document.getElementById('evolutionChart')
+            Plotly.restyle(TESTER, {visible:true}, idxvisible);
+        })
+        //Cacher des groupe de courbes
+        $("#id_cacher_groupe").val("Aucun").on("change", function(){
+            var idxvisible=[]
+            switch($("#id_cacher_groupe").val()){
+                case "Temperature":
+                    Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['Tcapt', 'TcaptF', 'TbalS', 'TbalA', 'TalT', 'TpoeleB', 'TretC', 'TdepC', 'Text', 'Tcap2', 'TZ1', 'TZ2', 'TZ3', 'TZ4', 'T15', 'T16'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    }) 
+                    break;
+                case "Circulateur":                    
+                    for (const [index, [key, value]] of Object.entries(dataEvolutionChart)) {
+                        if(['C1', 'C2', 'C3', 'APP', 'SOL', 'BTC', 'C7'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    }                    
+                    break;
+                case "Chaudiere":                    
+                Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['chdr1', 'chdr2'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    })                    
+                    break;
+                case "Consigne":                    
+                Object.entries(dataEvolutionChart).forEach(([key, value], index) => {
+                        if(['Tcons1', 'Tcons2', 'Tcons3', 'Tcons4','TconsECS'].includes(key)){
+                            idxvisible.push(index-1)
+                        }
+                    })                    
+                    break;
+            }
+            var TESTER = document.getElementById('evolutionChart')
+            Plotly.restyle(TESTER, {visible:false}, idxvisible);
         })
     }
 
@@ -440,6 +514,7 @@ class generateChart {
           }
             }}]
             }
+        $("#sunwaiting").hide()
         Plotly.newPlot('evolutionChart', all_data, layout, config);
         var TESTER = document.getElementById('evolutionChart')
         var convertdata = this.convertDataCSVToDataConfig
@@ -470,7 +545,7 @@ class generateChart {
                       width: 3
                     }
                 }
-            )
+            )            
             Plotly.relayout(TESTER, {'shapes': shapes});
             for (const [key, value] of Object.entries(convertdata)) {                
                 try {
@@ -508,7 +583,7 @@ class generateChart {
         this.hoverlegend()
         this.performenceAppoint()
         this.performenceZone()
-        $("body").toggleClass("wait")
+        $("body").removeClass("wait")
     }
 
     convertFormatDate(strDate) {
@@ -550,7 +625,8 @@ class generateChart {
         }
 
     createDataSinceContent(csv){
-        $("body").toggleClass("wait")
+        $("body").addClass("wait")        
+        $("#allcharts").show()
         const lines = csv.split("\n");
                 var maxcolumns = '';
 
@@ -608,6 +684,8 @@ class generateChart {
     }
 
     createData(url) {
+        $("body").addClass("wait")
+        $("#allcharts").show()
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url);
         xhr.onload = () => {
@@ -624,19 +702,24 @@ class generateChart {
     performenceAppoint(){
         $("#performanceAppoint").html()
         var PerfAppointData = []
-        var annotations = []
         //-1 pour ne pas compter la dernière ligne qui fait null, null; null; ...
+        var appointtotal = 0
         if(this.configInstantane['Type_Appoint(0)'] != '0'){
+            appointtotal +=1
             $("table[id=TableAppoint] thead th:eq(1)").html(APP1[this.configInstantane['Type_Appoint(0)']])
             PerfAppointData.push(
                 {
-                    values: [this.dataEvolutionChart['chdr1'].filter((item) => item == '0').length, this.dataEvolutionChart['chdr1'].filter((item) => item != '0').length],
+                    values: [this.dataEvolutionChart['chdr1'].filter((item) => item == '0').length/2/60, this.dataEvolutionChart['chdr1'].filter((item) => item != '0').length/2/60],
                     labels: ['Arrêt', 'En Demande' ],
+                    parents: ['', ''],
                     domain: {column: 0},
                     name: APP1[this.configInstantane['Type_Appoint(0)']],
-                    hoverinfo: 'label+percent+name',
-                    hole: .4,
-                    type: 'pie'
+                    hovertemplate: '<b>%{label}:<br>Durée total: %{value:.2f} heures<br>soit %{percentRoot:.2%} du temps total et %{percentParent:.2%} du temps "%{parent}"</b>',                    
+                    leaf: {opacity: 0.4},
+                    marker: {line: {width: 2}},
+                    type: 'sunburst',
+                    leaf: {"opacity": 0.4},
+                    branchvalues: 'total',
                   }
             )
             var demarrage = -1
@@ -660,43 +743,23 @@ class generateChart {
             }else{
                 $("table[id=TableAppoint] tbody tr:eq(2) td:eq(1)").html('-')
             }
-            if(this.configInstantane['Type_Appoint(1)'] != '0'){
-                    annotations.push(
-                        {
-                            font: {
-                            size: 20
-                            },
-                            showarrow: false,
-                            text: APP1[this.configInstantane['Type_Appoint(0)']],
-                            x: 0.17,
-                            y: 0.5
-                        }
-                    )
-                }else{
-                    annotations.push(
-                        {
-                            font: {
-                            size: 20
-                            },
-                            showarrow: false,
-                            text: APP1[this.configInstantane['Type_Appoint(0)']],
-                            x: 0.5,
-                            y: 0.5
-                        }
-                    )
-                }
         }
-        if(this.configInstantane['Type_Appoint(1)'] != '0'){            
+        if(this.configInstantane['Type_Appoint(1)'] != '0'){  
+            appointtotal +=1         
             $("table[id=TableAppoint] thead th:eq(2)").html(APP2[this.configInstantane['Type_Appoint(1)']])
             PerfAppointData.push(
                 {
-                    values: [this.dataEvolutionChart['chdr2'].filter((item) => item == '0').length, this.dataEvolutionChart['chdr2'].filter((item) => item != '0').length],
+                    values: [this.dataEvolutionChart['chdr2'].filter((item) => item == '0').length/2/60, this.dataEvolutionChart['chdr2'].filter((item) => item != '0').length/2/60],
                     labels: ['Arrêt', 'En Demande' ],
-                    domain: {column: this.configInstantane['Type_Appoint(0)'] != '0'},
+                    domain: {column: this.configInstantane['Type_Appoint(0)'] != '0'? 1: 0},
                     name: APP2[this.configInstantane['Type_Appoint(1)']],
-                    hoverinfo: 'label+percent+name',
-                    hole: .4,
-                    type: 'pie'
+                    parents: ['', ''],
+                    hovertemplate: '<b>%{label}:<br>Durée total: %{value:.2f} heures<br>soit %{percentRoot:.2%} du temps total et %{percentParent:.2%} du temps "%{parent}"</b>',                    
+                    leaf: {opacity: 0.4},
+                    marker: {line: {width: 2}},
+                    type: 'sunburst',
+                    branchvalues: 'total',
+                    
                   }
             )
             var demarrage = -1
@@ -711,39 +774,14 @@ class generateChart {
             });
             $("table[id=TableAppoint] tbody tr:eq(1) td:eq(2)").html(demarrage)
             $("table[id=TableAppoint] tbody tr:eq(0) td:eq(2)").html(lastStart)
-            if(this.configInstantane['Type_Appoint(1)'] != '0'){
-                annotations.push(
-                    {
-                        font: {
-                        size: 20
-                        },
-                        showarrow: false,
-                        text: APP2[this.configInstantane['Type_Appoint(1)']],
-                        x: 0.83,
-                        y: 0.5
-                    }
-                )
-            }else{
-                annotations.push(
-                    {
-                        font: {
-                        size: 20
-                        },
-                        showarrow: false,
-                        text: APP2[this.configInstantane['Type_Appoint(1)']],
-                        x: 0.5,
-                        y: 0.5
-                    }
-                )
-            }
         }
-          
-          var layout = {
+        
+        
+        var layout = {
             title: 'Répartition des demandes Chaudière',
-            annotations: annotations,
             height: 400,
             showlegend: false,
-            grid: {rows: 1, columns: this.configInstantane['Type_Appoint(0)'] != '0' + this.configInstantane['Type_Appoint(1)'] != '0'}
+            grid: {rows: 1, columns: appointtotal}
           };
           
           var config={responsive: true}

@@ -71,9 +71,6 @@ class defaults{
     'Libre',
     'Entrée débitmètre 6 (manque de pression, ....)']
 
-    // constructor(configInstantane){
-    //     this.configInstantane = configInstantane
-    // }
 
     convertirEnBooleens(nombreBinaire) {
         const resultat = [];

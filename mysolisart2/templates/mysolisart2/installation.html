@@ -23,8 +23,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-datetime-picker@2.5.11/jquery.datetimepicker.min.css">
 
 <!--Plotly-->
-
 <script src="{% static 'js/plotly-1.58.5/plotly.js' %}"></script>
+
+<!--Pour corriger pb de responsivité-->
+<script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
 
 
   <style>
@@ -1187,7 +1189,7 @@ footer{
                         </div>
                       </fieldset>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12" id="allcharts">
                       <ul class="nav justify-content-center nav-pill text-center">
                         <li class="nav-item">
                           <a class="nav-link active" 
@@ -1281,7 +1283,12 @@ footer{
                                 </div>
                             </div>
                         </div>
-                          <div id="evolutionChart" class="m-3 d-flex"></div>
+                          <div style="height:150px" class="position-relative" id="sunwaiting">
+                          <i class="fa-regular fa-sun fa-spin fa-2xl position-absolute top-50 start-50" style="color: #FFD43B;font-size:150px"></i>
+                          </div>   
+                          <div id="evolutionChart" class="m-3 d-flex">
+                                                     
+                          </div>
                           <div id="schemaAnime" class="col-12 col-md-8 mx-auto"></div>
                         </div>  
                         <div class="tab-pane fade" id="diagnostique">

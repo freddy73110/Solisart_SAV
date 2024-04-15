@@ -3,7 +3,7 @@ var config = { "srv_name": "gestion.solisart.fr", "srv_req": "", "serial": "SC1Z
 //Démarrer chorme avec win+R
 //chrome.exe --user-data-dir="C://User//freddy//PycharmProjects//Maquette ouverture my.solisart.fr" --disable-web-security
 
-
+$("#allcharts").hide()
 $("#inputLinkConfig").on("change", function(e){
     var file = e.target.files[0]
     var reader = new FileReader();
@@ -28,24 +28,22 @@ function reloadjson(url){
         var url = '../static/file/config.csv'
     }
     const xhr = new XMLHttpRequest();
-xhr.open('GET', url);
-xhr.onload = function() {
+    xhr.open('GET', url);
+    xhr.onload = function() {
     if (xhr.status === 200) {
-        var csv = xhr.responseText;
-        const lines = csv.split("\n");
-        data = {}
-        
-        lines.forEach(line => {
-            data[line.split(';')[1]] = line.split(';')[2]
-        });
-      refresh(data)
-      $(".T11").parent().click()
-      new generateChart(data).createData('../static/file/donnees.csv')
-    } else {
-      console.error('Erreur lors du chargement du fichier JSON');
-    }
-  };
-  xhr.send()
+            var csv = xhr.responseText;
+            const lines = csv.split("\n");
+            data = {}            
+            lines.forEach(line => {
+                data[line.split(';')[1]] = line.split(';')[2]
+            });
+        refresh(data)
+        $(".T11").parent().click()      
+        } else {
+        console.error('Erreur lors du chargement du fichier JSON');
+        }
+    };
+    xhr.send()
 
 }
 
@@ -122,6 +120,7 @@ function parametreGeneraux(){
 }
 
 function refresh(configInstantane, schemaID){
+    
     if(schemaID === undefined){
         schemaID = "schema"
     }
