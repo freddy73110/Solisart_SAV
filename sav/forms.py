@@ -23,7 +23,7 @@ from .tasks import actualise_herakles
 from django.db.models import Value, Subquery, FloatField, OuterRef, TextField
 from django.db.models.functions import Cast
 
-emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea(attributes: {spellcheck : true,autocomplete: "on"},);});</script>'
+emoji_str='<script>$(document).ready(function() {$(".textareaEmoji").emojioneArea({attributes: {spellcheck: true,autocomplete: "on"}});});</script>'
 
 from django.forms.widgets import TextInput
 

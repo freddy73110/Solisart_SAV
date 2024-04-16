@@ -2,6 +2,7 @@ from django import template
 import re
 import random, string
 
+
 register = template.Library()
 
 def randomword(length):
@@ -11,7 +12,12 @@ def randomword(length):
 
 @register.filter(name='randomfile')
 def randomfile(number):
-    return randomword(10)
+    from django.conf import settings
+
+    if settings.DEBUG:
+        return randomword(10)
+    else:
+        return ''
 
 @register.filter(name='lastmonthlist')
 def lastmonthlist(month):

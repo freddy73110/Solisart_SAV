@@ -54,7 +54,10 @@
             },
 			"ballon ECS 2 échangeurs":{
                 "Type_Ballon_S": 0
-            }
+            },
+			"ballon ECS 2 échangeurs avec bouclage sanitaire":{
+				"Type_Ballon_S": 0
+			}
         }
     },
     "champCapteur":{
@@ -491,7 +494,8 @@
 				"MinOffDelay(0)": 1,
 				"VolCorpsChf(0)": 10,
 				"VMinCircApp(0)": 70
-			}
+			},
+			"Autre":{}
         }
     },
     "typeAppoint1":{

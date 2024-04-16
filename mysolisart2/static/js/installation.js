@@ -211,6 +211,7 @@ function refresh(configInstantane, schemaID){
         $("#"+schemaID).find(".C6").html(htmlC6)
         affichageTemperature(configInstantane, schemaID, 't(5)', "T5")
         
+        
         if(configInstantane['tr(3)']!="0pC"){
             $("#"+schemaID).find(".progressC6").addClass("progress-bar-striped progress-bar-animated")
             $("#"+schemaID).find('.tampon').addClass("fillBallon")
@@ -240,6 +241,7 @@ function refresh(configInstantane, schemaID){
             break;
     }
     //Affichage Capteur
+    affichageTemperature(configInstantane, schemaID, 't(2)', "T2")
     switch(configInstantane.Nb_Champs_Capt){
         case '0':
             //Aucun 

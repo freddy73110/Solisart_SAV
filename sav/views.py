@@ -1734,17 +1734,76 @@ class bidouille (View):
     title = 'Bidouille'
 
     def get(self, request, *args, **kwargs):
-        
-        print(int(noncompliance.objects.filter(numero__startswith=f"NC-24").aggregate(Max("numero"))["numero__max"][-3:])+1)
-        c = noncompliance.objects.all()[0]
-        print("get", type(c._get_next_code()))
+        dictschemajson={
+    "formulaire": {
+        "typeInstallation": "SC2K",
+        "installateur": "FRED EAU",
+        "Pr\u00e9nom\/nom": "fred Gaudy ",
+        "adresse_mail": "sarl.fredeau@orange.fr",
+        "commercial": "sebastien nonglaton",
+        "nom_client": "SUBLET",
+        "prenom_client": "",
+        "adresse_client": "6 chem des noiseriers ",
+        "code_postale_client": "74160",
+        "ville_client": "St Julien ",
+        "tel_client": "",
+        "mail_client": "",
+        "ballonECS": "ballon ECS 2 \u00e9changeurs avec bouclage sanitaire",
+        "ballonTampon": "Ballon tampon",
+        "appoint1": "Autre",
+        "typeAppoint1": "gaz condensation",
+        "puissanceApp1": "",
+        "Zone": "Zone non chauff\u00e9e",
+        "raccordementHydraulique": "Appoint sur casse pression",
+        "Gauche_droite": "Gauche",
+        "locAppoint2": "Aucun",
+        "puissanceApp1Multiple": "",
+        "ZoneMultiple": "Zone non chauff\u00e9e",
+        "RH_appoint2": "simple",
+        "champCapteur": "2 champs capteurs d\u00e9coupl\u00e9s sur \u00e9changeur",
+        "champCapteur_surface": "36",
+        "circulateurC1": "Multi zones PC sur V3V",
+        "circulateurC2": "Idem zone N-1",
+        "circulateurC3": "Aucun",
+        "circulateurC7": "Aucun",
+        "divers": "Aucun",
+        "description": "Sch\u00e9ma SolisConfort SC2K, 1 zone Multi zones PC sur V3V, 1 zone Idem zone N-1, Appoint 1 gaz condensation, 36 m\u00b2 de capteurs",
+        "appoint2": "Aucun",
+        "optionS10": "Aucun",
+        "optionS11": "Aucun",
+        "resistanceElectriqueBECS": "off",
+        "resistanceElectriqueBT": "off",
+        "EchangeurDansBT": "off",
+        "RDH_appoint1": "off",
+        "RDH_appoint2": "off",
+        "D3": "off",
+        "D5": "off",
+        "sondes": " S10 S11 T10 T15 T16    ",
+        "nom_affaire": "-SUBLET-01032024"
+    },
+    "fiche_prog": {
+        "commentaire": "",
+        "Delai": "",
+        "NumCommande": "",
+        "NumSerie": ""
+    },
+    "devis": {}
+}
+        dict_schematic=dictschemajson
+        print(dict_schematic)
+        from .convertjson import convertjson
+        print(convertjson.jsontocsv(
+                    installation_SN=installation, 
+                    installation_name=dict_schematic['formulaire']['nom_client'].upper(),
+                    path=os.path.join(os.path.dirname(__file__), 'temp', 'config.csv'),
+                    dicttoconvert=dict_schematic
+                    ))
 
 
         return render(request,
                       self.template_name,
                           {
-                              'title':self.title,
-                              "installations":installation.objects.exclude(attribut_valeur__attribut_def__description = "Coordonnées GPS DD")
+                              'title':self.title
                           }
                       )
 

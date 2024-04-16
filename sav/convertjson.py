@@ -24,7 +24,6 @@ class convertjson():
             if k in convertjson:
                 try:
                     for key, value in convertjson[k]["translation"][v].items():
-                        print(k, key, value)
                         df.value[df.key == key] = value
                 except Exception as ex:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
