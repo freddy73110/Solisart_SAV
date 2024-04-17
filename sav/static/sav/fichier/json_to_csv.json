@@ -75,7 +75,11 @@
             "2 champs capteurs sur V3V" : {
 				"Nb_Champs_Capt":2,
                 "tlbl(01)": "T1 Capt Chaud 1",
-                "tlbl(10)": "T10 Capt Chaud 2"
+                "tlbl(10)": "T10 Capt Chaud 2",
+				"Sortie_48":3,
+				"Sortie_49":255,
+				"S48lbl":"V3V Capteur1",
+				"S49lbl":"V3V Capteur10"
             },
             "2 champs capteurs en parallèle" : {
 				"Nb_Champs_Capt":2,
