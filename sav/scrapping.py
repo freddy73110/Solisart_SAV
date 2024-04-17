@@ -263,7 +263,7 @@ class scrappingMySolisart():
                             self.waitelement(By.XPATH, '//button[@title="Close"]', 'presence_of_element_located', 'click')
                         except:
                             pass
-                        time.sleep()
+                        time.sleep(4)
                         self.waitelement(By.XPATH, '//a[@href="#onglet-enregistrement"]', 'presence_of_element_located', 'click')
                         time.sleep(5)
                         self.waitelement(By.ID, 'button-enregistrement-enregistrer', 'presence_of_element_located', 'click')
