@@ -1068,6 +1068,26 @@ class installation_view (View):
 
     def post(self, request, *args, **kwargs):
         print(request.POST)
+
+        if "critere" in request.POST:
+            date_evalutaion = datetime.strptime(request.POST['date_evaluation'], '%d-%m-%Y')
+            critere_list = request.POST.getlist('critere')
+            evaluation_list = request.POST.getlist('star')
+            commentaire_list = request.POST.getlist('commentaire')
+            checkboxCrit_list = request.POST.getlist('checkboxCrit')            
+            profil = User.objects.get(pk = request.POST.get('profil'))
+            for idx, x in enumerate(critere_list):
+                if checkboxCrit_list[idx] == 'true':
+                    eval = evaluation.objects.create(
+                        user = profil_user.objects.get(user=profil),
+                        date = date_evalutaion,
+                        note = int(evaluation_list[idx]),
+                        critere = critere.objects.get(pk=int(x)),
+                        commentaire = commentaire_list[idx]
+                    )
+            return JsonResponse({
+                "evaluation": 'ok'                
+            }, safe=False)
         
         if "dynamicsolution" in request.POST:
             if request.POST["dynamicsolution"]:
@@ -1202,6 +1222,15 @@ class installation_view (View):
                           {'tic': tic,
                            'photo_id': int(request.POST["photoid"])})
 
+        if "evalutionForm" in request.POST:
+            userprofil = User.objects.get(pk = request.POST['evalutionForm'])
+            criteres=critere.objects.none()
+            if "Installateur" in list(userprofil.profil_user.profil()):
+                criteres |= critere.objects.filter(profil_type__name="Installateur")
+            if "Propriétaire" in list(userprofil.profil_user.profil()):
+                criteres |= critere.objects.filter(profil_type__name="Propriétaire")
+            return render(request, "widgets/evalution_form.html", {'user':userprofil,'critere':criteres})
+        
         if "file_ticket" in request.POST:
             form = FilesForm(request.POST, request.FILES)
             if form.is_valid():
@@ -1411,6 +1440,8 @@ class installation_view (View):
                 "renamed": str(f)
             }, safe=False)
 
+        
+        
 class utilisateur_view (View):
     login_url = '/login/'
     template_name = 'sav/utilisateur.html'
@@ -1537,6 +1568,7 @@ class utilisateur_view (View):
             return JsonResponse({'data':'OK'}, safe=False)
         else:
             return JsonResponse({'data':'error'}, safe=False)
+
 
 class carte (View):
     login_url = '/login/'

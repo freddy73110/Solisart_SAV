@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
 from sav.serializers import GroupSerializer, UserSerializer, InstallationSerializer, FichierSerializer, TicketSerializer, NCSerializer
+from rest_framework.response import Response
 
 from .models import *
 
@@ -55,3 +56,6 @@ class NCViewSet(viewsets.ModelViewSet):
     queryset = noncompliance.objects.all()
     serializer_class = NCSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
+    

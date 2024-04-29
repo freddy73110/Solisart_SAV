@@ -263,6 +263,7 @@ loadingTask.promise.then(function(pdf) {
                                 <div id="production_modal" name="modal_form">
                                 </div>
                                 <div id="photos" ></div>
+                                <div id="evalutionFormDiv"></div>
                               <div id="delete_file_modal">
                                 <input type="hidden" id="delete_file_input" name="delete_file_input">
                               </div>
@@ -305,6 +306,9 @@ loadingTask.promise.then(function(pdf) {
                                         contentType: false,
                                         success: function (data) {
                                           $("#ModalEvenement").hide()
+                                          if (data.hasOwnProperty('evaluation')){
+                                            location.reload()
+                                          }
                                           if (data.hasOwnProperty('probleme')){
                                             $("#add_evenement_modal").show()
                                             $("[name='sous_categorie']").val("")
@@ -314,6 +318,7 @@ loadingTask.promise.then(function(pdf) {
                                             }));
                                             $('#id_probleme').val(data.probleme.id)
                                           }
+
                                            if (data.hasOwnProperty('mes')&&data.mes=="ok"){
                                             location.reload()
                                           }else{
@@ -687,6 +692,7 @@ loadingTask.promise.then(function(pdf) {
                         <th class="text-center">Personne</th>
                         <th class="text-center">Email</th>
                         <th class="text-center">Téléphone</th>
+                        <th class="text-center">Evaluation</th>
                     </thead>
                       <tbody>
                         {% for util in acces%}
@@ -695,6 +701,10 @@ loadingTask.promise.then(function(pdf) {
                             <td><a href="{% url 'sav:utilisateur' pk=util.utilisateur.id %}">{{util.utilisateur.profil_user.icon|safe}} {{util.utilisateur}}</a></td>
                             <td>{{util.utilisateur.email}}</td>
                             <td>{{util.utilisateur.profil_user.telephone1}}</td>
+                            <td><i class="fas fa-star" style="color:yellow" onclick="evalutionForm({{util.utilisateur.id}})"data-bs-toggle="modal"
+                              data-bs-target="#ModalEvenement"
+                              data-bs-whatever="ticket"
+                              href="#"></i></td>
                         </tr>
                       {%endfor%}
 
@@ -1073,6 +1083,22 @@ $(".devis").on('click', function(){
                  }
             })
 })
+
+function evalutionForm(userID){
+  $.ajax({
+    url: window.location.href,
+    data: {'evalutionForm': userID},
+    dataType: 'html',
+    type: 'post',
+    success: function (html) {
+      $(".modal-body").find("div").hide()
+      $("#ModalEvenementLabel").html("<h2>Evaluation</h2>")
+      $("#enregister").html('Enregister')
+      $("#evalutionFormDiv").html(html).fadeIn(500)      
+    }
+  })
+
+}
 
 </script>
 {%endblock%}

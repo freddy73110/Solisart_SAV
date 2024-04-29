@@ -603,7 +603,9 @@ async function ganttGenerator(){
                    }
             }
             $(".popup-wrapper").css('opacity', '0')
-        }else{
+            
+            $(".gantt-container:not(#ganttContainer)").animate({scrollLeft: $('.today-highlight').position().left}, 1500);
+          }else{
             $("#ganttContainer").removeClass("gantt-container")
             $("#ganttContainer").html('<table id="table" data-toggle="table" data-custom-sort="customSort" data-search="true" '+
             '><thead><tr>'+

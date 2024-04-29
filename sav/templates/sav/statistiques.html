@@ -182,7 +182,6 @@
                             <script>
   var $table = $('#table')
   var data = JSON.parse(document.getElementById('data1').textContent);
-  console.log(data)
     $table.bootstrapTable({data: data})
   function refreshBLStat(t){
     form = $("#form_BL")
@@ -277,9 +276,9 @@ function pctFormatter(value) {
                             function ajaxRequest(params) {
                               var url = 'api/NC'
                               $.get(url).then(function (res) {
-                                params.success({
-                                  "rows": res.results,
-                                  "total": res.results.length
+                                params.success({                                  
+                                  "rows": res,
+                                  "total": res.lenght
                               },null,{})
                               })
                             }
