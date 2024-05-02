@@ -257,7 +257,6 @@ class updateDB (View):
                 empty=''
                 return HttpResponse(empty, content_type='text/csv')
 
-
         if 'exportprix' in request.POST:
             from .tasks import actualisePrixMySolisart
             return actualisePrixMySolisart()
@@ -3036,7 +3035,7 @@ class tools(View):
 class tool2(View):
     login_url = '/login/'
     template_name = 'sav/tool2.html'
-    title = "Raccordement hydauliques Capteur Modules"
+    title = "Raccordement hydrauliques Capteur Modules"
 
     def get(self, request, *args, **kwargs):
 

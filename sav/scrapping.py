@@ -557,7 +557,7 @@ class scrappingMySolisart():
                                          'message': "<i class='fas fa-check' style='color: #018303;'></i> Le commercial " + str(commercial) +" a été affecté à l'installation"})
                 else:
                     send_channel_message('cartcreating', {
-                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation."})
+                'message': "<i class='fas fa-times' style='color: #fe0101;'></i> Le commercial n'a pas pu être affecté à l'installation ou il fait partie des chargées d'affaire Solisart"})
                 
                 
                      

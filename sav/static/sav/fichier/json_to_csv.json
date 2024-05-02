@@ -374,6 +374,133 @@
 			}
         }
     },
+	"typeAppoint1":{
+        "translation":{
+            "Aucun": {
+				"Type_Appoint(0)":0
+			},
+            "gaz": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul": {
+				"Type_Appoint(0)":1,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "gaz condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "fioul condensation":{
+				"Type_Appoint(0)":2,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "electrique": {
+				"Type_Appoint(0)":3,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "PAC": {
+				"Type_Appoint(0)":4,
+				"TMaxApp(0)": 60,
+				"TRetMinChdr(0)": 47,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "Granulé": {
+				"Type_Appoint(0)":5,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 8,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Bois": {
+				"Type_Appoint(0)":6,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 55,
+				"DTChdr(0)": 40,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 60,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 10,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			},
+            "Electrique ECS seul": {
+				"Type_Appoint(0)":7,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 35,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 100
+			},
+            "ON si APP2 en défaut": {
+				"Type_Appoint(0)":8,
+				"TMaxApp(0)": 92,
+				"TRetMinChdr(0)": 40,
+				"DTChdr(0)": 20,
+				"DTAppECS(0)": 6,
+				"TStockECS(0)": 42,
+				"MinOnDelay(0)": 20,
+				"MinOffDelay(0)": 1,
+				"VolCorpsChf(0)": 10,
+				"VMinCircApp(0)": 70
+			}
+        }
+    },
 	"appoint1":{
         "translation":{
             "Aucun": {
@@ -502,204 +629,6 @@
 			"Autre":{}
         }
     },
-    "typeAppoint1":{
-        "translation":{
-            "Aucun": {
-				"Type_Appoint(0)":0
-			},
-            "gaz": {
-				"Type_Appoint(0)":1,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 40,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "fioul": {
-				"Type_Appoint(0)":1,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 40,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "gaz condensation":{
-				"Type_Appoint(0)":2,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 35,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "fioul condensation":{
-				"Type_Appoint(0)":2,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 35,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "electrique": {
-				"Type_Appoint(0)":3,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 35,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "PAC": {
-				"Type_Appoint(0)":4,
-				"TMaxApp(0)": 60,
-				"TRetMinChdr(0)": 47,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 100
-			},
-            "Granulé": {
-				"Type_Appoint(0)":5,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 55,
-				"DTChdr(0)": 40,
-				"DTAppECS(0)": 8,
-				"TStockECS(0)": 60,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 10,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "Bois": {
-				"Type_Appoint(0)":6,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 55,
-				"DTChdr(0)": 40,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 60,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 10,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			},
-            "Electrique ECS seul": {
-				"Type_Appoint(0)":7,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 35,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 100
-			},
-            "ON si APP2 en défaut": {
-				"Type_Appoint(0)":8,
-				"TMaxApp(0)": 92,
-				"TRetMinChdr(0)": 40,
-				"DTChdr(0)": 20,
-				"DTAppECS(0)": 6,
-				"TStockECS(0)": 42,
-				"MinOnDelay(0)": 20,
-				"MinOffDelay(0)": 1,
-				"VolCorpsChf(0)": 10,
-				"VMinCircApp(0)": 70
-			}
-        }
-    },
-    "appoint2":{
-        "translation":{
-            "Aucun": {
-                "Type_Appoint(1)": 0
-            },
-            "Appoint granulé": {
-				"Type_Appoint(1)": 5,
-				"trilbl(04)":"C7 granul",
-				"tlbl(06)": "T6 granul",
-				"TMaxApp(1)": 92,
-				"TRetMinChdr(1)": 55,
-				"DTChdr(1)": 40,
-				"DTAppECS(1)": 8,
-				"TStockECS(1)": 60,
-				"MinOnDelay(1)": 20,
-				"MinOffDelay(1)": 10,
-				"VolCorpsChf(1)": 10,
-				"VMinCircApp(1)": 70
-			},
-            "Appoint bois": {
-				"Type_Appoint(1)": 6,
-				"trilbl(04)":"C7 Bois",
-				"tlbl(06)": "T6 Bois",
-				"TMaxApp(1)": 92,
-				"TRetMinChdr(1)": 55,
-				"DTChdr(1)": 40,
-				"DTAppECS(1)": 6,
-				"TStockECS(1)": 60,
-				"MinOnDelay(1)": 20,
-				"MinOffDelay(1)": 10,
-				"VolCorpsChf(1)": 10,
-				"VMinCircApp(1)": 70
-			},
-            "Sortie ECS appoint 1": {
-				"Type_Appoint(1)": 7,
-				"TMaxApp(1)": 92,
-				"TRetMinChdr(1)": 40,
-				"DTChdr(1)": 20,
-				"DTAppECS(1)": 6,
-				"TStockECS(1)": 42,
-				"MinOnDelay(1)": 20,
-				"MinOffDelay(1)": 1,
-				"VolCorpsChf(1)": 10,
-				"VMinCircApp(1)": 70
-			},
-            "Cascade Appoint 1": {
-				"Type_Appoint(1)": 9,
-				"TMaxApp(1)": 92,
-				"TRetMinChdr(1)": 40,
-				"DTChdr(1)": 20,
-				"DTAppECS(1)": 6,
-				"TStockECS(1)": 42,
-				"MinOnDelay(1)": 20,
-				"MinOffDelay(1)": 1,
-				"VolCorpsChf(1)": 10,
-				"VMinCircApp(1)": 70
-			},
-            "ON si APP1 en défaut": {
-				"Type_Appoint(1)": 10,
-				"TMaxApp(1)": 92,
-				"TRetMinChdr(1)": 40,
-				"DTChdr(1)": 20,
-				"DTAppECS(1)": 6,
-				"TStockECS(1)": 42,
-				"MinOnDelay(1)": 20,
-				"MinOffDelay(1)": 1,
-				"VolCorpsChf(1)": 10,
-				"VMinCircApp(1)": 70
-			}
-        }
-    },
 	"typeAppoint2":{
         "translation":{
             "Aucun": {
@@ -770,7 +699,78 @@
 				"VMinCircApp(1)": 70
 			}
         }
-    },
+    },    
+    "appoint2":{
+        "translation":{
+            "Aucun": {
+                "Type_Appoint(1)": 0
+            },
+            "Appoint granulé": {
+				"Type_Appoint(1)": 5,
+				"trilbl(04)":"C7 granul",
+				"tlbl(06)": "T6 granul",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 8,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Appoint bois": {
+				"Type_Appoint(1)": 6,
+				"trilbl(04)":"C7 Bois",
+				"tlbl(06)": "T6 Bois",
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 55,
+				"DTChdr(1)": 40,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 60,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 10,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Sortie ECS appoint 1": {
+				"Type_Appoint(1)": 7,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "Cascade Appoint 1": {
+				"Type_Appoint(1)": 9,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			},
+            "ON si APP1 en défaut": {
+				"Type_Appoint(1)": 10,
+				"TMaxApp(1)": 92,
+				"TRetMinChdr(1)": 40,
+				"DTChdr(1)": 20,
+				"DTAppECS(1)": 6,
+				"TStockECS(1)": 42,
+				"MinOnDelay(1)": 20,
+				"MinOffDelay(1)": 1,
+				"VolCorpsChf(1)": 10,
+				"VMinCircApp(1)": 70
+			}
+        }
+    },	
     "circulateurC1":{
         "translation":{
             "Aucun":{"Type_Emetteur(0)":0,
