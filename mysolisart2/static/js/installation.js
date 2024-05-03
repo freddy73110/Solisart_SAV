@@ -241,7 +241,7 @@ function refresh(configInstantane, schemaID){
             break;
     }
     //Affichage Capteur
-    affichageTemperature(configInstantane, schemaID, 't(2)', "T2")
+    affichageTemperature(configInstantane, schemaID, 't(2)', "T2") 
     switch(configInstantane.Nb_Champs_Capt){
         case '0':
             //Aucun 
