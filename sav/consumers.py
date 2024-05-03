@@ -10,61 +10,52 @@ from channels.generic.websocket import WebsocketConsumer
 
 class Cartcreating(WebsocketConsumer):
     def connect(self):
-        async_to_sync(self.channel_layer.group_add)(
-            'cartcreating',
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)("cartcreating", self.channel_name)
         self.accept()
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
-            'cartcreating',
-            self.channel_name
+            "cartcreating", self.channel_name
         )
         self.close()
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        if 'stop' in text_data_json:
+        if "stop" in text_data_json:
             try:
                 from selenium import webdriver
+
                 browser = webdriver.Firefox()
                 browser.close()
             except:
                 pass
-        self.send(text_data=json.dumps({
-            'message': "Firefox a été arrêté."
-        }))
-        self.send(text_data=json.dumps({
-            'message': "Le processus est en cours d'arrêt."
-        }))
+        self.send(text_data=json.dumps({"message": "Firefox a été arrêté."}))
+        self.send(
+            text_data=json.dumps({"message": "Le processus est en cours d'arrêt."})
+        )
         import subprocess
+
         subprocess.call("killall -9 firefox", shell=True)
-        self.send('cartcreating', {
-            'message':'Déconnexion au serveur my.solisart.fr',
-            'processing':False
-        })
+        self.send(
+            "cartcreating",
+            {"message": "Déconnexion au serveur my.solisart.fr", "processing": False},
+        )
 
     def channel_message(self, event):
-        del event['type']
+        del event["type"]
 
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))
 
+
 class production(WebsocketConsumer):
     def connect(self):
-        async_to_sync(self.channel_layer.group_add)(
-            'production',
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)("production", self.channel_name)
         self.accept()
 
     def disconnect(self, close_code):
         print("Closed websocket with code: ", close_code)
-        async_to_sync(self.channel_layer.group_discard)(
-            'production',
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_discard)("production", self.channel_name)
         self.close()
 
     def channel_message(self, event):
@@ -73,20 +64,15 @@ class production(WebsocketConsumer):
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))
 
+
 class updateDB(WebsocketConsumer):
     def connect(self):
-        async_to_sync(self.channel_layer.group_add)(
-            'updateDB',
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)("updateDB", self.channel_name)
         self.accept()
 
     def disconnect(self, close_code):
         print("Closed websocket with code: ", close_code)
-        async_to_sync(self.channel_layer.group_discard)(
-            'updateDB',
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_discard)("updateDB", self.channel_name)
         self.close()
 
     def channel_message(self, event):

@@ -153,67 +153,59 @@ footer{
 	background-size: 100% 100%;
 	height: 100vh;
 }
-{% comment %} .fillBallon {
-	background: linear-gradient(45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-	background-size: 400% 400%;
-	animation: gradient 15s ease infinite;
+.fillBallon {
+	background: linear-gradient(180deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 100% 500%;
+	animation: gradient 7s ease infinite;
 	height: 100vh;
+  bottom:0%;
 }
 
 @keyframes gradient {
 	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
+		background-position: bottom;
 	}
 	100% {
-		background-position: 0% 50%;
+		background-position: top;
 	}
+}
+
+
+
+
+{% comment %} .fillBallon {
+  position: relative; 
+  transform-origin: 0 100%;
+}
+
+.fillBallon::before {
+  height: 0%;
+  width: 100%;
+  content:'';
+  position: absolute;
+  border-width: 5px !important;
+  animation: remplissage 5s linear infinite;
 } {% endcomment %}
 
-:root {
-  --red: #ff0000;
-  --orange: #ff9100;
-  --yellow: #fff200;
-  --yellow-green: #d7fc03;
-  --green: #00ff00;
-  --blue: #0000ff;
-  --black: #000000;
-  --gray: #9e9e9e;
-  --white: #ffffff;
-}
-
-.fillBallon {
-  width: 50px;
-  height: 50px;
-  animation: remplissage 8s linear infinite;
-}
-
-@keyframes remplissage {
-  0% {
-    height: 0%;
-    background: var(--red);
+@keyframes remplissage {  
+  10% {
+    background: '';
+    height: 25%;
   }
-  
+
   25% {
-    height: 25%; 
-    background: var(--orange);
+    background: yellow;
+    height: 25%;
   }
   
   50% {
-    height: 50%;
-    background: var(--yellow);
-  }
-  
-  75% {
-    height: 75%;  
-    background: var(--yellow-green);
+    background: orange;
+    height: 55%;
   }
   
   100% {
-    height: 100%; 
-    background: var(--green);  
+    background: red; 
+    height: 100%;
   }
 }
 
@@ -576,8 +568,7 @@ footer{
                                     </div>
                                   </div> 
                                   <!--Tampon-->
-                                  <div class="position-absolute border border-warning border-5 rounded-pill"  style="height: 90%;width: 15%;left:42%; background: var(--black)">
-                                    <div class="position-absolute border border-warning border-5 rounded-pill tampon standbyeBallon" style="height: 100%;width: 100%"></div>
+                                  <div class="position-absolute border border-warning border-5 rounded-pill tampon"  style="height: 90%;width: 15%;left:42%;">
                                   </div>                               
                                   
                                   <!--T5-->
