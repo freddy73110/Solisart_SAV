@@ -53,17 +53,15 @@ class convertjson:
             dicttoconvert = dicttoconvert["formulaire"]
         for k, v in dicttoconvert.items():
             if k in convertjson:
-                print(k, v)
                 try:
-                    for key, value in convertjson[k]["translation"][v].items():
+                    if("typeAppoint" in str(k)):
                         if (
-                            "typeAppoint" in str(k)
-                            and dicttoconvert["appoint" + k.replace("typeAppoint", "")]
-                            != "Aucun"
+                            dicttoconvert["appoint" + k.replace("typeAppoint", "")]
+                            != "Autre"
                         ):
                             pass
-                        else:
-                            df.value[df.key == key] = value
+                    for key, value in convertjson[k]["translation"][v].items():
+                            df.value[df.key == key] = value                            
                 except Exception as ex:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
