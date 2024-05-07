@@ -1179,7 +1179,6 @@ class scrappingMySolisart:
             self.waitelement(
                 By.ID, "schema-ajouter", "presence_of_element_located", "click"
             )
-            print(os.path.dirname(__file__) + "/temp/image.png")
             self.driver.find_element(By.ID, "telechargement-schema-input-1").send_keys(
                 os.path.join(os.path.dirname(__file__), "temp", "image.png")
             )

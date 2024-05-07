@@ -49,6 +49,20 @@ class convertjson:
             encoding="utf-8",
         ) as json_file:
             convertjson = json.load(json_file)
+            # convertjsonlower={}
+            # for k, v in convertjson.items():
+            #     convertjsonlower[k]={"translation":{}}
+            #     for key, value in v["translation"].items():                    
+            #         convertjsonlower[k]["translation"].update({key.lower():value})
+            # with open(os.path.join(
+            #     os.path.abspath(os.getcwd()),
+            #     "sav",
+            #     "static",
+            #     "sav",
+            #     "fichier",
+            #     "json_to_csvlower.json",
+            # ), "w") as outfile: 
+            #     json.dump(convertjsonlower, outfile)
         if "formulaire" in dicttoconvert:
             dicttoconvert = dicttoconvert["formulaire"]
         for k, v in dicttoconvert.items():
@@ -57,11 +71,11 @@ class convertjson:
                     if("typeAppoint" in str(k)):
                         if (
                             dicttoconvert["appoint" + k.replace("typeAppoint", "")]
-                            != "Autre"
+                            != "autre"
                         ):
                             pass
-                    for key, value in convertjson[k]["translation"][v].items():
-                            df.value[df.key == key] = value                            
+                    for key, value in convertjson[k]["translation"][v.lower()].items():
+                        df.value[df.key == key] = value
                 except Exception as ex:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
