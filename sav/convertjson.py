@@ -73,9 +73,7 @@ class convertjson:
                             dicttoconvert["appoint" + k.replace("typeAppoint", "")]
                             != "autre"
                         ):
-                            print("pass", k)
                             continue
-                    print(k)
                     for key, value in convertjson[k]["translation"][v.lower()].items():                        
                         df.value[df.key == key] = value
                 except Exception as ex:
