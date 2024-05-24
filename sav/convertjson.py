@@ -66,12 +66,12 @@ class convertjson:
         if "formulaire" in dicttoconvert:
             dicttoconvert = dicttoconvert["formulaire"]
         for k, v in dicttoconvert.items():
-            if k in convertjson:
+            if k in convertjson:                
                 try:
                     if("typeAppoint" in str(k)):
                         if (
                             dicttoconvert["appoint" + k.replace("typeAppoint", "")]
-                            != "autre"
+                            == "autre"
                         ):
                             continue
                     for key, value in convertjson[k]["translation"][v.lower()].items():                        

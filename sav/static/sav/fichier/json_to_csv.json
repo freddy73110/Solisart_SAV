@@ -139,6 +139,7 @@
     "translation": {
       "v3v bypass appoint 1": { "Sortie_48": 0 },
       "v3v retour bouclage sanitaire solaire": { "Sortie_48": 1 },
+      "piscine déportée t15":{"Sortie_48": 2, "S48lbl": "Piscine déportée", "tlbl(15)": "Piscine"},
       "activable par case à cocher": { "Sortie_48": 4 },
       "décharge sur zone plancher": { "Sortie_48": 5 },
       "on en mode solaire": { "Sortie_48": 6 },
@@ -183,6 +184,7 @@
     "translation": {
       "v3v bypass appoint 1": { "Sortie_49": 0 },
       "v3v retour bouclage sanitaire solaire": { "Sortie_49": 1 },
+      "piscine déportée t15":{"Sortie_49": 2, "S49lbl": "Piscine déportée", "tlbl(15)": "Piscine"},
       "activable par case à cocher": { "Sortie_49": 4 },
       "décharge sur zone plancher": { "Sortie_49": 5 },
       "on en mode solaire": { "Sortie_49": 6 },
@@ -225,7 +227,7 @@
   },
   "typeAppoint1": {
     "translation": {
-      "aucun": { "Type_Appoint(0)": 0 },
+      "aucun": {},
       "gaz": {
         "Type_Appoint(0)": 1,
         "TMaxApp(0)": 92,
@@ -476,7 +478,7 @@
   },
   "typeAppoint2": {
     "translation": {
-      "aucun": { "Type_Appoint(1)": 0 },
+      "aucun": {},
       "appoint granulé": {
         "Type_Appoint(1)": 5,
         "trilbl(04)": "C7 granul",
