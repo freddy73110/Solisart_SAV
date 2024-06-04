@@ -148,7 +148,7 @@
       "v3v décharge zone 1": { "Sortie_48": 9 },
       "electrovanne appoint 1 ou flow switch": { "Sortie_48": 10 },
       "aquastat différentiel si t15>t16": { "Sortie_48": 11 },
-      "cesi déportée sur t16": { "Sortie_48": 12 },
+      "cesi déportée sur t16": { "Sortie_48": 12 , "S48lbl": "CESI déportée", "tlbl(16)": "CESI"},
       "horloge on de 5h à 8h, 11h30 à 14h et 16h30 à 23h": {
         "Sortie_48": 13
       },
@@ -193,7 +193,7 @@
       "v3v décharge zone 1": { "Sortie_49": 9 },
       "electrovanne appoint 1 ou flow switch": { "Sortie_49": 10 },
       "aquastat différentiel si t15>t16": { "Sortie_49": 11 },
-      "cesi déportée sur t16": { "Sortie_49": 12 },
+      "cesi déportée sur t16": { "Sortie_49": 12, "S49lbl": "CESI déportée", "tlbl(16)": "Piscine" },
       "horloge on de 5h à 8h, 11h30 à 14h et 16h30 à 23h": {
         "Sortie_49": 13
       },

@@ -918,12 +918,12 @@ class scrappingMySolisart:
             else:
                 email_installateur = dict_schematic["adresse_mail"]
 
-            for email in list(
+            for idsa in list(
                 profil_user.objects.filter(user__email=email_installateur).values_list(
-                    "user__email", flat=True
+                    "idsa", flat=True
                 )
             ):
-                self.acces_installation(email, install, "3")
+                self.acces_installation(idsa, install, "3")
 
         if self.connecting:
             send_channel_message(

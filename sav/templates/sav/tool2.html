@@ -61,7 +61,8 @@
                         <div class="form-floating">
                         <select class="form-select" id="capteur">
                             <option >Type de Capteur</option>
-                            <option value="1" selected>S7 2,5 / S7 / SM</option>
+                            <option value="1" selected>S7 2,5 / S7 / SM</option>                            
+                            <option value="2" selected>SH</option>
                         </select>                        
                         <label for="capteur">Type Capteur</label>
                         </div>
@@ -70,7 +71,7 @@
                                 <option value="16" selected>&#8960; 16</option>
                                 <option value="20">&#8960; 20</option>
                                 <option value="25">&#8960; 25</option>
-                                <option value="30">&#8960; 30</option>
+                                <option value="30">&#8960; 32</option>
                             </select>                           
                             <label  for="DNBitube">Diamètre DN</label>
                         </div>
@@ -103,7 +104,7 @@
                 <table class="table table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th colspan="3" class="text-center" id="diameter">&#8960;</th>                           
+                            <th colspan="3" class="text-center" id="diameterTable">&#8960;</th>                           
                         <tr>
                             <th class="text-center">Référence</th>
                             <th class="text-center">Désignation</th>
@@ -124,12 +125,14 @@
         $("#champ").attr({
             "min" : 1          // values (or variables) here
          });
-        switch($("#capteur").val()){
+         var diam = $("#diameter").val()
+         $("#diameterTable").html("Diametère &#8960;" + diam)
+        switch($("#capteur").val()){      
+            
             case "1":
-                var superficie = $("#superficie").val()                
-                switch(true){
-                    case (superficie <= 8):
-                        $("#diameter").html("Diametère &#8960;16")
+                              
+                switch(diam){
+                    case ("16"):
                         var list=[
                             {article:"Kit de raccordement DN16", ref:"MOD0226", quantity: 1},
                             {article:'Réduction 1"F * 3/4"M', ref:"MOD0083", quantity: 2},
@@ -137,8 +140,7 @@
                         ]
                         list.forEach((element) => $("#result").append("<tr><td class='text-center'>"+ element.article +"</td><td class='text-center'>"+ element.ref+ "</td><td class='text-center'>"+ element.quantity+ "</td></tr>"));
                         break;
-                    case (superficie > 8 && superficie <=17.5):
-                        $("#diameter").html("Diametère &#8960;20")                       
+                    case ("20"):                      
                         var quantity = 1
                         if ($('#echangeur').val() == 'Echangeur'){
                             $("#result").append("<tr><td class='text-center'>Kit échangeur 56kW + vase 50L (6bar)</td><td class='text-center'>KITSSC070</td><td class='text-center'>1</td></tr>")
@@ -152,7 +154,7 @@
                         ]
                         list.forEach((element) => $("#result").append("<tr><td class='text-center'>"+ element.article +"</td><td class='text-center'>"+ element.ref+ "</td><td class='text-center'>"+ element.quantity+ "</td></tr>"));
                         break;
-                    case (superficie > 17.5):
+                    case ("25"):
                         if($("#champ").val() == 1){
                             $("#champ").val("2")
                         }
