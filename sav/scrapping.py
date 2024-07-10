@@ -32,7 +32,7 @@ def get_download_path():
         return location
 
     else:
-        return os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416")
+        return os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "current")
 
 
 def send_channel_message(group_name, message):
@@ -183,7 +183,7 @@ class scrappingMySolisart:
                 os.rename(
                     glob.glob(
                         os.path.join(
-                            os.path.abspath(os.sep), "root", "snap", "firefox", "3416"
+                            os.path.abspath(os.sep), "root", "snap", "firefox", "current"
                         )
                         + "/"
                         + link.split("=")[1]
@@ -1574,7 +1574,7 @@ class scrappingMySolisart:
             files = glob.glob(get_download_path() + "\*.csv")
         else:
             files = glob.glob(
-                os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "3416")
+                os.path.join(os.path.abspath(os.sep), "root", "snap", "firefox", "current")
                 + "/*.csv"
             )
         for f in files:
@@ -1641,7 +1641,7 @@ class scrappingMySolisart:
                     "cartcreating",
                     {
                         "message": os.path.join(
-                            os.path.abspath(os.sep), "root", "snap", "firefox", "3416"
+                            os.path.abspath(os.sep), "root", "snap", "firefox", "current"
                         )
                         + "/*.csv"
                     },
@@ -1649,7 +1649,7 @@ class scrappingMySolisart:
                 os.rename(
                     glob.glob(
                         os.path.join(
-                            os.path.abspath(os.sep), "root", "snap", "firefox", "3416"
+                            os.path.abspath(os.sep), "root", "snap", "firefox", "current"
                         )
                         + "/*.csv"
                     )[0],
