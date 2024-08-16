@@ -4013,16 +4013,12 @@ class assemblyView(View):
     def post(self, request, *args, **kwargs):
         if "downloadSchema" in request.POST:
             import json
-            if settings.DEBUG:
-                d = open(r"C:\Users\freddy\Downloads\installation-CHAUDY-13032024.json")
-                param = json.load(d)
-            else:
-                data = (
+            data = (
                 CL_herakles.objects.get(pk=request.POST["downloadSchema"])
                 .json()
                 .fichier.file.read()
                 )
-                param = json.loads(data)
+            param = json.loads(data)
             
             import requests
 
