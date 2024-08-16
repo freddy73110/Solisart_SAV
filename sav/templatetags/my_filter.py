@@ -26,7 +26,13 @@ def lastmonthlist(month):
 
 @register.filter(name='has_group')
 def has_group(user, group_name):
-    return user.groups.filter(name=group_name).exists()
+    if ',' in group_name:
+        had = False
+        for group in group_name.split(','):
+            had |= user.groups.filter(name=group).exists()
+        return had
+    else:
+        return user.groups.filter(name=group_name).exists()
 
 @register.filter
 def add_evenement_form(user):

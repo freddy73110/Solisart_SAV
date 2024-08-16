@@ -59,4 +59,6 @@ urlpatterns = [
         name="tools",
     ),
     path("bg_dark", views.bg_dark, name="bg_dark"),
+    path("assembly/<int:pkCL>", login_required(views.assemblyView.as_view()), name="assembly"),
+    path("batch", login_required(views.batchView.as_view()), name="batch")
 ]

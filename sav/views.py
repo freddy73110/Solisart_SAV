@@ -57,6 +57,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
+from django.forms import formset_factory
+
 from plotly.subplots import make_subplots
 
 from heraklesinfo.models import C100Clients
@@ -241,7 +243,22 @@ class home(View):
                     "table": installation_list.distinct(),
                 },
             )
-
+        if 'BL' in request.POST:
+            table_list = installation.objects.all()
+            if request.POST['BL']:
+                table_list = table_list.filter(
+                    evenement__ticket__BL__BL__icontains=request.POST['BL']
+                )
+            if request.POST['CL']:
+                table_list = table_list.filter(
+                    cl_herakles__CL__icontains=request.POST['CL']
+                )   
+            
+            return render(
+                request,
+                "widgets/table_recherche.html",
+                {"utilisateurs": [], "table": table_list},
+            )
 
 class updateDB(View):
     login_url = "/login/"
@@ -1376,7 +1393,6 @@ class installation_view(View):
         )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
 
         if "critere" in request.POST:
             date_evalutaion = datetime.strptime(
@@ -1681,8 +1697,6 @@ class installation_view(View):
                 add_evenement.save()
             if add_ticket_form.is_valid():
                 tick = add_ticket_form.save()
-                print(request.POST)
-                print(self.NC_form.is_valid(), "Noncompliance" in request.POST)
                 if self.NC_form.is_valid() and "Noncompliance" in request.POST:
                     NC = self.NC_form.save(commit=False)
                     NC.ticket = tick
@@ -2295,8 +2309,25 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
-        from .tasks import actualise_herakles
-        actualise_herakles()
+        print(CL_herakles.objects
+                        .all()
+                        .order_by("-CL")
+                        .annotate(title=Concat("CL", Value(" - "), "installateur__Nom", output_field=CharField()))
+                        .values_list("title",flat=True)
+ 
+        )
+        # from django.shortcuts import get_object_or_404
+        # for CL in CL_herakles.objects.filter(date_prepa_carte__isnull=False):
+        #     sample_object = get_object_or_404(CL_herakles, id=CL.id)
+
+        #     for field in ["date_capteur", "date_livraison", "date_ballon", "date_montage", "date_prepa", "date_reglement"]:
+        #         # print(getattr(sample_object, field))
+        #         if getattr(sample_object, field) == None:
+        #             print(sample_object, field)
+        #             setattr(sample_object, field, timezone.now())
+        #             sample_object.save()
+
+
 
         return render(request, self.template_name, {"title": self.title})
 
@@ -2797,6 +2828,8 @@ class production(View):
         )
 
     def post(self, request, *args, **kwargs):
+        print("request", request.POST)
+
         if "delete_file" in request.POST:
             Fichiers.objects.get(pk=request.POST["delete_file"]).delete()
             return JsonResponse({"Delete": "OK"}, safe=False)
@@ -2906,7 +2939,15 @@ class production(View):
                         "datereceptionclient": False,
                     },
                 )
-                return JsonResponse({"data": ""}, safe=False)
+                return JsonResponse(
+                    {"data": list(
+                        CL_herakles.objects
+                        .all()
+                        .order_by("-CL")
+                        .annotate(title=Concat("CL", Value(" - "), "installateur__Nom", output_field=CharField()))
+                        .values_list("title",flat=True)
+                        )
+                        }, safe=False)
             else:
                 print("error", form.errors)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
@@ -2962,7 +3003,15 @@ class production(View):
                         "datereceptionclient": False,
                     },
                 )
-                return JsonResponse({"data": ""}, safe=False)
+                return JsonResponse(
+                    {"data": list(
+                        CL_herakles.objects
+                        .all()
+                        .order_by("-CL")
+                        .annotate(title=Concat("CL", Value(" - "), "installateur__Nom", output_field=CharField()))
+                        .values_list("title",flat=True)
+                        )
+                        }, safe=False)
             else:
                 print(form.errors)
 
@@ -3006,7 +3055,7 @@ class production(View):
                 },
             )
 
-            return JsonResponse({"data": ""}, safe=False)
+            return JsonResponse({"data": CL_herakles.objects.all().values_list("id")}, safe=False)
 
         if "finishTask" in request.POST:
             task = json.loads(request.POST["finishTask"])
@@ -3773,5 +3822,356 @@ class tool2(View):
     title = "Raccordement hydrauliques Capteur Modules"
 
     def get(self, request, *args, **kwargs):
-
+        
         return render(request, self.template_name, {"title": self.title})
+    
+class assemblyView(View):
+    login_url = "/login/"
+    template_name = "sav/assembly.html"
+    title = "Montage et validation module"
+
+    def tracability_initial(self, organ, location):
+        organobj = tracability_organ.objects.get(name=organ)
+        try:
+            trace = tracability.objects.get(CL=self.CL, organ = organobj, location=location)
+            if trace:
+                    self.tracabilityFormsetINITIAL.append(
+                        {
+                            "id":trace.id, 
+                            "CL":trace.CL.id,
+                            "organ":trace.organ.id,
+                            "location":trace.location,
+                            "SN":trace.SN,
+                            "batch":trace.batch.id if trace.batch else ""
+                        }
+                    )
+        except:
+            self.tracabilityFormsetINITIAL.append(
+                        {
+                            "id":"", 
+                            "CL": self.CL.id,
+                            "organ":organobj.id,
+                            "location": location,
+                            "SN":"",
+                            "batch":""
+                        }
+                    )
+
+
+    def dispatch(self, request: http.HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        
+        if kwargs:
+            if "pkCL" in kwargs:
+                self.CL = CL_herakles.objects.get(pk=kwargs.pop("pkCL"))
+                self.title +=  '<br>Commande ' + str(self.CL.module)+ ': ' + str(self.CL)
+        self.assemblyFormset = formset_factory(Assembly_form, extra=0)
+        self.AssemblyFormsetINITIAL = []
+        for vali in validationModule.objects.filter(type=0).order_by('id'):
+            from .models import assembly
+            try:
+                assem = assembly.objects.get(CL=self.CL, validation =vali)
+                if assem:
+                    self.AssemblyFormsetINITIAL.append(
+                        {
+                            "id":assem.id, 
+                            "CL":assem.CL.id,
+                            "validation" : assem.validation.id,
+                            "operator" : assem.operator.id,
+                            "date" : assem.date,
+                            "icon": True if assem.date else False
+                        }
+                    )
+            except:
+                self.AssemblyFormsetINITIAL.append(
+                        {
+                            "id":"", 
+                            "CL": self.CL.id,
+                            "validation" : vali.id,
+                            "operator" : request.user.id,
+                            "date" : "",
+                            'icon':False
+                        }
+                    )
+        
+        self.validationFormsetINITIAL = []
+        for vali in validationModule.objects.filter(type=1).order_by('id'):
+            try:
+                assem = assembly.objects.get(CL=self.CL, validation =vali)
+                if assem:
+                    self.validationFormsetINITIAL.append(
+                        {
+                            "id":assem.id, 
+                            "CL":assem.CL.id,
+                            "validation" : assem.validation.id,
+                            "operator" : assem.operator.id,
+                            "date" : assem.date.strftime("%Y-%m-%d"),
+                            "icon": True if assem.date else False
+                        }
+                    )
+            except:
+                self.validationFormsetINITIAL.append(
+                        {
+                            "id":"", 
+                            "CL": self.CL.id,
+                            "validation" : vali.id,
+                            "operator" : request.user.id,
+                            "date" : "",
+                            'icon':False
+                        }
+                    )
+
+        try:
+            import json
+            if settings.DEBUG:
+                d = open(r"C:\Users\freddy\Downloads\installation-CHAUDY-13032024.json")
+                self.CL_json = json.load(d)
+            else:
+                data = (
+                self.CL
+                .json()
+                .fichier.file.read()
+                )
+                self.CL_json = json.loads(data)
+            self.tracabilityFormset = formset_factory(Tracability_form, extra=0)
+        except:
+            self.tracabilityFormset = formset_factory(Tracability_form, extra=1)
+
+        return super().dispatch(request, *args, **kwargs)
+    
+
+    def get(self, request, *args, **kwargs):
+        
+        
+        formset = self.assemblyFormset(initial=self.AssemblyFormsetINITIAL, prefix="assembly")
+        helper = AssemblyFormset()
+        
+        validationFormset = formset_factory(Assembly_form, extra=0)
+        validationformset = self.assemblyFormset(initial=self.validationFormsetINITIAL, prefix="validation")
+
+        self.tracabilityFormsetINITIAL = []
+        
+        CL_json = self.CL_json
+        
+        if "formulaire" in CL_json:
+            CL_json = CL_json['formulaire']
+        if "circulateurC1" in CL_json and CL_json['circulateurC1'] != "aucun":
+            self.tracability_initial("MOD0725", Organ_Location.C1)
+        if "circulateurC2" in CL_json and CL_json['circulateurC2'] != "aucun":
+            self.tracability_initial("MOD0725", Organ_Location.C2)
+        if "circulateurC3" in CL_json and CL_json['circulateurC3'] != "aucun":
+            self.tracability_initial("MOD0725", Organ_Location.C3)
+        if "circulateurC7" in CL_json and CL_json['circulateurC7'] != "aucun":
+            self.tracability_initial("MOD0725", Organ_Location.C7)
+        self.tracability_initial("MOD0725", Organ_Location.C4)
+        self.tracability_initial("MOD0725", Organ_Location.C5)
+        if "ballonTampon" in CL_json and CL_json['ballonTampon'] != "aucun":
+            self.tracability_initial("MOD0725", Organ_Location.C6)
+        self.tracability_initial("MOD0059", Organ_Location.APP)
+        self.tracability_initial("MOD0061", Organ_Location.APP)
+        if "ballonTampon" in CL_json and CL_json['ballonTampon'] != "aucun":
+            self.tracability_initial("MOD0059", Organ_Location.BTP)
+            self.tracability_initial("MOD0061", Organ_Location.BTP)
+        #pour les capteurs
+        if self.CL.capteur_nbre != 0 and not tracability.objects.filter(CL = self.CL, location = 0):
+            for capt in range(self.CL.capteur_nbre):
+                if self.CL.capteur:
+                    if self.CL.capteur.type == "S7 2,5":
+                        self.tracability_initial("CAP0031", Organ_Location.AUCUN)
+                    elif self.CL.capteur.type == "S7 2":
+                        self.tracability_initial("CAP0036", Organ_Location.AUCUN)
+                    elif self.CL.capteur.type == "SID":
+                        self.tracability_initial("CAP0200", Organ_Location.AUCUN)
+                    elif self.CL.capteur.type == "SM":
+                        self.tracability_initial("CAP0077", Organ_Location.AUCUN)
+                    elif self.CL.capteur.type == "SH 2":
+                        self.tracability_initial("CAP0240", Organ_Location.AUCUN)
+                    elif self.CL.capteur.type == "SH 2,5":
+                        self.tracability_initial("CAP0241", Organ_Location.AUCUN)
+        elif tracability.objects.filter(CL = self.CL, location = 0):
+            for trace in tracability.objects.filter(CL = self.CL, location = 0):
+                self.tracabilityFormsetINITIAL.append(
+                        {
+                            "id":trace.id, 
+                            "CL":trace.CL.id,
+                            "organ":trace.organ.id,
+                            "location":trace.location,
+                            "SN":trace.SN,
+                            "batch":trace.batch.id if trace.batch else ""
+                        }
+                    )
+
+
+        tracabilityformset = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL, prefix="tracability")
+
+        return render(request, 
+                      self.template_name, 
+                      {
+                          "title": self.title,
+                          "CL": self.CL,
+                          'assemblyFormset':formset, 
+                          'Helper':helper,
+                          'validationFormset':validationformset,
+                          "tracabilityFormset": tracabilityformset
+                      })
+    
+    def post(self, request, *args, **kwargs):
+        if "downloadSchema" in request.POST:
+            import json
+            if settings.DEBUG:
+                d = open(r"C:\Users\freddy\Downloads\installation-CHAUDY-13032024.json")
+                param = json.load(d)
+            else:
+                data = (
+                CL_herakles.objects.get(pk=request.POST["downloadSchema"])
+                .json()
+                .fichier.file.read()
+                )
+                param = json.loads(data)
+            
+            import requests
+
+            url = "https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrau"
+            resp = requests.post(url, files={"fichier": json.dumps(param)})
+
+            # Lire les données de l'image depuis la réponse
+            image_data = resp.content
+            img = Image.open(BytesIO(image_data))
+            response = HttpResponse(content_type="image/png")
+            response["Content-Disposition"] = (
+                'attachment; filename="output.png"'
+            )
+            img.save(response, "PNG")
+            return response
+        if "validation-TOTAL_FORMS" in request.POST:
+            validationformset = self.assemblyFormset(request.POST or None, initial=self.validationFormsetINITIAL, prefix="validation")
+            if validationformset.is_valid:
+                for form2 in validationformset:
+                    if form2.is_valid:
+                        f = form2.save(commit=False)      
+                        try:
+                            from .models import assembly
+                            a = assembly.objects.get(validation=f.validation, CL=f.CL)
+                            print("a", a)
+                            f.id = a.id
+                            f.save()
+                        except Exception as ex:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            print(ex)
+                            f.save() 
+               
+                    else:
+                        print("error", form2.errors.as_data())
+                return JsonResponse(
+                                {
+                                    "data": ""
+                                },
+                                safe=False,
+                            )
+        if "assembly-TOTAL_FORMS" in request.POST:
+            formset = self.assemblyFormset(request.POST or None, initial=self.AssemblyFormsetINITIAL, prefix="assembly")
+            if formset.is_valid:
+                for form1 in formset.forms:                                       
+                    if form1.is_valid:
+                        print("in form valided")
+                        f = form1.save(commit=False)      
+                        try:
+                            from .models import assembly
+                            a = assembly.objects.get(validation=f.validation, CL=f.CL)
+                            print("a", a)
+                            f.id = a.id
+                            f.save()
+                        except Exception as ex:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            print(ex)
+                            f.save() 
+               
+                    else:
+                        print("error", form1.errors.as_data())
+                return JsonResponse(
+                                {
+                                    "data": ""
+                                },
+                                safe=False,
+                            )
+        if "tracability-TOTAL_FORMS" in request.POST:
+            tracabilityformset = self.tracabilityFormset(request.POST or None,  prefix="tracability")
+            if tracabilityformset.is_valid:
+                tracabilityformset.cleaned_data
+                for form in tracabilityformset:                    
+                    if form.is_valid:                        
+                        f = form.save(commit=False)
+                        if form.cleaned_data.get('id'):
+                            f.id = form.cleaned_data.get('id')
+                            f.save()
+                        else:
+                            f.save()
+               
+                    else:
+                        print("error", form2.errors.as_data())
+                return JsonResponse(
+                                {
+                                    "data": ""
+                                },
+                                safe=False,
+                            )
+        if "articleChanged" in request.POST:
+            batches = [[b.id, str(b)]for b in batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =request.POST['articleChanged'])))]
+            return JsonResponse(
+                                {
+                                    "batches": batches
+                                },
+                                safe=False,
+                            )
+
+class batchView(View):
+    login_url = "/login/"
+    template_name = "sav/batch.html"
+    title = "Gestion des lots"
+
+    def get(self, request, *args, **kwargs):
+        from heraklesinfo.models import B50Composants
+        return render(request,
+                       self.template_name,
+                         {
+                             "title": self.title,
+                             "batches": batch.objects.all()
+                        }
+                    )
+    
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        if "updateModal" in request.POST:
+            return render(
+                request,
+                "widgets/batchModal.html",
+                {"form":Batch_form(instance = batch.objects.get(pk = request.POST['updateModal']))}
+            )
+        if "update" in request.POST:
+            form = Batch_form(request.POST, instance = batch.objects.get(pk = request.POST['id']))
+            if form.is_valid:
+                form.save()
+            return redirect(request.path)
+        if "AddBashModal" in request.POST:
+            return render(
+                request,
+                "widgets/batchModal.html",
+                {"form": Batch_form()}
+            )
+        if 'add' in request.POST:
+            form = Batch_form(request.POST)
+            if form.is_valid:
+                form.save()
+            return redirect(request.path)
+        if 'link' in request.POST:
+            traces = tracability.objects.filter(batch__id = request.POST['link']) \
+            .annotate(CLlink = F("CL"), instal =F("CL__installation__idsa"), instal_id = F("CL__installation__id"))
+            print(traces)
+            return render(
+                request,
+                "widgets/table_batch-installation.html",
+                {"traces": traces}
+            )

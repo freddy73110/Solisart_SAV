@@ -1,0 +1,224 @@
+{% extends "sav/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load my_filter %}
+{%block Titre%}{{title}}{%endblock%}
+
+{%block article%}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center m-3">{{title|safe}}</h1>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ModalDiv" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                          <div class="modal-header bg-warning">
+                            <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" id= "ButtonModalclose" aria-label="Close"></button>
+                          </div>
+                            <form method="post" id="modalForm" enctype="multipart/form-data">
+                          <div class="modal-body">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="button" class="btn btn-outline-primary" id="enregistrer" name="tutu">Ajouter</button>
+                          </div>
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link " id="schema-tab" data-bs-toggle="tab" data-bs-target="#schema" type="button" role="tab" aria-controls="home" aria-selected="true">Schema</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tracability-tab" data-bs-toggle="tab" data-bs-target="#tracability" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    Traçabilité
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link " id="assembly-tab" data-bs-toggle="tab" data-bs-target="#assembly" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                    Montage
+                </button>
+              </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade " id="schema" role="tabpanel" aria-labelledby="home-tab">
+                    <div id="schema"></div>
+                </div>
+                <div class="tab-pane fade show active" id="tracability" role="tabpanel" aria-labelledby="home-tab">
+                    <fieldset class="border p-2 h-100">
+                        <legend class="float-none w-auto"><b>Traçabilité</b></legend>
+                        <form type="POST">
+                            {% crispy tracabilityFormset Helper %}   
+                            <button class="btn btn-outline-primary me-md-2 " type="button" id="button"><i class="fas fa-plus-circle"></i></button>
+                            <button class="btn btn-outline-primary me-md-2 " type="button" id="delete"><i class="fas fa-minus-circle"></i></button>                         
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-outline-primary me-md-2 buttonSave" type="button">Enregister</button>
+                            </div>
+                        </form>
+
+                    </fieldset>
+                </div>
+                <div class="tab-pane fade" id="assembly" role="tabpanel" aria-labelledby="home-tab">
+                    <fieldset class="border p-2 h-100">
+                        <legend class="float-none w-auto"><b>Montage</b></legend>
+                        <form type="POST">
+                            {% crispy assemblyFormset Helper %}
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-outline-primary me-md-2 buttonSave" type="button">Enregister</button>
+                            </div>
+                        </form>
+                    </fieldset>
+                    <fieldset class="border p-2 h-100">
+                        <legend class="float-none w-auto"><b>Validation</b></legend>
+                        <form type="POST">
+                            {% crispy validationFormset Helper %}                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-outline-primary me-md-2 buttonSave" type="button">Enregister</button>
+                            </div>
+                        <form>
+                    </filedset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('[id ^=id_tracability-][id $=-organ]').on("change", function(){
+        var batchId = $(this)[0].id.replace("organ", "batch")
+        var articlePk = $(this).val()
+        $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: {articleChanged: articlePk},
+            dataType: 'json',
+            success: function (data) {
+                var batches = data.batches
+                $("#" + batchId).html("")
+                $.each(batches, function(i, v){
+                    $("#" + batchId).append('<option value="'+v[0]+'">'+v[1]+'</option>')
+                })
+            }
+        })
+    })
+    var $table = $($('#button').closest("fieldset").find("table")[0])
+    var $button = $('#button')
+    var $delete = $('#delete')
+    $(function() {
+      $button.click(function () {
+     var $t = $($('#button').closest("fieldset").find("table")[0]);
+     var index = $t.find("tbody tr input").last()[0].id.split('-')[1]
+      var nextIndex = parseInt(index) + 1
+      var $row = $t.find("tbody tr").last();
+      var ToAppend = $row.prop('outerHTML').replaceAll(index, nextIndex)
+      $t.append(ToAppend)
+      $("#id_tracability-" + nextIndex + "-organ").trigger( "change" )
+
+      var v = document.getElementById("id_tracability-TOTAL_FORMS");
+      v.value = parseInt(v.value) + 1;
+      $('[id ^=id_tracability-][id $=-organ]').on("change", function(){
+        var batchId = $(this)[0].id.replace("organ", "batch")
+        var articlePk = $(this).val()
+        $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: {articleChanged: articlePk},
+            dataType: 'json',
+            success: function (data) {
+                var batches = data.batches
+                $("#" + batchId).html("")
+                $.each(batches, function(i, v){
+                    $("#" + batchId).append('<option value="'+v[0]+'">'+v[1]+'</option>')
+                })
+            }
+        })
+    })
+      })
+      
+    });
+    $(function() {
+        var $button = $('#button')
+        var $delete = $('#delete')
+          $delete.click(function () {
+         var $t = $($('#button').closest("fieldset").find("table")[0]);
+          var $row = $t.find("tbody tr").last();
+          var rowLength = $t.find("tr").length;
+          if (rowLength>2){
+          $row.remove();
+          var v = document.getElementById("id_tracability-TOTAL_FORMS");
+          v.value = parseInt(v.value) - 1;
+          }else{
+          $delete.prop("disabled",true)
+          }
+          })
+          });
+
+</script>
+<script>
+    $(".buttonSave").on("click", function(){
+        console.log($(this))
+        var form = $(this).closest("form")
+        form.find('select').prop('disabled', false)
+        $(this).prop('disabled', true)
+        $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+            //todo faire un message de validation
+                window.location.reload();
+            }
+    })
+
+    })
+    $("input[id$='-icon']").on("click", function(){
+        var id = $(this)[0].id.replace("icon", "date")
+        if($(this).is(":checked")){
+            var today = new Date();
+            var date =  today.getFullYear() +'-'+(today.getMonth()+1)+'-'+today.getDate();
+            $("#" + id).val(date)
+        }else{
+            $("#" + id).val('')
+        }
+    })
+</script>
+
+<script>
+function downloadSchema(Cl_id){
+        $.ajax({
+                    url: window.location.href,
+                    type:'post',
+                    data:{'downloadSchema': Cl_id},
+                    xhrFields:{
+                        responseType: 'blob'
+                    },
+                    success: function (response) {
+                        var image = new Image();
+                        image.src = URL.createObjectURL(response);
+                        image.className="img-fluid rounded mx-auto d-block p-3"
+                        $('#schema').html(image);
+                    },
+                    error: function(){
+                        alert('error!');
+                    }
+                })
+    }
+    downloadSchema({{CL.id}})
+
+</script>
+
+{%endblock%}

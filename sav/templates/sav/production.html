@@ -38,6 +38,7 @@
                     </div>
 <div class="container p-3">
     <div class="row">
+      {% if request.user|has_group:"ADV" %}
         <div class="col-4">
             <div class="input-group">
               <label class="input-group-text" for="VisuCL"><i class="fas fa-not-equal"></i></label>
@@ -94,7 +95,7 @@
             </form>
         </div>
         <div class="col-2">
-            {% if request.user|has_group:"ADV" %}
+            
             <button class="btn btn-outline-primary" type="button" onclick="save()" id="ButtonSave"><i class="far fa-save"></i> Sauvegarder</button>
             {%endif%}
         </div>
@@ -167,16 +168,16 @@
             <div class="input-group mb-3">
               <label class="input-group-text" for="step"><i class="fas fa-filter"></i></label>
               <select class="form-select" id="step" onchange="ganttGenerator()">
-                <option selected value="simple">Simplifié</option>
-                <option value="tout">Tout</option>
-                <option value="capteur">Capteur</option>
-                <option value="ballon">Ballon</option>
-                <option value="montage">Montage</option>
-                <option value="carte">Carte</option>
-                <option value="prepa">Prépa commande</option>
-                <option value="expe">Expédition</option>
-                <option value="livraison">Livraison</option>
-                <option value="reglement">Réglement</option>
+                {% if request.user|has_group:"ADV" %}<option selected value="simple">Simplifié</option>{%endif%}
+                {% if request.user|has_group:"ADV" %}<option value="tout">Tout</option>{%endif%}
+                {% if request.user|has_group:"ADV" %}<option value="capteur">Capteur</option>{%endif%}
+                {% if request.user|has_group:"ADV" %}<option value="ballon">Ballon</option>{%endif%}
+                {% if request.user|has_group:"ADV,Monteur" %}<option value="montage">Montage</option>{%endif%}
+                {% if request.user|has_group:"ADV,Carte" %}<option value="carte">Carte</option>{%endif%}
+                {% if request.user|has_group:"ADV,Prépa" %}<option value="prepa">Prépa commande</option>{%endif%}
+                {% if request.user|has_group:"ADV,Expé" %}<option value="expe">Expédition</option>{%endif%}
+                {% if request.user|has_group:"ADV" %}<option value="livraison">Livraison</option>{%endif%}
+                {% if request.user|has_group:"ADV" %}<option value="reglement">Réglement</option>{%endif%}
               </select>
             </div>
         </div>
@@ -396,7 +397,8 @@ async function ganttGenerator(){
                     {
                     start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
                     end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
-                    name: value['CL'] + ' - ' + value['installateur'] +': Montage ',
+                    name: value['CL'] + ' - ' + value['installateur'] + ': Montage',
+                    button: '<a href = "/assembly/'+value['id']+'" class="btn btn-outline-primary">Accéder</a>',
                     id: "montage-"+value['CL'],
                     CL: value['CL'],
                     progress: (value['date_montage']) ? 100 : 0
@@ -528,18 +530,22 @@ async function ganttGenerator(){
                 // the task object will contain the updated
                 // dates and progress value
                 end = task.end.substring(0,10)
+                if (task.button){
+                wrapper = task.name + task.button
+                }else{
+                  wrapper = task.name
+                }
                 if(task.progress == 100){
+                  
                      return `
-                <div class="details-container">
-                  <h5>${task.name}</h5>
-                  <p>Tâche Terminée le ${end}</p>
+                <div class="details-container h-100">
+                  <h5>${wrapper}</h5>
                 </div>
                 `;
                 }else{
                      return `
-                <div class="details-container">
-                  <h5>${task.name}</h5>
-                  <p>Date de fin prévu ${end}</p>
+                <div class="details-container h-100">
+                  <h5>${wrapper}</h5>
                 </div>
                 `;
 
@@ -604,7 +610,7 @@ async function ganttGenerator(){
             }
             $(".popup-wrapper").css('opacity', '0')
             
-            $(".gantt-container:not(#ganttContainer)").animate({scrollLeft: $('.today-highlight').position().left}, 1500);
+            //$(".gantt-container:not(#ganttContainer)").animate({scrollLeft: $('.today-highlight').position().left}, 1500);
           }else{
             $("#ganttContainer").removeClass("gantt-container")
             $("#ganttContainer").html('<table id="table" data-toggle="table" data-custom-sort="customSort" data-search="true" '+
@@ -749,6 +755,7 @@ searchByCommercial()
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');
         socket.onmessage = (e) => {
             var d = JSON.parse(e.data)
+            console.log("websocket", d)
             var d = d.message
             if (d.hasOwnProperty("message")) {
                 var message = d.message;
@@ -796,8 +803,7 @@ searchByCommercial()
             }
             var time = dt.getHours() + ":" + min + ":" + sec;
             showToast("<li class='text-danger'><b>"+time+":WebSocket déconnectée. Veuillez réactualiser la page</b></li>")
-        }   
-        searchByCommercial()        
+        }         
 </script>
 
 {%endblock%}

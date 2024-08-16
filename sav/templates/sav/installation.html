@@ -219,7 +219,10 @@ loadingTask.promise.then(function(pdf) {
               </li>
                 {%if CL %}
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">Bon de  commande lié</button>
+                <button class="nav-link" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                  Bon de  commande lié
+                  {%if instal.default_tracability%}<i class="fas fa-exclamation-triangle text-danger beatanimation"></i>{%endif%}
+                </button>
               </li>
                 {%endif%}
                 {%if instal.noncompliance %}
@@ -754,7 +757,34 @@ loadingTask.promise.then(function(pdf) {
                           </ul>
                   </li>
                   </ul>
-
+                  {% if instal.tracability %}
+                  <div class="row">
+                    <div class="col-12">
+                      <table 
+                            class="table table-bordered table-hover table-striped text-center">
+                        <thead>
+                            <th>Lot</th>
+                            <th>Numéro de Série</th>
+                            <th>organe</th>
+                            <th>Emplacement</th>
+                        </thead>
+                        <tbody>
+                            {%for t in instal.tracability%}
+                            {%if t.batch or t.SN%}
+                            <tr >
+                                <td {%if t.batch.compliance == False%}class="bg-danger"{%endif%}
+                                >{%if t.batch%}<a href="{% url 'sav:batch' %}" >{{t.batch}}</a>{%else%}-{%endif%}</td>
+                                <td {%if t.batch.compliance == False%}class="bg-danger"{%endif%}>{%if t.SN%}{{t.SN}}{%else%}-{%endif%}</td>
+                                <td {%if t.batch.compliance == False%}class="bg-danger"{%endif%}>{{t.organ}} - {{t.organ.herakles_name}}</td>    
+                                <td {%if t.batch.compliance == False%}class="bg-danger"{%endif%}>{{t.location_str}}</td>
+                            </tr>
+                            {%endif%}
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                    </div>
+                  </div>
+                  {%endif%}
 
               </div>
             </div>
@@ -1093,7 +1123,7 @@ function evalutionForm(userID){
     success: function (html) {
       $(".modal-body").find("div").hide()
       $("#ModalEvenementLabel").html("<h2>Evaluation</h2>")
-      $("#enregister").html('Enregister')
+      $("#enregister").html('Enregistrer')
       $("#evalutionFormDiv").html(html).fadeIn(500)      
     }
   })

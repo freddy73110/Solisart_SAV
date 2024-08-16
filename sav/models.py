@@ -791,6 +791,12 @@ class installation(models.Model):
             .exclude(etat=3)
             .count()
         )
+    
+    def tracability(self):
+        return tracability.objects.filter(CL__installation = self)
+    
+    def default_tracability(self):
+        return tracability.objects.filter(CL__installation = self, batch__compliance = False).exists()
 
     def histo(self):
         try:
@@ -1741,6 +1747,7 @@ class CL_herakles(models.Model):
 
     def as_dict(self):
         serial = {
+            "id": str(self.id),
             "CL": str(self.CL),
             "BL": str(self.BL),
             "installateur": str(self.installateur),
@@ -1910,6 +1917,160 @@ class noncompliance(models.Model):
         except:
             return ""
 
+class Validation_Module_Type(models.IntegerChoices):
+
+    MONTAGE = 0, "Montage"
+    VALIDATION = 1, "Validation"
+
+class validationModule(models.Model):
+
+    name = models.CharField(verbose_name="Nom", max_length=100)
+    type = models.IntegerField(
+        default=Validation_Module_Type.MONTAGE,
+        choices=Validation_Module_Type.choices,
+        verbose_name="Type",
+    )
+    description = models.TextField(verbose_name="Description", max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+       
+
+class assembly(models.Model):
+
+    CL = models.ForeignKey(
+        "CL_herakles", on_delete=models.CASCADE, related_name="CL_assembly"
+    ) 
+    validation = models.ForeignKey(
+        "validationModule", on_delete=models.CASCADE, related_name="validation"
+    ) 
+    operator = models.ForeignKey(
+        User, verbose_name="Monteur", on_delete=models.CASCADE, null=True, blank=True
+    )
+    date = models.DateField(verbose_name="Date d'évaluation", null=True, blank=True)
+
+    def __str__(self):
+        return str(self.CL) + ' ' + str(self.validation)
+    
+    class Meta:
+        app_label = "sav"
+        ordering = ["validation__id"]
+
+    def post_save(self, *args, **kwargs):
+        if not assembly.object.filter(CL = self.CL, date__is_null =False).exist():
+            self.CL.date_montage = timezone.now()
+            self.CL.save()
+        super(assembly, self).save(*args, **kwargs)
+
+    
+class batch(models.Model):
+
+    numero = models.CharField(verbose_name="Numéro de lot", max_length=10, default="L-")
+    receptionDate = models.DateField(verbose_name="Date de réception", null=True, blank=True)
+    article = models.CharField(verbose_name="Référence article", max_length=10, default="MOD...")
+    compliance = models.BooleanField(verbose_name="Conformité", default=True)
+    comment = models.TextField(verbose_name="Commentaire", null=True, blank=True, max_length=500, help_text="Tests, remarques, ...")
+    soldout = models.BooleanField(verbose_name="Epuisé", default=False)
+
+    def year(self):
+        return str(timezone.now().year)[2:4]
+
+    def save(self, *args, **kwargs):
+        if self.numero == "L-":
+            self.numero = f"L-{self.year()}{self._get_next_code()}"
+        super(batch, self).save(*args, **kwargs)
+
+    def __str__(self):
+        try:
+            return self.numero
+        except:
+            return ""
+        
+    def herakles_name(self):
+        from heraklesinfo.models import B50Composants
+        return B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = self.article).t50_37_titre_du_composant
+        
+    def _get_next_code(self):
+        # Renvoie le prochain code disponible
+        if (
+            batch.objects.filter(numero__startswith=f"L-{self.year()}").count()
+            == 0
+        ):
+            return "001"
+        else:
+            from django.db.models import Max
+
+            a = (
+                int(
+                    batch.objects.filter(
+                        numero__startswith=f"L-{self.year()}"
+                    ).aggregate(Max("numero"))["numero__max"][-3:]
+                )
+                + 1
+            )
+            return "%03d" % a
+    
+    class Meta:
+        app_label = "sav"
+        ordering = ["-numero"]
+
+class tracability_organ(models.Model):
+
+    name =  models.CharField(verbose_name="Référence Héraklès", max_length=100)
+
+    def __str__(self):
+        return self.name
+    
+    def herakles_name(self):
+        from heraklesinfo.models import B50Composants
+        return B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = self.name).t50_37_titre_du_composant
+    
+    class Meta:
+        app_label = "sav"
+        ordering = ["name"]
+
+class Organ_Location(models.IntegerChoices):
+
+    AUCUN = 0, "Aucun"
+    C1 = 1, "C1"
+    C2 = 2, "C2"
+    C3 = 3, "C3"
+    C4 = 4, "C4"
+    C5 = 5, "C5"
+    C6 = 6, "C6"
+    C7 = 7, "C7"
+    APP = 8, "Appoint"
+    BTP = 9, "Tampon"
+
+class tracability(models.Model):
+
+    CL = models.ForeignKey(
+        "CL_herakles", on_delete=models.CASCADE, related_name="CL_tracability"
+    )    
+    organ = models.ForeignKey(
+        "tracability_organ", on_delete=models.CASCADE, related_name="tracability_organ", verbose_name="Organe"
+    )
+    location = models.IntegerField(
+        default=Organ_Location.AUCUN,
+        choices=Organ_Location.choices,
+        verbose_name="Emplacement"
+    )
+    SN = models.CharField(verbose_name="Numéro de série", max_length=100, null=True, blank=True)
+    batch = models.ForeignKey(
+        "batch", on_delete=models.CASCADE, related_name="batch", null=True, blank=True, verbose_name="Lot"
+    )
+
+    def __str__(self):
+        return str(self.CL) +'-'+ str(self.organ) +'-'+ str(self.location)
+    
+    def save(self):
+        if self.location == 0 or not tracability.objects.filter(CL=self.CL, organ=self.organ, location = self.location).exists():
+            super(tracability, self).save()
+        else:
+            return
+        
+    def location_str(self):
+        return str(Organ_Location(self.location).label)
 
 # class emailbox(models.Model):
 #

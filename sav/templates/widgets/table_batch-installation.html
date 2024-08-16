@@ -1,0 +1,19 @@
+{% load static %}
+
+
+<table 
+
+        class="table table-bordered table-hover table-striped text-center">
+    <thead>
+        <th>Installation</th>
+        <th>Emplacement</th>
+    </thead>
+    <tbody>
+        {%for t in traces%}
+        <tr>
+            <td><a href="{% url 'sav:installation' pk=t.instal_id %}" target="_blank">{{t.instal}}</td>
+            <td>{{t.location_str}}</td>    
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>

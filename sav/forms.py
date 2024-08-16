@@ -14,7 +14,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Submit, Div
 from django.db.models import F, Value as V, Subquery, OuterRef
 from django.db.models.functions import Concat
-from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField
+from django.forms import forms, ModelForm, HiddenInput, IntegerField, CharField, BooleanField, Select
 from django.db.models import Max
 
 from heraklesinfo.models import C701Ouvraof, B50Composants
@@ -953,8 +953,8 @@ class CL_Form(ModelForm):
                 )
             )
         else:
-            tu = installation.objects.all().values_list("id", "idsa")
-            self.fields["installation"].choices = tuple(tu)
+            tu = installation.objects.exclude(cl_herakles__isnull=False).values_list("id", "idsa")
+            self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu)
             self.fields["date_ballon"].widget = HiddenInput()
             self.fields["date_prepa_carte"].widget = HiddenInput()
             self.fields["date_prepa"].widget = HiddenInput()
@@ -1254,12 +1254,116 @@ class Evaluation_form(ModelForm):
         super(Evaluation_form, self).__init__(*args, **kwargs)
         self.profil = kwargs.pop("profil", "")
         self.fields["profil"] = self.profil
+        self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
             "id",
             FloatingField("evenement"),
             FloatingField(
                 "detail", style="height: 100px", row="5", css_class="textareaEmoji"
+            ),
+            HTML(emoji_str),
+        )
+
+class Assembly_form(ModelForm):
+
+    id = IntegerField(required=False)
+    icon = BooleanField(required=False)
+
+    class Meta:
+        model = assembly
+        fields = ("id", "validation", 'date', 'CL', 'operator')
+    def __init__(self, *args, **kwargs):
+        super(Assembly_form, self).__init__(*args, **kwargs)
+        self.fields["id"].widget = HiddenInput()
+        self.fields["CL"].widget = HiddenInput()
+        self.fields["operator"].widget = HiddenInput()        
+        self.fields["icon"].label = "Réalisé?"
+        self.fields["date"].widget = HiddenInput()
+        self.fields["date"].input_formats = ["%Y-%m-%d"]
+        self.fields['validation'].disabled = True
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            "id",
+            "CL", "operator",
+            FloatingField("validation"),
+            FloatingField("date"),
+            Field("icon")   
+        )
+    def clean(self):
+        return self.cleaned_data
+
+       
+
+class AssemblyFormset(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(AssemblyFormset, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()    
+        self.helper.form_tag = False
+        self.helper.formset_tag = False
+        self.template = 'widgets/table_inline_formset.html'
+
+class Tracability_form(ModelForm):
+
+    id = IntegerField(required=False)   
+
+    class Meta:
+        model = tracability
+        fields = ("id", "CL", "organ", "location", "SN", "batch")
+    def __init__(self, *args, **kwargs):
+        super(Tracability_form, self).__init__(*args, **kwargs)
+        choices = []
+        from .models import tracability_organ
+        from heraklesinfo.models import B50Composants
+        for org in tracability_organ.objects.all(): 
+            choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
+        self.fields["organ"].choices = choices
+        if 'organ' in self.initial:
+            choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =self.initial['organ'])))]
+        else:
+            choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False)]
+        self.fields["batch"].choices = choicesbatch
+        self.fields["id"].widget = HiddenInput()
+        self.fields["CL"].widget = HiddenInput()
+
+class Batch_form(ModelForm):
+
+    id = IntegerField(required=False)   
+
+    class Meta:
+        model = batch
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super(Batch_form, self).__init__(*args, **kwargs)
+        self.fields['numero'].widget = HiddenInput()
+        
+        if not "id" in self.initial:            
+            self.fields["receptionDate"].initial = timezone.now()
+        self.fields['id'].widget = HiddenInput()
+        self.fields['article'].widget = Select(choices=[ (art, str(art) +' - '+ B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = str(art)).t50_37_titre_du_composant) for art in tracability_organ.objects.all()])
+        self.fields["receptionDate"].widget = XDSoftDatePickerInput()
+        self.fields["receptionDate"].input_formats = ["%d-%m-%Y"]
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            "numero", "id",
+            Row(
+                Column(
+                    FloatingField("article"),
+                    css_class="col-6"
+                ),
+                Column(
+                    FloatingField("receptionDate"),
+                    css_class="col-6"
+                )
+            ),
+            Field("compliance",template="widgets/switchCheckbox.html"),
+            Field("soldout",template="widgets/switchCheckbox.html"),
+            FloatingField(
+                "comment", style="height: 100px", row="5", css_class="textareaEmoji"
             ),
             HTML(emoji_str),
         )

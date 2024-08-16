@@ -302,6 +302,10 @@ class scrappingMySolisart:
                         },
                     )
                     l = self.list_installation()
+                """
+                Si pas de connexion au bout de 40 fois => message erreur
+                sinon création install dans la base + envoi config csv 
+                """
                 if i == 40:
                     send_channel_message(
                         "cartcreating",
@@ -1352,6 +1356,23 @@ class scrappingMySolisart:
                         "cartcreating",
                         {
                             "message": "<i class='fas fa-check' style='color: #018303;'></i> Second envoi de configuration pour l'installation "
+                            + installation
+                            + " réussi."
+                        },
+                    )
+                    send_channel_message(
+                        "cartcreating",
+                        {
+                            "message": "Début du 3ième envoi de configuration pour l'installation "
+                            + installation
+                            + "."
+                        },
+                    )
+                    self.save_csv_configuration(path_csv=path_csv)
+                    send_channel_message(
+                        "cartcreating",
+                        {
+                            "message": "<i class='fas fa-check' style='color: #018303;'></i> 3ième envoi de configuration pour l'installation "
                             + installation
                             + " réussi."
                         },

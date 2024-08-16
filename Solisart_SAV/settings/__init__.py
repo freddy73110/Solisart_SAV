@@ -203,8 +203,8 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Celery settings
-broker_url = 'redis://localhost:6379'
-result_backend = 'redis://localhost:6379'
+broker_url = 'redis://192.168.10.11:6379'
+result_backend = 'redis://192.168.10.11:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -242,12 +242,12 @@ GRAPH_MODELS ={
 
 #for React js
 # suite tuto https://stacklima.com/integration-de-django-avec-reactjs-a-l-aide-de-django-rest-framework/
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:3000',
+# )
 
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+#     'PAGE_SIZE': 10
+# }
 

@@ -75,12 +75,40 @@
                                             </div>
                                           <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                                         </div>
-
                                 </fieldset>
                             </form>
+                        </div>
                     </div>
                 </div>
-                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                            <fieldset class="border p-2 h-100">
+                                <legend class="float-none w-auto"><b>Recherche par données Héraklès</b></legend>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                                <input type="text" class="form-control" name="BL" id="id_BL" placeholder="tutu">
+                                                <label for="id_BL">BL</label>
+                                            </div>
+                                        <span class="input-group-text"><i class="fas fa-truck-loading"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                                <input type="text" class="form-control" name="CL" id="id_CL" placeholder="tutu">
+                                                <label for="id_CL">CL</label>
+                                            </div>                                        
+                                        <span class="input-group-text"><i class="fas fa-shopping-cart"></i></span>
+                                        </div>                                    
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div> 
             </form>
         </div>
     </div>
@@ -92,7 +120,7 @@
 </div>
 <script>
 $(document).ready(function(){
-    $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install").on("keypress", function(e) {
+    $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install, #id_BL, #id_CL").on("keypress", function(e) {
          var key = e.which;
          if(key == 13)  // the enter key code
           {
@@ -103,9 +131,12 @@ $(document).ready(function(){
 
 })
 function send(t){
-    $("#resultat").html('<h1 class="text-center m-3" style="font-size: 8em; color:yellow"><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
     if (t.val().length>2){
+        $("#resultat").html('<h1 class="text-center m-3" style="font-size: 8em; color:yellow"><i class="fas fa-sun fa-spin" style="{color:yellow}"></i></h1>')
+        $(".invalid-feedback").remove()
+        t.addClass("is-valid").removeClass('is-invalid')
           var form = t.closest("form");
+          console.log(form)
           $.ajax({
             url: window.location.href,
             type:'post',
@@ -116,6 +147,9 @@ function send(t){
                 $("#resultat").html(html)
                 }
           })
+    }else{
+        t.addClass("is-invalid").removeClass('is-valid')
+        t.after("<div class='invalid-feedback'>Ce champ doit comporté 2 caractères au minimum.</div>")
     }
 }
 </script>

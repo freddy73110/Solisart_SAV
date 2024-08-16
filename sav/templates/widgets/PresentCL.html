@@ -79,6 +79,13 @@
                                                 dataType: 'json',
                                                 success: function (json) {
                                                     $("#ButtonModalclose").click()
+                                                    var CLs = json.data
+                                                    $("#VisuCL").html("")
+                                                    $("#VisuCL").append('<option value="tout" selected>Visualiser tous les CL</option>')
+                                                    $.each(CLs, function(i, v){
+                                                        var Cl = v.split(" - ")[0]
+                                                        $("#VisuCL").append('<option value="'+ Cl +'">'+ v +'</option>')
+                                                    })
                                                     Refreshdata()
                                                  }
                                             })

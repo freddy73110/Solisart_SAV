@@ -45,8 +45,7 @@ class profil_user_Admin(ModelAdmin):
 
 
 class CL_HeraklesAdmin(admin.ModelAdmin):
-    list_display = ("CL", "installation")
-    list_editable = ("installation",)
+    list_display = ("CL", "module", "installation")
     search_fields = ["CL"]
 
 
@@ -85,3 +84,8 @@ admin.site.register(transporteur)
 admin.site.register(critere)
 admin.site.register(evaluation)
 admin.site.register(noncompliance)
+admin.site.register(validationModule)
+admin.site.register(assembly)
+admin.site.register(tracability_organ)
+admin.site.register(tracability)
+admin.site.register(batch)
