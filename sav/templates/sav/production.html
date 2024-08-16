@@ -398,7 +398,7 @@ async function ganttGenerator(){
                     start: convertdate((value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu']),
                     end: (value['date_montage']) ? (value['date_montage']) : value['date_montage_prevu'],
                     name: value['CL'] + ' - ' + value['installateur'] + ': Montage',
-                    button: '<a href = "/assembly/'+value['id']+'" class="btn btn-outline-primary">Accéder</a>',
+                    button: (value['jsonfile']) ?'<a href = "/assembly/'+value['id']+'" class="btn btn-outline-primary">Accéder</a>' : "",
                     id: "montage-"+value['CL'],
                     CL: value['CL'],
                     progress: (value['date_montage']) ? 100 : 0

@@ -1750,6 +1750,7 @@ class CL_herakles(models.Model):
             "id": str(self.id),
             "CL": str(self.CL),
             "BL": str(self.BL),
+            "jsonfile": True if self.json else False,
             "installateur": str(self.installateur),
             "information": self.information,
             "module": str(self.module),
