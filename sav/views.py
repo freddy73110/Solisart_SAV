@@ -3922,16 +3922,12 @@ class assemblyView(View):
 
         try:
             import json
-            if settings.DEBUG:
-                d = open(r"C:\Users\freddy\Downloads\installation-CHAUDY-13032024.json")
-                self.CL_json = json.load(d)
-            else:
-                data = (
+            data = (
                 self.CL
                 .json()
                 .fichier.file.read()
                 )
-                self.CL_json = json.loads(data)
+            self.CL_json = json.loads(data)
             self.tracabilityFormset = formset_factory(Tracability_form, extra=0)
         except:
             self.tracabilityFormset = formset_factory(Tracability_form, extra=1)
