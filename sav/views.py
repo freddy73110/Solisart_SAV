@@ -1364,13 +1364,6 @@ class installation_view(View):
         return super(installation_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        import datetime
-
-        now = timezone.now()
-        result = [now.strftime("%Y-%m")]
-        for _ in range(0, 5):
-            now = now.replace(day=1) - datetime.timedelta(days=1)
-            result.append(now.strftime("%Y-%m"))
 
         return render(
             request,
@@ -1387,12 +1380,30 @@ class installation_view(View):
                 "form": self.form_class,
                 "acces": self.acces,
                 "CL": CL_herakles.objects.filter(installation__id=self.pk),
-                "month_list": result,
                 "noncompliance_form": self.NC_form,
             },
         )
 
     def post(self, request, *args, **kwargs):
+        print(request.POST)
+        if "date_livraison" in request.POST:
+            print("update CL")
+            form = CL_Form(instance=self.instal.CL(), data=request.POST)
+            if form.is_valid():
+                CL = form.save()
+                send_channel_message(
+                    "production",
+                    {
+                        "message": "Modification de la Commande",
+                        "result": [CL.CL],
+                        "datereceptionclient": False,
+                    },
+                )
+                return JsonResponse(
+                {"evaluation": ""}, safe=False
+            )
+            else:
+                print(form.errors)
 
         if "critere" in request.POST:
             date_evalutaion = datetime.strptime(

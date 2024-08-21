@@ -2,6 +2,7 @@
 {% extends "sav/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
+{% load my_filter %}
 {%block Titre%}{{title}}{%endblock%}
 
 {% block toast %}
@@ -63,7 +64,7 @@
         <div class="col">
             <h1 class="text-center m-3">{{title}}</h1>
             <div class="row justify-content-center">
-                <div class="col-6">
+                <div class="col-12">
                   <div class="col-12 text-center m-3">
                       <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
                         class="btn btn-outline-primary m-auto"
@@ -74,7 +75,7 @@
                         </a>
                   </div>
                 </div>
-                <div class="col-6">
+                {% comment %} <div class="col-6">
                   <div class="col-12 text-center m-3">
                     <a href="{%url 'sav:tools' %}"
                     class="btn btn-outline-primary m-auto"
@@ -82,7 +83,7 @@
                     >
                     <img src="{% static 'image/icon.ico' %}" alt="logo solisgraph" class="rounded mx-auto d-block" style="max-height: 75px">lien vers SolisGraph
                 </a>
-              </div>
+              </div> {% endcomment %}
                     {% comment %} {%for i in month_list%}
                     <div class="form-check form-check-inline">
                       <input class="form-check-input solisgraphmonth" type="checkbox" id="inlineCheckbox{{i}}" value="{{i}}" {% if forloop.counter == 1%} checked {%endif%} {% if forloop.counter > 2%} disabled{%endif%}>
@@ -194,7 +195,7 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <button class="nav-link {% if not request.user|has_group:'ADV' %}active{%endif%}" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
                     <span>Historique
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Mise en Service" data-bs-content="Mises en service faites">
                         {{ instal.MES_count }}
@@ -219,8 +220,8 @@ loadingTask.promise.then(function(pdf) {
               </li>
                 {%if CL %}
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                  Bon de  commande lié
+                <button class="nav-link {% if request.user|has_group:'ADV' %}active{%endif%}" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                  Bon de  commande {{CL.0}}
                   {%if instal.default_tracability%}<i class="fas fa-exclamation-triangle text-danger beatanimation"></i>{%endif%}
                 </button>
               </li>
@@ -252,6 +253,7 @@ loadingTask.promise.then(function(pdf) {
                             <form method="post">
                           <div class="modal-body">
                               <input type="hidden" value="" name="nature_form">
+                              <div id="divCL"></div>
                               <div id="update_ticket">
                                   <div class="mb-3" id="add_evenement_modal">
                                     {% crispy add_evenement %}
@@ -293,8 +295,7 @@ loadingTask.promise.then(function(pdf) {
                             <script>
                                 $("#enregister").on("click", function(){
                                   hh = $(this).closest("form")[0]
-                                  
-                                  console.log(hh)
+                                
                                    var d = new FormData(hh)
                                   if($("#InputNoncompliance").is(':checked')){
                                       d.append('Noncompliance', '0')
@@ -471,7 +472,7 @@ loadingTask.promise.then(function(pdf) {
                       </div>
                   </div>
               </div>
-              <div class="tab-pane fade m-3 show active" id="historique" role="tabpanel" aria-labelledby="profile-tab">
+              <div class="tab-pane fade m-3  {% if not request.user|has_group:'ADV' %}show active{%endif%}" id="historique" role="tabpanel" aria-labelledby="profile-tab">
                   <button type="button"
                           class="btn btn-outline-primary"
                           data-bs-toggle="modal"
@@ -715,54 +716,83 @@ loadingTask.promise.then(function(pdf) {
                 </table>
 
               </div>
-              <div class="tab-pane fade m-3" id="CL" role="tabpanel" aria-labelledby="home-tab">
-                  <h1>Bon de  commande lié</h1>
-                  <ul class="list-unstyled">
-                      <li>N° de commande: <button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button></li>
-                  <li>Date de livraison : {{CL.0.date_livraison_prevu}}</li>
-                  <li>Fichiers liés:
-                      <ul>
-                  {% for f in CL.0.fichier.all %}
-                  {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{CL.0.id}}, {{f.id}}, 'CL')">{{f.icon|safe}} {{f.titre}}</a> (<i
-                                              class="far fa-trash-alt deletefile"
+              <div class="tab-pane fade m-3 {% if request.user|has_group:'ADV' %}show active{%endif%}" id="CL" role="tabpanel" aria-labelledby="home-tab">
+                <fieldset class="border p-2 h-100">
+                  <legend class="float-none w-auto"><b>Bon de commande {{CL.0}}</b></legend>
+                  <div class="row">
+                    <div class="col-12 m-3">
+                      <button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>
+                      {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
+                    </div>
+                    {% if CL.0.fichier.all %}
+                    <div class="col-12">
+                      <table
+                      class="table table-bordered table-hover table-striped text-center"
+                      >
+                        <thead>
+                          <tr>
+                            <th colspan="3">Fichiers liées</th>
+                          </tr>
+                          <tr>
+                            <th>Icône</th>
+                            <th>Nom du fichier</th>
+                            <th>Opération</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for f in CL.0.fichier.all %}
+                          <tr>
+                            <td>{{f.icon|safe}}</td>
+                            <td>{{f.titre}}</td>                            
+                            <td>
+                              {% if request.user|has_group:'ADV' %}
+                              <i
+                                              class="far fa-trash-alt deletefile text-primary"
                                               id="deletefile_{{f.id}}"
                                               onclick="deletefile(this)"
                                               file_name="{{f.titre}}"
                                             data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
-                                              class="fas fa-pen renamefile"
+                                              class="fas fa-pen renamefile text-primary"
                                               id="renamefile_{{f.id}}"
                                               onclick="renamefile(this)"
                                               file_name="{{f.titre}}"
                                               data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
-                                      ></i>)
-                                          {% if not forloop.last %}<br>{%endif%}
-                                        {% else %}
-                                      <a href="{{f.fichier.url}}" download>{{f.icon|safe}} {{f.titre}}</a> (<i
-                                          class="far fa-trash-alt deletefile"
-                                          id="deletefile_{{f.id}}"
-                                          onclick="deletefile(this)"
-                                          file_name="{{f.titre}}"
-                                        data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"></i> - <i
-                                          class="fas fa-pen renamefile"
-                                          id="renamefile_{{f.id}}"
-                                          onclick="renamefile(this)"
-                                          file_name="{{f.titre}}"
-                                          data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket"
-                                  ></i>)
-                                      {% if not forloop.last %}<br>{%endif%}
+                                      ></i> - {%endif%}<a href="{{f.fichier.url}}" download class="text-primary"><i class="fas fa-file-download"></i></a> - 
+                                      
+                                      {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
+                                      <i 
+                                        class="fas fa-eye"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#ModalEvenement" 
+                                        data-bs-whatever="ticket" 
+                                        onclick="ShowModalImage({{CL.0.id}}, {{f.id}}, 'CL')"
+                                      >
+                                    </i>{%endif%}
+                                    {%if '.json' in f.fichier.name|lower %}
+                                      <i 
+                                        class="fas fa-eye text-primary"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#ModalEvenement" 
+                                        data-bs-whatever="ticket" 
+                                        onclick="downloadSchema({{CL.0.id}})"
+                                      >
+                                    </i>{%endif%}
+                            </td>
 
-                                      {% endif %}
-                                      {%endfor%}
-                          </ul>
-                  </li>
-                  </ul>
-                  {% if instal.tracability %}
-                  <div class="row">
+                          </tr>
+                          {% endfor%}
+                        </tbody>
+                      </table>
+                    </div>
+                    {% endif %}
+                    {% if instal.tracability %}
                     <div class="col-12">
                       <table 
                             class="table table-bordered table-hover table-striped text-center">
                         <thead>
+                          <tr>
+                            <th colspan="4">Traçabilité</th>
+                          </tr>
                             <th>Lot</th>
                             <th>Numéro de Série</th>
                             <th>organe</th>
@@ -783,9 +813,9 @@ loadingTask.promise.then(function(pdf) {
                         </tbody>
                     </table>
                     </div>
-                  </div>
                   {%endif%}
-
+                  </div>
+                </fieldset>
               </div>
             </div>
         </div>
@@ -1130,5 +1160,46 @@ function evalutionForm(userID){
 
 }
 
+function afficherCLModal(){
+  $(".modal-body").find("div").hide()
+  var $Modal=$("#ModalEvenement")
+  $Modal.modal('show')
+                      $Modal.find(".modal-title").html()
+                      $Modal.find(".modal-title").html("Détail de la commande {{CL.0}}")
+                      $Modal.find("#divCL").html()
+                      $Modal.find(".divCL").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+                      $Modal.modal('show')
+                      $.ajax({
+                          url: "{% url 'sav:production' %}",
+                          type:'post',
+                          data:{show: "{{CL.0}}"},
+                          dataType: 'html',
+                          success: function (html) {
+
+                          //todo faire un message de validation
+                              $Modal.find(".modal-body").html(html)
+                              $("#enregistrer").attr('name', 'update')
+                              $("#enregistrer").html('Mettre à jour')
+                           }
+                      })
+}
+function downloadSchema(Cl_id){
+  $.ajax({
+              url: "{% url 'sav:production' %}",
+              type:'post',
+              data:{'downloadSchema': Cl_id},
+              xhrFields:{
+                  responseType: 'blob'
+              },
+              success: function (data) {
+                  var file = new Blob([data], { type: 'application/pdf' });
+                  var fileURL = URL.createObjectURL(file);
+                  window.open(fileURL);
+              },
+              error: function(){
+                  alert('error!');
+              }
+          })
+}
 </script>
 {%endblock%}
