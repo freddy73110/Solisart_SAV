@@ -101,6 +101,7 @@
                 $("#ModalEvenementLabel").html('Mettre à jour du lot ' + bat)                
                 $("#enregistrer").html('Mettre à jour')
                 $("#enregistrer").attr('name', "update")
+                $("#enregistrer").show()
             }
         })
     }
@@ -115,6 +116,7 @@
                 $("#ModalEvenementLabel").html('Créer un nouveau lot')                
                 $("#enregistrer").html('Ajouter')
                 $("#enregistrer").attr('name', "add")
+                $("#enregistrer").show()
 
             }
         })
@@ -133,6 +135,7 @@
                 $("#ModalEvenementLabel").html('Liste des installations en lien avec le lot ' + bat)                
                 $("#enregistrer").html('Don t touch')
                 $("#enregistrer").attr('name', "")
+                $("#enregistrer").hide()
             }
         })
     }

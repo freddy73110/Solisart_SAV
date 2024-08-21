@@ -422,6 +422,7 @@ async function ganttGenerator(){
                     start: convertdate((value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu']),
                     end: (value['date_prepa']) ? (value['date_prepa']) : value['date_prepa_prevu'],
                     name: value['CL'] + ' - ' + value['installateur'] + ': Préparation commande ',
+                    button: (value['jsonfile']) ?'<a href = "/assembly/'+value['id']+'" class="btn btn-outline-primary">Accéder</a>' : "",
                     id: "prepa-"+value['CL'],
                     CL: value['CL'],
                     progress: (value['date_prepa']) ? 100 : 0,
@@ -448,7 +449,8 @@ async function ganttGenerator(){
                     name: value['CL'] + ' - ' + value['installateur'] + ': Réception client',
                     id: "reception-"+value['CL'],
                     CL: value['CL'],
-                    progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 0
+                    progress: (new Date(value['date_livraison_prevu']) < new Date()) ? 100 : 0,
+                    dependencies: "livraison-"+value['CL']
                   })
                 }
             }
@@ -465,16 +467,17 @@ async function ganttGenerator(){
                     return /[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/.test(v) ? v : null;
                 }).sort()
                 var prog =0
+                
                 if(dict['ballon'] == 'None' || dict['date_ballon'] != null){
-                    var prog = 10
-                    if(dict['capteur'] != 0 || dict['date_capteur'] != null){
-                        var prog =20
-                        if(dict['module'] != "CESI" || dict['date_prepa_carte'] != null){
-                            var prog =30
+                    var prog = 20
+                    if(dict['capteur_nbre'] != 0 || dict['date_capteur'] != null){
+                        var prog =30
+                        if(dict['module'] != "CESI" && dict['date_prepa_carte'] != null){
+                            var prog =50
                             if(dict['date_prepa_prevu'] != null){
-                                var prog =50
+                                var prog =90
                                 if(new Date(dict['date_livraison']) < new Date()){
-                                    var prog =75
+                                    var prog =95
                                     if(new Date(dict['date_livraison_prevu']) < new Date()){
                                         var prog =100
                                     }

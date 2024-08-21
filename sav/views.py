@@ -2309,13 +2309,12 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
-        print(CL_herakles.objects
-                        .all()
-                        .order_by("-CL")
-                        .annotate(title=Concat("CL", Value(" - "), "installateur__Nom", output_field=CharField()))
-                        .values_list("title",flat=True)
- 
+        print(installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
+            ).distinct().count(), '/', installation.objects.all().count()
         )
+        for ins in installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
+            ).distinct():
+            print(ins)
         # from django.shortcuts import get_object_or_404
         # for CL in CL_herakles.objects.filter(date_prepa_carte__isnull=False):
         #     sample_object = get_object_or_404(CL_herakles, id=CL.id)
@@ -2780,6 +2779,17 @@ class production(View):
     template_name = "sav/production.html"
     title = "Gestion de production"
 
+    def dispatch(self, request: http.HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.CLs = CL_herakles.objects.filter(
+                                Q(date_livraison__isnull = True)
+                                | Q(date_capteur__isnull = True) 
+                                | Q(date_ballon__isnull = True) 
+                                | Q(date_montage__isnull = True) 
+                                | Q(date_prepa_carte__isnull = True) 
+                                | Q(date_prepa__isnull = True)
+                        ).order_by("date_livraison")
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         from .tasks import actualise_date_livraison_CL, actualise_client_herakles
 
@@ -2788,7 +2798,7 @@ class production(View):
         from heraklesinfo.models import C7001Phases, C601ChantierEnTte, C101DevisEnTte
 
         excludeCL = Q(codephase__icontains="-------")
-        CLs = CL_herakles.objects.all().order_by("-CL")
+        CLs = self.CLs
         for Clsolistools in CLs:
             excludeCL |= Q(codephase__icontains=str(Clsolistools))
         heraklesCLs = (
@@ -2828,7 +2838,6 @@ class production(View):
         )
 
     def post(self, request, *args, **kwargs):
-        print("request", request.POST)
 
         if "delete_file" in request.POST:
             Fichiers.objects.get(pk=request.POST["delete_file"]).delete()
@@ -2957,9 +2966,7 @@ class production(View):
                 list(
                     [
                         i.as_dict()
-                        for i in CL_herakles.objects.all().order_by(
-                            "date_livraison_prevu"
-                        )
+                        for i in self.CLs
                     ]
                 ),
                 safe=False,
@@ -3005,8 +3012,7 @@ class production(View):
                 )
                 return JsonResponse(
                     {"data": list(
-                        CL_herakles.objects
-                        .all()
+                        self.CLs
                         .order_by("-CL")
                         .annotate(title=Concat("CL", Value(" - "), "installateur__Nom", output_field=CharField()))
                         .values_list("title",flat=True)
@@ -3055,7 +3061,7 @@ class production(View):
                 },
             )
 
-            return JsonResponse({"data": CL_herakles.objects.all().values_list("id")}, safe=False)
+            return JsonResponse({"data": self.Cls.values_list("id")}, safe=False)
 
         if "finishTask" in request.POST:
             task = json.loads(request.POST["finishTask"])
@@ -3131,11 +3137,11 @@ class production(View):
         if "searchByCustomer" in request.POST:
             html = '<option value="tout" selected="">Visualiser tous les CL</option>'
             if request.POST["searchByCustomer"] != "tout":
-                CLs = CL_herakles.objects.filter(
+                CLs = self.CLs.filter(
                     installateur__Code_Client=request.POST["searchByCustomer"]
                 ).order_by("-CL")
             else:
-                CLs = CL_herakles.objects.all().order_by("-CL")
+                CLs = self.CLs.order_by("-CL")
             for CL in CLs:
                 html += (
                     "<option value='"
@@ -3153,14 +3159,14 @@ class production(View):
         if "searchByCommercial" in request.POST:
             html = '<option value="tout" selected="">Visualiser tous les CL</option>'
             if request.POST["searchByCommercial"] == "tout":
-                CLs = CL_herakles.objects.all().order_by("-CL")
+                CLs = self.CLs
             else:
                 listCLHerakles = set(
                     C601ChantierEnTte.objects.db_manager("herakles")
                     .filter(t601_8_0_code_commercial=request.POST["searchByCommercial"])
                     .values_list("t601_1_code_chantier", flat=True)
                 )
-                CLs = CL_herakles.objects.filter(CL__in=listCLHerakles).order_by("-CL")
+                CLs = self.CLs.filter(CL__in=listCLHerakles).order_by("-CL")
             for CL in CLs:
                 html += (
                     "<option value='"
@@ -3930,6 +3936,7 @@ class assemblyView(View):
             self.CL_json = json.loads(data)
             self.tracabilityFormset = formset_factory(Tracability_form, extra=0)
         except:
+            self.CL_json = {}
             self.tracabilityFormset = formset_factory(Tracability_form, extra=1)
 
         return super().dispatch(request, *args, **kwargs)
@@ -3967,6 +3974,12 @@ class assemblyView(View):
         if "ballonTampon" in CL_json and CL_json['ballonTampon'] != "aucun":
             self.tracability_initial("MOD0059", Organ_Location.BTP)
             self.tracability_initial("MOD0061", Organ_Location.BTP)
+        #pour les ballons
+        try:
+            for bal in self.CL.ballon.split(' + '):
+                self.tracability_initial(bal, Organ_Location.AUCUN )
+        except:
+            pass
         #pour les capteurs
         if self.CL.capteur_nbre != 0 and not tracability.objects.filter(CL = self.CL, location = 0):
             for capt in range(self.CL.capteur_nbre):
@@ -4161,7 +4174,6 @@ class batchView(View):
         if 'link' in request.POST:
             traces = tracability.objects.filter(batch__id = request.POST['link']) \
             .annotate(CLlink = F("CL"), instal =F("CL__installation__idsa"), instal_id = F("CL__installation__id"))
-            print(traces)
             return render(
                 request,
                 "widgets/table_batch-installation.html",

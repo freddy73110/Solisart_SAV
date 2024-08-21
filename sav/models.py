@@ -1760,7 +1760,7 @@ class CL_herakles(models.Model):
             "transporteur": str(self.transporteur),
         }
         for f in self._meta.fields:
-            if "date" in f.name and f.name != "date_reglement":
+            if "date" in f.name and f.name != "date_reglement" and f.name!="date_last_update_information":
                 serial[f.name] = (
                     getattr(self, f.name, None).strftime("%Y-%m-%d %H:%M")
                     if getattr(self, f.name, None)

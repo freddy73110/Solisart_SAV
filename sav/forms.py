@@ -953,8 +953,9 @@ class CL_Form(ModelForm):
                 )
             )
         else:
-            tu = installation.objects.exclude(cl_herakles__isnull=False).values_list("id", "idsa")
+            tu = installation.objects.all().values_list("id", "idsa")
             self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu)
+            self.fields["installation"].initiale = self.initial['installation']
             self.fields["date_ballon"].widget = HiddenInput()
             self.fields["date_prepa_carte"].widget = HiddenInput()
             self.fields["date_prepa"].widget = HiddenInput()
@@ -1320,6 +1321,7 @@ class Tracability_form(ModelForm):
             choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
         self.fields["organ"].choices = choices
         if 'organ' in self.initial:
+            print(self.initial['organ'], str(tracability_organ.objects.get(pk =self.initial['organ'])), batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =self.initial['organ']))))
             choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =self.initial['organ'])))]
         else:
             choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False)]
