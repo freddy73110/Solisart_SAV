@@ -1385,7 +1385,7 @@ class installation_view(View):
         )
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
+        
         if "date_livraison" in request.POST:
             print("update CL")
             form = CL_Form(instance=self.instal.CL(), data=request.POST)

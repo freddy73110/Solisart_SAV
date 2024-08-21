@@ -721,7 +721,7 @@ loadingTask.promise.then(function(pdf) {
                   <legend class="float-none w-auto"><b>Bon de commande {{CL.0}}</b></legend>
                   <div class="row">
                     <div class="col-12 m-3">
-                      <button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>
+                      {% if not request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>{%endif%}
                       {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
                     </div>
                     {% if CL.0.fichier.all %}
@@ -761,7 +761,7 @@ loadingTask.promise.then(function(pdf) {
                                       
                                       {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
                                       <i 
-                                        class="fas fa-eye"
+                                        class="fas fa-eye text-primary"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#ModalEvenement" 
                                         data-bs-whatever="ticket" 
@@ -771,9 +771,6 @@ loadingTask.promise.then(function(pdf) {
                                     {%if '.json' in f.fichier.name|lower %}
                                       <i 
                                         class="fas fa-eye text-primary"
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#ModalEvenement" 
-                                        data-bs-whatever="ticket" 
                                         onclick="downloadSchema({{CL.0.id}})"
                                       >
                                     </i>{%endif%}
@@ -995,6 +992,7 @@ $('.upload-zone').each(function () {
             },
 
             progressall: function (e, data) {
+              
               var progress = parseInt(data.loaded / data.total * 100, 10);
               var strProgress = progress + "%";
               $(".progress-bar").css({"width": strProgress});
@@ -1177,7 +1175,8 @@ function afficherCLModal(){
                           success: function (html) {
 
                           //todo faire un message de validation
-                              $Modal.find(".modal-body").html(html)
+                              $("#divCL").html(html)
+                              $("#divCL").show()
                               $("#enregistrer").attr('name', 'update')
                               $("#enregistrer").html('Mettre à jour')
                            }

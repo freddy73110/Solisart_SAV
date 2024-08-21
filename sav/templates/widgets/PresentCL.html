@@ -113,6 +113,7 @@ $('.upload-zone').each(function () {
 
             start: function (e) {
               $("#ModalDiv").modal("hide")  
+              $('#ModalEvenement').modal("hide")
               $("#modal-progress").modal("show");
             },
 
@@ -130,16 +131,21 @@ $('.upload-zone').each(function () {
                 setTimeout(function(){
                     $("#modal-progress").modal("hide");
                 }, 1500);
+                if(window.location.href.includes("installation")){
+                    location.reload()
+               }
               }
             },
             done: function (e, data) {
               $('.todelete').remove()
-              console.log(e, data)
-              if (data.is_valid != false){
-                    $("#files_list").append('<li><a href="'+data.url+'">'+ data.name +'</a>( <i class="far fa-trash-alt deletefile" id="deletefile_'+ file_id +'" onclick="deletefile(this, '+ data.name +')" ></i> )</li>')
-              }else{
-                    alert("Une erreur est survenue pendant le téléchargement de(s) fichier(s)")
-              }
+              if(window.location.href.includes("production")){
+                if (data.is_valid != false){
+                        $("#files_list").append('<li><a href="'+data.url+'">'+ data.name +'</a>( <i class="far fa-trash-alt deletefile" id="deletefile_'+ file_id +'" onclick="deletefile(this, '+ data.name +')" ></i> )</li>')
+                }else{
+                        alert("Une erreur est survenue pendant le téléchargement de(s) fichier(s)")
+                }
+                
+            }
 
             }
     });
