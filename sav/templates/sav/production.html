@@ -170,8 +170,8 @@
               <select class="form-select" id="step" onchange="ganttGenerator()">
                 {% if request.user|has_group:"ADV" %}<option selected value="simple">Simplifié</option>{%endif%}
                 {% if request.user|has_group:"ADV" %}<option value="tout">Tout</option>{%endif%}
-                {% if request.user|has_group:"ADV" %}<option value="capteur">Capteur</option>{%endif%}
-                {% if request.user|has_group:"ADV" %}<option value="ballon">Ballon</option>{%endif%}
+                {% if request.user|has_group:"ADV,Prépa" %}<option value="capteur">Capteur</option>{%endif%}
+                {% if request.user|has_group:"ADV,Prépa" %}<option value="ballon">Ballon</option>{%endif%}
                 {% if request.user|has_group:"ADV,Monteur" %}<option value="montage">Montage</option>{%endif%}
                 {% if request.user|has_group:"ADV,Carte" %}<option value="carte">Carte</option>{%endif%}
                 {% if request.user|has_group:"ADV,Prépa" %}<option value="prepa">Prépa commande</option>{%endif%}

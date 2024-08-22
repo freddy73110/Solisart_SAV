@@ -73,7 +73,7 @@
                     <tr>
                         <td>{{batch.numero}}</td>
                         <td>{{batch.article}} - {{batch.herakles_name}}</td>
-                        <td>{{batch.receptionDate}}</td>
+                        <td>{{batch.receptionDate |date:"Y-m-d"}}</td>
                         <td>{% if batch.compliance %}<i class="fas fa-check text-success"></i>{%else%}<i class="fas fa-times text-danger"></i>{%endif%}</td>
                         <td>{% if batch.soldout %}<i class="fas fa-check text-success"></i>{%else%}<i class="fas fa-times text-danger"></i>{%endif%}</td>
                         <td>

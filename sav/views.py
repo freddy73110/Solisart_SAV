@@ -1665,6 +1665,14 @@ class installation_view(View):
                 m.detail = request.POST["details"]
                 m.save()
                 return JsonResponse({"detail": "ok"}, safe=False)
+            
+            elif "texteareaCL" in str(request.POST["id"]):
+                m = CL_herakles.objects.get(
+                    pk=int(str(request.POST["id"]).replace("texteareaCL_", ""))
+                )
+                m.information = request.POST["details"]
+                m.save()
+                return JsonResponse({"detail": "ok"}, safe=False)
 
         elif "submit" in request.POST:
             self.form_class = installation_form(
@@ -3034,6 +3042,7 @@ class production(View):
 
         if "updateDate" in request.POST:
             result = []
+            import json
             for newdate in json.loads(request.POST["updateDate"]):
                 CL = CL_herakles.objects.get(CL=newdate["CL"])
                 newdate["task"] = newdate["task"].lower()
@@ -3944,11 +3953,12 @@ class assemblyView(View):
                 .json()
                 .fichier.file.read()
                 )
-            self.CL_json = json.loads(data)
-            self.tracabilityFormset = formset_factory(Tracability_form, extra=0)
+            self.CL_json = json.loads(data)            
         except:
             self.CL_json = {}
-            self.tracabilityFormset = formset_factory(Tracability_form, extra=1)
+        
+        self.tracabilityFormset = formset_factory(Tracability_form, extra=0)
+        
 
         return super().dispatch(request, *args, **kwargs)
     
@@ -4019,9 +4029,11 @@ class assemblyView(View):
                             "batch":trace.batch.id if trace.batch else ""
                         }
                     )
+        choices=[]
+        for org in tracability_organ.objects.all(): 
+            choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
 
-
-        tracabilityformset = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL, prefix="tracability")
+        tracabilityformset = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL,form_kwargs={'organ_choices': choices}, prefix="tracability")
 
         return render(request, 
                       self.template_name, 
@@ -4159,7 +4171,6 @@ class batchView(View):
                     )
     
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         if "updateModal" in request.POST:
             return render(
                 request,

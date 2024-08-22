@@ -195,7 +195,7 @@ loadingTask.promise.then(function(pdf) {
                 <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link {% if not request.user|has_group:'ADV' %}active{%endif%}" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <button class="nav-link {% if not request.user|has_group:'ADV' or not CL%}active{%endif%}" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="profile" aria-selected="false">
                     <span>Historique
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Mise en Service" data-bs-content="Mises en service faites">
                         {{ instal.MES_count }}
@@ -220,7 +220,7 @@ loadingTask.promise.then(function(pdf) {
               </li>
                 {%if CL %}
               <li class="nav-item" role="presentation">
-                <button class="nav-link {% if request.user|has_group:'ADV' %}active{%endif%}" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <button class="nav-link {% if request.user|has_group:'ADV' and CL%}active{%endif%}" id="CL-tab" data-bs-toggle="tab" data-bs-target="#CL" type="button" role="tab" aria-controls="profile" aria-selected="false">
                   Bon de  commande {{CL.0}}
                   {%if instal.default_tracability%}<i class="fas fa-exclamation-triangle text-danger beatanimation"></i>{%endif%}
                 </button>
@@ -244,7 +244,7 @@ loadingTask.promise.then(function(pdf) {
         <div class="col">
             <div class="tab-content" id="myTabContent">
                 <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
-                      <div class="modal-dialog modal-lg">
+                      <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                           <div class="modal-header bg-warning">
                             <h5 class="modal-title" id="ModalEvenementLabel">New message</h5>
@@ -472,7 +472,7 @@ loadingTask.promise.then(function(pdf) {
                       </div>
                   </div>
               </div>
-              <div class="tab-pane fade m-3  {% if not request.user|has_group:'ADV' %}show active{%endif%}" id="historique" role="tabpanel" aria-labelledby="profile-tab">
+              <div class="tab-pane fade m-3  {% if not request.user|has_group:'ADV' or not CL%}show active{%endif%}" id="historique" role="tabpanel" aria-labelledby="profile-tab">
                   <button type="button"
                           class="btn btn-outline-primary"
                           data-bs-toggle="modal"
@@ -663,6 +663,7 @@ loadingTask.promise.then(function(pdf) {
                     </div>
                     <script>
                     function Updatedata(t){
+                      console.log(t)
                                   $.ajax({
                                         url: window.location.href,
                                         data: {"details": $(t).val(), "id": $(t).attr('id')},
@@ -716,14 +717,27 @@ loadingTask.promise.then(function(pdf) {
                 </table>
 
               </div>
-              <div class="tab-pane fade m-3 {% if request.user|has_group:'ADV' %}show active{%endif%}" id="CL" role="tabpanel" aria-labelledby="home-tab">
+              <div class="tab-pane fade m-3 {% if request.user|has_group:'ADV' and CL %}show active{%endif%}" id="CL" role="tabpanel" aria-labelledby="home-tab">
                 <fieldset class="border p-2 h-100">
                   <legend class="float-none w-auto"><b>Bon de commande {{CL.0}}</b></legend>
                   <div class="row">
-                    <div class="col-12 m-3">
-                      {% if not request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary CL" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>{%endif%}
-                      {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
+                    <div class="col-12 mb-3">
+                      {%if CL.0.monteur%}
+                      <p><b>Monteur:</b> {% for monteur in CL.0.monteur %} monteur {%endfor%}</p>
+                      {%endif%}
+                      {% if not request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary CL m-3" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>{%endif%}
+                      {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary m-3" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
+                      <div class="form-floating">
+                        <textarea 
+                          class="form-control {% if request.user|has_group:'ADV' %}textarea_update{%endif%}" 
+                          {% if not request.user|has_group:'ADV' %}disabled {%endif%}
+                          id="texteareaCL_{{CL.0.id}}">{{CL.0.information}}</textarea>
+                        <label for="floatingTextarea">Information</label>
+                      </div>
                     </div>
+                  </div>
+                  <div class="row">
+                    
                     {% if CL.0.fichier.all %}
                     <div class="col-12">
                       <table
@@ -1070,7 +1084,7 @@ $(document).ready(function() {
     attributes: {
       spellcheck : true,
       autocomplete   : "on",
-  },
+    },
     events: {
       change: function(editor, event) {
         txt=editor.html()
@@ -1094,11 +1108,12 @@ $(document).ready(function() {
   });
 });
 var $popover = $(".BL, .devis, .CL")
-var popover = new bootstrap.Popover($popover)
+if ($popover.length){
+  var popover = new bootstrap.Popover($popover)
+}
 
 $(".CL").on('click', function(){
         var CL = $(this)
-        console.log(CL, CL.attr('cl'))
         $("#offcanvasRightLabel").html("Détail du " + CL.attr('cl') + ":")
         $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
             $.ajax({

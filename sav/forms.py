@@ -164,14 +164,17 @@ class add_evenement_form(ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
-            Div(
-                AppendedText(
-                    "date",
-                    '<i class="far fa-calendar-alt"></i>',
-                    wrapper_class="form-row",
-                    template="widgets/prepended_appended_text_inline.html",
-                    active=True,
-                )
+            Row( 
+                Div(
+                    AppendedText(
+                        "date",
+                        '<i class="far fa-calendar-alt"></i>',
+                        wrapper_class="form-row",
+                        template="widgets/prepended_appended_text_inline.html",
+                        active=True,
+                    ),
+                    css_class="col-6"
+                ),                
             ),
             "technicien_sav",
             FloatingField("installation"),
@@ -965,9 +968,7 @@ class CL_Form(ModelForm):
             try:
                 if self.instance.json():
                     html2 = (
-                        '<div class="btn-group" role="group"><button class="btn btn-outline-primary" type="button" onclick="downloadSchema('
-                        + str(self.instance.pk)
-                        + ')"><i class="fas fa-file-download"></i><br>Dossier production pdf</button></div>'
+                        '<div class="btn-group" role="group"><a class="btn btn-outline-primary" href="/assembly/'+ str(self.instance.pk)+ '">       Montage</a></div>'
                     )
             except Exception as ex:
                 print(ex)
@@ -1273,7 +1274,7 @@ class Assembly_form(ModelForm):
 
     class Meta:
         model = assembly
-        fields = ("id", "validation", 'date', 'CL', 'operator')
+        fields = ("id", "validation", 'date', 'CL', 'operator', 'detail')
     def __init__(self, *args, **kwargs):
         super(Assembly_form, self).__init__(*args, **kwargs)
         self.fields["id"].widget = HiddenInput()
@@ -1283,6 +1284,8 @@ class Assembly_form(ModelForm):
         self.fields["date"].widget = HiddenInput()
         self.fields["date"].input_formats = ["%Y-%m-%d"]
         self.fields['validation'].disabled = True
+        self.fields['detail'].widget.attrs['rows'] = 1
+        self.fields['detail'].widget.attrs['columns'] = 5
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
@@ -1313,15 +1316,15 @@ class Tracability_form(ModelForm):
         model = tracability
         fields = ("id", "CL", "organ", "location", "SN", "batch")
     def __init__(self, *args, **kwargs):
+        choices = kwargs.pop("organ_choices", "")
         super(Tracability_form, self).__init__(*args, **kwargs)
-        choices = []
+        
         from .models import tracability_organ
-        from heraklesinfo.models import B50Composants
-        for org in tracability_organ.objects.all(): 
-            choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
+        # from heraklesinfo.models import B50Composants
+        # for org in tracability_organ.objects.all(): 
+        #     choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
         self.fields["organ"].choices = choices
         if 'organ' in self.initial:
-            print(self.initial['organ'], str(tracability_organ.objects.get(pk =self.initial['organ'])), batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =self.initial['organ']))))
             choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False, article = str(tracability_organ.objects.get(pk =self.initial['organ'])))]
         else:
             choicesbatch = [(b.id, str(b))for b in batch.objects.filter(compliance = True, soldout = False)]

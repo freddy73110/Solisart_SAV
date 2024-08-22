@@ -1785,6 +1785,9 @@ class CL_herakles(models.Model):
             .values_list("t601_8_0_code_commercial", flat=True)[0]
         )
 
+    def monteur(self):
+        return User.objects.filter(assembly__CL = self)
+
     def __init__(self, *args, **kwargs):
         super(CL_herakles, self).__init__(*args, **kwargs)
         self.old_information = self.information
@@ -1948,7 +1951,8 @@ class assembly(models.Model):
     operator = models.ForeignKey(
         User, verbose_name="Monteur", on_delete=models.CASCADE, null=True, blank=True
     )
-    date = models.DateField(verbose_name="Date d'évaluation", null=True, blank=True)
+    date = models.DateField(verbose_name="Date de réalisation", null=True, blank=True)
+    detail = models.TextField(verbose_name="Description", max_length=200, null=True, blank=True)
 
     def __str__(self):
         return str(self.CL) + ' ' + str(self.validation)
