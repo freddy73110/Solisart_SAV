@@ -2329,10 +2329,10 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
         print(installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
-            ).distinct().count(), '/', installation.objects.all().count()
+            ).filter(attribut_valeur__attribut_def__idsa = 14).distinct().count(), '/', installation.objects.all().count()
         )
         for ins in installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
-            ).distinct():
+            ).filter(attribut_valeur__attribut_def__idsa = 14).distinct():
             print(ins)
         # from django.shortcuts import get_object_or_404
         # for CL in CL_herakles.objects.filter(date_prepa_carte__isnull=False):
@@ -2347,7 +2347,15 @@ class bidouille(View):
 
 
 
-        return render(request, self.template_name, {"title": self.title})
+        return render(
+            request, 
+            self.template_name, 
+            {
+                "title": self.title,
+                "installations": installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
+            ).filter(attribut_valeur__attribut_def__idsa = 14, idsa__icontains="2023").distinct()
+                }
+        )
 
 
 class bibliotheque(View):
@@ -2817,8 +2825,8 @@ class production(View):
         from heraklesinfo.models import C7001Phases, C601ChantierEnTte, C101DevisEnTte
 
         excludeCL = Q(codephase__icontains="-------")
-        CLs = self.CLs
-        for Clsolistools in CLs:
+
+        for Clsolistools in CL_herakles.objects.all():
             excludeCL |= Q(codephase__icontains=str(Clsolistools))
         heraklesCLs = (
             C7001Phases.objects.db_manager("herakles")
@@ -3179,7 +3187,7 @@ class production(View):
         if "searchByCommercial" in request.POST:
             html = '<option value="tout" selected="">Visualiser tous les CL</option>'
             if request.POST["searchByCommercial"] == "tout":
-                CLs = self.CLs
+                CLs = self.CLs.order_by("-CL")
             else:
                 listCLHerakles = set(
                     C601ChantierEnTte.objects.db_manager("herakles")

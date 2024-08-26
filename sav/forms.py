@@ -968,7 +968,9 @@ class CL_Form(ModelForm):
             try:
                 if self.instance.json():
                     html2 = (
-                        '<div class="btn-group" role="group"><a class="btn btn-outline-primary" href="/assembly/'+ str(self.instance.pk)+ '">       Montage</a></div>'
+                        '<div class="btn-group" role="group"><a class="btn btn-outline-primary" href="/assembly/'
+                        + str(self.instance.pk)
+                        + '">Montage</a></div>'
                     )
             except Exception as ex:
                 print(ex)
