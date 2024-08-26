@@ -2846,7 +2846,7 @@ class production(View):
 
         commerciaux = set(
             C601ChantierEnTte.objects.db_manager("herakles")
-            .filter(t601_1_code_chantier__in=list(CLs.values_list("CL", flat=True)))
+            .filter(t601_1_code_chantier__in=list(self.CLs.values_list("CL", flat=True)))
             .exclude(t601_8_0_code_commercial__isnull=True)
             .order_by("t601_8_0_code_commercial")
             .values_list("t601_8_0_code_commercial", flat=True)
@@ -2858,7 +2858,7 @@ class production(View):
             {
                 "title": self.title,
                 "heraklesCLs": heraklesCLs,
-                "CLs": CLs,
+                "CLs": self.CLs,
                 "clients": client_herakles.objects.all().order_by("Nom"),
                 "commerciaux": commerciaux,
             },
