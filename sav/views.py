@@ -2328,32 +2328,13 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
-        print(installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
-            ).filter(attribut_valeur__attribut_def__idsa = 14).distinct().count(), '/', installation.objects.all().count()
-        )
-        for ins in installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
-            ).filter(attribut_valeur__attribut_def__idsa = 14).distinct():
-            print(ins)
-        # from django.shortcuts import get_object_or_404
-        # for CL in CL_herakles.objects.filter(date_prepa_carte__isnull=False):
-        #     sample_object = get_object_or_404(CL_herakles, id=CL.id)
-
-        #     for field in ["date_capteur", "date_livraison", "date_ballon", "date_montage", "date_prepa", "date_reglement"]:
-        #         # print(getattr(sample_object, field))
-        #         if getattr(sample_object, field) == None:
-        #             print(sample_object, field)
-        #             setattr(sample_object, field, timezone.now())
-        #             sample_object.save()
-
-
 
         return render(
             request, 
             self.template_name, 
             {
                 "title": self.title,
-                "installations": installation.objects.exclude(attribut_valeur__attribut_def__idsa = 15
-            ).filter(attribut_valeur__attribut_def__idsa = 14, idsa__icontains="2023").distinct()
+                "installations": installation.objects.filter(cl_herakles__isnull = True, idsa__icontains="2024").distinct()
                 }
         )
 
@@ -2970,7 +2951,7 @@ class production(View):
                 send_channel_message(
                     "production",
                     {
-                        "message": "Création d'une nouvelles commande",
+                        "message": "Création d'une nouvelle commande",
                         "result": [CL],
                         "datereceptionclient": False,
                     },

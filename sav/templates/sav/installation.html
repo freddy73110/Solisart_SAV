@@ -7,7 +7,7 @@
 
 {% block toast %}
 {%for util in acces%}
-{%if util.utilisateur.profil_user.evaluation_self or util.utilisateur.profil_user.evaluation_solisart%}
+{%if util.utilisateur.profil_user.evaluation_self or util.utilisateur.profil_user.evaluation_solisart or util.utilisateur.profil_user.evaluation_solisart == 0 or util.utilisateur.profil_user.evaluation_self == 0 %}
 <div class="p-3" style="z-index: 11">
   <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="false">
       <div role="alert" aria-live="assertive" aria-atomic="true" >

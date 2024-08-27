@@ -327,15 +327,18 @@ $("#numCL").prop('disabled', false)
              }
         })
     }
-function Refreshdata(){
+async function Refreshdata(){
     $.ajax({
             url: window.location.href,
             type:'post',
             data:{calendar:"full"},
             dataType: 'json',
             success: function (json) {
+              if(window.hasOwnProperty("data")){
+                delete data
+              }
                 data = json
-                ganttGenerator()
+                  ganttGenerator()           
              }
         })
 }
@@ -367,6 +370,7 @@ async function ganttGenerator(){
     if($("#step").val() != "simple"){
         tasks=[]
         await data
+        console.log(Date.now(), data)
         $.each(data, function(index, value){
           if (ClToDisplay.includes(value['CL'])){
             if (value['CL'] == $("#VisuCL").val() || $("#VisuCL").val() == 'tout'){
@@ -762,7 +766,15 @@ searchByCommercial()
             var d = d.message
             if (d.hasOwnProperty("message")) {
                 var message = d.message;
-                if (d.datereceptionclient){
+                if(message == "Création d'une nouvelle commande"){
+                  showToast(message)
+                  $("#modal-progress").find(".modal-title").html("<h4>En cours de travail...</h4>")
+                  $("#modal-progress").find(".modal-body").css({ opacity: 0.5 })
+                  $("#modal-progress").find(".modal-body").addClass("text-center")
+                  $("#modal-progress").find(".modal-body").html("<i class='fas fa-spinner fa-pulse fa-10x text-primary'></i>")
+                  $("#modal-progress").modal('show')
+                  window.location.reload();
+                }else if (d.datereceptionclient){
                     if (data.result.length == 0){
                         message = message + '<br> Pas de date de livraison modifiée sur Héraklès'
                     }else{
@@ -786,6 +798,7 @@ searchByCommercial()
                         '</div>'
                     )
                 }else{
+                    console.log("refreshdata dans ws")
                     Refreshdata()
                 }
             }
