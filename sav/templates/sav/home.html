@@ -11,7 +11,6 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center">{{title}}</h1>
-            <form method="post" enctype="multipart/form-data">{% csrf_token %}
                 <div class="row">
                     <div class="col-6">
                         <form method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -45,7 +44,6 @@
                                     </div>
                                     <span class="input-group-text"><i class="fas fa-at"></i></span>
                                 </div>
-
                         </fieldset>
                         </form>
                     </div>
@@ -109,7 +107,6 @@
                         </form>
                     </div>
                 </div> 
-            </form>
         </div>
     </div>
     <div class="row">
@@ -121,10 +118,17 @@
 <script>
 $(document).ready(function(){
     $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install, #id_BL, #id_CL").on("keypress", function(e) {
-         var key = e.which;
+         var key = e.which;         
          if(key == 13)  // the enter key code
           {
             var t = $(this)
+            var inputSend = $(this).closest("form").find('input')
+            $.each($('input[type=text]'), function(idx, elem){
+                if (inputSend.index(elem)>-1) {                    
+                }else{
+                    $(elem).val("").removeClass('is-valid')
+                }
+            })
             send(t)
           }
     })
@@ -136,7 +140,6 @@ function send(t){
         $(".invalid-feedback").remove()
         t.addClass("is-valid").removeClass('is-invalid')
           var form = t.closest("form");
-          console.log(form)
           $.ajax({
             url: window.location.href,
             type:'post',
