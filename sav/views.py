@@ -245,6 +245,7 @@ class home(View):
             )
         if 'BL' in request.POST:
             table_list = installation.objects.all()
+            productionCL= None
             if request.POST['BL']:
                 table_list = table_list.filter(
                     evenement__ticket__BL__BL__icontains=request.POST['BL']
@@ -252,12 +253,24 @@ class home(View):
             if request.POST['CL']:
                 table_list = table_list.filter(
                     cl_herakles__CL__icontains=request.POST['CL']
-                )   
+                )  
+                ClOpening = CL_herakles.objects.filter(
+                                Q(date_livraison__isnull = True)
+                                | Q(date_capteur__isnull = True) 
+                                | Q(date_ballon__isnull = True) 
+                                | Q(date_montage__isnull = True) 
+                                | Q(date_prepa_carte__isnull = True) 
+                                | Q(date_prepa__isnull = True)
+                        ).order_by("date_livraison")
+                
+                for item in CL_herakles.objects.filter(CL__icontains=request.POST['CL']) :
+                    if item in ClOpening:
+                        productionCL = item
             
             return render(
                 request,
                 "widgets/table_recherche.html",
-                {"utilisateurs": [], "table": table_list},
+                {"utilisateurs": [], "table": table_list, "productionCL": productionCL},
             )
 
 class updateDB(View):
@@ -1352,7 +1365,7 @@ class installation_view(View):
         self.title = (
             self.title + " / " + str(self.instal.proprio())
             if self.instal.proprio()
-            else self.instal.idsa
+            else self.instal.idsa 
         )
         self.title += (
             " (" + str(self.instal.departement()) + ")"
@@ -2787,7 +2800,12 @@ class production(View):
     template_name = "sav/production.html"
     title = "Gestion de production"
 
-    def dispatch(self, request: http.HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def dispatch(self, request, *args, **kwargs):
+
+        try:
+            self.pkCL = CL_herakles.objects.get(pk=kwargs.pop("pkCL"))
+        except:
+            self.pkCL = None
         self.CLs = CL_herakles.objects.filter(
                                 Q(date_livraison__isnull = True)
                                 | Q(date_capteur__isnull = True) 
@@ -2842,6 +2860,7 @@ class production(View):
                 "CLs": self.CLs,
                 "clients": client_herakles.objects.all().order_by("Nom"),
                 "commerciaux": commerciaux,
+                "pkCL": self.pkCL
             },
         )
 

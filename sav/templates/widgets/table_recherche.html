@@ -16,8 +16,41 @@
     <script src="{% static 'bootstrap-table-master/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/dist/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/ajax_lib/jquery.tablednd.min.js' %}"></script>
-{%if utilisateurs %}
-<h2>Utilisateur{% if utilisateurs|length > 1 %}s{%endif%}</h2>
+    {%if productionCL%}
+    <fieldset class="border p-2 h-100">
+        <legend class="float-none w-auto"><b>Commande en production</b></legend>
+        <table
+            id="Commande"
+            data-toolbar="#toolbar"
+            data-toggle="table"
+            data-search="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-show-refresh="false"
+            data-show-fullscreen="true"
+            data-show-export="true"
+            data-page-list="[10, 25, 50, 100, all]"
+            data-pagination="true"
+            data-filter-control="true"
+            data-show-search-clear-button="true">
+        <thead>
+            <th class="text-center">N° de Commande</th>
+            <th class="text-center">Client</th>        
+            <th class="text-center">Type</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center"><a href="{% url 'sav:productionwithCL' pkCL=productionCL.id %}" target="_blank">{{productionCL}}</a></td>
+                <td class="text-center">{{productionCL.installateur}}</td>
+                <td class="text-center">{{productionCL.module}}</td>
+            </tr>
+        </tbody>
+    </table>
+    </fieldset>    
+    {%endif%}
+    <fieldset class="border p-2 h-100">
+        <legend class="float-none w-auto"><b>Utilisateur{% if utilisateurs|length > 1 %}s{%endif%}</b></legend>
+    {%if utilisateurs %}
 <table id="utilisateur"
         data-toggle="table"
         data-search="true"
@@ -54,9 +87,11 @@
 {%else%}
 <h2 class="text-danger">Pas d'utilisateur trouvé</h2>
 {%endif%}
+</fieldset>
 
+<fieldset class="border p-2 h-100">
+    <legend class="float-none w-auto"><b>Installation{% if table|length > 1 %}s{%endif%}</b></legend>
 {% if table %}
-<h2>Installation{% if table|length > 1 %}s{%endif%}</h2>
 <table
         id="installation"
         data-toolbar="#toolbar"
@@ -99,3 +134,4 @@
 {%else%}
 <h2 class="text-danger">Pas d'installation trouvée</h2>
 {%endif%}
+</fieldset>

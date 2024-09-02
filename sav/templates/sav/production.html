@@ -14,7 +14,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center m-3">{{title}}</h1>
+            <h1 class="text-center m-3">{{title}} {{pkCL}}</h1>
         </div>
     </div>
 </div>
@@ -41,7 +41,7 @@
       {% if request.user|has_group:"ADV" %}
         <div class="col-4">
             <div class="input-group">
-              <label class="input-group-text" for="VisuCL"><i class="fas fa-not-equal"></i></label>
+              <label class="input-group-text" for="date_information"><i class="fas fa-not-equal"></i></label>
               <input type="text" name="date_information" value="" class="xdsoftdatetimepickerinput form-control" placeholder="date_end" required="" id="date_information">
               <button class="btn btn-outline-secondary" type="button" onclick="CheckUpdateInformation()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Afficher</button>
                                         <script>
@@ -105,7 +105,7 @@
     <div class="row">
         <div class="col-2">
             <div class="input-group">
-              <label class="input-group-text" for="VisuCL"><i class="fas fa-search"></i></label>
+              <label class="input-group-text" for="client"><i class="fas fa-search"></i></label>
               <select
                       class="form-select"
                       onchange="searchByCustomer()"
@@ -121,7 +121,7 @@
         </div>
         <div class="col-2">
             <div class="input-group">
-              <label class="input-group-text" for="VisuCL"><i class="fas fa-search"></i></label>
+              <label class="input-group-text" for="commercial"><i class="fas fa-search"></i></label>
               <select
                       class="form-select"
                       onchange="searchByCommercial()"
@@ -337,8 +337,13 @@ async function Refreshdata(){
               if(window.hasOwnProperty("data")){
                 delete data
               }
-                data = json
-                  ganttGenerator()           
+              data = json
+              
+              {% if pkCL %}
+              $("#VisuCL").val("{{pkCL}}")
+              {%endif%} 
+              ganttGenerator() 
+         
              }
         })
 }
@@ -757,6 +762,8 @@ function searchByCommercial(){
 
 Refreshdata()
 searchByCommercial()
+
+
 </script>
 <script>
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');
