@@ -10,7 +10,8 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center">{{title}}</h1>
+            <fieldset class="border p-2 h-100">
+                <legend class="float-none w-auto" align="center"><b>{{title}}</b></legend>
                 <div class="row">
                     <div class="col-6">
                         <form method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -107,6 +108,7 @@
                         </form>
                     </div>
                 </div> 
+            </fieldset>
         </div>
     </div>
     <div class="row">
@@ -155,6 +157,9 @@ function send(t){
         t.after("<div class='invalid-feedback'>Ce champ doit comporté 2 caractères au minimum.</div>")
     }
 }
+$("input").hover(function(){
+    $(this).closest(".input-group").toggleClass("shadow")
+})
 </script>
 
 {%endblock%}

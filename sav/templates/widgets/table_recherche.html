@@ -16,6 +16,8 @@
     <script src="{% static 'bootstrap-table-master/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/dist/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/ajax_lib/jquery.tablednd.min.js' %}"></script>
+    <fieldset class="border p-2 h-100 ">
+        <legend class="float-none w-auto" align="center"><b>Résultats</b></legend>
     {%if productionCL%}
     <fieldset class="border p-2 h-100">
         <legend class="float-none w-auto"><b>Commande en production</b></legend>
@@ -134,4 +136,5 @@
 {%else%}
 <h2 class="text-danger">Pas d'installation trouvée</h2>
 {%endif%}
+</fieldset>
 </fieldset>

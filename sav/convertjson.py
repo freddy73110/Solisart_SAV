@@ -68,6 +68,10 @@ class convertjson:
         for k, v in dicttoconvert.items():
             if k in convertjson:                
                 try:
+                    if k == "optionS10" and dicttoconvert['champCapteur'] == "2 champs capteurs sur V3V":
+                        continue
+                    if k == "optionS11" and dicttoconvert['champCapteur'] == "2 champs capteurs sur V3V":
+                        continue
                     if("typeAppoint" in str(k)):
                         if (
                             dicttoconvert["appoint" + k.replace("typeAppoint", "")]

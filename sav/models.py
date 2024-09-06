@@ -1045,7 +1045,7 @@ class cause(models.Model):
     )
     sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
     solution = models.ManyToManyField(
-        "solution", null=True, blank=True, verbose_name="Solutions"
+        "solution", blank=True, verbose_name="Solutions"
     )
 
     def __str__(self):
@@ -1074,7 +1074,7 @@ class probleme(models.Model):
     )
     sous_categorie = models.CharField(max_length=100, verbose_name="Sous catégorie")
     causes = models.ManyToManyField(
-        "cause", null=True, blank=True, verbose_name="Causes possible"
+        "cause", blank=True, verbose_name="Causes possible"
     )
 
     def __str__(self):
@@ -1150,7 +1150,7 @@ class MES(models.Model):
     )
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
     fichier = models.ManyToManyField(
-        "Fichiers", verbose_name="Fichiers", null=True, blank=True
+        "Fichiers", verbose_name="Fichiers", blank=True
     )
 
     def icon_technicien_sav(self):
@@ -1262,10 +1262,10 @@ class ticket(models.Model):
         cause, verbose_name="Causes", on_delete=models.CASCADE, null=True, blank=True
     )
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
-    devis = models.ManyToManyField("devis_herakles", null=True, blank=True)
-    BL = models.ManyToManyField("BL_herakles", null=True, blank=True)
+    devis = models.ManyToManyField("devis_herakles",  blank=True)
+    BL = models.ManyToManyField("BL_herakles",  blank=True)
     fichier = models.ManyToManyField(
-        "Fichiers", verbose_name="Fichiers", null=True, blank=True
+        "Fichiers", verbose_name="Fichiers",  blank=True
     )
 
     def as_dict(self):
@@ -1739,7 +1739,7 @@ class CL_herakles(models.Model):
         blank=True,
     )
     fichier = models.ManyToManyField(
-        "Fichiers", verbose_name="Fichiers", null=True, blank=True
+        "Fichiers", verbose_name="Fichiers", blank=True
     )
 
     def __str__(self):
@@ -1881,7 +1881,7 @@ class noncompliance(models.Model):
     avoir = models.BooleanField(verbose_name="A donner lieu à un avoir", default=False)
     detail = models.TextField(verbose_name="Détail", null=True, blank=True)
     fichier = models.ManyToManyField(
-        "Fichiers", verbose_name="Fichiers", null=True, blank=True
+        "Fichiers", verbose_name="Fichiers", blank=True
     )
 
     def _get_next_code(self):
