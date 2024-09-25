@@ -19,10 +19,11 @@
         </div>
     </div>
 </div>
+{%if util %}
 <div class="container">
     <div class="row">
         <div class="col-8">
-            <div id="installation_carte" style="height: 500px" class="m-3"></div>
+            <div id="installation_carte" style="height: 500px" class="m-3 img-thumbnail"></div>
         </div>
         <div class="col-4 text-center">
             <a href="https://my.solisart.fr/admin/index.php?page=editer_utilisateur&id={{util.profil_user.idsa}}" class="btn btn-outline-primary m-auto" target="_blank">
@@ -60,6 +61,7 @@
         </div>
     </div>
 </div>
+{%endif%}
 <div class="modal fade" id="ModalEvenement" tabindex="-1" aria-labelledby="ModalEvenementLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
@@ -225,12 +227,13 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
               </li>
-              {% if 'fa-tools' in util.profil_user.icon %}
+              {% if 'fa-tools' in util.profil_user.icon and util %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="info_herakles-tab" data-bs-toggle="tab" data-bs-target="#herakles" type="button" role="tab" aria-controls="home" aria-selected="true" onclick="infoHeraklesfunction({{util.profil_user.Client_herakles.id}})">Informations Hérakles
                     </button>
                 </li>
                 {% endif %}
+                {%if util %}
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#ticket" type="button" role="tab" aria-controls="profile" aria-selected="false">
                     <span class="m-3">
@@ -251,6 +254,7 @@
                     </span>
                 </button>
               </li>
+              {%endif%}
                 {% if util.profil_user.departement %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="ticket_commercial-tab" data-bs-toggle="tab" data-bs-target="#ticket_commercial" type="button" role="tab" aria-controls="home" aria-selected="true">Bilan SAV
@@ -269,23 +273,22 @@
         <div class="col">
             <div class="tab-content" id="myTabContent">
               <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="home-tab">
-                  <h2>Description:</h2>
                   <form id="profil_id">{% csrf_token %}
                       <input type="hidden" name="modifier_profil">
                       <button type="button"
-                              class="btn btn-outline-primary visually-hidden"
+                              class="btn btn-outline-primary visually-hidden mt-3"
                               name="modifier_profil"
                               id="modifier_profil"
 
                       >Modifier</button>
                       <div class="row">
-                          <div class="col-6">
+                          <div class="col-12">
                               <fieldset class="border p-2 h-100">
                                   <legend class="float-none w-auto p-2">Général</legend>
                                     {% crispy form %}
                               </fieldset >
                           </div>
-                          <div class="col-6">
+                          <div class="col-12">
                               <fieldset class="border p-2 h-100">
                                   <legend class="float-none w-auto p-2">Détail</legend>
                                     {% crispy form_profil %}

@@ -3,8 +3,25 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter, ModelAdmin
 
 from .models import *
+import csv
+from heraklesinfo.models import B50Composants
 
 # Register your models here.
+
+def exportCSV(modeladmin, request, queryset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="listArticlesuivi.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Ref', 'nom'])
+    rows = queryset
+    for row in rows:
+        print(row)
+        try:
+            writer.writerow([row.name, B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = row.name).t50_37_titre_du_composant])
+        except:
+            print("no")
+    return response
+exportCSV.short_description = 'Export to csv'
 
 
 class Allinstallateur(SimpleListFilter):
@@ -56,6 +73,9 @@ class installationAdmin(admin.ModelAdmin):
 class fichiersAdmin(admin.ModelAdmin):
     search_fields = ["titre"]
 
+class tracability_organAdmin(admin.ModelAdmin):
+    actions = [exportCSV]
+
 
 admin.site.register(profil_user, profil_user_Admin)
 admin.site.register(profil_type)
@@ -86,6 +106,6 @@ admin.site.register(evaluation)
 admin.site.register(noncompliance)
 admin.site.register(validationModule)
 admin.site.register(assembly)
-admin.site.register(tracability_organ)
+admin.site.register(tracability_organ, tracability_organAdmin)
 admin.site.register(tracability)
 admin.site.register(batch)

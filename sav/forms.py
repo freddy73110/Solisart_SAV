@@ -516,9 +516,17 @@ class UserForm(ModelForm):
         self.helper.layout = Layout(
             Row(
                 Column(
-                    FloatingField("first_name", css_class="col-6"),
-                    FloatingField("last_name", css_class="col-6"),
+                    FloatingField("first_name"),
+                    css_class="col-3",
+                    
+                ),
+                Column(
+                    FloatingField("last_name"),
+                    css_class="col-3",
+                ),
+                Column(
                     FloatingField("email"),
+                    css_class="col-6",
                 )
             )
         )
@@ -543,28 +551,58 @@ class ProfilForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["Client_herakles"].disabled = True
         if self.instance.pk is not None:
-            if not "fa-tools" in self.instance.icon():
-                self.fields["Client_herakles"].widget = HiddenInput()
+            if "fa-tools" in self.instance.icon():
+                self.fields["Client_herakles"].disabled = False
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Row(
                 Column(
-                    FloatingField("Client_herakles"),
-                    FloatingField("telephone1"),
-                    FloatingField("telephone2"),
+                    Row(
+                        Column(
+                            FloatingField("Client_herakles"),
+                            css_class="col-4"
+                        )
+                    ),
+                    Row(
+                        Column(
+                            FloatingField("telephone1")
+                        ),
+                        Column(
+                            FloatingField("telephone2")
+                        ),
+                    ),
                     FloatingField("voie1"),
                     FloatingField("voie2"),
                     FloatingField("voie3"),
-                    FloatingField("codepostal"),
-                    FloatingField("commune"),
-                    FloatingField("departement"),
-                    HTML(
-                        '<label for="exampleColorInput" class="form-label">Couleur sur la carte</label>'
-                        + '<input type="color" class="form-control form-control-color" id="id_color" name="color" value="{{profil.color}}" title="Choose your color">'
+                    Row(
+                        Column(
+                            FloatingField("codepostal"),
+                            css_class="col-4"
+                        ),
+                        Column(
+                            FloatingField("commune"),
+                            css_class="col-8"
+                        ),
                     ),
-                    "mailOcommercial",
+                    HTML("<hr><h2>Uniquement pour les commerciaux</h2>"),    
+                    Row(
+                        Column(
+                            FloatingField("departement"),
+                            css_class="col-6"
+                        ),
+                        Column(
+                            HTML(
+                                '<div class="form-floating">'
+                                + '<label for="exampleColorInput" class="form-label">Couleur sur la carte</label>'
+                                + '<input type="color" class="form-control" id="id_color" name="color" title="Choisir une couleur"></div>'
+                            ),
+                            css_class="col-6"
+                        ),
+                    ),           
+                    Field("mailOcommercial",template="widgets/switchCheckbox.html"),
                 )
             )
         )
@@ -1374,3 +1412,13 @@ class Batch_form(ModelForm):
             ),
             HTML(emoji_str),
         )
+
+class Article_form(forms.Form):
+
+
+    article = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super(Article_form, self).__init__(*args, **kwargs)
+        followingArticle = list(tracability_organ.objects.values_list("name", flat=True))
+        self.fields['article'].choices = [(str(art.t50_2_code_comp), str(art.t50_2_code_comp) + ' - '+ str(art.t50_37_titre_du_composant)) for art in B50Composants.objects.db_manager("herakles").exclude(t50_2_code_comp__in = followingArticle)]

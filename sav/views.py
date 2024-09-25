@@ -1874,35 +1874,48 @@ class utilisateur_view(View):
     login_url = "/login/"
     template_name = "sav/utilisateur.html"
     form_class = UserForm
-    title = "utilisateur"
+    title = "Utilisateur"
 
     def dispatch(self, request, *args, **kwargs):
-        self.pk = kwargs.pop("pk")
-        self.util = User.objects.get(pk=int(self.pk))
-        self.profil = profil_user.objects.get(user=self.util)
-        self.critere = critere.objects.none()
-        if "Installateur" in self.profil.profil():
-            self.critere |= critere.objects.filter(profil_type__name="Installateur")
-        if "Propriétaire" in self.profil.profil():
-            self.critere |= critere.objects.filter(profil_type__name="Propriétaire")
-        self.evaluations = evaluation.objects.filter(user=self.profil)
+        if "pk" in self.kwargs:
+            self.pk = kwargs.pop("pk")
+            self.util = User.objects.get(pk=int(self.pk))
+            self.profil = profil_user.objects.get(user=self.util)
+            self.critere = critere.objects.none()
+            if "Installateur" in self.profil.profil():
+                self.critere |= critere.objects.filter(profil_type__name="Installateur")
+            if "Propriétaire" in self.profil.profil():
+                self.critere |= critere.objects.filter(profil_type__name="Propriétaire")
+            self.evaluations = evaluation.objects.filter(user=self.profil)
         return super(utilisateur_view, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        form_profil = ProfilForm(instance=self.profil)
-        return render(
-            request,
-            self.template_name,
-            {
-                "title": str(self.profil),
-                "util": self.util,
-                "profil": self.profil,
-                "form": self.form_class(instance=self.util),
-                "form_profil": form_profil,
-                "critere": self.critere,
-                "evaluations": [t.as_dict() for t in self.evaluations],
-            },
-        )
+        
+        if "pk" in self.kwargs:
+            form_profil = ProfilForm(instance=self.profil)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "title": str(self.profil),
+                    "util": self.util,
+                    "profil": self.profil,
+                    "form": self.form_class(instance=self.util),
+                    "form_profil": form_profil,
+                    "critere": self.critere,
+                    "evaluations": [t.as_dict() for t in self.evaluations],
+                },
+            )
+        else:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "title": "Créer un nouvel utilisateur",
+                    "form": self.form_class(),
+                    "form_profil": ProfilForm()
+                },
+            )
 
     def post(self, request, *args, **kwargs):
         if "lat" in request.POST:
@@ -2341,6 +2354,11 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
+
+        from heraklesinfo.models import B50Composants
+        print([f.name for f in B50Composants._meta.get_fields()])
+        for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
+            print(article, article.t50_21_2_identificateur_hiérarchique_2)
 
         return render(
             request, 
@@ -4196,6 +4214,16 @@ class batchView(View):
                 "widgets/batchModal.html",
                 {"form": Batch_form()}
             )
+        if "AddArticleBashModal" in request.POST:
+            return render(
+                request,
+                "widgets/batchModal.html",
+                {"form": Article_form()}
+            )
+        if"addArticle" in request.POST:
+            print(request.POST['article'])
+            tracability_organ.objects.create(name = request.POST['article'])
+            return redirect(request.path)
         if 'add' in request.POST:
             form = Batch_form(request.POST)
             if form.is_valid:

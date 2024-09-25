@@ -45,6 +45,7 @@
     <div class="row">
         <div class="col-12">
             <button class="btn btn-outline-primary" type="button" onclick="AddBashModal()" data-bs-toggle="modal" data-bs-target="#ModalDiv">Ajouter un lot</button>
+            <button class="btn btn-outline-primary" type="button" onclick="AddArticleBashModal()" data-bs-toggle="modal" data-bs-target="#ModalDiv">Ajouter un article à gérer par lot</button>
             <table 
             class="table text-center"
             data-toolbar="#toolbar"
@@ -106,6 +107,7 @@
         })
     }
     function AddBashModal(){
+        $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
         $.ajax({
             url: window.location.href,
             type:'post',
@@ -116,6 +118,24 @@
                 $("#ModalEvenementLabel").html('Créer un nouveau lot')                
                 $("#enregistrer").html('Ajouter')
                 $("#enregistrer").attr('name', "add")
+                $("#enregistrer").show()
+
+            }
+        })
+
+    }
+    function AddArticleBashModal(){
+        $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
+        $.ajax({
+            url: window.location.href,
+            type:'post',
+            data: {AddArticleBashModal: ""},
+            dataType: 'html',
+            success: function (html) {
+                $("#modalBody").html(html)
+                $("#ModalEvenementLabel").html('Ajouter un article à gérer par lot')                
+                $("#enregistrer").html('Ajouter')
+                $("#enregistrer").attr('name', "addArticle")
                 $("#enregistrer").show()
 
             }

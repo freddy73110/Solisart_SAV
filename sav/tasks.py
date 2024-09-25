@@ -624,7 +624,7 @@ def actualisePrixMySolisart(*args, **kwargs):
 
     articles = (
         B50Composants.objects.db_manager("herakles")
-        .all()
+        .filter(t50_21_2_identificateur_hiérarchique_2="TARIF")
         .annotate(
             ref=F("t50_2_code_comp"),
             prix=Cast(

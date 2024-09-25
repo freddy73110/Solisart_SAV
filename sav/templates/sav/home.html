@@ -13,10 +13,11 @@
             <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto" align="center"><b>{{title}}</b></legend>
                 <div class="row">
-                    <div class="col-6">
-                        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                    <div class="col-6">                        
                         <fieldset class="border p-2 h-100">
-                                <legend class="float-none w-auto"><b>Recherche par Utilisateur</b></legend>
+                            <legend class="float-none w-auto"><b>Recherche par Utilisateur</b></legend>
+                            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                                
                                 <div class="input-group mb-3">
                                   <div class="form-floating flex-grow-1">
                                     <input type="text" class="form-control" name="telephone" id="telephone" aria-label="telephone" placeholder="tutu">
@@ -45,14 +46,16 @@
                                     </div>
                                     <span class="input-group-text"><i class="fas fa-at"></i></span>
                                 </div>
+                            </form>
                         </fieldset>
-                        </form>
+                        
                     </div>
                     <div class="col-6">
-                        <div class="row">
-                            <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                            
                                 <fieldset class="border p-2 h-100">
-                                        <legend class="float-none w-auto"><b>Recherche par Installation</b></legend>
+                                    <legend class="float-none w-auto"><b>Recherche par Installation</b></legend>
+                                    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                                        
                                         <div class="input-group mb-3">
                                             <div class="form-floating flex-grow-1">
                                                 <input type="text" class="form-control" name="id_instal" id="id_instal" aria-label="Nom client" placeholder="tutu">
@@ -74,9 +77,9 @@
                                             </div>
                                           <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                                         </div>
+                                    </form>
                                 </fieldset>
-                            </form>
-                        </div>
+                            
                     </div>
                 </div>
                 <div class="row">

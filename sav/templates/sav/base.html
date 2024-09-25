@@ -260,7 +260,10 @@ ul.nav li a.active {
                     <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
                     <li><a class="dropdown-item" href="javascript:void(0)" id="bgmode">{% if request.user|has_group:'bg_dark' %}<i class="fas fa-moon"></i> Mode sombre{%else%}<i class="fas fa-sun"></i> Mode claire{%endif%}</a></li>
                     <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
-                <a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'sav:AjoutUtilisateur' %}"><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a></li>
               </ul>
             </div>
         {%endif%}

@@ -18,6 +18,11 @@ urlpatterns = [
         login_required(views.utilisateur_view.as_view()),
         name="utilisateur",
     ),
+    path(
+        "utilisateur",
+        login_required(views.utilisateur_view.as_view()),
+        name="AjoutUtilisateur",
+    ),    
     path("ticket", login_required(views.ticket_view.as_view()), name="ticket"),
     path("map", login_required(views.carte.as_view()), name="map"),
     path(
