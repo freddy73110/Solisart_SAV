@@ -1904,6 +1904,7 @@ class utilisateur_view(View):
                     "form_profil": form_profil,
                     "critere": self.critere,
                     "evaluations": [t.as_dict() for t in self.evaluations],
+                    "form_group": GroupForm(request=request, profil=self.util)
                 },
             )
         else:
@@ -1913,7 +1914,8 @@ class utilisateur_view(View):
                 {
                     "title": "Créer un nouvel utilisateur",
                     "form": self.form_class(),
-                    "form_profil": ProfilForm()
+                    "form_profil": ProfilForm(),
+                    "form_group": GroupForm(request=request)
                 },
             )
 
@@ -2000,38 +2002,61 @@ class utilisateur_view(View):
             )
             return JsonResponse([t.as_dict() for t in tickets], safe=False)
         if "modifier_profil" in request.POST:
-            form_user = UserForm(request.POST, instance=self.util)
-            form_profil = ProfilForm(request.POST, instance=self.profil)
-            data = {}
-            if form_user.is_valid():
-                form_user.save()
-                data["user"] = "updated"
-            if form_profil.is_valid():
-                profil = form_profil.save()
-                data["profil"] = "updated"
-                try:
-                    import requests
+            if "util" in self.__dict__:
+                form_user = UserForm(request.POST, instance=self.util)
+                form_profil = ProfilForm(request.POST, instance=self.profil)
+                data = {}
+                if form_user.is_valid():
+                    update_user = form_user.save()
+                    data["user"] = "updated"
+                if form_profil.is_valid():
+                    profil = form_profil.save()
+                    data["profil"] = "updated"
+                    try:
+                        import requests
 
-                    adresse = ""
-                    if profil.voie1:
-                        adresse += profil.voie1 + "%"
-                    if profil.voie2:
-                        adresse += profil.voie2 + "%"
-                    if profil.codepostal:
-                        adresse += profil.codepostal + "%"
-                    if profil.commune:
-                        adresse += profil.commune + "%"
-                    url = (
-                        "https://nominatim.openstreetmap.org/?q="
-                        + adresse
-                        + "&format=json&limit=1"
-                    )
-                    profil.longitude = requests.get(url).json()[0]["lon"]
-                    profil.latitude = requests.get(url).json()[0]["lat"]
+                        adresse = ""
+                        if profil.voie1:
+                            adresse += profil.voie1 + "%"
+                        if profil.voie2:
+                            adresse += profil.voie2 + "%"
+                        if profil.codepostal:
+                            adresse += profil.codepostal + "%"
+                        if profil.commune:
+                            adresse += profil.commune + "%"
+                        url = (
+                            "https://nominatim.openstreetmap.org/?q="
+                            + adresse
+                            + "&format=json&limit=1"
+                        )
+                        profil.longitude = requests.get(url).json()[0]["lon"]
+                        profil.latitude = requests.get(url).json()[0]["lat"]
+                        profil.save()
+                    except:
+                        pass
+                update_user.groups.clear()
+                for g in Group.objects.filter(id__in = request.POST.getlist("group")):
+                    update_user.groups.add(g)
+                return JsonResponse(data, safe=False)
+            else:
+                form_user = UserForm(request.POST)
+                form_profil = ProfilForm(request.POST)
+                data = {}
+                if form_user.is_valid():
+                    created_user = form_user.save(commit=False)
+                    created_user.username = request.POST['email']
+                    created_user.is_staff = True
+                    created_user.save()
+                    data["user"] = "created"
+                if form_profil.is_valid():
+                    profil = form_profil.save(commit=False)
+                    profil.user = created_user
                     profil.save()
-                except:
-                    pass
-            return JsonResponse(data, safe=False)
+                    data["profil"] = "created"
+                for g in Group.objects.filter(id__in = request.POST.getlist("group")):
+                    created_user.groups.add(g)
+                return JsonResponse(data, safe=False)
+                
         if "critere" in request.POST:
             date_evalutaion = datetime.strptime(
                 request.POST["date_evaluation"], "%d-%m-%Y"
@@ -2355,10 +2380,11 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
 
-        from heraklesinfo.models import B50Composants
-        print([f.name for f in B50Composants._meta.get_fields()])
-        for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
-            print(article, article.t50_21_2_identificateur_hiérarchique_2)
+        # from heraklesinfo.models import B50Composants
+        # print([f.name for f in B50Composants._meta.get_fields()])
+        # for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
+        #     print(article, article.t50_21_2_identificateur_hiérarchique_2)
+
 
         return render(
             request, 
@@ -4221,7 +4247,6 @@ class batchView(View):
                 {"form": Article_form()}
             )
         if"addArticle" in request.POST:
-            print(request.POST['article'])
             tracability_organ.objects.create(name = request.POST['article'])
             return redirect(request.path)
         if 'add' in request.POST:

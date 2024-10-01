@@ -280,7 +280,7 @@
                               name="modifier_profil"
                               id="modifier_profil"
 
-                      >Modifier</button>
+                      >{%if util%}Modifier{%else%}Créer{%endif%}</button>
                       <div class="row">
                           <div class="col-12">
                               <fieldset class="border p-2 h-100">
@@ -294,6 +294,14 @@
                                     {% crispy form_profil %}
                               </fieldset>
                           </div>
+                          {% if request.user.is_staff and util.is_staff or not util%}
+                          <div class="col-12">
+                            <fieldset class="border p-2 h-100">
+                                <legend class="float-none w-auto p-2">Groupe</legend>
+                                  {% crispy form_group %}
+                            </fieldset>
+                        </div>
+                        {%endif%}
                       </div>
                       <script>
                           $("form#profil_id :input").on("input", function(){

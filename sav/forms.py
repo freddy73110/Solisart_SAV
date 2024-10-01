@@ -532,6 +532,39 @@ class UserForm(ModelForm):
         )
 
 
+from django.contrib.auth.models import Group
+
+class GroupForm(forms.Form):
+
+    group = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(), 
+        label = 'Groupe'
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)       
+        self.profil = kwargs.pop('profil', None)                                                   
+        super().__init__(*args, **kwargs)
+        if self.request.user.is_superuser:
+            self.fields['group'].queryset = Group.objects.all()
+        elif 'Production' in self.request.user.groups.all().values_list('name', flat=True):
+            self.fields['group'].queryset = Group.objects.filter(name__in = ['Production', 'Monteur', 'Expé', 'Prépa', 'Carte'])
+        else:
+            self.fields['group'].queryset = Group.objects.filter(id__in = self.request.user.groups.all().values_list('id', flat=True))
+        if self.profil:
+            self.fields['group'].initial = self.profil.groups.all().values_list("id", flat= True)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                        Column(
+                            FloatingField('group', size=5, css_class="h-100"),
+                            css_class="col-4"
+                        )
+                    )
+            
+        )
+
 class ProfilForm(ModelForm):
     class Meta:
         model = profil_user
@@ -586,8 +619,14 @@ class ProfilForm(ModelForm):
                             FloatingField("commune"),
                             css_class="col-8"
                         ),
-                    ),
-                    HTML("<hr><h2>Uniquement pour les commerciaux</h2>"),    
+                    ))
+            )
+        )
+        
+        if self.instance.pk is not None and self.instance.user.is_staff or self.instance.pk == None:
+            self.helper.layout.append(
+                    HTML("<hr><h2>Uniquement pour les commerciaux</h2>"))
+            self.helper.layout.append(
                     Row(
                         Column(
                             FloatingField("departement"),
@@ -601,10 +640,11 @@ class ProfilForm(ModelForm):
                             ),
                             css_class="col-6"
                         ),
-                    ),           
-                    Field("mailOcommercial",template="widgets/switchCheckbox.html"),
-                )
+                    )
             )
+            self.helper.layout.append(          
+                    Field("mailOcommercial",template="widgets/switchCheckbox.html")
+
         )
 
 
@@ -1387,7 +1427,15 @@ class Batch_form(ModelForm):
         if not "id" in self.initial:            
             self.fields["receptionDate"].initial = timezone.now()
         self.fields['id'].widget = HiddenInput()
-        self.fields['article'].widget = Select(choices=[ (art, str(art) +' - '+ B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = str(art)).t50_37_titre_du_composant) for art in tracability_organ.objects.all()])
+        from heraklesinfo.models import B50Composants
+        choices = []
+        for art in tracability_organ.objects.all():
+            try:
+                choices.append((art, str(art) +' - '+ B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = str(art)).t50_37_titre_du_composant))
+            except:
+                pass
+        
+        self.fields['article'].widget = Select(choices=choices)
         self.fields["receptionDate"].widget = XDSoftDatePickerInput()
         self.fields["receptionDate"].input_formats = ["%d-%m-%Y"]
 

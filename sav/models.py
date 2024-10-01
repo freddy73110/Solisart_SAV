@@ -449,7 +449,7 @@ class profil_user(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True, related_name="profil_user"
     )
-    idsa = models.CharField(max_length=50, verbose_name="id solisart")
+    idsa = models.CharField(max_length=50, verbose_name="id solisart", blank=True, null=True)
     PW = models.CharField(
         max_length=50, verbose_name="mot de passe my.solisart", default="solaire"
     )

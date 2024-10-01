@@ -656,7 +656,7 @@ def actualisePrixMySolisart(*args, **kwargs):
             response.text,
         )
 
-    save_result_celery("args", {}, "SUCCESS", response.text)
+    save_result_celery("args", list(articles), "SUCCESS", response.text)
 
     return HttpResponse(
         "Requête code: "
