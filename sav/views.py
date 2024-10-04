@@ -2380,10 +2380,9 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
 
-        # from heraklesinfo.models import B50Composants
-        # print([f.name for f in B50Composants._meta.get_fields()])
-        # for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
-        #     print(article, article.t50_21_2_identificateur_hiérarchique_2)
+        from heraklesinfo.models import B50Composants
+        for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
+            print(article, article.t50_21_2_identificateur_hiérarchique_2)
 
 
         return render(
@@ -4083,7 +4082,10 @@ class assemblyView(View):
                     )
         choices=[]
         for org in tracability_organ.objects.all(): 
-            choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
+            try:
+                choices.append((org.id, org.name + ' - ' + B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = org.name).t50_37_titre_du_composant))
+            except:
+                pass
 
         tracabilityformset = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL,form_kwargs={'organ_choices': choices}, prefix="tracability")
 

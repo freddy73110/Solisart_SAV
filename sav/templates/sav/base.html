@@ -45,41 +45,9 @@
 <link rel="stylesheet" href="{% static 'emojionarea/emojionearea.min.css' %}">
 <script src="{% static 'emojionarea/emojionearea.min.js' %}"></script>
 
+<!--page script-->
+<script src="{% static 'js/sav/base.js' %}?{{10|randomfile}}"></script>
 
-    <script>
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-$.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
-
-
-<!--const socketmail = new WebSocket('ws://' + window.location.host +-->
-<!--        '/ws/mails/all/');-->
-<!--        socketmail.onmessage = (e) => {-->
-<!--            result = JSON.parse(e.data);-->
-<!--            if(result.hasOwnProperty('message')){-->
-<!--                $("div.toast-container").prepend(result.message)-->
-<!--            }-->
-<!--            if(result.hasOwnProperty('nbmail')){-->
-<!--                $("#nbmail").html(result.nbmail)-->
-<!--            }-->
-<!--        }-->
-
-</script>
 
 {% block javascript %}
 {%endblock%}
@@ -87,58 +55,7 @@ $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
 
     <title>{%block Titre%}SolisArt{%endblock%}</title>
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
-    <style>
-.beatanimation {
-    animation: beatkey .5s infinite alternate;
-}
-@keyframes beatkey{
-	to { transform: scale(0.85); }
-}
-.yaxislayer-above {
-  cursor: pointer;
-  pointer-events: all;
-}
-.fade {
-  transition-duration: 0.5s;
-}
-
-.not-allowed{
- cursor: not-allowed! important;
-}
-
-ul.nav li a:hover, ul.nav li a:active {
-    color: black !important;
-    background-color: #f2f2f2 !important;
-}
-
-ul.nav li a.active {
-    color: black !important;
-    font-weight: bold !important;
-    background-color: #f2f2f2 !important;
-    border-bottom: 4px solid #17a2b8 !important;
-}
-.mt-45 {
-  margin-top: 2rem!important;
-}
-
-.pulses {
-    transform: scale(1);
-	animation: pulse 2s infinite;
-}
-@keyframes pulse {
-	0% {
-		transform: scale(0.9);
-	}
-
-	70% {
-		transform: scale(1.2);
-	}
-
-	100% {
-		transform: scale(0.9);
-	}
-}
-    </style>
+    <link rel="stylesheet" href="{% static 'css/sav/base.css' %}?{{10|randomfile}}">
 </head>
 <body>
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasLabel">
@@ -283,11 +200,6 @@ ul.nav li a.active {
                 <div class="alert alert-{% if message.tags == 'error'%}danger{%else%}success{%endif%} alert-dismissible fade show" role="alert">
                   {{ message|safe }}
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  <script>
-                        $(".alert-success").fadeTo(4000, 500).slideUp(500, function() {
-                            $(".alert-success").alert('close')
-                        })
-                  </script>
                 </div>
                 {% endfor %}
             </ul>
@@ -312,40 +224,29 @@ ul.nav li a.active {
 
     </article>
 <script>
-    $(".snipperclick").on('click', function(){
-        $("#modal-progress").find(".modal-title").html("<h4>En cours de travail...</h4>")
-        $("#modal-progress").find(".modal-body").css({ opacity: 0.5 })
-        $("#modal-progress").find(".modal-body").addClass("text-center")
-        $("#modal-progress").find(".modal-body").html("<i class='fas fa-spinner fa-pulse fa-10x text-primary'></i>")
-        $("#modal-progress").modal('show')
+    $("#bgmode").on("click", function(){
+        if($("#bgmode").html().includes('claire')){
+            $("html").attr("data-bs-theme","dark")
+    
+            $("#bgmode").html('<i class="fas fa-moon"></i> Mode sombre')
+        }else{
+            $("html").removeAttr("data-bs-theme")
+            $("#bgmode").html('<i class="fas fa-sun"></i> Mode claire')
+        }
+        $.ajax({
+                url: '{% url 'sav:bg_dark' %}',
+                type:'post',
+    
+                data: {
+                    'user': {{request.user.id}}
+                    },
+                success: function (response) {
+                        console.log(response)
+                }
+    
+        })
+    
     })
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-  return new bootstrap.Popover(popoverTriggerEl)
-})
-$("#bgmode").on("click", function(){
-    if($("#bgmode").html().includes('claire')){
-        $("html").attr("data-bs-theme","dark")
-
-        $("#bgmode").html('<i class="fas fa-moon"></i> Mode sombre')
-    }else{
-        $("html").removeAttr("data-bs-theme")
-        $("#bgmode").html('<i class="fas fa-sun"></i> Mode claire')
-    }
-    $.ajax({
-            url: '{% url 'sav:bg_dark' %}',
-            type:'post',
-
-            data: {
-                'user': {{request.user.id}}
-                },
-            success: function (response) {
-                    console.log(response)
-            }
-
-    })
-
-})
 </script>
 
 

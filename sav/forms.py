@@ -624,6 +624,7 @@ class ProfilForm(ModelForm):
         )
         
         if self.instance.pk is not None and self.instance.user.is_staff or self.instance.pk == None:
+            color = self.instance.color if self.instance.pk else ''
             self.helper.layout.append(
                     HTML("<hr><h2>Uniquement pour les commerciaux</h2>"))
             self.helper.layout.append(
@@ -636,7 +637,7 @@ class ProfilForm(ModelForm):
                             HTML(
                                 '<div class="form-floating">'
                                 + '<label for="exampleColorInput" class="form-label">Couleur sur la carte</label>'
-                                + '<input type="color" class="form-control" id="id_color" name="color" title="Choisir une couleur"></div>'
+                                + '<input type="color" class="form-control" id="id_color" name="color" title="Choisir une couleur" value="'+color+'"></div>'
                             ),
                             css_class="col-6"
                         ),
@@ -1053,7 +1054,7 @@ class CL_Form(ModelForm):
             except Exception as ex:
                 print(ex)
                 pass
-            if self.instance.date_prepa_carte:
+            if self.instance.date_prepa_carte and self.instance.json():
                 html = ""
             else:
                 html = (

@@ -21,7 +21,7 @@ from django.core.validators import (
     MaxValueValidator,
 )
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 
 from django.db.models import (
@@ -53,7 +53,12 @@ def get_first_name(self):
     )
 
 
+def group_name(self):
+    return [d.name for d in self.groups.all()]
+
 User.add_to_class("__str__", get_first_name)
+
+User.add_to_class("group_name", group_name)
 
 
 def icon4email(self):
@@ -565,7 +570,21 @@ class profil_user(models.Model):
 
     def installations(self):
         return installation.objects.filter(acces__utilisateur=self.user).distinct()
-
+    
+    def geolocalisation_installations(self):
+        geoloc_install = []
+        for instal in self.installations():
+            if instal.coordonnee_GPS():
+                geoloc_install.append(
+                    {
+                        'id': instal.id,
+                        'geolocalisation': instal.coordonnee_GPS().valeur,
+                        'installation': str(instal),
+                        'proprio': instal.proprio().get_full_name() if instal.proprio() else ''
+                     }
+                )
+        return geoloc_install
+    
     def ticket(self):
         return ticket.objects.filter(utilisateur=self.user)
 
@@ -1775,6 +1794,9 @@ class CL_herakles(models.Model):
                 return fi
                 break
         return None
+    
+    def jsonfile(self):
+        return True if self.json() else False
 
     def commercial(self):
         from heraklesinfo.models import C601ChantierEnTte
