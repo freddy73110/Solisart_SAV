@@ -15,7 +15,6 @@ def exportCSV(modeladmin, request, queryset):
     writer.writerow(['Ref', 'nom'])
     rows = queryset
     for row in rows:
-        print(row)
         try:
             writer.writerow([row.name, B50Composants.objects.db_manager("herakles").get(t50_2_code_comp = row.name).t50_37_titre_du_composant])
         except:

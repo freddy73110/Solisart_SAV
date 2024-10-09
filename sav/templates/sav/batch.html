@@ -4,6 +4,7 @@
 {% load my_filter %}
 {%block Titre%}{{title}}{%endblock%}
 
+
 {% block javascript %}
 <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-master/dist/bootstrap-table.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-master/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.css' %}">
@@ -13,6 +14,7 @@
     <script src="{% static 'bootstrap-table-master/dist/extensions/export/bootstrap-table-export.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/dist/extensions/filter-control/bootstrap-table-filter-control.min.js' %}"></script>
     <script src="{% static 'bootstrap-table-master/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.min.js' %}"></script>
+    <script src="{% static 'js/sav/batch.js' %}?{{10|randomfile}}" defer></script>
 {%endblock%}
 
 {%block article%}
@@ -63,6 +65,7 @@
             >
                 <thead>
                     <th>Numéro de lot</th>
+                    <th>Code Barre</th>
                     <th>Article</th>
                     <th>Date de réception</th>
                     <th>Conforme</th>  
@@ -73,6 +76,8 @@
                     {% for batch in batches%}
                     <tr>
                         <td>{{batch.numero}}</td>
+                        <td><img style='display:block; width:100px;height:100px;' id='base64image'
+                            "data:image/png;base64, {{batch.barcode}}></td>
                         <td>{{batch.article}} - {{batch.herakles_name}}</td>
                         <td>{{batch.receptionDate |date:"Y-m-d"}}</td>
                         <td>{% if batch.compliance %}<i class="fas fa-check text-success"></i>{%else%}<i class="fas fa-times text-danger"></i>{%endif%}</td>
@@ -89,76 +94,4 @@
         </div>
     </div>
 </div>
-<script>
-    function UpdateModalBatch(pk, elem){
-        $.ajax({
-            url: window.location.href,
-            type:'post',
-            data: {updateModal: pk},
-            dataType: 'html',
-            success: function (html) {
-                $("#modalBody").html(html)
-                var bat = $(elem).closest('tr').find('td:first')[0].innerHTML
-                $("#ModalEvenementLabel").html('Mettre à jour du lot ' + bat)                
-                $("#enregistrer").html('Mettre à jour')
-                $("#enregistrer").attr('name', "update")
-                $("#enregistrer").show()
-            }
-        })
-    }
-    function AddBashModal(){
-        $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
-        $.ajax({
-            url: window.location.href,
-            type:'post',
-            data: {AddBashModal: ""},
-            dataType: 'html',
-            success: function (html) {
-                $("#modalBody").html(html)
-                $("#ModalEvenementLabel").html('Créer un nouveau lot')                
-                $("#enregistrer").html('Ajouter')
-                $("#enregistrer").attr('name', "add")
-                $("#enregistrer").show()
-
-            }
-        })
-
-    }
-    function AddArticleBashModal(){
-        $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
-        $.ajax({
-            url: window.location.href,
-            type:'post',
-            data: {AddArticleBashModal: ""},
-            dataType: 'html',
-            success: function (html) {
-                $("#modalBody").html(html)
-                $("#ModalEvenementLabel").html('Ajouter un article à gérer par lot')                
-                $("#enregistrer").html('Ajouter')
-                $("#enregistrer").attr('name', "addArticle")
-                $("#enregistrer").show()
-
-            }
-        })
-
-    }
-    function link(pk, elem){
-        var pk = pk
-        $.ajax({
-            url: window.location.href,
-            type:'post',
-            data: {link: pk},
-            dataType: 'html',
-            success: function (html) {
-                $("#modalBody").html(html)
-                var bat = $(elem).closest('tr').find('td:first')[0].innerHTML
-                $("#ModalEvenementLabel").html('Liste des installations en lien avec le lot ' + bat)                
-                $("#enregistrer").html('Don t touch')
-                $("#enregistrer").attr('name', "")
-                $("#enregistrer").hide()
-            }
-        })
-    }
-
-</script>
 {%endblock%}

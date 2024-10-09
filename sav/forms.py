@@ -1054,7 +1054,7 @@ class CL_Form(ModelForm):
             except Exception as ex:
                 print(ex)
                 pass
-            if self.instance.date_prepa_carte and self.instance.json():
+            if self.instance.date_prepa_carte or not self.instance.json():
                 html = ""
             else:
                 html = (

@@ -1,4 +1,5 @@
 //
+const CL0 = document.getElementById('CL0').textContent.replaceAll('"', '');
 $("#enregister").on("click", function(){
     hh = $(this).closest("form")[0]
   
@@ -419,14 +420,14 @@ $(document).ready(function() {
     var $Modal=$("#ModalEvenement")
     $Modal.modal('show')
                         $Modal.find(".modal-title").html()
-                        $Modal.find(".modal-title").html("Détail de la commande {{CL.0}}")
+                        $Modal.find(".modal-title").html("Détail de la commande " + CL0)
                         $Modal.find("#divCL").html()
                         $Modal.find(".divCL").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
                         $Modal.modal('show')
                         $.ajax({
-                            url: "{% url 'sav:production' %}",
+                            url: "/production",
                             type:'post',
-                            data:{show: "{{CL.0}}"},
+                            data:{show: CL0},
                             dataType: 'html',
                             success: function (html) {
   
@@ -440,7 +441,7 @@ $(document).ready(function() {
   }
   function downloadSchema(Cl_id){
     $.ajax({
-                url: "{% url 'sav:production' %}",
+                url: "/production",
                 type:'post',
                 data:{'downloadSchema': Cl_id},
                 xhrFields:{

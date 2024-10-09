@@ -2037,6 +2037,20 @@ class batch(models.Model):
             )
             return "%03d" % a
     
+    def barcode(self):
+        import barcode
+        from barcode import EAN13
+        from barcode.writer import SVGWriter
+
+        # Write to a file-like object:
+        barcode.PROVIDED_BARCODES
+        EAN = barcode.get_barcode_class('code39')
+        thumb_io = BytesIO()
+        EAN(self.numero, writer=SVGWriter()).write(thumb_io)
+        return base64.b64encode(thumb_io.getvalue()).decode("utf-8")
+
+        return rv
+
     class Meta:
         app_label = "sav"
         ordering = ["-numero"]
