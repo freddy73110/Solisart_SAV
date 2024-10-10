@@ -65,7 +65,6 @@
             >
                 <thead>
                     <th>Numéro de lot</th>
-                    <th>Code Barre</th>
                     <th>Article</th>
                     <th>Date de réception</th>
                     <th>Conforme</th>  
@@ -75,9 +74,11 @@
                 <tbody>
                     {% for batch in batches%}
                     <tr>
-                        <td>{{batch.numero}}</td>
-                        <td><img style='display:block; width:100px;height:100px;' id='base64image'
-                            "data:image/png;base64, {{batch.barcode}}></td>
+                        <td class="text-center">
+                            <img style=' width:150px;height:150px;'
+                            class="w-auto"
+                            src="{{batch.barcode}}" alt='{{batch.numero}}'>
+                        </td>
                         <td>{{batch.article}} - {{batch.herakles_name}}</td>
                         <td>{{batch.receptionDate |date:"Y-m-d"}}</td>
                         <td>{% if batch.compliance %}<i class="fas fa-check text-success"></i>{%else%}<i class="fas fa-times text-danger"></i>{%endif%}</td>
@@ -85,6 +86,7 @@
                         <td>
                             <i class="fas fa-pen" onclick="UpdateModalBatch({{batch.id}}, this)" data-bs-toggle="modal" data-bs-target="#ModalDiv"></i>
                              - <i class="fas fa-link" onclick="link({{batch.id}}, this)" data-bs-toggle="modal" data-bs-target="#ModalDiv"></i>
+                             - <i class="fas fa-print"onclick="printModal({{batch.id}}, this)" data-bs-toggle="modal" data-bs-target="#ModalDiv"></i>
                         </td>
                     </tr>
                     {%endfor%}

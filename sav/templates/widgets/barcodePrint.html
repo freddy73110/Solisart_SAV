@@ -1,0 +1,6 @@
+{% csrf_token %}
+<div class="form-floating mb-3 col-4">
+    <input type="number" class="form-control" id="floatingInput" name="numberPrint" min=0 max=48 value=1>
+    <label for="floatingInput">Nombre d'étiquette à imprimer</label>
+  </div>
+  <input type=hidden name="printpk" value="{{pk}}">

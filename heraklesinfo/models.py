@@ -603,7 +603,7 @@ class C101DevisEnTte(models.Model):
     t101_22_temps_total = models.DecimalField(db_column='T101-22-Temps total', max_digits=28, decimal_places=15, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_23_marge_brute = models.DecimalField(db_column='T101-23-Marge brute', max_digits=28, decimal_places=15, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_24_marge_par_heure = models.DecimalField(db_column='T101-24-Marge par heure', max_digits=28, decimal_places=15, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    t101_25_déboursé_matiére_heure = models.DecimalField(db_column='T101-25-Déboursé matiére/heure', max_digits=28, decimal_places=15, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    t101_25_déboursé_matiére_heure = models.DecimalField(db_column='T101-25-Déboursé matière/heure', max_digits=28, decimal_places=15, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_26_lettre_d_envoi = models.TextField(db_column="T101-26-Lettre d'envoi", blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_27_texte_de_présentation = models.TextField(db_column='T101-27-Texte de présentation', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_28_texte_de_fin_de_devis = models.TextField(db_column='T101-28-Texte de fin de devis', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
@@ -615,7 +615,7 @@ class C101DevisEnTte(models.Model):
     t101_34_n_ref = models.CharField(db_column='T101-34-N/Ref', max_length=60, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_35_v_ref = models.CharField(db_column='T101-35-V/Ref', max_length=60, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_40_1_chantier = models.CharField(db_column='T101-40-1-Chantier', max_length=20, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    t101_40_2_maétre_d_oeuvre = models.CharField(db_column="T101-40-2-Maétre d'oeuvre", max_length=10, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    t101_40_2_maétre_d_oeuvre = models.CharField(db_column="T101-40-2-Maître d'oeuvre", max_length=10, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_40_3_bureau_d_étude_1 = models.CharField(db_column="T101-40-3-Bureau d'étude 1", max_length=10, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_40_4_bureau_d_étude_2 = models.CharField(db_column="T101-40-4-Bureau d'étude 2", max_length=10, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     t101_40_5_bureau_d_étude_3 = models.CharField(db_column="T101-40-5-Bureau d'étude 3", max_length=10, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
@@ -758,7 +758,7 @@ class C101DevisEnTte(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'C101-Devis en téte'
+        db_table = 'C101-Devis en tête'
 
 class C601ChantierEnTte(models.Model):
     t601_1_code_chantier = models.CharField(db_column='T601-1-Code chantier', primary_key=True, max_length=20)  # Field name made lowercase. Field renamed to remove unsuitable characters.

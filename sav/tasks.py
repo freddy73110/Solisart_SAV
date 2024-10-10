@@ -530,12 +530,20 @@ def actualise_date_livraison_CL():
             .filter(codechantier=CL)
             .exclude(codeof__icontains=CL)
         ):
-            CL.BL = BL_herakles.objects.get(
+            try:                
+                CL.BL = BL_herakles.objects.get(
                 BL=C701Ouvraof.objects.db_manager("herakles")
                 .filter(codechantier=CL)
                 .exclude(codeof__icontains=CL)
                 .values_list("codeof", flat=True)[0]
-            )
+                )
+            except:
+                print(C701Ouvraof.objects.db_manager("herakles")
+                .filter(codechantier=CL)
+                .exclude(codeof__icontains=CL)
+                .values_list("codeof", flat=True)[0])
+                print("error for ", CL)
+                pass
         CL.save()
 
         trans = (

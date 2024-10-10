@@ -1,4 +1,5 @@
 function UpdateModalBatch(pk, elem){
+    $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
     $.ajax({
         url: window.location.href,
         type:'post',
@@ -6,7 +7,7 @@ function UpdateModalBatch(pk, elem){
         dataType: 'html',
         success: function (html) {
             $("#modalBody").html(html)
-            var bat = $(elem).closest('tr').find('td:first')[0].innerHTML
+            var bat = $(elem).closest('tr').find('img').attr('alt')
             $("#ModalEvenementLabel").html('Mettre à jour du lot ' + bat)                
             $("#enregistrer").html('Mettre à jour')
             $("#enregistrer").attr('name', "update")
@@ -52,6 +53,7 @@ function AddArticleBashModal(){
 }
 function link(pk, elem){
     var pk = pk
+    $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
     $.ajax({
         url: window.location.href,
         type:'post',
@@ -59,11 +61,45 @@ function link(pk, elem){
         dataType: 'html',
         success: function (html) {
             $("#modalBody").html(html)
-            var bat = $(elem).closest('tr').find('td:first')[0].innerHTML
+            var bat = $(elem).closest('tr').find('img').attr('alt')
             $("#ModalEvenementLabel").html('Liste des installations en lien avec le lot ' + bat)                
             $("#enregistrer").html('Don t touch')
             $("#enregistrer").attr('name', "")
             $("#enregistrer").hide()
         }
     })
+}
+
+function printModal(pk, elem){
+    var pk = pk
+    var bat = $(elem).closest('tr').find('img').attr('alt')
+    $("#ModalEvenementLabel").html('Nombre d etiquette pour ' + bat) 
+    $("#enregistrer").html('Imprimer')
+    $("#enregistrer").attr('name', "print")
+    $("#enregistrer").show()
+    $("#modalBody").html('<h1 class="m-auto"><i class="fas fa-sun fa-spin m-auto" style="color:yellow"></i></h1>')
+    $.ajax({
+        url: window.location.href,
+        type:'post',
+        data: {printModal: pk},
+        dataType: 'html',
+        success: function (html) {
+            $("#modalBody").html(html)
+
+        }
+    })
+
+    // $.ajax({
+    //     url: window.location.href,
+    //     type:'post',
+    //     data: {print: pk},
+    //     dataType: 'html',
+    //     success: function (html) {
+    //         $("#modalBody").html(html)
+                          
+    //         $("#enregistrer").html('Don t touch')
+    //         $("#enregistrer").attr('name', "")
+    //         $("#enregistrer").hide()
+    //     }
+    // })
 }

@@ -2040,16 +2040,16 @@ class batch(models.Model):
     def barcode(self):
         import barcode
         from barcode import EAN13
-        from barcode.writer import SVGWriter
+        from barcode.writer import SVGWriter, ImageWriter
 
         # Write to a file-like object:
+        print(self.numero)
         barcode.PROVIDED_BARCODES
-        EAN = barcode.get_barcode_class('code39')
-        thumb_io = BytesIO()
-        EAN(self.numero, writer=SVGWriter()).write(thumb_io)
-        return base64.b64encode(thumb_io.getvalue()).decode("utf-8")
-
-        return rv
+        EAN = barcode.get_barcode_class('Code128')        
+        ean = EAN(self.numero, writer=ImageWriter(format="PNG"))
+        buffer = BytesIO()
+        ean.write(buffer)
+        return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     class Meta:
         app_label = "sav"

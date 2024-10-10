@@ -2380,9 +2380,12 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
 
-        from heraklesinfo.models import B50Composants
-        for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
-            print(article, article.t50_21_2_identificateur_hiérarchique_2)
+        from .tasks import actualise_date_livraison_CL, actualise_herakles
+        actualise_herakles()
+        actualise_date_livraison_CL()
+        # from heraklesinfo.models import B50Composants
+        # for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
+        #     print(article, article.t50_21_2_identificateur_hiérarchique_2)
 
 
         return render(
@@ -4264,3 +4267,12 @@ class batchView(View):
                 "widgets/table_batch-installation.html",
                 {"traces": traces}
             )
+        if 'printModal' in request.POST:
+            return render(
+                request,
+                "widgets/barcodePrint.html",
+                {"pk":request.POST['printModal']}, 
+            )
+        if 'numberPrint' in request.POST:
+            print(request.POST)
+            return HttpResponse('<h1>Alouette</h1>')
