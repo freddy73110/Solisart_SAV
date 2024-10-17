@@ -255,6 +255,7 @@ class home(View):
                 table_list = table_list.filter(
                     cl_herakles__CL__icontains=request.POST['CL']
                 )  
+                
                 ClOpening = CL_herakles.objects.filter(
                                 Q(date_livraison__isnull = True)
                                 | Q(date_capteur__isnull = True) 
