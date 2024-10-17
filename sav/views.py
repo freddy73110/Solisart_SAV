@@ -248,7 +248,8 @@ class home(View):
             productionCL= None
             if request.POST['BL']:
                 table_list = table_list.filter(
-                    evenement__ticket__BL__BL__icontains=request.POST['BL']
+                    Q(evenement__ticket__BL__BL__icontains=request.POST['BL'])
+                    | Q(cl_herakles__BL__BL__icontains=request.POST['BL'])
                 )
             if request.POST['CL']:
                 table_list = table_list.filter(
@@ -267,6 +268,10 @@ class home(View):
                     if item in ClOpening:
                         productionCL = item
             
+            if request.POST['Devis']:
+                table_list = table_list.filter(
+                    evenement__ticket__devis__devis__icontains=request.POST['Devis']
+                )
             return render(
                 request,
                 "widgets/table_recherche.html",
@@ -4091,7 +4096,8 @@ class assemblyView(View):
                 pass
 
         tracabilityformset = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL,form_kwargs={'organ_choices': choices}, prefix="tracability")
-
+        tracabilityFormsetMobal = self.tracabilityFormset(initial=self.tracabilityFormsetINITIAL,form_kwargs={'organ_choices': choices}, prefix="tracabilityMobal")
+        helper2 = TracabilityModalHelper()
         return render(request, 
                       self.template_name, 
                       {
@@ -4099,8 +4105,10 @@ class assemblyView(View):
                           "CL": self.CL,
                           'assemblyFormset':formset, 
                           'Helper':helper,
+                          'HelperTracabilityModal': helper2,
                           'validationFormset':validationformset,
-                          "tracabilityFormset": tracabilityformset
+                          "tracabilityFormset": tracabilityformset,
+                          "tracabilityFormsetMobal": tracabilityFormsetMobal
                       })
     
     def post(self, request, *args, **kwargs):
@@ -4217,6 +4225,8 @@ class batchView(View):
     template_name = "sav/batch.html"
     title = "Gestion des lots"
 
+
+
     def get(self, request, *args, **kwargs):
         from heraklesinfo.models import B50Composants
         return render(request,
@@ -4274,5 +4284,11 @@ class batchView(View):
                 {"pk":request.POST['printModal']}, 
             )
         if 'numberPrint' in request.POST:
-            print(request.POST)
-            return HttpResponse('<h1>Alouette</h1>')
+            img = batch.objects.get(pk= request.POST['printpk']).create_image_grid(int(request.POST['numberPrint']))
+
+            response = HttpResponse(content_type="image/png")
+            response["Content-Disposition"] = (
+                        'attachment; filename="'+ str(batch.objects.get(pk= request.POST['printpk'])) +'.png"'
+                    )
+            img.save(response, "PNG")
+            return response

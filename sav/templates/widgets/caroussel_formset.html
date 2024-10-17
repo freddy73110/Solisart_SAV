@@ -1,0 +1,38 @@
+{% load crispy_forms_tags %}
+{% load crispy_forms_utils %}
+{% load crispy_forms_field %}
+
+{% specialspaceless %}
+
+    {% if formset_method|lower == 'post' and not disable_csrf %}
+        {% csrf_token %}
+    {% endif %}
+
+    <div>
+        {{ formset.management_form|crispy }}
+    </div>
+    <div id="carouselExampleDark" class="carousel slide carousel-dark p-3" data-bs-touch="false" data-bs-interval="false">
+        <div class="carousel-indicators">
+            {% for form in formset %}
+            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="{{forloop.counter0}}" {% if forloop.first%} class="active" aria-current="true" {%endif%} aria-label="Slide {{forloop.counter0}}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for form in formset %}            
+          <div class="carousel-item {% if forloop.first%}active{%endif%}">  
+            <div class="col-8 m-auto">
+                {% crispy form %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Précédent</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Suivant</span>
+        </button>
+      </div>
+{% endspecialspaceless %}

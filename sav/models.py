@@ -2037,19 +2037,44 @@ class batch(models.Model):
             )
             return "%03d" % a
     
-    def barcode(self):
+    def barcodebase64(self): 
         import barcode
         from barcode import EAN13
         from barcode.writer import SVGWriter, ImageWriter
 
         # Write to a file-like object:
-        print(self.numero)
         barcode.PROVIDED_BARCODES
         EAN = barcode.get_barcode_class('Code128')        
         ean = EAN(self.numero, writer=ImageWriter(format="PNG"))
         buffer = BytesIO()
         ean.write(buffer)
-        return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+
+    def barcode(self):        
+        return "data:image/png;base64," + self.barcodebase64()
+    
+    def create_image_grid(self, num_images):
+        base64_image = self.barcodebase64()
+        # Décoder l'image base64
+        image_data = base64.b64decode(base64_image)
+        image = Image.open(BytesIO(image_data))
+        #pour avoir 3 étiquette par ligne sur 8 lignes
+        from PIL.Image import Resampling
+        image = image.resize((198, 105), Resampling.NEAREST)
+        width, height = image.size
+        print(width, height)
+
+        # Créer une nouvelle image vierge de format A4
+        grid_image = Image.new('RGB', (595, 842))
+
+        # Coller les images dans la grille
+        for i in range(num_images):
+            x = (i % 3) * image.width
+            y = (i // 3) * image.height
+            grid_image.paste(image, (x, y))
+
+        return grid_image
 
     class Meta:
         app_label = "sav"

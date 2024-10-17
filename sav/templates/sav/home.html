@@ -19,7 +19,7 @@
             <fieldset class="border p-2 h-100">
                 <legend class="float-none w-auto" align="center"><b>{{title}}</b></legend>
                 <div class="row">
-                    <div class="col-6">                        
+                    <div class="col-12 col-xl-6">                        
                         <fieldset class="border p-2 h-100">
                             <legend class="float-none w-auto"><b>Recherche par Utilisateur</b></legend>
                             <form method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -56,8 +56,7 @@
                         </fieldset>
                         
                     </div>
-                    <div class="col-6">
-                            
+                    <div class="col-12 col-xl-6">                            
                                 <fieldset class="border p-2 h-100">
                                     <legend class="float-none w-auto"><b>Recherche par Installation</b></legend>
                                     <form method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -94,16 +93,16 @@
                             <fieldset class="border p-2 h-100">
                                 <legend class="float-none w-auto"><b>Recherche par données Héraklès</b></legend>
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="input-group mb-3">
                                             <div class="form-floating flex-grow-1">
-                                                <input type="text" class="form-control" name="BL" id="id_BL" placeholder="tutu">
-                                                <label for="id_BL">BL</label>
+                                                <input type="text" class="form-control" name="Devis" id="id_Devis" placeholder="tutu">
+                                                <label for="id_Devis">Devis</label>
                                             </div>
-                                        <span class="input-group-text"><i class="fas fa-truck-loading"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-file-invoice-dollar"></i></span>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="input-group mb-3">
                                             <div class="form-floating flex-grow-1">
                                                 <input type="text" class="form-control" name="CL" id="id_CL" placeholder="tutu">
@@ -111,6 +110,15 @@
                                             </div>                                        
                                         <span class="input-group-text"><i class="fas fa-shopping-cart"></i></span>
                                         </div>                                    
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="input-group mb-3">
+                                            <div class="form-floating flex-grow-1">
+                                                <input type="text" class="form-control" name="BL" id="id_BL" placeholder="tutu">
+                                                <label for="id_BL">BL</label>
+                                            </div>
+                                        <span class="input-group-text"><i class="fas fa-truck-loading"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </fieldset>

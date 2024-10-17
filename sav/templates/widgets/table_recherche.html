@@ -38,13 +38,28 @@
         <thead>
             <th class="text-center">N° de Commande</th>
             <th class="text-center">Client</th>        
-            <th class="text-center">Type</th>
+            <th class="text-center">Type</th>       
+            <th class="text-center">Montage-Expé</th>
+            <th class="text-center">Carte</th>
         </thead>
         <tbody>
             <tr>
                 <td class="text-center"><a href="{% url 'sav:productionwithCL' pkCL=productionCL.id %}" target="_blank">{{productionCL}}</a></td>
                 <td class="text-center">{{productionCL.installateur}}</td>
                 <td class="text-center">{{productionCL.module}}</td>
+                <td class="text-center">
+                    {% if productionCL.date_montage%}
+                    Fait
+                    {%else%}
+                    <a href="{% url 'sav:assembly' pkCL=productionCL.id%}">Montage</a>
+                    {%endif%}
+                </td>
+                <td class="text-center">
+                    {% if productionCL.date_prepa_carte%}
+                    Fait{%else%}
+                    <a href="{% url 'sav:cartcreator' pkCL=productionCL.id%}">Carte</a>
+                    {%endif%}
+                </td>
             </tr>
         </tbody>
     </table>

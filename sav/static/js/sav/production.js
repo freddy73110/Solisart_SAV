@@ -1,5 +1,5 @@
 const group_user = JSON.parse(document.getElementById('group_user').textContent);
-const pkCL = document.getElementById('pkCL').textContent;
+const pkCL = document.getElementById('pkCL').textContent.replaceAll('"', '');
 
 var ClToDisplay =[]  
 function afficherCLModal(CL){
@@ -64,7 +64,6 @@ window.operateEvents = {
       }
 
     }
-
 }
 
 if (group_user.includes('ADV')){
@@ -107,13 +106,12 @@ function Refreshdata(){
                 if(window.hasOwnProperty("data")){
                     delete data
                 }
-                data = json
-                if (pkCL){
-                    $("#VisuCL").val(pkCL)
-                }
+                data = json  
                 ganttGenerator()          
                 }
         })
+        
+        console.log("refresh fin  ")
 }
 
 function formatDate(date) {
@@ -136,9 +134,10 @@ function convertdate(date){
     delta = date_datetime.setDate(date_datetime.getDate() - 1)
     return formatDate(delta)
 }
+
 lastScroll=0
 
-function ganttGenerator(){
+function ganttGenerator(pkCL=null){
     
     if($("#step").val() != "simple"){
         tasks=[]        
@@ -429,8 +428,10 @@ function ganttGenerator(){
             })
         }
     }
-
-}
+    if (pkCL){
+      $("#VisuCL").val(pkCL).change()
+    }  
+  }
 
 function customSort(sortName, sortOrder, data) {
     var order = sortOrder === 'desc' ? -1 : 1
@@ -508,7 +509,7 @@ function searchByCustomer(){
 
 }
 
-function searchByCommercial(){
+function searchByCommercial(pkCL=null){
  $.ajax({
                     url: window.location.href,
                     type:'post',
@@ -522,21 +523,21 @@ function searchByCommercial(){
                           html = html + "<option value='"+ v.CL+"'>"+ v.CL +" - " + v.installateur + "</option>"
                         })
                         $("#VisuCL").html(html)
-                        ganttGenerator()
+                        ganttGenerator(pkCL)
                      }
-                })
+                })                
 }
 
 Refreshdata()
 setTimeout(function () {
-    searchByCommercial()
+     searchByCommercial(pkCL)
 ,5000})
+
 
 
      const socket = new WebSocket('ws://'+window.location.host+'/ws/production/');
         socket.onmessage = (e) => {
             var d = JSON.parse(e.data)
-            console.log("websocket", d)
             var d = d.message
             if (d.hasOwnProperty("message")) {
                 var message = d.message;

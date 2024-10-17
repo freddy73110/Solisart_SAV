@@ -45,10 +45,12 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   <th>Installation</th>
   <th>Propriétaire</th>
   <th>Installateur</th>
-  <th>Ouvert par</th>
+  <th>Demande faite par</th>
+  <th>Interlocuteur Solisart</th>
   <th>Problème</th>
   <th>Cause</th>
   <th>Détails</th>
+  <th>Etat</th>
  </thead>
  <tbody>
   {% for t in ticketscree %}
@@ -57,9 +59,11 @@ tr:nth-child(even) {background-color: #f2f2f2;}
    <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
    <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur.icon4email|safe}}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
    <td>{{t.utilisateur.icon4email|safe}}<br>{{t.utilisateur}}</td>
+   <td>{{t.utilisateur.evenement.technicien_sav}}</td>
    <td>{{t.probleme}}</td>
    <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
    <td>{{t.detail}}</td>
+   <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{%t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
   </tr>
  {%endfor%}
  </tbody>
@@ -72,22 +76,26 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   <th>Installation</th>
   <th>Propriétaire</th>
   <th>Installateur</th>
-  <th>Ouvert par</th>
+  <th>Demande faite par</th>
+  <th>Interlocuteur Solisart</th>
   <th>Problème</th>
   <th>Cause</th>
-  <th>détails</th>
+  <th>détails</th>  
+  <th>Etat</th>
  </thead>
  <tbody>
   {% for t in ticketsencours %}
   <tr>
-   <td>{{t.evenement.installation}}</td>
-   <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
-   <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur.icon4email|safe}}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
-   <td>{{t.utilisateur.icon4email|safe}}<br>{{t.utilisateur}}</td>
-   <td>{{t.probleme}}</td>
-   <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
-   <td>{{t.detail}}</td>
-  </tr>
+    <td>{{t.evenement.installation}}</td>
+    <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
+    <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur.icon4email|safe}}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
+    <td>{{t.utilisateur.icon4email|safe}}<br>{{t.utilisateur}}</td>
+    <td>{{t.utilisateur.evenement.technicien_sav}}</td>
+    <td>{{t.probleme}}</td>
+    <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
+    <td>{{t.detail}}</td>
+    <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{%t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
+   </tr>
  {%endfor%}
  </tbody>
 </table>

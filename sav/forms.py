@@ -1377,13 +1377,20 @@ class Assembly_form(ModelForm):
             Field("icon")   
         )
     def clean(self):
-        return self.cleaned_data
+        return self.cleaned_data     
 
-       
+class TracabilityModalHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(TracabilityModalHelper, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()    
+        self.helper.form_tag = False
+        self.helper.formset_tag = False
+        self.template = 'widgets/caroussel_formset.html'  
 
 class AssemblyFormset(FormHelper):
     def __init__(self, *args, **kwargs):
-        super(AssemblyFormset, self).__init__(*args, **kwargs)
+        print('arg', args, 'kwargs', kwargs)
+        super(AssemblyFormset, self).__init__(*args, **kwargs)        
         self.helper = FormHelper()    
         self.helper.form_tag = False
         self.helper.formset_tag = False
@@ -1412,6 +1419,15 @@ class Tracability_form(ModelForm):
         self.fields["batch"].choices = choicesbatch
         self.fields["id"].widget = HiddenInput()
         self.fields["CL"].widget = HiddenInput()
+        self.helper = FormHelper()    
+        self.helper.form_tag = False
+        self.helper.layout = Layout(   
+            FloatingField("organ"), 
+            FloatingField("location"),  
+            FloatingField("SN"),  
+            FloatingField("batch")    
+        )
+
 
 class Batch_form(ModelForm):
 
