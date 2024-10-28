@@ -149,6 +149,44 @@ class DisplayMarker{
 }
 const $DisplayMarker = new DisplayMarker()
 
+var onDrop = function (e) {
+	var latlng = this.getLatLng();
+    var t = this
+    $.ajax({
+        url: window.location.href,
+        type:'post',
+        data:{lat:latlng.lat, lng: latlng.lng},
+        dataType: 'html',
+        success: function (json) {
+            data = JSON.parse(json)
+            var lat = data.lat
+            var lon = data.lon
+            var txt = ""
+            if ("adresse" in data){
+                txt = "<b>Adresse: </b>" + data['adresse'] + '<br>'
+            }
+            txt+='<b>Coordonnées GPS: </b>' + parseFloat(lat).toFixed(6) + ',' + parseFloat(lon).toFixed(6) + '<br>'
+            txt += "<b>Altitude: </b>" + data.alt + " m"
+            if ("zone" in data){
+                if (data.zone.length == 2){
+                    txt += "<br> Vérifié la température de base entre les zones " + data.zone[0] + ' et ' +  data.zone[1] + " sur ce site:" +
+                    "<a href='https://www.izi-by-edf-renov.fr/blog/temperature-exterieure-de-base'>ici</a>"
+                }else{
+                    txt += "<br><b>Zone: </b>" + data['zone']
+                }    
+            }
+            if ("TempDeBase" in data){
+                txt += "<br><b>Température de Base: </b>" + data['TempDeBase'] + '°C'
+            }
+            if ("commercial" in data){
+                txt += "<br><b>Commercial de la zone: </b>" + data['commercial']
+            }
+            t._popup.setContent(txt)
+            t.openPopup()
+        }
+    })
+};
+var marker
 function search(){
     var form = $('#adresse').closest("form");
           $.ajax({
@@ -156,13 +194,38 @@ function search(){
             type:'post',
             data: form.serialize(),
             dataType: 'html',
-            success: function (html) {
-                data = JSON.parse(html)
-                var lat = data[0].lat
-                var lon = data[0].lon
-                var geojson = data[0].geojson
-                L.geoJSON(geojson).addTo(mymap)
+            success: function (json) {
+                if (marker){
+                    mymap.removeLayer(marker)
+                }
+                data = JSON.parse(json)
+                var lat = data.lat
+                var lon = data.lon
+                var txt =""
+                if ("adresse" in data){
+                    txt = "<b>Adresse: </b>" + data['adresse'] + '<br>'
+                }
+                txt+='<b>Coordonnées GPS: </b>' + parseFloat(lat).toFixed(6) + ',' + parseFloat(lon).toFixed(6) + '<br>'
+                txt += "<b>Altitude: </b>" + data.alt + " m"
+                if ("zone" in data){
+                    if (data.zone.length == 2){
+                        txt += "<br> Vérifié la température de base entre les zones " + data.zone[0] + ' et ' +  data.zone[1] + " sur ce site:" +
+                        "<a href='https://www.izi-by-edf-renov.fr/blog/temperature-exterieure-de-base' target='_blank'>ici</a>"
+                    }else{
+                        txt += "<br><b>Zone: </b>" + data['zone']
+                    }    
+                }
+                if ("TempDeBase" in data){
+                    txt += "<br><b>Température de Base: </b>" + data['TempDeBase'] + '°C'
+                }
+                if ("commercial" in data){
+                    txt += "<br><b>Commercial de la zone: </b>" + data['commercial']
+                }
                 mymap.setView(new L.LatLng(lat, lon), 12);
+                marker = L.marker([lat, lon],{ draggable:true}).addTo(mymap)
+                .bindPopup(txt)
+                .openPopup()
+                .on('dragend', onDrop)
                 }
           })
 

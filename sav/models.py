@@ -947,6 +947,9 @@ class installation(models.Model):
         except:
             return ""
 
+    def GEOlist(self):
+        return self.coordonnee_GPS().valeur.split(',')
+    
     def departement(self):
         try:
             CP = attribut_valeur.objects.get(
@@ -980,6 +983,46 @@ class installation(models.Model):
 
         except:
             return None
+
+    def nearest_installers(self):
+        if self.coordonnee_GPS():
+            installateur_localise = profil_user.objects.filter(
+                Client_herakles__isnull=False,
+                latitude__isnull=False,
+                longitude__isnull=False,
+            )
+            from math import sin, cos, sqrt, atan2, radians
+            list_installateur=[]
+            # Approximate radius of earth in km
+            R = 6373.0
+            coordGPS = self.coordonnee_GPS().valeur
+            lat1 = radians(float(coordGPS.split(',')[0]))
+            lon1 = radians(float(coordGPS.split(',')[1]))
+            for installateur in installateur_localise:                
+
+                
+                lat2 = radians(float(installateur.latitude))
+                lon2 = radians(float(installateur.longitude))
+
+                dlon = lon2 - lon1
+                dlat = lat2 - lat1
+
+                a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+                c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+                distance = R * c
+                list_installateur.append(
+                    {
+                        "distance": round(distance, 2),
+                        "installateur": str(installateur),
+                        "installateur_id": installateur.user.id,
+                        "GPS": installateur.geolocalisation()
+                    }
+                )
+            list_installeur_in_order = sorted(list_installateur, key=lambda x: x["distance"])
+            return list_installeur_in_order[0:5]
+        else:
+            return []
 
     def ticketencours(self):
         return (

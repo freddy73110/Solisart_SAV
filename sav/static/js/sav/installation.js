@@ -463,3 +463,20 @@ var toastElList = [].slice.call(document.querySelectorAll('.toast'))
       return new bootstrap.Toast(toastEl)
     })
     toastList.forEach(toast => toast.show())
+
+function SeachInstallateur(pk){
+  $("#installateursMap").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+  $.ajax({
+    url: window.location.href,
+    type:'post',
+    data:{'searchInstallateur': pk},
+    dataType: 'html',
+    success: function (html) {
+        $("#installateursMap").html(html)
+    },
+    error: function(){
+        alert('error!');
+    }
+})
+
+}

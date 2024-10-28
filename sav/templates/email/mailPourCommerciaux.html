@@ -63,7 +63,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
    <td>{{t.probleme}}</td>
    <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
    <td>{{t.detail}}</td>
-   <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{%t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
+   <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{% elif t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
   </tr>
  {%endfor%}
  </tbody>
@@ -94,7 +94,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
     <td>{{t.probleme}}</td>
     <td>{% if t.evenement.cause %}{{t.evenement.cause}}{%else%}-{%endif%}</td>
     <td>{{t.detail}}</td>
-    <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{%t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
+    <td>{%if t.etat == 0%}En cours{%elif t.etat == 1 %}En attente{% elif t.etat == 2 %}A rappeler{%else%}Clôturé{%endif%}</td>
    </tr>
  {%endfor%}
  </tbody>

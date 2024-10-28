@@ -2,13 +2,20 @@ import pandas as pd
 import numpy as np
 import sys
 
-
 class convertjson:
+    msg=''
     def jsontocsv(
-        installation_SN=None, installation_name=None, path=None, dicttoconvert=None
+        self, installation_SN=None, installation_name=None, path=None, dicttoconvert=None
     ):
+        """
+        return csv file with info of json + msg : message
+        """
+
+        if "formulaire" in dicttoconvert:
+            dicttoconvert = dicttoconvert["formulaire"]
         from django.templatetags.static import static
         import os, json
+        
 
         pathtocsvdefault = os.path.join(
             os.path.abspath(os.getcwd()),
@@ -63,8 +70,7 @@ class convertjson:
             #     "json_to_csvlower.json",
             # ), "w") as outfile: 
             #     json.dump(convertjsonlower, outfile)
-        if "formulaire" in dicttoconvert:
-            dicttoconvert = dicttoconvert["formulaire"]
+        
         for k, v in dicttoconvert.items():
             if k in convertjson:                
                 try:
@@ -87,6 +93,31 @@ class convertjson:
                     print(ex)
                     print("error", k)
                     pass
+
+        try:
+            adress = ''
+            if 'adresse_client' in dicttoconvert:
+                adress+=str(dicttoconvert['adresse_client']) + ' '
+            if "code_postale_client" in dicttoconvert:
+                adress+=str(dicttoconvert['code_postale_client'])+ ' '
+            if "ville_client" in dicttoconvert:
+                adress+=str(dicttoconvert['ville_client'])
+
+            from .views import Geoinfo
+            geoinfo = Geoinfo(adress, None, None).start()
+            if 'TempDeBase' in geoinfo:
+                df.value[df.key == "TBaseExt(0)"] = geoinfo['TempDeBase']
+                if len(geoinfo['zone']) > 1:
+                    self.msg ="Vérifier la température de base entre les zones " + geoinfo['zone'][0]+ ' et ' +  geoinfo['zone'][1] + " sur ce site:" + \
+                        "<a href='https://www.izi-by-edf-renov.fr/blog/temperature-exterieure-de-base'>ici</a>"
+                
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(ex)
+            pass
+
         from django.utils import timezone
 
         df.columns = [
@@ -104,4 +135,4 @@ class convertjson:
             df.to_csv(
                 path_or_buf=response, index=False, encoding="utf-8"
             )  # with other applicable parameters
-            return response
+            return response, self.msg

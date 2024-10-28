@@ -36,7 +36,6 @@ def has_group(user, group_name):
 
 @register.filter
 def add_evenement_form(user):
-    print(user)
     return object.add_evenement_form(user)
 
 @register.filter

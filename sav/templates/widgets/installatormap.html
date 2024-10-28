@@ -1,0 +1,67 @@
+{% load static %}
+{% load my_filter %}
+
+<table class="table table-bordered table-hover table-striped text-center m-3">
+    <thead>
+        <th>Installateur</th>
+        <th>Distance</th>
+    </thead>
+    <tbody>
+        {% for installateur in instal.nearest_installers%}
+        <tr>
+            <td><a href='{%url "sav:utilisateur" pk=installateur.installateur_id %}' target='_blank'>{{installateur.installateur}}</a></td>
+            <td>{{installateur.distance|floatformat:2}} km</td>
+        </tr>
+        {%endfor%}
+    </tboby>
+</table>
+
+<div class="container">
+    <div class="row">
+        <div class="col rounded h-100" style="min-height: 500px" id="installatorMap">
+        </div>    
+    </div>
+</div>
+{{ instal.nearest_installers|json_script:'installators' }}
+{{ instal.GEOlist|json_script:'installationGPS' }}
+<script>
+    //Icon Installation
+const fontAwesomeIcon = L.divIcon({
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-primary" style="color:black"></i><i class="fas fa-solar-panel fa-inverse" data-fa-transform="shrink-10"></i></span>',
+    iconSize: [60, 48],
+    iconAnchor: [30, 48],
+    popupAnchor:  [0, -48],
+    className: 'myDivIcon'
+});
+//Icon installeur
+const fontAwesomeIconInstallateur = L.divIcon({
+    html: '<span class="fa-layers fa-fw fa-4x" style="vertical-align: top;"><i class="fas fa-map-marker text-danger" style="color:black"></i><i class="fas fa-tools fa-inverse" data-fa-transform="shrink-10"></i></span>',
+    iconSize: [60, 48],
+    iconAnchor: [30, 48],
+    popupAnchor:  [0, -48],
+    className: 'myDivIcon'
+});
+    const mymap = L.map('installatorMap',{
+        center:[45, 0],
+        zoom:6
+        });
+            L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
+            
+            setTimeout(function(){
+                const installators = JSON.parse(document.getElementById('installators').textContent)  
+                var arrayOfMarkers = []          
+                $.each(installators, function(index, item){
+                    arrayOfMarkers.push(item.GPS)
+                    L.marker(item.GPS, { icon: fontAwesomeIconInstallateur})
+                        .addTo(mymap)
+                        .bindPopup("<a href='/utilisateur/"+ item.installateur_id +"' target='_blank'><b>"+ item.installateur +"</b></a><br>@"+ item.distance + ' km' )
+                    }
+                )
+                const installationGPS = JSON.parse(document.getElementById('installationGPS').textContent) 
+                console.log(installationGPS)
+                L.marker(installationGPS, { icon: fontAwesomeIcon}).addTo(mymap)
+                arrayOfMarkers.push(installationGPS)
+                var bounds = new L.LatLngBounds(arrayOfMarkers);
+                mymap.fitBounds(bounds)
+            }, 1000)
+</script>

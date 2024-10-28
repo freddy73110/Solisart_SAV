@@ -7,6 +7,9 @@
 
 {% block javascript %}
 <script src="{% static 'js/sav/installation.js' %}?{{10|randomfile}}" defer></script>
+<!--lien pour leaflet -->
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
 {%endblock%}
 
 {% block toast %}
@@ -103,7 +106,7 @@
                     <span>Accès
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Accès" data-bs-content="Nombre de personne à pouvoir accéder à l'installation">
                         {{ acces|length }}
-                        </span>
+                        </span>{% if instal.coordonnee_GPS%} - Installateurs proches{%endif%}
                     </span>
                 </button>
               </li>
@@ -524,7 +527,8 @@
                       {%endfor%}
 
                     </tbody>
-                </table>
+                  </table>
+                  <div id="installateursMap"></div>
 
               </div>
               <div class="tab-pane fade m-3 {% if request.user|has_group:'ADV' and CL %}show active{%endif%}" id="CL" role="tabpanel" aria-labelledby="home-tab">
@@ -642,5 +646,10 @@
         </div>
     </div>
 </div>
+{% if instal.coordonnee_GPS%}
+  <script>
+    onload = (event) => SeachInstallateur({{instal.id}})
+  </script>
+{% endif %}
 {{CL.0.CL|json_script:"CL0"}}
 {%endblock%}

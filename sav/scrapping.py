@@ -673,7 +673,7 @@ class scrappingMySolisart:
                 # Créer config.csv depuis le json
                 from .convertjson import convertjson
 
-                convertjson.jsontocsv(
+                csvfile, msg = convertjson.jsontocsv(
                     installation_SN=installation,
                     installation_name=dict_schematic["formulaire"][
                         "nom_client"
@@ -681,7 +681,13 @@ class scrappingMySolisart:
                     path=os.path.join(os.path.dirname(__file__), "temp", "config.csv"),
                     dicttoconvert=dict_schematic,
                 )
-
+                send_channel_message(
+                    "cartcreating",
+                    {
+                        "message": "<i class='fas fa-times' style='color: #fe0101;'></i>" + msg
+                    },
+                )
+                
                 send_channel_message(
                     "cartcreating",
                     {

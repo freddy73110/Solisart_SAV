@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $("#id_instal, #telephone, #prenom, #nom, #email, #id_code_postale_install, #id_ville_install, #id_BL, #id_CL, #id_Devis").on("keypress", function(e) {
          var key = e.which;         
-         if(key == 13)  // the enter key code
+         if(key == 13 || e.key === 'Enter')  // the enter key code
           {
             var t = $(this)
             var inputSend = $(this).closest("form").find('input')

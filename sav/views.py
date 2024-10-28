@@ -78,7 +78,1203 @@ from email.mime.image import MIMEImage
 from django.contrib.staticfiles import finders
 from functools import lru_cache
 
+TempDeBase = [
+            {
+                "Zone": "A",
+                "Dept":["2A", "2B"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-2"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-4"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-16"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-18"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-20"
+                    }
+                ]
+            },
+            {
+                "Zone": "B",
+                "Dept":["50", "22", "29", "56"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-4"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-10"
+                    }
+                ]
+            },
+            {
+                "Zone": "C",
+                "Dept":["35", "16", "24", "47", "82", "32", "64", "65", "31", "81", "09", "34", "30", "13"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "AC",
+                "Dept":["83"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "BC",
+                "Dept":["44", "85", "17", "33", "40", "66", "11"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "AE",
+                "Dept":["06"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "D",
+                "Dept":["76", "60", "02", "14", "27", "95", "61", "78", "77", "75", "91", "53", "72", "28", "49", "37", "41", "45", "79", "86", "36", "18", "46", "07", "26", "84"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "DE",
+                "Dept":["12"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "E",
+                "Dept":["03", "23", "87", "63", "19", "15", "43", "48", "04"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "F",
+                "Dept":["62", "80", "59"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-13"
+                    }
+                ]
+            },
+            {
+                "Zone": "G",
+                "Dept":["08", "51", "10", "89", "21", "58", "71", "39", "42", "69", "01", "74", "73", "38", "05"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-24"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-29"
+                    }
+                ]
+            },
+            {
+                "Zone": "H",
+                "Dept":["55", "52", "70", "25"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-23"
+                    }
+                ]
+            },
+            {
+                "Zone": "I",
+                "Dept":["57", "54", "67", "88", "68", "90"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-24"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-25"
+                    }
+                ]
+            } 
+]
 
+class Geoinfo:
+    TempDeBase = [
+            {
+                "Zone": "A",
+                "Dept":["20"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-2"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-4"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-16"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-18"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-20"
+                    }
+                ]
+            },
+            {
+                "Zone": "B",
+                "Dept":["50", "22", "29", "56"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-4"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-10"
+                    }
+                ]
+            },
+            {
+                "Zone": "C",
+                "Dept":["35", "16", "24", "47", "82", "32", "64", "65", "31", "81", "09", "34", "30", "13"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "AC",
+                "Dept":["83"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "BC",
+                "Dept":["44", "85", "17", "33", "40", "66", "11"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-5"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-6"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "AE",
+                "Dept":["06"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "D",
+                "Dept":["76", "60", "02", "14", "27", "95", "61", "78", "77", "75", "91", "53", "72", "28", "49", "37", "41", "45", "79", "86", "36", "18", "46", "07", "26", "84"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-7"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-15"
+                    }
+                ]
+            },
+            {
+                "Zone": "DE",
+                "Dept":["12"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "E",
+                "Dept":["03", "23", "87", "63", "19", "15", "43", "48", "04"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-8"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-27"
+                    }
+                ]
+            },
+            {
+                "Zone": "F",
+                "Dept":["62", "80", "59"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-9"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-13"
+                    }
+                ]
+            },
+            {
+                "Zone": "G",
+                "Dept":["08", "51", "10", "89", "21", "58", "71", "39", "42", "69", "01", "74", "73", "38", "05"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-10"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-11"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-14"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1400",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1600",
+                        "TemdDeBase":"-24"
+                    },
+                    {
+                        "Alt":"1800",
+                        "TemdDeBase":"-25"
+                    },
+                    {
+                        "Alt":"2000",
+                        "TemdDeBase":"-29"
+                    }
+                ]
+            },
+            {
+                "Zone": "H",
+                "Dept":["55", "52", "70", "25"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-12"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-13"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-17"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-23"
+                    }
+                ]
+            },
+            {
+                "Zone": "I",
+                "Dept":["57", "54", "67", "88", "68", "90"],
+                "Table":[
+                    {
+                        "Alt":"0",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"200",
+                        "TemdDeBase":"-15"
+                    },
+                    {
+                        "Alt":"400",
+                        "TemdDeBase":"-19"
+                    },
+                    {
+                        "Alt":"600",
+                        "TemdDeBase":"-21"
+                    },
+                    {
+                        "Alt":"800",
+                        "TemdDeBase":"-23"
+                    },
+                    {
+                        "Alt":"1000",
+                        "TemdDeBase":"-24"
+                    },
+                    {
+                        "Alt":"1200",
+                        "TemdDeBase":"-25"
+                    }
+                ]
+            } 
+]
+    geoinfo={}
+
+    def __init__(self, adress, lng, lat):
+        if adress:
+            try:
+                self.sinceadress(adress)
+            except:
+                pass
+        if lat:
+            self.geoinfo['lat']=lat
+            self.geoinfo['lon']=lng
+
+    
+    def start(self):
+        try:
+            self.adress()
+        except:
+            pass        
+        try:
+            self.altitude()
+        except:
+            pass
+
+        try:
+            self.tempdebase()
+        except:
+            pass
+
+        try:
+            self.commercial()
+        except:
+            pass
+        print(self.geoinfo)
+        return self.geoinfo 
+
+    def sinceadress(self, adress):
+        import requests
+        url = (
+                        "https://api-adresse.data.gouv.fr/search/?q="
+                        + adress
+                    )
+        resp = requests.get(url).json() 
+        coordonnee = resp["features"][0]["geometry"]["coordinates"]
+        self.geoinfo.update({"lat":coordonnee[1], "lon": coordonnee[0]})
+
+    def commercial(self):
+        self.geoinfo['commercial']=profil_user.objects.filter(departement__contains=self.geoinfo['dept'])[0].get_full_name()
+
+    def altitude(self):
+
+        import requests
+        url_elevation = "https://api.open-meteo.com/v1/elevation?latitude="+ str(self.geoinfo['lat'])+ "&longitude=" + str(self.geoinfo['lon'])
+        resp = requests.get(url_elevation).json()
+        self.geoinfo["alt"]=resp['elevation'][0]
+
+    def adress(self):
+
+        import requests
+        url = (
+                        "https://api-adresse.data.gouv.fr/reverse/?lon="+ str(self.geoinfo['lon']) +"&lat=" + str(self.geoinfo['lat'])
+                    )
+        resp = requests.get(url).json() 
+        self.geoinfo['adresse']=resp["features"][0]['properties']['label']
+        self.geoinfo['dept']=resp["features"][0]['properties']['postcode'][0:2]
+
+    def tempdebase(self):
+        for zone in self.TempDeBase:
+            if self.geoinfo['dept'] in zone['Dept']:
+                self.geoinfo['zone']= zone['Zone']
+                for alti in zone['Table']:
+                    if float(self.geoinfo['alt'])> float(alti['Alt']):
+                        t_base = alti['TemdDeBase']
+        self.geoinfo['TempDeBase']=t_base
+
+                            
 @lru_cache()
 def addimg(path, name):
     with open(path, "rb") as f:
@@ -360,12 +1556,13 @@ class updateDB(View):
 
                 if request.POST["typeOutput"] == "config":
                     from .convertjson import convertjson
-
-                    return convertjson.jsontocsv(
+                    csvfile, msg = convertjson.jsontocsv(
                         installation_SN="ADefinir",
                         installation_name="install",
                         dicttoconvert=dict_schematic,
                     )
+                    return csvfile
+                
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1404,9 +2601,19 @@ class installation_view(View):
         )
 
     def post(self, request, *args, **kwargs):
+
+        if "searchInstallateur" in request.POST:
+
+            return render(
+                request,
+                "widgets/installatormap.html",
+                {
+                        "instal": installation.objects.get(pk=request.POST['searchInstallateur'])
+                },
+            )
+
         
         if "date_livraison" in request.POST:
-            print("update CL")
             form = CL_Form(instance=self.instal.CL(), data=request.POST)
             if form.is_valid():
                 CL = form.save()
@@ -2119,16 +3326,16 @@ class carte(View):
 
     def post(self, request, *args, **kwargs):
 
-        if "adresse" in request.POST:
-            import requests
-
-            url = (
-                "https://nominatim.openstreetmap.org/?q="
-                + request.POST["adresse"].replace(" ", "%")
-                + "&format=json&polygon_geojson=1"
-            )
+        if "lat" in request.POST:
+            geoloc = Geoinfo(None, request.POST['lng'], request.POST['lat']).start()
             return HttpResponse(
-                requests.get(url), content_type="application/json; charset=utf-8"
+                json.dumps(geoloc), content_type="application/json; charset=utf-8"
+            )
+        
+        if "adresse" in request.POST:
+            geoloc = Geoinfo(request.POST['adresse'], None, None).start()
+            return HttpResponse(
+                json.dumps(geoloc), content_type="application/json; charset=utf-8"
             )
 
         if "show" in request.POST:
@@ -2386,14 +3593,8 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
 
-        from .tasks import actualise_date_livraison_CL, actualise_herakles
-        actualise_herakles()
-        actualise_date_livraison_CL()
-        # from heraklesinfo.models import B50Composants
-        # for article in B50Composants.objects.db_manager("herakles").filter(t50_21_2_identificateur_hiérarchique_2="TARIF"):
-        #     print(article, article.t50_21_2_identificateur_hiérarchique_2)
-
-
+        print(installation.objects.get(pk=3003).nearest_installers())
+        
         return render(
             request, 
             self.template_name, 
