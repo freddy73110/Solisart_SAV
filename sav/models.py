@@ -1020,7 +1020,7 @@ class installation(models.Model):
                     }
                 )
             list_installeur_in_order = sorted(list_installateur, key=lambda x: x["distance"])
-            return list_installeur_in_order[0:5]
+            return list_installeur_in_order[0:10]
         else:
             return []
 

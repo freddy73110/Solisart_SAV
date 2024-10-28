@@ -3,14 +3,13 @@ import numpy as np
 import sys
 
 class convertjson:
-    msg=''
-    def jsontocsv(
-        self, installation_SN=None, installation_name=None, path=None, dicttoconvert=None
+    
+    def jsontocsv(installation_SN=None, installation_name=None, path=None, dicttoconvert=None
     ):
         """
         return csv file with info of json + msg : message
         """
-
+        msg=''
         if "formulaire" in dicttoconvert:
             dicttoconvert = dicttoconvert["formulaire"]
         from django.templatetags.static import static
@@ -108,7 +107,7 @@ class convertjson:
             if 'TempDeBase' in geoinfo:
                 df.value[df.key == "TBaseExt(0)"] = geoinfo['TempDeBase']
                 if len(geoinfo['zone']) > 1:
-                    self.msg ="Vérifier la température de base entre les zones " + geoinfo['zone'][0]+ ' et ' +  geoinfo['zone'][1] + " sur ce site:" + \
+                    msg ="Vérifier la température de base entre les zones " + geoinfo['zone'][0]+ ' et ' +  geoinfo['zone'][1] + " sur ce site:" + \
                         "<a href='https://www.izi-by-edf-renov.fr/blog/temperature-exterieure-de-base'>ici</a>"
                 
         except Exception as ex:
@@ -135,4 +134,4 @@ class convertjson:
             df.to_csv(
                 path_or_buf=response, index=False, encoding="utf-8"
             )  # with other applicable parameters
-            return response, self.msg
+            return response, msg

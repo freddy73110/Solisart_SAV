@@ -102,7 +102,7 @@
                 </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="acces-tab" data-bs-toggle="tab" data-bs-target="#acces" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <button class="nav-link" id="acces-tab" data-bs-toggle="tab" data-bs-target="#acces" type="button" role="tab" aria-controls="profile" aria-selected="false" {% if instal.coordonnee_GPS%} onclick="SeachInstallateur({{instal.id}})"{%endif%}>
                     <span>Accès
                         <span class="badge rounded-pill bg-success" tabindex="0" data-bs-container="body" data-bs-placement="top" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Accès" data-bs-content="Nombre de personne à pouvoir accéder à l'installation">
                         {{ acces|length }}
@@ -648,7 +648,7 @@
 </div>
 {% if instal.coordonnee_GPS%}
   <script>
-    onload = (event) => SeachInstallateur({{instal.id}})
+    SeachInstallateur({{instal.id}})
   </script>
 {% endif %}
 {{CL.0.CL|json_script:"CL0"}}
