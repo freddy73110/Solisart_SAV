@@ -125,7 +125,8 @@ class convertjson:
             "Configuration du " + timezone.now().strftime("%d/%m/%Y à %H:%M"),
         ]
         if path:
-            df.to_csv(path, sep=";", header=True, index=False, columns=None), msg
+            df.to_csv(path, sep=";", header=True, index=False, columns=None)
+            return msg
         else:
             from django.http import HttpResponse
 
