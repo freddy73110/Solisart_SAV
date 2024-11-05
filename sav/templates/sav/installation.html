@@ -491,7 +491,8 @@
                     </div>
               </div>
               <div class="tab-pane fade m-3" id="acces" role="tabpanel" aria-labelledby="home-tab">
-                  <h1>Acces</h1>
+                <fieldset class="border p-2 h-100">
+                  <legend class="float-none w-auto"><b>Accès</b></legend>
                   <table
                     data-toolbar="#toolbar"
                     data-toggle="table"
@@ -528,8 +529,13 @@
 
                     </tbody>
                   </table>
+                </fieldset>
+                {% if instal.coordonnee_GPS%}
+                <fieldset class="border p-2 h-100">
+                  <legend class="float-none w-auto"><b>Installateurs à proximité</b></legend>
                   <div id="installateursMap"></div>
-
+                </fieldset>
+                {%endif%}
               </div>
               <div class="tab-pane fade m-3 {% if request.user|has_group:'ADV' and CL %}show active{%endif%}" id="CL" role="tabpanel" aria-labelledby="home-tab">
                 <fieldset class="border p-2 h-100">

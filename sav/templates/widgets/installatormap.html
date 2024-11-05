@@ -1,25 +1,29 @@
 {% load static %}
 {% load my_filter %}
-
-<table class="table table-bordered table-hover table-striped text-center m-3">
-    <thead>
-        <th>Installateur</th>
-        <th>Distance</th>
-    </thead>
-    <tbody>
-        {% for installateur in instal.nearest_installers%}
-        <tr>
-            <td><a href='{%url "sav:utilisateur" pk=installateur.installateur_id %}' target='_blank'>{{installateur.installateur}}</a></td>
-            <td>{{installateur.distance|floatformat:2}} km</td>
-        </tr>
-        {%endfor%}
-    </tboby>
-</table>
-
 <div class="container">
     <div class="row">
         <div class="col rounded h-100" style="min-height: 500px" id="installatorMap">
         </div>    
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-bordered table-hover table-striped text-center m-3">
+                <thead>
+                    <th>Installateur</th>
+                    <th>Distance</th>
+                </thead>
+                <tbody>
+                    {% for installateur in instal.nearest_installers%}
+                    <tr>
+                        <td><a href='{%url "sav:utilisateur" pk=installateur.installateur_id %}' target='_blank'>{{installateur.installateur}}</a></td>
+                        <td>{{installateur.distance|floatformat:2}} km</td>
+                    </tr>
+                    {%endfor%}
+                </tboby>
+            </table>
+        </div>
     </div>
 </div>
 {{ instal.nearest_installers|json_script:'installators' }}
@@ -55,6 +59,10 @@ const fontAwesomeIconInstallateur = L.divIcon({
                          
                 $.each(installators, function(index, item){
                     arrayOfMarkers.push(item.GPS)
+                    L.polygon([
+                            item.GPS,
+                            installationGPS
+                        ]).addTo(mymap).bindPopup(item.distance + " km")
                     L.marker(item.GPS, { icon: fontAwesomeIconInstallateur})
                         .addTo(mymap)
                         .bindPopup("<a href='/utilisateur/"+ item.installateur_id +"' target='_blank'><b>"+ item.installateur +"</b></a><br>@"+ item.distance + ' km' )

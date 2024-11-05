@@ -109,12 +109,14 @@ class convertjson:
                 if len(geoinfo['zone']) > 1:
                     msg ="Vérifier la température de base entre les zones " + geoinfo['zone'][0]+ ' et ' +  geoinfo['zone'][1] + " sur ce site:" + \
                         "<a href='https://www.izi-by-edf-renov.fr/blog/temperature-exterieure-de-base'>ici</a>"
-                
+
+
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             print(ex)
+            msg = "Les informations sur le client nous ont pas permis de déterminer la Température de base"
             pass
 
         from django.utils import timezone

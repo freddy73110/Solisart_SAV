@@ -3593,14 +3593,18 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):
 
-        print(installation.objects.get(pk=3003).nearest_installers())
         
         return render(
             request, 
             self.template_name, 
             {
                 "title": self.title,
-                "installations": installation.objects.filter(cl_herakles__isnull = True, idsa__icontains="2024").distinct()
+                "installations": User.objects.annotate(accesAll=Count("acces", filter=Q(acces__profil_type__name = "Installateur")))
+                .filter(
+                    acces__profil_type__name = "Installateur", 
+                    profil_user__latitude__isnull = True,
+                    accesAll__gte = 2
+                    ).distinct()#installation.objects.filter(cl_herakles__isnull = True, idsa__icontains="2022").distinct()
                 }
         )
 
@@ -4087,6 +4091,10 @@ class production(View):
                 | Q(
                     codephase__icontains="CL"
                     + str((timezone.now() - timedelta(days=366)).year)[2:4]
+                )
+                | Q(
+                    codephase__icontains="CL"
+                    + str((timezone.now() - timedelta(days=730)).year)[2:4]
                 )
             )
             .exclude(codephase__icontains="/")

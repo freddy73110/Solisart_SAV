@@ -1035,7 +1035,7 @@ class CL_Form(ModelForm):
                 )
             )
         else:
-            tu = installation.objects.all().values_list("id", "idsa")
+            tu = installation.objects.filter(cl_herakles__installation__isnull = True).values_list("id", "idsa")
             self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu)
             self.fields["installation"].initiale = self.initial['installation']
             self.fields["date_ballon"].widget = HiddenInput()

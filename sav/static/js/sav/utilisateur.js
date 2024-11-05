@@ -216,7 +216,6 @@ var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)
 })
 
-console.log("mais pourquoi?")
 //map
 
 const fontAwesomeIcon = L.divIcon({
@@ -255,9 +254,11 @@ const mymap = L.map('installation_carte',{
             const geo_instals = JSON.parse(document.getElementById('geo_instals').textContent)
             var arrayOfMarkers = []
             $.each(geo_instals, function(index, item){
-                arrayOfMarkers.push(item.geolocalisation.split(',').map((x)=>Number(x)))
-                L.marker(item.geolocalisation.split(','),{ icon: fontAwesomeIcon}).addTo(mymap)
-                .bindPopup("<a href='/installation/"+ item.id +"' ><b>"+item.installation +" - "+ item.proprio +"</b></a>")
+                if (item.geolocalisation != 'nan'){
+                    arrayOfMarkers.push(item.geolocalisation.split(',').map((x)=>Number(x)))
+                    L.marker(item.geolocalisation.split(','),{ icon: fontAwesomeIcon}).addTo(mymap)
+                    .bindPopup("<a href='/installation/"+ item.id +"' ><b>"+item.installation +" - "+ item.proprio +"</b></a>")
+                }
             })
             const geoUser = JSON.parse(document.getElementById('geo_user').textContent)
             const user = JSON.parse(document.getElementById('user').textContent)

@@ -1466,22 +1466,30 @@ class scrappingMySolisart:
                 },
             )
             time.sleep(2)
+            try:
+                self.waitelement(
+                    By.XPATH,
+                    '//*[@id="firmware-maj"]/table/tbody/tr[2]/td[2]/img[@alt="Terminée avec succès"]',
+                    "presence_of_element_located",
+                    "",
+                    time_max=1200,
+                )
 
-            self.waitelement(
-                By.XPATH,
-                '//*[@id="firmware-maj"]/table/tbody/tr[2]/td[2]/img[@alt="Terminée avec succès"]',
-                "presence_of_element_located",
-                "",
-                time_max=1200,
-            )
-
-            send_channel_message(
+                send_channel_message(
+                    "cartcreating",
+                    {
+                        "message": "<i class='fas fa-check' style='color: #018303;'></i> La carte de régulation de l'installation "
+                        + installation
+                        + " est à la dernière version"
+                    },
+                )
+            except:
+                send_channel_message(
                 "cartcreating",
-                {
-                    "message": "<i class='fas fa-check' style='color: #018303;'></i> La carte de régulation de l'installation "
-                    + installation
-                    + " est à la dernière version"
-                },
+                    {
+                        "message": "<i class='fas fa-times' style='color: #fe0101;'></i> Pas de retour de la carte. Vérifier la version de la carte de régulation!"
+                    },
+
             )
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
