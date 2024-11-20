@@ -19,7 +19,7 @@
   <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="false">
       <div role="alert" aria-live="assertive" aria-atomic="true" >
         <div class="toast-header">
-          <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="...">
+          <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="..." >
           <strong class="me-auto">Solistools</strong>
           <small id="toastSmall"></small>
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -61,17 +61,17 @@
 {%block article%}
 <div class="container">
     <div class="row">
-        <div class="col">
-            <h1 class="text-center m-3">{{title}}</h1>
+        <div class="col text-center">
+            <h1 class=" m-3" sytle="{display: inline}">{{title}}</h1>
               <div class="row justify-content-center">
                 <div class="col-12">
                   <div class="col-12 text-center m-3">
                       <a href="https://my.solisart.fr/admin/?page=installation&id={{instal.idsa}}"
-                        class="btn btn-outline-primary m-auto"
+                        class="btn bg-white"
                         target="_blank"
                       >
-                            <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
-                              lien vers mySolisArt
+                            <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded" style="{width: 40px;height: auto}">
+                              <br>lien vers mySolisArt
                         </a>
                   </div>
                 </div>
@@ -228,78 +228,54 @@
                 </div> 
                 {%endif%} 
               <div class="tab-pane fade " id="description" role="tabpanel" aria-labelledby="home-tab">
-                  <div class="accordion m-3" id="accordionPanelsStayOpenExample">
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-                            <b>Information de "my.solisart"</b>
-                          </button>
-                        </h2>
-                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-                          <div class="accordion-body">
+                  
                             <table
-                    data-toolbar="#toolbar"
-                    data-toggle="table"
-                    data-search="true"
-                    data-show-columns="true"
-                    data-show-columns-toggle-all="true"
-                    data-show-refresh="false"
-                    data-show-fullscreen="true"
-                    data-show-export="true"
-                    data-page-list="[10, 25, 50, 100, all]"
-                    data-pagination="true"
-                    data-filter-control="true"
-                    data-show-search-clear-button="true">
-                <thead>
-                    <th>Description</th>
-                    <th>Valeur</th>
-                </thead>
-                <tbody>
-                    {% for i in attribut_val %}
-                    <tr>
-                        <td>{{i.attribut_def}}</td>
-                        <td>{%if i.attribut_def.description == "Coordonnées GPS DD" %}
-                            <form>{% csrf_token %}
-                                <div class="input-group mb-3">
-                                    <input type="hidden" value="{{i.id}}" name="GPS_id">
-                                  <input
-                                          type="text"
-                                          class="form-control"
-                                          id="GPS"
-                                          name="CoordonneeGPS"
-                                          value="{{i.valeur}}"
-                                          placeholder="Recipient's username"
-                                          aria-label="Recipient's username"
-                                          aria-describedby="button-addon2"
-                                  >
-                                  <button class="btn btn-outline-secondary" type="button" id="GPSValider" onclick="modifierGPS()">Valider</button>
-                                </div>
-                            </form>
-                            {%else%}
-                            {{i.valeur}}
-                            {%endif%}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-                          </div>
-                        </div>
+                                data-toolbar="#toolbar"
+                                data-toggle="table"
+                                data-search="true"
+                                data-show-columns="true"
+                                data-show-columns-toggle-all="true"
+                                data-show-refresh="false"
+                                data-show-fullscreen="true"
+                                data-show-export="true"
+                                data-page-list="[10, 25, 50, 100, all]"
+                                data-pagination="true"
+                                data-filter-control="true"
+                                data-show-search-clear-button="true">
+                            <thead>
+                                <th>Description</th>
+                                <th>Valeur</th>
+                            </thead>
+                            <tbody>
+                                {% for i in attribut_val %}
+                                <tr>
+                                    <td>{{i.attribut_def}}</td>
+                                    <td>{%if i.attribut_def.description == "Coordonnées GPS DD" %}
+                                        <form>{% csrf_token %}
+                                            <div class="input-group mb-3">
+                                                <input type="hidden" value="{{i.id}}" name="GPS_id">
+                                              <input
+                                                      type="text"
+                                                      class="form-control"
+                                                      id="GPS"
+                                                      name="CoordonneeGPS"
+                                                      value="{{i.valeur}}"
+                                                      placeholder="Recipient's username"
+                                                      aria-label="Recipient's username"
+                                                      aria-describedby="button-addon2"
+                                              >
+                                              <button class="btn btn-outline-secondary" type="button" id="GPSValider" onclick="modifierGPS()">Valider</button>
+                                            </div>
+                                        </form>
+                                        {%else%}
+                                        {{i.valeur}}
+                                        {%endif%}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                       </div>
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-                            <b>Autre</b>
-                          </button>
-                        </h2>
-                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
-                          <div class="accordion-body">
-                              {% crispy form %}
-                          </div>
-                        </div>
-                      </div>
-                  </div>
-              </div>
               <div class="tab-pane fade m-3  {% if not request.user|has_group:'ADV' or not CL%}show active{%endif%}" id="historique" role="tabpanel" aria-labelledby="profile-tab">
                   <button type="button"
                           class="btn btn-outline-primary"
@@ -545,8 +521,8 @@
                       {%if CL.0.monteur%}
                       <p><b>Monteur:</b> {% for monteur in CL.0.monteur %} monteur {%endfor%}</p>
                       {%endif%}
-                      {% if not request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary CL m-3" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>{%endif%}
-                      {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-secondary m-3" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
+                      {% if not request.user|has_group:'ADV' %}<button type="button" class="btn btn-outline-secondary CL m-3" CL="{{CL.0}}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">{{CL.0}}</button>{%endif%}
+                      {% if request.user|has_group:'ADV' %}<button type="button" class="btn btn-outline-secondary m-3" onclick="afficherCLModal()"><i class="fas fa-pen"></i> Modifier</button>{%endif%}
                       <div class="form-floating">
                         <textarea 
                           class="form-control {% if request.user|has_group:'ADV' %}textarea_update{%endif%}" 

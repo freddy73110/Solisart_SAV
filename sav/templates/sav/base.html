@@ -1,7 +1,7 @@
 {% load static %}
 {% load my_filter %}
 <!DOCTYPE html>
-<html lang="fr" {% if request.user|has_group:'bg_dark' %}data-bs-theme="dark"{%endif%}>
+<html lang="fr" data-bs-theme="{% if request.user|has_group:'bg_dark' %}dark{%else%}ligth{%endif%}">
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 
@@ -46,7 +46,7 @@
 <script src="{% static 'emojionarea/emojionearea.min.js' %}"></script>
 
 <!--page script-->
-<script src="{% static 'js/sav/base.js' %}?{{10|randomfile}}"></script>
+<script src="{% static 'js/sav/base.js' %}?{{10|randomfile}}" defer></script>
 
 
 {% block javascript %}
@@ -94,7 +94,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:home' %}" data-bs-container="body" data-bs-toggle="popover" title='Rechercher' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fa fa-search" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -110,7 +110,7 @@
                    data-bs-content='Importer les datas depuis MySolisArt
                    Export prix vers site commerciale'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -118,7 +118,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:production' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion de production' data-bs-trigger="hover" data-placement="bottom" data-bs-content="Calendrier de cadencement de production">
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -126,7 +126,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:batch' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion des lot marchandise' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Création et suivi des lot'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-box-open" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -134,7 +134,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:ticket' %}" data-bs-container="body" data-bs-toggle="popover" title='Suivi des tickets' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Suivi des tickets'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -142,7 +142,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:map' %}" data-bs-container="body" data-bs-toggle="popover" title='Map' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Localisation de toutes les installations'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -150,7 +150,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:statistiques' %}" data-bs-container="body" data-bs-toggle="popover" title='Statistiques' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Statistiques'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -158,7 +158,7 @@
             <li class="nav-item">
                 <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:bibliotheque' %}" data-bs-container="body" data-bs-toggle="popover" title='Bibliothèque' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Bibliothèque'>
                     <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle text-info" style="color:black"></i>
+                        <i class="far fa-circle " style="color:#BFB306"></i>
                         <i class="fas fa-book" data-fa-transform="shrink-8"></i>
                     </span>
                 </a>
@@ -242,6 +242,11 @@
                     },
                 success: function (response) {
                         console.log(response)
+                        if($('html').attr('data-bs-theme')=="dark"){
+                            $("button.btn-outline-primary, button.btn-outline-secondary").css({'color': '#BFB306 !important'});
+                        }else{
+                            $("button.btn-outline-primary, button.btn-outline-secondary").css({'color': 'black'});
+                        }
                 }
     
         })

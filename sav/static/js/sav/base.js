@@ -37,3 +37,10 @@ var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
 return new bootstrap.Popover(popoverTriggerEl)
 })
+
+if($('html').attr('data-bs-theme')=="dark"){
+    $("button.btn").css({'color': '#BFB306 !important'});
+    $("button.btn").hover({'color': 'black !important'})
+}else{
+    $("button.btn").css({'color': 'black'});
+}

@@ -1,3 +1,90 @@
+body {
+  font-family: roboto, serif;  
+}
+
+a {
+  color:#BFB306
+}
+
+fieldset legend {
+  background-color: #EAF205;
+  border-radius: 10px;
+  color: black;
+  padding: 0px 5px
+}
+
+.input-group-text {
+  background-color: #FBFB96;
+  border-radius: 10px;
+  color: black
+}
+.nav-link.active{
+  background-color: #EAF205 !important;
+  border-radius: 10px !important;
+  color: black !important
+}
+
+.nav-link{
+  color: #BFB306 !important;
+  font-weight: bold;
+}
+
+h1 {
+  background-color: #FBFB96;
+  color: black !important;
+  display: inline;
+  padding: 0px 10px;
+  border-radius: 10px;  
+}
+
+.accordion-button{
+  background-color: #FBFB96 !important ;
+  color: black !important  
+
+}
+
+.btn{
+  color:black;
+  border-color:#BFB306  
+}
+
+.btn:hover{
+  color:white !important;
+  background-color:#BFB306;
+  border-color:#BFB306 
+}
+
+.btn:active{
+  color:black !important;
+  background-color:#BFB306;
+  border-color:#BFB306
+}
+
+.btn:focus{
+  color:black !important;
+  background-color:#BFB306;
+  border-color:#BFB306
+}
+
+.form-check-input:checked{
+  background-color:#BFB306;
+  border-color:#BFB306;
+  color:black !important;
+}
+.form-control, .form-select {
+  border-color:#BFB306 !important;
+
+}
+
+.bg-warning{
+  background-color:#EAF205 !important;
+  color: black
+
+}
+.btn-close{
+  color: black
+}
+
 .beatanimation {
     animation: beatkey .5s infinite alternate;
 }
@@ -35,6 +122,17 @@ ul.nav li a.active {
     transform: scale(1);
 	animation: pulse 2s infinite;
 }
+
+ul {
+  list-style: none; /* Supprime les puces par défaut */
+  padding: 0; /* Supprime l'espace de padding */
+}
+
+.form-floating label{
+  color:#BFB306;
+  font-weight: bold;
+}
+
 @keyframes pulse {
 	0% {
 		transform: scale(0.9);

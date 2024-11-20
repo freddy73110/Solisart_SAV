@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 {% load static %}
+{% load my_filter %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 
@@ -16,9 +17,13 @@
     <link rel="stylesheet" href="{% static 'fontawesome-free-5.15.2-web/css/all.css' %}">
     <script  src="{% static 'fontawesome-free-5.15.2-web/js/all.min.js' %}"></script>
 
-    <!--Bootstrap4-->
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-5.0.2-dist/css/bootstrap.min.css' %}">
-    <script src="{% static 'bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <!--Bootstrap5-->
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
+    <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!--page script-->
+  <script src="{% static 'js/sav/base.js' %}?{{10|randomfile}}" defer></script>
+  <link rel="stylesheet" href="{% static 'css/sav/base.css' %}?{{10|randomfile}}">
 
     <title>{% block Titre %}SolisArt{% endblock %}</title>
 
@@ -32,7 +37,7 @@ html {
 }
 body{
             min-height: 100%;
-            background: white url("/static/sav/photos/Logo-solisart-fabricant-chauffage-solaire2.png") no-repeat;
+            background: white url("/static/sav/photos/Logo_Graph.png") no-repeat;
             background-position: center;
             margin-left: auto;
             margin-right: auto;
@@ -46,22 +51,22 @@ body{
     </div>
     <div class="row">
             <div class="col-sm-12 text-center m-2">
-                <button id="BackHome" class="btn btn-primary" onclick="location.href='{%url 'sav:home'%}'"><i class="fa fa-step-backward" aria-hidden="true"></i> Retour à la page d'accueil</button>
+                <button id="BackHome" class="btn btn-outline-primary" onclick="location.href='{%url 'sav:home'%}'"><i class="fa fa-step-backward" aria-hidden="true"></i> Retour à la page d'accueil</button>
         <div class="row">
             <div class="col-sm-12 text-center m-2">
-                <button id="Refresh" class="btn btn-primary" onClick="window.location.reload();"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
+                <button id="Refresh" class="btn btn-outline-primary" onClick="window.location.reload();"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12 text-center m-2">
-                <button id="Comeback" class="btn btn-primary" onClick="document.getElementById('modalstart').click();"><i class="fas fa-redo-alt"></i> Retour</button>
+                <button id="Comeback" class="btn btn-outline-primary" onClick="document.getElementById('modalstart').click();"><i class="fas fa-redo-alt"></i> Retour</button>
             </div>
         </div>
 </div>
 
 <!-- Modal -->
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="modalstart" style="display:none">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="modalstart" style="display:none">
   Launch demo modal
 </button>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

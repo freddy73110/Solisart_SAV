@@ -100,7 +100,7 @@ $("button[data-bs-target='#ModalEvenement']").on("click", function(){
 function initticketform(me){
 $(".modal-body").find("div").hide()
 $("#update_ticket").html()
-$("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+$("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
 $.ajax({
 url: window.location.href,
 type:'post',
@@ -175,7 +175,7 @@ $.each(data.NC.error, function(index, value){
 function updateTicket(id){
 $(".modal-body").find("div").hide()
 $("#update_ticket").html()
-$("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+$("#update_ticket").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
 $.ajax({
 url: window.location.href,
 type:'post',
@@ -357,7 +357,7 @@ $(document).ready(function() {
   $(".CL").on('click', function(){
           var CL = $(this)
           $("#offcanvasRightLabel").html("Détail du " + CL.attr('cl') + ":")
-          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
               $.ajax({
                    url: window.location.href,
                    data: {'CL_popover': CL.attr('cl')},
@@ -372,7 +372,7 @@ $(document).ready(function() {
   $(".BL").on('click', function(){
           var BL = $(this)
           $("#offcanvasRightLabel").html("Détail du " + BL.attr('BL') + ":")
-          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
               $.ajax({
                    url: window.location.href,
                    data: {'BL_popover': BL.attr('BL')},
@@ -387,7 +387,7 @@ $(document).ready(function() {
   $(".devis").on('click', function(){
           var devis = $(this)
           $("#offcanvasRightLabel").html("Détail du " + devis.attr('devis') + ":")
-          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+          $(".offcanvas-body").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
               $.ajax({
                    url: window.location.href,
                    data: {'devis_popover': devis.attr('devis')},
@@ -422,7 +422,7 @@ $(document).ready(function() {
                         $Modal.find(".modal-title").html()
                         $Modal.find(".modal-title").html("Détail de la commande " + CL0)
                         $Modal.find("#divCL").html()
-                        $Modal.find(".divCL").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+                        $Modal.find(".divCL").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
                         $Modal.modal('show')
                         $.ajax({
                             url: "/production",
@@ -465,7 +465,7 @@ var toastElList = [].slice.call(document.querySelectorAll('.toast'))
     toastList.forEach(toast => toast.show())
 
 function SeachInstallateur(pk){
-  $("#installateursMap").html('<h1><i class="fas fa-sun fa-spin" style="color:yellow"></i></h1>')
+  $("#installateursMap").html('<h1><i class="fas fa-sun fa-spin" style="color:black"></i></h1>')
   $.ajax({
     url: window.location.href,
     type:'post',
