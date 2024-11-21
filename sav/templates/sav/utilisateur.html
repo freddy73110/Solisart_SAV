@@ -21,8 +21,8 @@
 <script src="{% static 'leaflet/leaflet.js' %}"></script>
 <div class="container">
     <div class="row">
-        <div class="col">
-            <h1 class="text-center m-3" id="ident">{{title}} {{util.profil_user.icon|safe}} {{util.profil_user.evaluation_self_star|safe}}</h1>
+        <div class="col text-center">
+            <h1 class=" m-3" id="ident">{{title}} {{util.profil_user.icon|safe}} {{util.profil_user.evaluation_self_star|safe}}</h1>
         </div>
     </div>
 </div>
@@ -33,8 +33,8 @@
             <div id="installation_carte" style="height: 500px" class="m-3 img-thumbnail"></div>
         </div>
         <div class="col-4 text-center">
-            <a href="https://my.solisart.fr/admin/index.php?page=editer_utilisateur&id={{util.profil_user.idsa}}" class="btn btn-outline-primary m-auto" target="_blank">
-                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block">
+            <a href="https://my.solisart.fr/admin/index.php?page=editer_utilisateur&id={{util.profil_user.idsa}}" class="btn btn-outline-primary m-auto bg-white" target="_blank">
+                      <img src="{% static 'image/logo-solisart.png' %}" alt="logo solisart" class="rounded mx-auto d-block ">
                         lien vers mySolisArt
             </a>
             <table
@@ -126,7 +126,7 @@
   </div>
 <div class="container">
     <div class="row">
-        <div class="col">
+        <div class="col m-3">
             <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
@@ -256,7 +256,7 @@
 </table>
               </div>
               <div class="tab-pane fade" id="eval" role="tabpanel" aria-labelledby="home-tab">
-                <h1>Evaluation</h1>
+                <h2>Evaluation</h2>
                 <button class="btn btn-outline-primary m-3" type="button" id="addEvaluation"
                 data-bs-toggle="modal"
                 data-bs-target="#ModalEvenement"
