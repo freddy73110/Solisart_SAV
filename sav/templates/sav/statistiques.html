@@ -13,8 +13,14 @@
 {%block article%}
 <div class="container">
     <div class="row">
-        <div class="col">
+        <div class="col text-center m-3">
             <h1 class="text-center m-3">Statistiques - Analyses</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col m-3">            
             <ul class="nav nav-pills nav-justified" id="pills-tab" role="tablist">
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#stat_temp" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><i class="far fa-chart-bar"></i><br> Statistiques temporelles</button>
@@ -32,7 +38,6 @@
         </div>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="stat_temp" role="tabpanel" aria-labelledby="pills-home-tab">
-                <h1 class="m-3">Statistiques temporelles</h1>
                 <form id="formVisualisertempo" method="post">{% csrf_token %}
                     <div class="input-group mb-3">
                         <div class="form-floating flex-grow-1">
@@ -81,7 +86,6 @@
             <div class="tab-pane fade" id="stat_corre" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <div class="container">
                     <div class="row">
-                        <h1 class="m-3">Statistiques Symptômes/causes</h1>
                         <form id="formVisualiser" method="POST">{% csrf_token %}
                             {% crispy stattableauform %}
                             <div class="float-end">
@@ -117,7 +121,6 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-12">
-                            <h1 class="m-3">Statistiques sur les BL</h1>
                             <form id="form_BL">
                                 <div class="row">
                                     <div class="col-6">
@@ -165,7 +168,6 @@
           <div class="container">
               <div class="row">
                   <div class="col-12">
-                    <h1>Statistique sur les non-conformités</h1>
                     <table
                                     id="tableNC"
                                     data-toggle="table"

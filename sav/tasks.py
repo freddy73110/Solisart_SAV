@@ -1071,3 +1071,104 @@ def ActualiseAttribut(*args, **kwargs):
     save_result_celery(
         "args", {}, "SUCCESS", str(total_created) + " nouveaux historiques"
     )
+
+@shared_task
+def TestGTC(*args, **kwargs):
+    from pyModbusTCP.client import ModbusClient
+    import logging
+
+    from pyModbusTCP.client import ModbusClient
+
+    #documentation
+    #https://pymodbustcp.readthedoc sudo pip3 install pyModbusTCP --upgrades.io/en/latest/package/class_ModbusClient.html
+
+    # set debug level for pyModbusTCP.client to see frame exchanges
+    logging.basicConfig()
+    logging.getLogger('pyModbusTCP.client').setLevel(logging.DEBUG)
+    host = "195.110.34.131" if not 'host' in kwargs else kwargs['host']
+    port=502 if not 'port' in kwargs else kwargs['port']
+    unit_id=1 if not 'unit_id' in kwargs else kwargs['unit_id']
+
+    # TCP auto connect on first modbus request
+    c = ModbusClient(host=host, port=port, unit_id=unit_id, auto_open=True, auto_close=False)
+    now = datetime.datetime.now()
+    
+
+    file_path=os.path.join(os.path.dirname(__file__), "static", "TestTCP.csv")
+
+    if not os.path.exists(file_path):
+        with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
+            import csv
+            writer = csv.writer(csvfile, delimiter=';')  # Utiliser le point-virgule comme séparateur
+            
+            writer.writerow(['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'T13', 'T14', 'T15', 'T16', 'Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'APP', 'SOL', 'BTC', 'C7', 'C1', 'C2','C3', 'CHDR1', 'CHDR2', 'V3VSOL', 'V3VAPP', 'Tmesure', 'VolECS', 'EnECSSol', 'EnECSApp', 'EnECSTot', 'TmoyECS', 'TmoyECSfroid', 'ENChaufSol', 'ENChauffApp', 'ENChauffTot'])
+
+    with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
+        import csv
+        writer = csv.writer(csvfile, delimiter=';')  # Utiliser le point-virgule comme séparateur
+        writer.writerow([now.strftime("%d/%m/%y %H:%M:%S")] + c.read_holding_registers(0, 21) + c.read_input_registers(21, 21))
+
+    csvfile.close()
+
+    # c.read_coils(0)
+    # adresses=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, 16, 17, 18, 19]
+    # for i in adresses:
+    #     #Fonction 4
+    #     regs = c.read_holding_registers(i, 1)
+    #     if regs:
+    #         print(i, regs)
+    #     else:
+    #         print(i, "read error")
+
+    # for i in adresses:
+    #     #fonction 3
+    #     regs = c.read_input_registers(i, 1)
+    #     if regs:
+    #         print(i, regs)
+    #     else:
+    #         print(i, "read error")
+
+    # for i in adresses:
+    #     #fonction 1
+    #     regs = c.read_coils(i, 1)
+    #     if regs:
+    #         print(i, regs)
+    #     else:
+    #         print(i, "read error")
+
+    # for i in adresses:
+    #     #fonction 2
+    #     regs = c.read_discrete_inputs(i, 1)
+    #     if regs:
+    #         print(i, regs)
+    #     else:
+    #         print(i, "read error")
+
+    c.close()
+    save_result_celery(args, kwargs, "SUCCESS", "null")
+
+@shared_task
+def TestGTCdownload(*args, **kwargs):
+    from django.core.mail import EmailMessage
+    from email.mime.base import MIMEBase
+    from email import encoders
+
+    sendto = 'freddy.dubouchet@solisart.fr' if not "sendto" in kwargs else kwargs['sendto']
+
+    email = EmailMessage(
+        'Fichier csv pour test ModBus IP',
+        'Voilà le fichier en question',
+        'sav@solisart.fr',
+        [sendto],
+    )
+
+    # Attacher une pièce jointe
+    file_path=os.path.join(os.path.dirname(__file__), "static", "TestTCP.csv")
+    with open(file_path, 'rb') as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', "attachment; filename= TestTCP.csv")
+        email.attach(part)
+
+    email.send()

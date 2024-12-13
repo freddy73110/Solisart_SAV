@@ -85,6 +85,8 @@ h1 {
   color: black
 }
 
+
+
 .beatanimation {
     animation: beatkey .5s infinite alternate;
 }

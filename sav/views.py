@@ -3591,9 +3591,12 @@ class bidouille(View):
     template_name = "sav/bidouille.html"
     title = "Bidouille"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):        
 
-        
+        from .tasks import TestGTCdownload
+        # TestGTC(kwargs={"adresseIP": "195.110.34.131","port":"502"})
+        TestGTCdownload()
+
         return render(
             request, 
             self.template_name, 

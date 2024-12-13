@@ -2,7 +2,9 @@
 {% extends "sav/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
-{%block Titre%}{{title}}{%endblock%}
+{%block Titre%}
+{{title}}
+{%endblock%}
 
 {%block article%}
 <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -31,7 +33,13 @@
     </div>
   </div>
 </div>
-<h1 class="text-center m-3">Bibliothèque documentaire</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12 text-center m-3">
+            <h1 class="text-center m-3">Bibliothèque documentaire</h1>
+        </div>
+    </div>
+</div>
 <div class="container">
     <div class="row">
         <div class="col-10">
