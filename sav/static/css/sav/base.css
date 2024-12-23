@@ -2,16 +2,36 @@ body {
   font-family: roboto, serif;  
 }
 
-a {
-  color:#BFB306
-}
-
 fieldset legend {
   background-color: #EAF205;
   border-radius: 10px;
   color: black;
   padding: 0px 5px
 }
+
+h1 {
+  background-color: #FBFB96;
+  color: black !important;
+  display: inline;
+  padding: 0px 10px;
+  border-radius: 10px;  
+}
+.input-group-text{
+  background-color:#FBFB96 !important;
+  color:black
+}
+
+/* .form-floating label, span.input-group-text{
+  color:#BFB306;
+  font-weight: bold;
+}  */
+
+/* 
+a {
+  color:#BFB306
+}
+
+
 
 .input-group-text {
   background-color: #FBFB96;
@@ -79,12 +99,16 @@ h1 {
 .bg-warning{
   background-color:#EAF205 !important;
   color: black
-
 }
 .btn-close{
   color: black
 }
 
+.form-floating label{
+  color:#BFB306;
+  font-weight: bold;
+}
+ */
 
 
 .beatanimation {
@@ -130,10 +154,7 @@ ul {
   padding: 0; /* Supprime l'espace de padding */
 }
 
-.form-floating label{
-  color:#BFB306;
-  font-weight: bold;
-}
+
 
 @keyframes pulse {
 	0% {
