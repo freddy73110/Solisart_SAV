@@ -84,7 +84,7 @@
         "tlbl(01)": "T1 Capt Chaud 1",
         "tlbl(10)": "T10 Echangeur",
         "tlbl(16)": "T16 Primaire",
-        "trilbl(10)": "Circ primaire",
+        "trilbl(11)": "Circ primaire",
         "CircType(9)": 1
       },
       "1 champ capteurs découplé sur échangeur sur t16": {
@@ -92,7 +92,7 @@
         "tlbl(01)": "T1 Capt Chaud 1",
         "tlbl(10)": "T10 Echangeur",
         "tlbl(16)": "T16 Primaire",
-        "trilbl(10)": "Circ primaire",
+        "trilbl(11)": "Circ primaire",
         "CircType(9)": 1
       },
       "1 champ capteurs découplé sur casse pression sur t15": {
@@ -100,7 +100,7 @@
         "tlbl(01)": "T1 Capt Chaud 1",
         "tlbl(10)": "T10 Echangeur",
         "tlbl(16)": "T16 Primaire",
-        "trilbl(10)": "Circ primaire",
+        "trilbl(11)": "Circ primaire",
         "CircType(9)": 1
       },
       "1 champ capteurs découplé sur échangeur sur t15": {
@@ -108,7 +108,7 @@
         "tlbl(01)": "T1 Capt Chaud 1",
         "tlbl(10)": "T10 Echangeur",
         "tlbl(16)": "T16 Primaire",
-        "trilbl(10)": "Circ primaire",
+        "trilbl(11)": "Circ primaire",
         "CircType(9)": 1
       },
       "2 champs capteurs découplés sur casse pression": {

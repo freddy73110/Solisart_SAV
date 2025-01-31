@@ -1253,6 +1253,7 @@ class devis_herakles(models.Model):
         verbose_name="Devis",
         max_length=25,
         help_text="Appuyer sur Ctrl pour sélectionner plusieurs devis",
+        unique=True
     )
 
     def __str__(self):
@@ -1267,6 +1268,7 @@ class BL_herakles(models.Model):
         verbose_name="BL",
         max_length=25,
         help_text="Appuyer sur Ctrl pour sélectionner plusieurs BL",
+        unique=True
     )
 
     def __str__(self):
