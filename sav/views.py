@@ -3593,21 +3593,32 @@ class bidouille(View):
 
     def get(self, request, *args, **kwargs):        
 
-        from .tasks import TestGTCdownload
+        from .tasks import ActualiseInstallationByScapping
+        ActualiseInstallationByScapping()
+        # from .tasks import TestGTCdownload
         # TestGTC(kwargs={"adresseIP": "195.110.34.131","port":"502"})
-        TestGTCdownload()
+        # TestGTCdownload()
+        # for CL in CL_herakles.objects.filter(
+        #             installation__isnull = False,
+        #             BL__isnull = False,
+        #             date_livraison__isnull = False).order_by('CL'):
+        #     if CL.date_livraison <  timezone.now().date() - timedelta(days=10):
+        #         # print(CL, CL.date_livraison,  timezone.now().date() - timedelta(days=10), CL.date_livraison <  timezone.now().date() - timedelta(days=10))
+        #         for field in [ 'date_capteur', 'date_ballon', 'date_montage', 'date_prepa_carte', 'date_prepa']:
+        #             if not getattr(CL,field):
+        #                 setattr(CL,field,timezone.now().date())
+        #                 print(CL, getattr(CL,field), timezone.now().date())
+        #         CL.save()
+                
 
         return render(
             request, 
             self.template_name, 
             {
                 "title": self.title,
-                "installations": User.objects.annotate(accesAll=Count("acces", filter=Q(acces__profil_type__name = "Installateur")))
-                .filter(
-                    acces__profil_type__name = "Installateur", 
-                    profil_user__latitude__isnull = True,
-                    accesAll__gte = 2
-                    ).distinct()#installation.objects.filter(cl_herakles__isnull = True, idsa__icontains="2022").distinct()
+                "installations": CL_herakles.objects.filter(
+                    installation__isnull = False,
+                    BL__isnull = False)
                 }
         )
 
@@ -5505,3 +5516,25 @@ class batchView(View):
                     )
             img.save(response, "PNG")
             return response
+
+class Help(View):
+    login_url = "/login/"
+    template_name = "helper/"
+    title = "Gestion des lots"
+
+    def get(self, request, *args, **kwargs):
+        for file in [ filename.split('.')[0] for filename in os.listdir(os.path.dirname(__file__)+"/templates/helper")]:
+            if file in kwargs['path']:
+                self.template_name = self.template_name + file + ".html"
+                page = file
+        if self.template_name == "helper/" :
+            self.template_name = "helper/home.html"
+            page = "home"   
+        return render(request,
+                       self.template_name,
+                       {
+                           "admins": User.objects.filter(groups__name='update_Since_My_Solisart'),
+                           "userADV": User.objects.filter(groups__name='ADV'),
+                           "page": page
+                        }
+                    )

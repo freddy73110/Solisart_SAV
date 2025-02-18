@@ -193,14 +193,14 @@
                               </fieldset >
                           </div>
                           <div class="col-12">
-                              <fieldset class="border p-2 h-100">
-                                  <legend class="float-none w-auto p-2">Détail</legend>
+                              <fieldset class="border p-2 h-100 mt-3">
+                                  <legend class="float-none w-auto p-2 ">Détail</legend>
                                     {% crispy form_profil %}
                               </fieldset>
                           </div>
                           {% if request.user.is_staff and util.is_staff or not util%}
                           <div class="col-12">
-                            <fieldset class="border p-2 h-100">
+                            <fieldset class="border p-2 h-100 mt-3">
                                 <legend class="float-none w-auto p-2">Groupe</legend>
                                   {% crispy form_group %}
                             </fieldset>

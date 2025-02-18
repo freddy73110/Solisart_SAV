@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+{% extends "helper/base.html" %}
+{% load crispy_forms_tags %}
+{% load my_filter %}
+{% load static %}
+
+{% block javascript %}
+{%endblock%}
+
+{%block Titre%}{{title}}{%endblock%}
+
+{% block nav %}
+<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p2"><b>2. Page de recherche</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-1">2.1 Recherche par utilisateur</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.2 Recherche par installation</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.3 Recherche par données Héraklès</a>
+<a class="list-group-item list-group-item-action" href="#p3"><b>3. Page Installation</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="#p3-1">3.1 Description</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p3-2">3.2 Historique</a>
+<a class="list-group-item list-group-item-action ps-5" href="#p3-2-1">3.2.1 Ajouter/Modifier un ticket</a>
+<a class="list-group-item list-group-item-action ps-5" href="#p3-2-2">3.2.2 Ajouter/Modifier une Non Conformité</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p3-3">3.3 Accès - Installateurs à proximité</a>
+<a class="list-group-item list-group-item-action ps-5" href="#p3-3-1">3.3.1 Accès</a>
+<a class="list-group-item list-group-item-action ps-5" href="#p3-3-2">3.3.2 Installateur à proximité</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p3-4">3.4 Bon de commande lié</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p3-5">3.5 Non conformité</a>
+{%endblock%}
+
+
+{% block content %}
+<div id="p3">
+  <h2><u>3. Installation</u></h2>
+  <p>La page installation regroupe toutes les informations relatives à une installation en particulier.</p>  
+  <img src="{{ HTTP_HOST }}/static/image/Installation.png" class="rounded mx-auto d-block img-fluid">
+  <p>Pour accéder directement à l'installation sur my.solisart.fr, il suffit de cliquer sur le logo Solisart.</p>
+  <p>Dans l'ordre des onglets qu'il est possible de visualiser:</p>
+  <ul>
+    <li>Description</li>
+    <li>Historique</li>
+    <li>Accès - Installateur proches</li>
+    <li>Bon de commande lié</li>
+    <li>Non conformité</li>
+  </ul>
+  <p>Si l'installateur de l'installation et/ou le cleint final a été noté, un récapitulatif de sa dernière note apparîtra sous forme de Popup en haut à droite.
+    Cela permet de savoir si un installateur a des impayés par exemple.
+  </p>
+</div>
+<div id="p3-1">
+  <h3 class="ps-3">3.1 Description</h3>
+  <p>Le tableau de descriptif récapitule tous les informations récupérées de my.solisart.fr depuis la dernière synchronisation.</p>
+  <img src="{{ HTTP_HOST }}/static/image/InstallationDescription.png" class="rounded mx-auto d-block img-fluid">  
+  <p>A noter: les Coordonnées GPS DD de l'installation peuvent être saisies si elles ne sont pas récupérées depuis my.solisart.fr.
+    Ces données servent à faire la carte des installations et à connaître les installateurs les plus proches (cf 	<a href="#p3-3">&#167; 3.3</a>).
+  </p>             
+</div>
+<div id="p3-2">
+  <h3 class="ps-3">3.2 Historique</h3>
+  <p>Cette onglet liste toutes les tickets et les mises en service sur l'installation en questions.</p>
+  <img src="{{ HTTP_HOST }}/static/image/InstallationHistorique.png" class="rounded mx-auto d-block img-fluid border">  
+  <p>Pour ajouter un ticket ou une Mise En Service cliquez sur le boutton correspondant.
+  </p>
+  <p>Pour visualiser le contenu du ticket, il suffit de cliquer sur le titre du ticket.</p>
+  <p>Vous pouvez ajouter des fichiers à un ticket en cliquant sur le bouton correspondant ou en faisant un glisser-déplacer sur le ticket en question.</p>
+  <p>Vous pouvez modifier directement le détail du ticket sans passer par "Mettre à jour", juste en saisissant dans le champs "détails".</p>
+</div>
+<div id="p3-2-1">
+  <h3 class="ps-5">3.2.1 Ajouter/Modifier un ticket</h3>
+  <p>Un fois le bouton ajouter ou modifier un ticket appuyé, vous obtenez.</p>
+  <img src="{{ HTTP_HOST }}/static/image/ticket.png" class="rounded mx-auto d-block img-fluid border">  
+  <p>Plus le ticket est rempli et détaillé plus les suivis du problèmes et les statistiques sur les tickets sont précises.
+  </p>
+  <p>A noter:</p>
+  <ul>
+    <li>Si le ticket n'est pas noté comme clôturé, il apparaitra dans le listing de ticket hebdomadaire du chargé d'affaire 
+      de la zone et dans la page "tickets ouverts".</li>
+    <li>En fonction, des symptômes choisis, la liste déroulantes des causes est modifiée. Idem avec les propositions de solution</li>
+    <li>Pour plus de gaité, vous pouvez rajouter des émoticones dans le texte du champs "détails" en cliquant sur le smiley en haut à droite de l'encart.</li>
+    <li>Sur chaque ticket, vous pouvez ajouter un ou plusieurs numéro de devis ou numéro de BL.</li>
+  </ul>
+  <p>Si vous constatez une Non Conformité, vous pouvez cocher le switch et compléter le matériel impacté et les suites de cette non conformité. Une NF 
+    sera gérée et maintionné sur le ticket ainsi que dans la partie statistique suivi des Non Conformité.</p>
+</div>
+<div id="p3-2-2">
+  <h3 class="ps-5">3.2.2 Ajouter/Modifier une Non-Conformité</h3>
+  <img src="{{ HTTP_HOST }}/static/image/installationNF.png" class="rounded mx-auto d-block img-fluid border">
+  <p>Il est possible d'affecter des fichiers à la Non-Conformité.</p>
+</div>
+<div id="p3-3">
+  <h3 class="ps-3">3.3 Accès - Installateurs à proximité</h3>
+  <p>Cette onglet liste toutes les personnes qui sont ou qui ont été reliées à l'installation sur my.solisart.fr et si l'installation est géolocalisée 
+    une carte apparait avec la liste des 10 installateurs les plus proches avec leur listing.</p>
+</div>
+<div id="p3-3-1">
+  <h3 class="ps-5">3.3.1 Accès</h3>
+  <img src="{{ HTTP_HOST }}/static/image/installationAcces.png" class="rounded mx-auto d-block img-fluid border">  
+  <p>Le tableau récapitule tous les ayant droits sur cette installation.</p>
+  <p>A noter:</p>
+  <ul>
+    <li>Vous pouvez accéder directement à la page utilisateur de la personne en cliquant sur son nom.</li>
+    <li>Vous pouvez évaluer la personne en cliquant sur l'étoile. Cela permet de noter dans le temps le niveau, l'aptitude, le comportement, ... de la personne.
+      Cela peut-être intéréssant si un installateur a des impayés ou si le client est en procédure avec nous.
+    </li>
+  </ul>
+</div>
+<div id="p3-3-2">
+  <h3 class="ps-5">3.3.2 Installateur à proximité</h3>
+  <p><b>La carte n'apparait que si l'installation est géolocalisée.(cf 	<a href="#p3-1">&#167; 3.1 Description</a>)</b></p>
+  <img src="{{ HTTP_HOST }}/static/image/InstallationInstallateurProximite.png" class="rounded mx-auto d-block img-fluid border">  
+  <p>La carte localise les 10 installateurs les plus proches.</p>
+  <p>A noter:</p>
+  <ul>
+    <li>En cliquant sur le pointeur de l'installateur, vous pouvez connaître quel installateur s'est et à quelle distance en vol
+       d'oiseau il est de l'installation. En cliquant sur son nom, vous êtes redirigés vers la page de l'utilisateur où vous aurez toutes les informations à 
+      son sujet.</li>
+    <li>Vous pouvez évaluer la personne en cliquant sur l'étoile. Cela permet de noter dans le temps le niveau, l'aptitude, le comportement, ... de la personne.
+      Cela peut-être intéréssant si un installateur a des impayés ou si le client est en procédure avec nous.
+    </li>
+  </ul>
+</div>
+<div id="p3-4">
+  <h3 class="ps-3">3.4 Bon de commande</h3>
+  <p>Le bon de commande lié à l'installation est le bon de commande correspondant à l'achat du Solisart. Le lien est fait au moment où la carte de régulation
+     est créée avec le Solistools ou il peut être fait manuellement par le groupe ADV.</p>
+  <p>Les personnes faisant partie du groupe "ADV" on plus de droit, tel que:</p>
+  <ul>
+    {%for user in userADV%}
+    <li>{{user}}</li>
+    {%endfor%}
+  </ul>
+  {% if request.user|has_group:'ADV' %}
+  <img src="{{ HTTP_HOST }}/static/image/InstallationBLADV.png" class="rounded mx-auto d-block img-fluid border"> 
+  <p>
+    En cliquant sur Modifier, vous avez accès au modale du bon de commande pour faire toutes les modifications.
+  </p>
+  <p>
+    Vous avez accès à tous les fichiers liés au bon de commande en téléchargement, en visualisation, en renomation et en suppression.
+  </p>
+  {%else%}
+  <img src="{{ HTTP_HOST }}/static/image/InstallationBLAllUser.png" class="rounded mx-auto d-block img-fluid border"> 
+  <p>
+    Vous pouvez accéder à la liste de tous les articles commandés en cliquant sur le bouton avec le numéro du Bon de Commande.
+  </p>
+  <p>
+    Vous avez accès à tous les fichiers liés au bon de commande.
+  </p>
+  {%endif%}
+</div>
+<div id="p3-5">
+  <h3 class="ps-3">3.5 Non Conformité</h3>
+  <p>Cette onglet présente tous les non-conformités liés à l'installation. (cf 	<a href="#p3-2-2">&#167; 3.2.2</a>)</p>
+  <img src="{{ HTTP_HOST }}/static/image/InstallationNC.png" class="rounded mx-auto d-block img-fluid border">  
+</div>
+ {%endblock%}
+ 
+ {% block script %}
+ document.getElementById('p3').scrollIntoView({behavior: 'smooth'});
+{%endblock%}

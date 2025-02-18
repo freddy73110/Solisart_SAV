@@ -19,7 +19,7 @@
   <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="false">
       <div role="alert" aria-live="assertive" aria-atomic="true" >
         <div class="toast-header">
-          <img src="{% static 'image/favicon.ico' %}" class="rounded me-2" alt="..." >
+          <img src="{% static 'image/favicon2.ico' %}" class="rounded me-2" alt="..." >
           <strong class="me-auto">Solistools</strong>
           <small id="toastSmall"></small>
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -506,8 +506,8 @@
                     </tbody>
                   </table>
                 </fieldset>
-                {% if instal.coordonnee_GPS%}
-                <fieldset class="border p-2 h-100">
+                {% if instal.coordonnee_GPS and instal.coordonnee_GPS != "nan"%}
+                <fieldset class="border p-2 h-100 mt-3">
                   <legend class="float-none w-auto"><b>Installateurs à proximité</b></legend>
                   <div id="installateursMap"></div>
                 </fieldset>

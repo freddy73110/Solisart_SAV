@@ -1,0 +1,269 @@
+{% load static %}
+{% load my_filter %}
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="{% if request.user|has_group:'bg_dark' %}dark{%else%}ligth{%endif%}">
+    <head>
+        <!-- for fontawesome -->
+    <link rel="stylesheet" href="{% static 'fontawesome-free-5.15.2-web/css/all.css' %}">
+    <script  src="{% static 'fontawesome-free-5.15.2-web/js/all.min.js' %}"></script>
+
+    <!--Bootstrap5-->
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-5.3.2-dist/css/custom.css' %}?{{10|randomfile}}">
+    <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}?{{10|randomfile}}"></script>
+
+    <!-- for jquery -->
+    <script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+
+    {% block javascript %}
+    {%endblock%}
+
+
+    <title>{%block Titre%}SolisTool Aide{%endblock%}</title>
+    <link rel="shortcut icon" href="{% static 'image/favicon2.ico' %}" />
+    <style>
+        body {
+            position: relative;
+          }
+        #scrollspy-container {
+            overflow-y: scroll;
+            position: relative;
+        }
+        .scrollspy-section {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        #list-example {
+            max-height: 400px;
+            overflow-y: auto;
+            position: sticky;
+            top: 10px;
+        }
+        
+    </style>
+    </head>
+    <body data-bs-spy="scroll" data-bs-target="#navbar-example">
+        <div class="container">
+            <div class="row m-5">
+                <div class="col-12 text-center">
+                    <h1>Page d'Aide</h1>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <div class="list-group sticky-top" id="list-example">
+                        <a class="list-group-item list-group-item-action" href="#p1"><b>1. Tronc commun</b></a>
+                        <a class="list-group-item list-group-item-action ps-3" href="#p1-1">1.1 Navigation</a>
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-1">1.1.1 Recherche d'installation</a>
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-2">1.1.2 Transfert et conversion de données</a>                        
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-3">1.1.3 Gestion cadencement de production</a>                       
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-4">1.1.4 Traçabilité et gestion de lot</a>                       
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-5">1.1.5 Suivi des tickets ouverts</a>                       
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-6">1.1.6 Localisation installations - installateur</a>                       
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-7">1.1.7 Statistiques sur les tickets</a>                       
+                        <a class="list-group-item list-group-item-action ps-5" href="#p1-1-8">1.1.8 Suivi des versions de document</a>
+                        <a class="list-group-item list-group-item-action ps-3" href="#p1-2">1.2 Espace utilisateur</a>
+                        {% block nav %}{%endblock%}
+                    </div>
+                </div>
+                <div class="col-9">
+                    <div id="scrollspy-container" data-bs-spy="scroll" data-bs-target="#list-example" data-bs-offset="0" class="scrollspy-example scroll" tabindex="0">
+                        <div id="p1">
+                            <h2><u>1. Tronc commun</u></h2>
+                        </div>
+                        <div id="p1-1">
+                            <h3 class="ps-3">1.1 Navigation</h3>
+                            <img src="../static/image/navigation.png" class="rounded mx-auto d-block">
+                            <p>Cette barre de navigation permet d'aller facilement sur toutes les différentes applicationS de SolisTools. Elle comporte:</p>
+                            <ul>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fa fa-search" data-fa-transform="shrink-8"></i>
+                                    </span>Pour retrouver rapidement une installation ou une personne
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
+                                    </span>Pour le transfert de données en base de données et lecture de json installation
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
+                                    </span>Pour la gestion de cadencement de production
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-box-open" data-fa-transform="shrink-8"></i>
+                                    </span>Pour la gestion de lot 
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
+                                    </span>Pour le suivi les tickets ouverts
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
+                                    </span>Pour localiser les installations et leurs installateurs
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
+                                    </span>Pour le traitement statistique des tickets
+                                </li>
+                                <li>
+                                    <span class="fa-layers fa-fw fa-2x">
+                                        <i class="far fa-circle " style="color:#BFB306"></i>
+                                        <i class="fas fa-book" data-fa-transform="shrink-8"></i>
+                                    </span>Pour avoir un gestionnaire de version de document
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="p1-1-1">
+                            <h3 class="ps-4">1.1.1 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fa fa-search" data-fa-transform="shrink-8"></i>
+                                </span>Recherche d'installation
+                            </h3>
+                            <p>Le solistools est capable de retrouver une installation et/ou une personne à partir d'une partie de :
+                            </p>
+                            <ul>
+                                <li>Nom</li>
+                                <li>Prénom</li>
+                                <li>Numéro de téléphone</li>
+                                <li>Email</li>
+                                <li>N° d'installation</li>
+                                <li>Code postal</li>
+                                <li>Ville</li>
+                                <li>Données Héraklès:
+                                    <ul>
+                                        <li>Bon de livraison</li>
+                                        <li>Bon de Commande</li>
+                                        <li>Devis</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="p1-1-2">
+                            <h3 class="ps-4">1.1.2 
+                                <span class="fa-layers fa-fw ">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
+                                </span>Transfert et conversion de données
+                            </h3>
+                            <p>
+                                Cette page comporte 3 grosses parties:
+                                <ul>
+                                    <li>Convertion des json de l'installation vers schéma exe, hydro et fichier csv de configuration d'installation</li>
+                                    <li>Importer des csv depuis my.solisart.fr pour les ayants droits que sont:</li>
+                                        <ul>
+                                            {% for admin in admins%}
+                                            <li>{{admin}}</li>
+                                            {%endfor%}
+                                        </ul>
+                                    <li>Exporter les prix d'Héraklès vers le site commercial pour l'application de chiffrage en ligne</li>
+                                </ul>
+                            </p>
+                            
+                        </div>
+                        <div id="p1-1-3">
+                            <h3 class="ps-4">1.1.3 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
+                                </span>Gestion cadencement de production
+                            </h3>
+                            <p> Cette page permet d'avoir et de faire un suivi de production sous format de diagramme de Gantt ou de liste d'événement à faire. Elle est
+                                relié directement à la création de carte de carte de régulation et la traçabilité.
+                            </p>
+                        </div>
+                        <div id="p1-1-4">
+                            <h3 class="ps-4">1.1.4 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-box-open" data-fa-transform="shrink-8"></i>
+                                </span>Traçabilité et gestion de lot
+                            </h3>
+                            <p> Cette page renseigne tous les lots qui ont été créé et elle permet de suivre leur validation et leur impact sur 
+                                les installations en cas de défaillance d'un organe.
+                            </p>
+                        </div>
+                        <div id="p1-1-5">
+                            <h3 class="ps-4">1.1.5 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
+                                </span>Suivi des tickets ouverts
+                            </h3>
+                            <p> Cette page renseigne tous les tickets qui ne sont pas encore fermés. 
+                            </p>
+                        </div>
+                        <div id="p1-1-6">
+                            <h3 class="ps-4">1.1.6 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
+                                </span>Localisation installations - installateur
+                            </h3>
+                            <p> Cette page permet de visualiser:
+                                <ul>
+                                    <li>Tous les installations dont les coordonnées de geolocalisées sont rentrées</li>
+                                    <li>Tous les installateurs dont les coordonnées de geolocalisées sont rentrées</li>
+                                    <li>De visualiser les différentes zones de chaque chargée d'affaire</li>
+                                    <li>D'avoir toutes les informations (chargé d'affaire, altitude, température de base, ...) d'une adresse</li>
+                                </ul>
+                            </p>
+                        </div>
+                        <div id="p1-1-7">
+                            <h3 class="ps-4">1.1.7 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
+                                </span>Statistiques sur les tickets (Nombres, catégorie, coût associé), suivi des non-conformités
+                            </h3>
+                            <p> Cette page renseigne tous les tickets qui ne sont pas encore fermés. 
+                            </p>
+                        </div>
+                        <div id="p1-1-8">
+                            <h3 class="ps-4">1.1.8 
+                                <span class="fa-layers fa-fw">
+                                    <i class="far fa-circle " style="color:#BFB306"></i>
+                                    <i class="fas fa-book" data-fa-transform="shrink-8"></i>
+                                </span>Suivi des versions de document
+                            </h3>
+                            <p> Cette page permettait de connaître les différents version de documents dans le temps.
+                            </p>
+                        </div>
+                        <div id="p1-2">
+                            <h3 class="ps-3">1.2 Espace utilisateur</h3>
+                            <img src="{{ HTTP_HOST }}/static/image/EspaceUtilisateur.png" class="rounded mx-auto d-block">
+                            <p>Ce menu déroulant permet dans l'ordre de:</p>
+                            <ul>
+                                <li>Accéder à sa page utilisateur</li>
+                                <li>Changer son thème sur le SolisTools</li>
+                                <li>Modifier son mot de passe</li>
+                                <li>Ajouter un nouvel utilisateur avec au moins les mêmes droits</li>
+                                <li>Se déconnecter</li>
+                            </ul>                            
+                        </div>
+                        {% block content %}
+                        {%endblock%}
+                    </div>
+                </div>
+            </div>
+    </body>
+    <script>
+    {% block script %}    
+    {%endblock%}
+    </script>
+</html>    

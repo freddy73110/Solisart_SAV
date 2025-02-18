@@ -1035,9 +1035,15 @@ class CL_Form(ModelForm):
                 )
             )
         else:
-            tu = installation.objects.filter(cl_herakles__installation__isnull = True).values_list("id", "idsa")
-            self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu)
-            self.fields["installation"].initiale = self.initial['installation']
+            if self.initial['installation']:
+                tu = installation.objects.filter(cl_herakles__installation__isnull = True).values_list("id", "idsa")
+                tu2 = installation.objects.filter(id = self.initial['installation']).values_list("id", "idsa")
+                self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu) + tuple(tu2)
+                self.fields["installation"].initiale = self.initial['installation']
+            else:
+                tu = installation.objects.filter(cl_herakles__installation__isnull = True).values_list("id", "idsa")
+                self.fields["installation"].choices = (("","Aucun affectation" ), ) + tuple(tu)
+                
             self.fields["date_ballon"].widget = HiddenInput()
             self.fields["date_prepa_carte"].widget = HiddenInput()
             self.fields["date_prepa"].widget = HiddenInput()

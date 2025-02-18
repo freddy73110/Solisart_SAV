@@ -7,7 +7,7 @@
 {%block article%}
 <ul>
 {% for instal in installations%}
-<li><a href="{% url 'sav:utilisateur' instal.id %}" target="_blank">{{instal}}</a></li>
+<li><a href="{% url 'sav:installation' instal.id %}" target="_blank">{{instal}}</a></li>
 {%endfor%}
 </ul>
 {%endblock%}

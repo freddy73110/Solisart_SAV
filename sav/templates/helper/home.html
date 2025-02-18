@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{% extends "helper/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block javascript %}
+{%endblock%}
+
+{%block Titre%}{{title}}{%endblock%}
+
+{% block nav %}
+<a class="list-group-item list-group-item-action" href="#p2"><b>2. Page de recherche</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="#p2-1">2.1 Recherche par utilisateur</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p2-2">2.2 Recherche par installation</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p2-2">2.3 Recherche par données Héraklès</a>
+<a class="list-group-item list-group-item-action" href="#p3"><b>3. Page Installation</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/installation/#p3-1">3.1 Description</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/installation/#p3-2">3.2 Historique</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/installation/#p3-3">3.3 Accès - Installateur proches</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/installation/#p3-4">3.4 Bon de commande lié</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/installation/#p3-5">3.5 Non conformité</a>
+{%endblock%}
+
+
+{% block content %}
+<div id="p2">
+  <h2><u>2. Page de recherche</u></h2>
+  <p>Il existe 3 groupes de recherche:</p>
+  <ul>
+    <li>par information sur l'utilisateur</li>
+    <li>par information sur l'installation</li>
+    <li>par information Héraclès</li>
+  </ul>
+  <p>Les informations rentrées pour faire une recherche peuvent-être une partie du mot. Par exemple, si vous rentrez "mar" dans le nom d'utilisateur,
+     il sortira tous les noms avec "mar": "Martin", "Martinez" mais aussi "Pamars".</p>
+  <p>Par groupe de recherche, vous pouvez ajouter plusieurs niveau comme "Module" = "2024" et code postal = "74", pour obtenir pour les installations 
+    de 2024 situé dans le département 74.</p>  
+  <p>Pour lancer une recherche, après avoir effectué votre saisi, il vous suffit d'appuyer sur votre touche "Entrée".
+  </p> 
+</div>
+<div id="p2-1">
+  <h3 class="ps-3">2.1 Recherche par utilisateur</h3>
+  <img src="{{ HTTP_HOST }}/static/image/RechercehUtilisateur.png" class="rounded mx-auto d-block img-fluid">
+  <p>Cette recherche sortira tous les utilisateurs et les installations en rapport avec la partie de mot clé entrée.</p>
+  <p> Pour le cas du nom, le Solistools recherche également dans id de l'installation (surtout valable pour les anciennes installation avec ID = NOMdeFAMILLE).</p>                  
+</div>
+<div id="p2-2">
+  <h3 class="ps-3">2.2 Recherche par installation</h3>
+  <img src="{{ HTTP_HOST }}/static/image/RechercehInstallateur.png" class="rounded mx-auto d-block img-fluid">
+  <p>Cette recherche sortira tous les installations en rapport avec la partie de mot clé entrée.</p>
+  <p>Pour le code postal et la ville, le Solistools recherche dans tous les renseignements enregistrés dans my.solisart.fr dans la rubrique "information".</p> 
+  <p>Pour la recheche par module, le Solistools recherche dans toutes les noms d'installations. Si vous tapez, "202449" vous obtiendrez toutes les 
+    installations de 2024 faites la 49ième semaine.</p>                 
+</div>
+<div id="p2-3">
+  <h3 class="ps-3">2.3 Recherche par données Héraklès</h3>
+  <img src="{{ HTTP_HOST }}/static/image/RechercehHerakles.png" class="rounded mx-auto d-block img-fluid">
+  <p>Cette recherche sortira tous les installations ou les commandes en rapport avec la partie de mot clé entrée.</p>
+  <p>Si vous rentrez une partie de numéro de devis ou de bon de commande, le SolisTools vous sortira toutes les installations avec un ticket qui a un devis ou bon de commande relié
+     qui comporte le mot clé saisi.</p> 
+  <p>Pour la recheche par commande, le Solistools sortira soit un lien vers le bon de commande dans la partie Production soit la commande n'est pas finalisée soit l'installation
+     liée au bon de commande.</p>                 
+</div>
+ {%endblock%}
+ {% block script %}
+
+  document.getElementById('p2').scrollIntoView({behavior: 'smooth'});
+
+
+ {%endblock%}

@@ -62,7 +62,6 @@ def save_result_celery(args, kwargs, status, result):
 def wrapperscapping(func, kwargs):
     from .scrapping import scrappingMySolisart
 
-    print(kwargs)
     return getattr(scrappingMySolisart(), func)(kwargs)
 
 
@@ -558,6 +557,16 @@ def actualise_date_livraison_CL():
                 transp = transporteur.objects.get(nom=trans[0])
             CL.transporteur = transp
             CL.save()
+    
+    for CL in CL_herakles.objects.filter(
+                    installation__isnull = False,
+                    BL__isnull = False,
+                    date_livraison__isnull = False).order_by('CL'):
+            if CL.date_livraison <  timezone.now().date() - timedelta(days=10):
+                for field in [ 'date_capteur', 'date_ballon', 'date_montage', 'date_prepa_carte', 'date_prepa']:
+                    if not getattr(CL,field):
+                        setattr(CL,field,timezone.now().date())
+                CL.save()
 
     send_channel_message(
         "production",
@@ -1149,6 +1158,7 @@ def TestGTC(*args, **kwargs):
 
 @shared_task
 def TestGTCdownload(*args, **kwargs):
+
     from django.core.mail import EmailMessage
     from email.mime.base import MIMEBase
     from email import encoders
@@ -1172,3 +1182,91 @@ def TestGTCdownload(*args, **kwargs):
         email.attach(part)
 
     email.send()
+
+import urllib
+import urllib.parse
+import urllib.request
+import base64
+import xml.etree.ElementTree
+import json
+import datetime
+import sys, os
+
+#============== Zone de Personnalisation ====================== 
+
+
+
+LOGIN = "freddy.dubouchet@solisart.fr"
+PASS = "G2poilOQ"
+ID = "LAGRANGE"
+
+
+
+
+#============== Fin Zone de Personnalisation - Ne rien toucher en dehors de cette zone ====================== 
+
+DOMAIN = "https://my.solisart.fr"
+URL_DATA = "/admin/divers/ajax/lecture_installations.php"
+URL_DICT = "/admin/divers/js/solisart/commun-donnees.1702435180.js"
+IHM = "admin"
+CONNEXION = "Se Connecter"
+
+login = {'id': LOGIN, 'pass': PASS, 'ihm': IHM, 'connexion': CONNEXION}
+loginbytes = urllib.parse.urlencode(login).encode()
+
+def logInSolisart(LOGIN,PASS, domain=DOMAIN):
+    loginRequest = urllib.request.Request("{domain}{path}".format(domain=domain, path="/"), data=loginbytes, method='POST')
+    loginRequest.add_header("Content-Type", "application/x-www-form-urlencoded")
+    loginResponse = urllib.request.urlopen(loginRequest, loginbytes)
+    cookie = loginResponse.getheader("Set-Cookie").split(";")[0]
+    loginRequest.add_header("Cookie", cookie)
+    urllib.request.urlopen(loginRequest, loginbytes)
+    return cookie
+
+def getValues(cookie, id, domain=DOMAIN):
+    id = "installations"
+    requestData = {        
+        'filtre': 0,
+        'tri': 0
+    }
+    requestDataBytes = urllib.parse.urlencode(requestData).encode()
+    req = urllib.request.Request("{domain}{path}".format(domain=domain, path=URL_DATA), data=requestDataBytes, method='POST')
+    req.add_header("Cookie", cookie)
+    resp = urllib.request.urlopen(req, requestDataBytes)
+    data = resp.read()
+    return data
+
+@shared_task
+def ActualiseInstallationByScapping(*args, **kwargs):
+
+    try:
+        cookie = logInSolisart(LOGIN, PASS )
+        xmldata = getValues(cookie, ID)
+        xml_str = xmldata
+        root = xml.etree.ElementTree.fromstring(xml_str)
+        html_value = root.attrib.get("html")
+        html_decoded = base64.b64decode(html_value, validate=True).decode("latin-1")
+
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html_decoded, "lxml")
+        tables = soup.findChildren('table')
+        my_table = tables[0]
+        rows = my_table.findChildren(['th', 'tr'])
+        installs = [r.find_all('td')[0].find_all('a')[1].get_text() for r in rows[1:]]
+        install_created = 0
+        for instal in installs:
+            if not installation.objects.filter(idsa=instal).exists():
+                installation.objects.create(idsa=instal)
+                install_created+=1
+        
+        save_result_celery(
+        "args", {}, "SUCCESS", str(install_created) + " nouvelles installations de créer"
+    )
+    except Exception as ex:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        print(ex)
+        save_result_celery(
+        "args", {}, "ERROR", exc_type +" "+ fname+" "+ exc_tb.tb_lineno)
+    

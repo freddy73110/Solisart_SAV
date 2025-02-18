@@ -672,12 +672,10 @@ class scrappingMySolisart:
 
                 # Créer config.csv depuis le json
                 from .convertjson import convertjson
-
+                name = dict_schematic["formulaire"]["nom_client"].upper() if "formulaire" in dict_schematic else dict_schematic["nom_client"].upper()
                 msg = convertjson.jsontocsv(
-                    installation_SN=installation,
-                    installation_name=dict_schematic["formulaire"][
-                        "nom_client"
-                    ].upper(),
+                    installation_SN=installation,                    
+                    installation_name=name,
                     path=os.path.join(os.path.dirname(__file__), "temp", "config.csv"),
                     dicttoconvert=dict_schematic,
                 )

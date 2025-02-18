@@ -89,108 +89,108 @@
 <div class="row">
     <div class="col-12">
         <nav class="navbar navbar-expand-md navbar-white">
-        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
-
-        </div>
-    <div class="mx-auto order-0 {% if debug %}bg-secondary rounded{%endif%}">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:home' %}" data-bs-container="body" data-bs-toggle="popover" title='Rechercher' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fa fa-search" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-3 snipperclick"
-                   href="{% url 'sav:updateDB' %}"
-                   data-bs-container="body"
-                   data-bs-toggle="popover"
-                   title='Import - Export de Données'
-                   data-bs-trigger="hover"
-                   data-placement="bottom"
-                   data-bs-content='Importer les datas depuis MySolisArt
-                   Export prix vers site commerciale'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:production' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion de production' data-bs-trigger="hover" data-placement="bottom" data-bs-content="Calendrier de cadencement de production">
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:batch' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion des lot marchandise' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Création et suivi des lot'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-box-open" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:ticket' %}" data-bs-container="body" data-bs-toggle="popover" title='Suivi des tickets' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Suivi des tickets'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:map' %}" data-bs-container="body" data-bs-toggle="popover" title='Map' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Localisation de toutes les installations'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:statistiques' %}" data-bs-container="body" data-bs-toggle="popover" title='Statistiques' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Statistiques'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:bibliotheque' %}" data-bs-container="body" data-bs-toggle="popover" title='Bibliothèque' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Bibliothèque'>
-                    <span class="fa-layers fa-fw fa-4x">
-                        <i class="far fa-circle " style="color:#BFB306"></i>
-                        <i class="fas fa-book" data-fa-transform="shrink-8"></i>
-                    </span>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <div class="navbar-collapse w-100 order-3 d-flex">
-        <ul class="navbar-nav ps-5">
-            <li class="nav-item">
-                {% if user.is_authenticated %}
-            <div class="dropdown float-right">
-              <button type="button" class="btn btn-outline-primary dropdown-toggle m-3" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="far fa-user x-2"></i>
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" id="bgmode">{% if request.user|has_group:'bg_dark' %}<i class="fas fa-moon"></i> Mode sombre{%else%}<i class="fas fa-sun"></i> Mode claire{%endif%}</a></li>
-                    <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'sav:AjoutUtilisateur' %}"><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a></li>
-              </ul>
+            <div class="navbar-collapse w-100 order-1 align-items-end">
+                <a class="btn btn-outline-primary m-auto" href="/help{{ request.path }}" target="_blank"><i class="far fa-question-circle fa-lg"></i></a>
             </div>
-        {%endif%}
-            </li>
-        </ul>
-    </div>
-</nav>
+            <div class="mx-auto order-2 {% if debug %}bg-secondary rounded{%endif%}">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:home' %}" data-bs-container="body" data-bs-toggle="popover" title='Rechercher' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Recherche par utilisateur ou par installation'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fa fa-search" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-3 snipperclick"
+                        href="{% url 'sav:updateDB' %}"
+                        data-bs-container="body"
+                        data-bs-toggle="popover"
+                        title='Import - Export de Données'
+                        data-bs-trigger="hover"
+                        data-placement="bottom"
+                        data-bs-content='Importer les datas depuis MySolisArt
+                        Export prix vers site commerciale'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-exchange-alt" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:production' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion de production' data-bs-trigger="hover" data-placement="bottom" data-bs-content="Calendrier de cadencement de production">
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-calendar-check" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:batch' %}" data-bs-container="body" data-bs-toggle="popover" title='Gestion des lot marchandise' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Création et suivi des lot'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-box-open" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-45 snipperclick" href="{% url 'sav:ticket' %}" data-bs-container="body" data-bs-toggle="popover" title='Suivi des tickets' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Suivi des tickets'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fa fa-inbox" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-4 snipperclick" href="{% url 'sav:map' %}" data-bs-container="body" data-bs-toggle="popover" title='Map' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Localisation de toutes les installations'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-map-marker-alt" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-3 snipperclick" href="{% url 'sav:statistiques' %}" data-bs-container="body" data-bs-toggle="popover" title='Statistiques' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Statistiques'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-chart-bar" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item mt-1 snipperclick" href="{% url 'sav:bibliotheque' %}" data-bs-container="body" data-bs-toggle="popover" title='Bibliothèque' data-bs-trigger="hover" data-placement="bottom" data-bs-content='Bibliothèque'>
+                            <span class="fa-layers fa-fw fa-4x">
+                                <i class="far fa-circle " style="color:#BFB306"></i>
+                                <i class="fas fa-book" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-collapse w-100 order-3 d-flex">
+                <ul class="navbar-nav ps-5">
+                    <li class="nav-item">
+                        {% if user.is_authenticated %}
+                    <div class="dropdown float-right">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle m-3" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="far fa-user x-2"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="{% url 'sav:utilisateur' pk=user.id %}"><b><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</b></a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" id="bgmode">{% if request.user|has_group:'bg_dark' %}<i class="fas fa-moon"></i> Mode sombre{%else%}<i class="fas fa-sun"></i> Mode claire{%endif%}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'sav:AjoutUtilisateur' %}"><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a></li>
+                    </ul>
+                    </div>
+                {%endif%}
+                    </li>
+                </ul>
+            </div>
+        </nav>
     </div>
 </div>
 <div class="container">

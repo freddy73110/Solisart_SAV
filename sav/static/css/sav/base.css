@@ -151,7 +151,7 @@ ul.nav li a.active {
 
 ul {
   list-style: none; /* Supprime les puces par défaut */
-  padding: 0; /* Supprime l'espace de padding */
+  /* padding: 0; Supprime l'espace de padding */
 }
 
 

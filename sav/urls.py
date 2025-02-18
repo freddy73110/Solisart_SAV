@@ -1,5 +1,5 @@
 from django.urls import path, include
-from django.urls import re_path as url
+from django.urls import re_path
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 
@@ -7,6 +7,7 @@ from . import views
 
 urlpatterns = [
     path("", login_required(views.home.as_view()), name="home"),
+    re_path(r'^help/(?P<path>([^/]+/)*)$', login_required(views.Help.as_view()), name="help"),
     path("updateDB", login_required(views.updateDB.as_view()), name="updateDB"),
     path(
         "installation/<int:pk>",
