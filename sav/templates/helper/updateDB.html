@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% extends "helper/base.html" %}
+{% load crispy_forms_tags %}
+{% load my_filter %}
+{% load static %}
+
+{% block javascript %}
+{%endblock%}
+
+{%block Titre%}{{title}}{%endblock%}
+
+{% block nav %}
+<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p2"><b>2. Page de recherche</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-1">2.1 Recherche par utilisateur</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.2 Recherche par installation</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.3 Recherche par données Héraklès</a>
+<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p3"><b>3. Page Installation</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-1">3.1 Description</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-2">3.2 Historique</a>
+<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-2-1">3.2.1 Ajouter/Modifier un ticket</a>
+<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-2-2">3.2.2 Ajouter/Modifier une Non Conformité</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-3">3.3 Accès - Installateurs à proximité</a>
+<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-3-1">3.3.1 Accès</a>
+<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-3-2">3.3.2 Installateur à proximité</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-4">3.4 Bon de commande lié</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-5">3.5 Non conformité</a>
+<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p4"><b>4. Page utilisateur</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-1">4.1 Description</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-2">4.2 Information Héraklès</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-3">4.3 Tickets</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-4">4.4 Evaluation</a>
+<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-5">4.5 Bilan SAV</a>
+<a class="list-group-item list-group-item-action" href="#p5"><b>5. Transfert entre base de donnée</b></a>
+<a class="list-group-item list-group-item-action ps-3" href="#p5-1">5.1 Générer schéma à partir json</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p5-2">5.2 Importer depuis my.solisart.fr</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p5-3">5.3 Exporter vers site commercial</a>
+{%endblock%}
+
+{% block content %}
+<div id="p5">
+    <h2><u>5. Transfert entre base de donnée</u></h2>
+    <p>Cette page permet de récupérer ou d'envoyer des données pour rafraichir les bases de données entre elles.</p>   
+    <p>Elle comporte 3 onglets:</p> 
+    <ul>
+      <li><i class="fas fa-map-signs"></i> Générer schéma à partir json</li>
+      <li><i class="fas fa-download"></i> Importer depuis my.solisart.fr</li>
+      <li><i class="fas fa-upload"></i> Exporter vers site commercial</li>
+    </ul>
+</div>
+{%endblock%}
+
+{% block script %}
+document.getElementById('p5').scrollIntoView({behavior: 'smooth'});
+{%endblock%}

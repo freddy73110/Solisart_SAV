@@ -1,10 +1,21 @@
+function getISOWeekNumber(date) {
+    const target = new Date(date.valueOf());
+    const dayNumber = (date.getDay() + 6) % 7; // Ajuste pour que lundi = 0, dimanche = 6
+    target.setDate(target.getDate() - dayNumber + 3); // Se place au jeudi de la semaine actuelle
+    const firstThursday = new Date(target.getFullYear(), 0, 4);
+    const weekNumber = Math.ceil(((target - firstThursday) / 86400000 + firstThursday.getDay() + 1) / 7);
+    return weekNumber;
+}
+
 $("#typeInstallation").on('change', function(){
     var years = new Date().getFullYear()
-    currentDate = new Date();
-    startDate = new Date(currentDate.getFullYear(), 0, 1);
-    var days = Math.floor((currentDate - startDate) /
-        (24 * 60 * 60 * 1000));            
-    var weekNumber = ("0" +Math.ceil(days / 7)).slice(-2);
+    // currentDate = new Date();
+    // currentDate.setDate(currentDate.getDate() + 2 )
+    // console.log("coucou", currentDate)
+    // startDate = new Date(currentDate.getFullYear(), 0, 1);
+    // var days = Math.floor((currentDate - startDate) /
+    //     (24 * 60 * 60 * 1000));            
+    var weekNumber = ("0" + getISOWeekNumber(new Date()) ).slice(-2);
     data = {"installExiste": years.toString() + weekNumber.toString()}
     $.ajax({
          url: window.location.href,

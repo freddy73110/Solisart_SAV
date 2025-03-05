@@ -21,6 +21,11 @@ h1 {
   color:black
 }
 
+.border-main path {
+  stroke: black;
+  stroke-width: 10;
+}
+
 /* .form-floating label, span.input-group-text{
   color:#BFB306;
   font-weight: bold;

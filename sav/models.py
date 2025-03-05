@@ -715,9 +715,9 @@ class profil_user(models.Model):
         if eval or eval == 0:
             for i in range(round(eval)):
                 if i + 1 <= eval:
-                    star_text += '<i class="fas fa-star" style="color:yellow"></i>'
+                    star_text += '<i class="fas fa-star border-main" style="color:yellow"></i>'
                 elif i + 1 > eval and i < round(eval):
-                    star_text += '<i class="fas fa-star-half" style="color:yellow"></i>'
+                    star_text += '<i class="fas fa-star-half border-main" style="color:yellow"></i>'
             if star_text == "":
                 star_text = '<i class="far fa-star"></i>'
         return star_text

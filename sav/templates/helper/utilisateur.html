@@ -29,12 +29,83 @@
 <a class="list-group-item list-group-item-action ps-3" href="#p4-2">4.2 Information Héraklès</a>
 <a class="list-group-item list-group-item-action ps-3" href="#p4-3">4.3 Tickets</a>
 <a class="list-group-item list-group-item-action ps-3" href="#p4-4">4.4 Evaluation</a>
+<a class="list-group-item list-group-item-action ps-3" href="#p4-5">4.5 Bilan SAV</a>
 {%endblock%}
 
 {% block content %}
 <div id="p4">
   <h2><u>4. Page utilisateur</u></h2>
-  <p></p>
+  <p>La page utilisateur regroupe toutes les informations relatives à un utilisateur enregistré dans my.solisart.fr.</p>   
+  <img src="{{ HTTP_HOST }}/static/image/utilisateur.png" class="rounded mx-auto d-block img-fluid">
+  <p>Le nom de l'utilisateur est suivi par des icônes représentant son status:</p> 
+  <ul>
+    <li><i class="fas fa-users-cog m-1"></i> Administrateur</li>
+    <li><i class="fas fa-screwdriver m-1"></i> Technicien</li>
+    <li><i class="fas fa-tools m-1" ></i> Installateur</li>
+    <li><i class="fas fa-house-user m-1"></i> Propriétaire</li>
+  </ul>
+  <p>La carte pointe l'adresse de l'installateur en rouge si c'est un installateur et toutes les installations liées à l'utilisateur.
+    En cliquant, sur les pointeurs jaunes, un popup apparaît avec un lien vers l'installation en question. Il est possible de repositionner 
+    le pointeur installateur avec en cliquer-déplacer.
+  </p>
+  <p>Pour accéder directement à l'utilisateur sur my.solisart.fr, il suffit de cliquer sur le logo Solisart.</p>
+  <p>Le tableau regroupe le listing de toutes les installations liées à l'utilisateur avec des liens directs sur les installations et le propriétaire.</p>
+  <p>Dans l'ordre des onglets qu'il est possible de visualiser:</p>
+  <ul>
+    <li>Description</li>
+    <li>Information Héraklès pour les installateurs</li>
+    <li>Tickets en relation avec l'utilisateur</li>
+    <li>Evaluation</li>
+    <li>Bilan SAV pour les commerciaux</li>
+  </ul>
+</div>
+<div id="p4-1">
+  <h3 class="ps-3">4.1 Description</h3>
+  <p>La partie général regroupe des informations sortie de la page utilisateur de my.solisart.fr. Elles sont quand même modifiables.</p>  
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurGeneral.png" class="rounded mx-auto d-block img-fluid">
+  <p>La partie détail regroupe des informations sorties de la page utilisateur de my.solisart.fr. Elles sont elles aussi modifiables.
+    Le champs de choix sélectionnable "Client Héraklès" apparait que si l'utilisateur a au moins un status installateur. Il permet
+    de faire le lien entre le SolisTools et Héraklès. Il est très utile pour savoir si l'installateur appartient à une COOP.
+  </p>  
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurDetail.png" class="rounded mx-auto d-block img-fluid">
+  <p>Si l'utilisateur appartient à Solisart (is_staff coché) et que c'est un commercial, il est possible de lui affecter une liste de département.</p>
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurCommerciaux.png" class="rounded mx-auto d-block img-fluid">
+  <p><i class="fas fa-exclamation-triangle warning"></i> Le format de la liste est très important! Dés que le commercial a au moins un département d'affecté, 
+  son nom et son numéro de téléphone apparait sur la carte des installations/installateurs. La couleur est la couleur avec laquelle la zone du commercial
+  sera cadrié sur la carte des installations/installateur. Il faut que la case "Recevoir rapport des tickets hebdomadaires" soit cochée pour que le commercial
+  reçoive un bilan SAV par email.</p>
+</div>
+<div id="p4-2">
+  <h3 class="ps-3">4.2 Information Héraklès</h3>
+  <p>Cette partie concerne uniquement les utilisateurs avec le status installateur. Si l'installateur a le champ "Client Héraklès" complété
+    Toutes les informations concernant ce client seront remontés directement depuis Héraklès.
+  </p>  
+  <p>
+    Si vous appuyé sur le  bouton "localiser avec l'adresse", le SolisTools récupère les coordonnées de géolocalisations avec l'adresse depuis internet 
+    et matérialise la géolocalisation avec un pointeur rouge.
+  </p>
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurHerakles.png" class="rounded mx-auto d-block img-fluid">
+</div>
+<div id="p4-3">
+  <h3 class="ps-3">4.3 Tickets</h3>
+  <p>Cette partie répertorie tous les tickets dont utilisateur est lié.
+  </p>  
+</div>
+<div id="p4-4">
+  <h3 class="ps-3">4.4 Evaluation</h3>
+  <p>Tous les utilisateurs peuvent être évalués de 0 étoile (mauvais) à 5 étoiles (Excellent) en fonction de différents critères. Cette évaluation
+     peut être suivi temporellement.
+  </p>  
+  <p>Pour connaître le contenu de l'évaluation sur un critère, il suffit de passer la souris au dessus de la barre représentant l'évaluation.</p>
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurEvaluation.png" class="rounded mx-auto d-block img-fluid">
+  <p>Vous pouvez évaluer un utilisateur en cliquant sur le bouton "Ajouter une évaluation".</p>
+</div>
+<div id="p4-5">
+  <h3 class="ps-3">4.5 Bilan SAV</h3>
+  <p>Cette partie est affiché uniquement pour les utilisateurs commerciaux (ayant une liste de département lui étant affectée). Elle liste le bilan
+     SAV sur toute la zone du commercial pour les x derniers jours.
+  </p>   
+  <img src="{{ HTTP_HOST }}/static/image/utilisateurBilanSAV .png" class="rounded mx-auto d-block img-fluid">
 </div>
 {%endblock%}
 
