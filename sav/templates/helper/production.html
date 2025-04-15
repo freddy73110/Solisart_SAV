@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+{% extends "helper/base.html" %}
+{% load crispy_forms_tags %}
+{% load my_filter %}
+{% load static %}
+
+{% block javascript %}
+{%endblock%}
+
+{%block Titre%}{{title}}{%endblock%}
+
+
+{% block content %}
+<div id="p6">
+    <h2><u>6. Transfert entre base de donnée</u></h2>
+    <p>Cette page permet de récupérer ou d'envoyer des données pour rafraichir les bases de données entre elles.</p>   
+    <p>Elle comporte 3 onglets:</p> 
+    <ul>
+      <li><i class="fas fa-map-signs"></i> Générer schéma à partir json</li>
+      <li><i class="fas fa-download"></i> Importer depuis my.solisart.fr</li>
+      <li><i class="fas fa-upload"></i> Exporter vers site commercial</li>
+    </ul>
+</div>
+<div id="p6-1">
+  <h3 class="ps-3">6.1 Générer schéma à partir json</h3>
+</div>
+{%endblock%}
+
+{% block script %}
+document.getElementById('p6').scrollIntoView({behavior: 'smooth'});
+{%endblock%}

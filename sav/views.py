@@ -1232,7 +1232,6 @@ class Geoinfo:
             self.commercial()
         except:
             pass
-        print(self.geoinfo)
         return self.geoinfo 
 
     def sinceadress(self, adress):
@@ -1592,6 +1591,7 @@ class updateDB(View):
                 "Ãª": "ê",
                 "Ã®": "î",
                 "ã¯":"ï",
+                "Ã¯":"ï",
                 "&#233;": "é",
                 "&#234;": "ê",
                 "&#232;": "è",
@@ -3592,34 +3592,28 @@ class bidouille(View):
     template_name = "sav/bidouille.html"
     title = "Bidouille"
 
-    def get(self, request, *args, **kwargs):        
+    def get(self, request, *args, **kwargs):  
+        installations = installation.objects.filter(
+            attribut_valeur__valeur__icontains = "tovoli"
+        )
+        print(installations)
 
-        from .tasks import ActualiseInstallationByScapping
-        ActualiseInstallationByScapping()
-        # from .tasks import TestGTCdownload
-        # TestGTC(kwargs={"adresseIP": "195.110.34.131","port":"502"})
-        # TestGTCdownload()
-        # for CL in CL_herakles.objects.filter(
-        #             installation__isnull = False,
-        #             BL__isnull = False,
-        #             date_livraison__isnull = False).order_by('CL'):
-        #     if CL.date_livraison <  timezone.now().date() - timedelta(days=10):
-        #         # print(CL, CL.date_livraison,  timezone.now().date() - timedelta(days=10), CL.date_livraison <  timezone.now().date() - timedelta(days=10))
-        #         for field in [ 'date_capteur', 'date_ballon', 'date_montage', 'date_prepa_carte', 'date_prepa']:
-        #             if not getattr(CL,field):
-        #                 setattr(CL,field,timezone.now().date())
-        #                 print(CL, getattr(CL,field), timezone.now().date())
-        #         CL.save()
-                
+
+#         installateur = User.objects.filter(
+#             acces__profil_type__idsa = 3,
+#             profil_user__latitude__isnull = True
+#         ).annotate(
+#     nombre_installations=Count('acces__installation', distinct=True)
+# ).filter(
+#     nombre_installations__gte=2
+# ).distinct()
 
         return render(
             request, 
             self.template_name, 
             {
                 "title": self.title,
-                "installations": CL_herakles.objects.filter(
-                    installation__isnull = False,
-                    BL__isnull = False)
+                "installations": installations
                 }
         )
 
@@ -5173,7 +5167,7 @@ class assemblyView(View):
         if kwargs:
             if "pkCL" in kwargs:
                 self.CL = CL_herakles.objects.get(pk=kwargs.pop("pkCL"))
-                self.title +=  '<br>Commande ' + str(self.CL.module)+ ': ' + str(self.CL)
+                self.title +=  '<br> Commande ' + str(self.CL.module)+ ': ' + str(self.CL)
         self.assemblyFormset = formset_factory(Assembly_form, extra=0)
         self.AssemblyFormsetINITIAL = []
         for vali in validationModule.objects.filter(type=0).order_by('id'):

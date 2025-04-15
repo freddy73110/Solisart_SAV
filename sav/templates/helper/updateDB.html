@@ -9,32 +9,6 @@
 
 {%block Titre%}{{title}}{%endblock%}
 
-{% block nav %}
-<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p2"><b>2. Page de recherche</b></a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-1">2.1 Recherche par utilisateur</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.2 Recherche par installation</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p2-2">2.3 Recherche par données Héraklès</a>
-<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p3"><b>3. Page Installation</b></a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-1">3.1 Description</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-2">3.2 Historique</a>
-<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-2-1">3.2.1 Ajouter/Modifier un ticket</a>
-<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-2-2">3.2.2 Ajouter/Modifier une Non Conformité</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-3">3.3 Accès - Installateurs à proximité</a>
-<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-3-1">3.3.1 Accès</a>
-<a class="list-group-item list-group-item-action ps-5" href="{{ HTTP_HOST }}/help/#p3-3-2">3.3.2 Installateur à proximité</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-4">3.4 Bon de commande lié</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p3-5">3.5 Non conformité</a>
-<a class="list-group-item list-group-item-action" href="{{ HTTP_HOST }}/help/#p4"><b>4. Page utilisateur</b></a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-1">4.1 Description</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-2">4.2 Information Héraklès</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-3">4.3 Tickets</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-4">4.4 Evaluation</a>
-<a class="list-group-item list-group-item-action ps-3" href="{{ HTTP_HOST }}/help/#p4-5">4.5 Bilan SAV</a>
-<a class="list-group-item list-group-item-action" href="#p5"><b>5. Transfert entre base de donnée</b></a>
-<a class="list-group-item list-group-item-action ps-3" href="#p5-1">5.1 Générer schéma à partir json</a>
-<a class="list-group-item list-group-item-action ps-3" href="#p5-2">5.2 Importer depuis my.solisart.fr</a>
-<a class="list-group-item list-group-item-action ps-3" href="#p5-3">5.3 Exporter vers site commercial</a>
-{%endblock%}
 
 {% block content %}
 <div id="p5">
@@ -46,6 +20,35 @@
       <li><i class="fas fa-download"></i> Importer depuis my.solisart.fr</li>
       <li><i class="fas fa-upload"></i> Exporter vers site commercial</li>
     </ul>
+</div>
+<div id="p5-1">
+  <h3 class="ps-3">5.1 Générer schéma à partir json</h3>
+  <p>A partir du json généré sur la schémathèque en ligne, le Solistools permet de visualiser et de télécharger simultanément:
+  </p>
+  <ul>
+    <li>En cliquant sur hydraulique: le schéma hydraulique </li>
+    <li>En cliquant sur Exe: le schéma de connexion du module</li>
+    <li>En cliquant sur fiche de prod : la fiche de production</li>
+    <li>En cliquant config: le fichier csv injectable directement à une installation.</li>
+  </ul>
+  <p>Dans le dernier cas, pour personnaliser l'installation, il faut ouvrir le fichier csv, et remplacer dans la ligne 3, ADefinir
+     par le numéro de l'installation (SC2M202....) et ligne 4 install par le nom du pripriétaire en majuscule (DUPONT).
+  </p>
+</div>
+<div id="p5-2">
+  <h3 class="ps-3">5.2 Importer depuis my.solisart.fr</h3>
+  <p>Cet onglet permet de connaître la dernière mise à jour de la base de données du Solistools par my.solisart</p>
+  <p>Pour les personnes ayants droit:</p>
+  <ul>
+    {% for ad in admins %}
+    <li>{{ad}}</li>
+    {%endfor%}
+  </ul>
+  <p> il permet de faire les importations d'une base à l'autre</p>
+</div>
+<div id="p5-3">
+  <h3 class="ps-3">5.3 Exporter vers site commercial</h3>
+  <p>Cet onglet permet de faire la mise à jour de la base de données du site de devis en ligne avec Héraklès. Cela sert à actualiser les prix.</p>
 </div>
 {%endblock%}
 

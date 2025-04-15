@@ -42,6 +42,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 <h2>Liste des tickets ouverts ses 10 derniers jours:</h2>
 <table>
  <thead>
+  <th>Date d'ouverture</th>
   <th>Installation</th>
   <th>Propriétaire</th>
   <th>Installateur</th>
@@ -55,6 +56,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
  <tbody>
   {% for t in ticketscree %}
   <tr>
+   <td>{{t.evenement.date}}</td>
    <td>{{t.evenement.installation}}</td>
    <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
    <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur.icon4email|safe}}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
@@ -73,6 +75,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 <h2>Liste des tickets encore ouverts:</h2>
 <table>
  <thead>
+  <th>date</th>
   <th>Installation</th>
   <th>Propriétaire</th>
   <th>Installateur</th>
@@ -86,6 +89,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
  <tbody>
   {% for t in ticketsencours %}
   <tr>
+    <td>{{t.evenement.date}}</td>
     <td>{{t.evenement.installation}}</td>
     <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
     <td>{% if t.evenement.installation.installateur %}{{t.evenement.installation.installateur.icon4email|safe}}{{t.evenement.installation.installateur}}{%else%}-{%endif%}</td>
