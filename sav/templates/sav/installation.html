@@ -10,6 +10,7 @@
 <!--lien pour leaflet -->
 <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" />
 <script src="{% static 'leaflet/leaflet.js' %}"></script>
+
 {%endblock%}
 
 {% block toast %}
@@ -278,57 +279,52 @@
                       </div>
               <div class="tab-pane fade m-3  {% if not request.user|has_group:'ADV' or not CL%}show active{%endif%}" id="historique" role="tabpanel" aria-labelledby="profile-tab">
                   <button type="button"
-                          class="btn btn-outline-primary"
+                          class="btn btn-outline-primary mt-3 mb-3"
                           data-bs-toggle="modal"
                           data-bs-target="#ModalEvenement"
                           data-bs-whatever="ticket"
                           onclick="initticketform(this)"  ><i class="fas fa-tag"></i> Ajouter un ticket
                   </button>
                   <button type="button"
-                          class="btn btn-outline-primary"
+                          class="btn btn-outline-primary m-3"
                           data-bs-toggle="modal"
                           data-bs-target="#ModalEvenement"
                           data-bs-whatever="MES"
                           ><i class="fas fa-rocket"></i> Ajouter une MES
                   </button>
-
-
-                  <div class="accordion m-3 " id="accordionExample">
-                      {%for e in liste_evenements %}
-                      {%if e.ticket%}
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
-                              <b>{{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {% if e.ticket.cause %}{{e.ticket.cause}} {%endif%}{{e.ticket.utilisateur}}</b>
-                              <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
-                              <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
-                              <b>{{e.ticket.icon_technicien_sav|safe}}</b>
-                          </button>
-                        </h2>
-                        <div id="collapse{{ forloop.counter }}" id="ticket_{{e.ticket.id}}" class="accordion-collapse collapse {% if forloop.first %}show{%endif%} upload-zone" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                          <div class="accordion-body">
-                              <input class="fileupload" type="file" name="fichier" multiple
+                  <button type="button"
+                          class="btn btn-outline-primary m-3"
+                          onclick = "printEvenement()"
+                          ><i class="fas fa-rocket"></i> Imprimer
+                  </button>
+                  {%for e in liste_evenements %}
+                  {%if e.ticket%}
+                  <div class="row upload-zone ">   
+                    <div class="col-12">
+                      <div class="card mb-3 {%if e.ticket.etat == 3 %}border-warning{%else%}border-danger{%endif%}">                        
+                        <div class="card-header {%if e.ticket.etat == 3 %}bg-warning{%else%}bg-danger{%endif%}">                          
+                          {{e.ticket.icon_etat|safe}} {{e.ticket.icon_forme|safe}} {{e.ticket.icon|safe}} {{e.ticket.probleme}} {% if e.ticket.cause %}{{e.ticket.cause}} {%endif%}{{e.ticket.utilisateur}}
+                        </div>
+                        <div class="card-body">
+                          <input class="fileupload" type="file" name="fichier" multiple
                                  style="display: none;"
                                  data-url="{{ request.get_full_path }}"
                                  data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_ticket":{{e.ticket.id}}}'
                               >
                               <p></p>
-                              <div class="row">
-                                  <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL  or e.ticket.NC %}8{%else%}12{%endif%}">
-                                  <button class="btn btn-outline-primary m-1"
-                                          type="button"
-                                          data-bs-toggle="modal"
-                                          data-bs-target="#ModalEvenement"
-                                          data-bs-whatever="ticket"
-                                          onclick="updateTicket({{e.ticket.id}})"
-                                  ><i class="fas fa-wrench" ></i> Mettre à jour</button>
-                                  <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
-                                  <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))" spellcheck="true">{{e.ticket.detail}}</textarea>
-                                  </div>
-                                  </div>
-                                  {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL or e.ticket.NC %}
-                                  <div class="col-4">
+                          <div class="row">
+                            <div class="col-2 d-flex align-center justify-content-center">                      
+                              <div class="text-center border border-dark rounded-circle p-4 bg-light">                          
+                                {{e.ticket.icon_technicien_sav|safe}}
+                                {{e.date|date:"d-m-Y"}}<br>
+                                {{e.date|time:"H:i"}}<br>
+                              </div>                       
+                          </div> 
+                            <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis.count or e.ticket.BL.count or e.ticket.NC %}6{%else%}10{%endif%}">
+                              <textarea class="form-control textarea_update card-text" id="ta_ticket_{{e.ticket.id}}" onchange="growall($(this))" spellcheck="true">{{e.ticket.detail}}</textarea>
+                            </div>
+                            <div class="col-{%if e.ticket.fichier.all.count or e.ticket.devis.count or e.ticket.BL.count  or e.ticket.NC %}4{%else%}0{%endif%}">
+                              {%if e.ticket.fichier.all.count or e.ticket.devis or e.ticket.BL or e.ticket.NC %}
                                       <div class="row">
                                           <div class="col-12">
                                         {%if e.ticket.devis or e.ticket.BL%}
@@ -389,44 +385,61 @@
                                       {%endfor%}
                                       {% endif %}
                                   </div>
-                                              </div>
                                           </div>
                                   {%endif%}
-                              </div>
+                            </div>  
                           </div>
                         </div>
-                      </div>
-                      {%endif%}
-                      {%if e.MES%}
-                      <div class="accordion-item">
-                        <h2 class="accordion-header">
-                          <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
-                              <b>Mise en Service</b>
-                              <i class="far fa-calendar-alt m-1"></i> {{e.date|date:"d-m-Y"}}
-                              <i class="far fa-clock m-1"></i> {{e.date|time:"H:i"}}
-                              <b>{{e.MES.icon_technicien_sav|safe}}</b>
+                        <div class="card-footer">
+                          <button class="btn btn-outline-primary"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalEvenement"
+                            data-bs-whatever="ticket"
+                            onclick="updateTicket({{e.ticket.id}})"
+                            ><i class="fas fa-wrench" ></i> Mettre à jour
                           </button>
-                        </h2>
-                        <div id="collapse{{ forloop.counter }}" id="MES_{{e.MES.id}}" class="accordion-collapse collapse {% if forloop.first %}show{%endif%} upload-zone" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                          <div class="accordion-body">
-                              <input class="fileupload" type="file" name="fichier" multiple
+                          <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.card').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
+                        </div>
+                      </div>
+                    </div>  
+                </div>
+                  {%endif%}
+                  {%if e.MES%}
+                  <div class="row upload-zone">   
+                    <div class="col-12">
+                      <div class="card mb-3 border-success">                        
+                        <div class="card-header bg-success text-white">                          
+                          <i class="fas fa-rocket"></i> Mise en Service
+                        </div>
+                        <div class="card-body">
+                          <input class="fileupload" type="file" name="fichier" multiple
                                  style="display: none;"
                                  data-url="{{ request.get_full_path }}"
                                  data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "file_MES":{{e.MES.id}}}'
                               >
                               <p></p>
-                              <div class="row">
-                                  <div class="col-{%if e.MES.fichier.all.count %}8{%else%}12{%endif%}">
-                                  <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.accordion-body').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
-                                  <div class="form-floating">
-                                      <textarea class="form-control textarea_update" id="ta_MES_{{e.MES.id}}" onchange="growall($(this))" spellcheck="true">{{e.MES.detail}}</textarea>
-                                  </div>
-                                  </div>
-                                  {%if e.MES.fichier.all.count %}
-                                  <div class="col-4">
+                          <div class="row">
+                            <div class="col-2 d-flex align-center justify-content-center">                      
+                              <div class="text-center border border-dark rounded-circle p-4">                          
+                                {{e.MES.icon_technicien_sav|safe}}
+                                {{e.date|date:"d-m-Y"}}<br>
+                                {{e.date|time:"H:i"}}<br>
+                              </div>                       
+                          </div> 
+                            <div class="col-{%if e.MES.fichier.all.count  %}6{%else%}10{%endif%}">
+                              <textarea class="form-control textarea_update card-text" id="ta_MES_{{e.MES.id}}" onchange="growall($(this))" spellcheck="true">{{e.MES.detail}}</textarea>
+                            </div>
+                            <div class="col-{%if e.MES.fichier.all.count %}4{%else%}0{%endif%}">
+                              {%if e.MES.fichier.all.count %}
+                                          <div class="row">
+                                          <div class="col-12">
+
+                                        {%if e.MES.fichier.all.count %}
+                                        <button type="button" class="btn btn-outline-primary mt-3 mb-3" id="buttonAllDownload{{e.MES.id}}" onclick="alldownload({{e.MES.id}})"><i class="fas fa-cloud-download-alt"></i> Tout télécharger</button><br>
                                       {%for f in e.MES.fichier.all%}
-                                      {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.MES.id}}, {{f.id}}, 'MES')">{{f.icon|safe}} {{f.titre}}</a> (<i
+                                        {%if '.jpeg' in f.fichier.name|lower or '.png' in f.fichier.name|lower  or 'jpg' in f.fichier.name|lower %}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#ModalEvenement" data-bs-whatever="ticket" onclick="ShowModalImage({{e.ticket.id}}, {{f.id}}, 'ticket')">{{f.icon|safe}} {{f.titre}}</a> (<i
                                               class="far fa-trash-alt deletefile"
                                               id="deletefile_{{f.id}}"
                                               onclick="deletefile(this)"
@@ -456,15 +469,24 @@
 
                                       {% endif %}
                                       {%endfor%}
+                                      {% endif %}
                                   </div>
+                                          </div>
                                   {%endif%}
-                              </div>
+                            </div>  
                           </div>
                         </div>
+                        <div class="card-footer">
+                          <button class="btn btn-outline-primary m-1" onclick="$(this).closest('.card').find('.fileupload').click()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Ajouter des fichiers</button>
+                        </div>
                       </div>
-                      {%endif%}
-                      {% endfor %}
-                    </div>
+                    </div>  
+                </div>
+                  
+                  {%endif%}
+                  
+                  {%endfor%}
+
               </div>
               <div class="tab-pane fade m-3" id="acces" role="tabpanel" aria-labelledby="home-tab">
                 <fieldset class="border p-2 h-100">

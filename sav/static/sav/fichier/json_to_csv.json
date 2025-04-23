@@ -312,6 +312,18 @@
         "VolCorpsChf(0)": 10,
         "VMinCircApp(0)": 70
       },
+      "granule condensation": {
+        "Type_Appoint(0)": 5,
+        "TMaxApp(0)": 92,
+        "TRetMinChdr(0)": 55,
+        "DTChdr(0)": 40,
+        "DTAppECS(0)": 8,
+        "TStockECS(0)": 60,
+        "MinOnDelay(0)": 20,
+        "MinOffDelay(0)": 10,
+        "VolCorpsChf(0)": 10,
+        "VMinCircApp(0)": 70
+      },
       "bois": {
         "Type_Appoint(0)": 6,
         "TMaxApp(0)": 92,

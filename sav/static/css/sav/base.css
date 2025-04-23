@@ -26,6 +26,19 @@ h1 {
   stroke-width: 10;
 }
 
+
+  @media print {
+    * 
+     {    
+      display: none !important;
+     }
+ 
+    .printable
+     {
+      display: block !important;
+     }
+ }
+
 /* .form-floating label, span.input-group-text{
   color:#BFB306;
   font-weight: bold;
