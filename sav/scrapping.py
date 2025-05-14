@@ -15,7 +15,7 @@ import os
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, expected_conditions
 
-from .models import CL_herakles, installation
+from .models import CL_herakles
 
 from django.utils import timezone
 

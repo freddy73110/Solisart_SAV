@@ -3592,11 +3592,9 @@ class bidouille(View):
     template_name = "sav/bidouille.html"
     title = "Bidouille"
 
-    def get(self, request, *args, **kwargs):  
-        installations = installation.objects.filter(
-            attribut_valeur__valeur__icontains = "tovoli"
-        )
-        print(installations)
+    def get(self, request, *args, **kwargs):
+        from .tasks import trouvercoordonneeGPSinstallateur  
+        trouvercoordonneeGPSinstallateur()
 
 
 #         installateur = User.objects.filter(
@@ -3613,7 +3611,7 @@ class bidouille(View):
             self.template_name, 
             {
                 "title": self.title,
-                "installations": installations
+                "installations": []
                 }
         )
 

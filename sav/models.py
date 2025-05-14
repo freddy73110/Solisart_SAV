@@ -1863,7 +1863,18 @@ class CL_herakles(models.Model):
         self.prix_transport = round(self.prix_transport, 2)
         if self.old_information != self.information:
             self.date_last_update_information = timezone.now()
+        try:
+            if self.date_prepa_carte:
+                for field in self._meta.get_fields():
+                    if "date" in field.name and field.name != "date_prepa_carte":
+                        current_value = getattr(self, field.name)
+                        if current_value is None:
+                            setattr(self, field.name, self.date_prepa_carte)
+        except:
+            pass
         super(CL_herakles, self).save(*args, **kwargs)
+
+            
 
 
 class critere(models.Model):

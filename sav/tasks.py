@@ -333,50 +333,26 @@ def trouvercoordonneeGPSinstallateur(*args, **kwargs):
         Client_herakles__isnull=False, latitude__isnull=True
     )
     import requests
-
+    from .views import Geoinfo
     counter = 0
     for installateur in installateur_whitout_GPS:
         try:
             adresse = C100Clients.objects.db_manager("herakles").get(
                 t100_1_code_client__exact=installateur.Client_herakles
             )
-            url = "https://nominatim.openstreetmap.org/?q=France"
-            for at in [
+
+            geoloc = Geoinfo(" ".join([ a for a in [
                 adresse.t100_4_adresse_1,
                 adresse.t100_6_cp,
                 adresse.t100_7_ville_pays,
-            ]:
-                url += "+" + str(at).replace(" ", "%")
-            url += "&format=json"
+            ] if a]), None, None).start()
 
-            resp = requests.get(url).json()
-
-            if not resp or not "lon" in resp[0]:
-                url = "https://nominatim.openstreetmap.org/?q=France"
-                for at in [adresse.t100_6_cp, adresse.t100_7_ville_pays]:
-                    url += "+" + str(at).replace(" ", "%")
-                url += "&format=json"
-                resp = requests.get(url).json()
-                if resp and "lon" in resp[0]:
-                    GPS = resp[0]["lat"] + "," + resp[0]["lon"]
-                else:
-                    GPS = None
-                    pass
-            else:
-                GPS = resp[0]["lat"] + "," + resp[0]["lon"]
-
-            if GPS == "46.603354,1.8883335":
-                GPS = None
-
-            if GPS:
-                installateur.latitude = GPS.split(",")[0]
-                installateur.longitude = GPS.split(",")[1]
-                installateur.save()
-                counter += 1
+            installateur.latitude = geoloc['lat']
+            installateur.longitude = geoloc['lon']
+            installateur.save()
+            counter += 1
 
         except Exception as ex:
-
-            print(installateur)
 
             exc_type, exc_obj, exc_tb = sys.exc_info()
 
