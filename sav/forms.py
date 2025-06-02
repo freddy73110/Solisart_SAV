@@ -547,6 +547,8 @@ class GroupForm(forms.Form):
         super().__init__(*args, **kwargs)
         if self.request.user.is_superuser:
             self.fields['group'].queryset = Group.objects.all()
+        elif 'ADV' in self.request.user.groups.all().values_list('name', flat=True):
+            self.fields['group'].queryset = Group.objects.filter(name__in = ['Production', 'Monteur', 'Expé', 'Prépa', 'Carte', 'ADV'])
         elif 'Production' in self.request.user.groups.all().values_list('name', flat=True):
             self.fields['group'].queryset = Group.objects.filter(name__in = ['Production', 'Monteur', 'Expé', 'Prépa', 'Carte'])
         else:

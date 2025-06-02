@@ -182,6 +182,9 @@
                             <li><a class="dropdown-item" href="{% url 'password_reset' %}"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Modifier le mot de passe</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'sav:AjoutUtilisateur' %}"><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</a></li>
+                            {% if user.is_superuser%}
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-user-shield"></i> Page administrateur</a></li>
+                            {% endif %}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt"></i> Déconnection</a></li>
                     </ul>
