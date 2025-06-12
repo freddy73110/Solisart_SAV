@@ -51,7 +51,7 @@ def send_channel_message(group_name, message):
 
 
 class scrappingMySolisart:
-    username = "olivier.godin@solisart.fr"
+    username = "GODIN"
     password = "godoli123"
     link = "https://my.solisart.fr/"
     json_installation = False
