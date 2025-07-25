@@ -577,8 +577,21 @@ def actualise_client_herakles():
 
 @shared_task
 def actualise_herakles():
+    from django.db.models import Count, Max
     result = {"BLcree": [], "Deviscree": []}
     # actualisation les devis
+
+    #vérification s'il y a des doublons pour le supprimer
+    duplicates = (
+            devis_herakles.objects.values("devis")
+            .order_by()  # Supprime tout ordre par défaut pour GROUP BY
+            .annotate(max_id=Max('id'), count_id=Count('id'))
+            .filter(count_id__gt=1)
+        )
+    for duplicate in duplicates:
+        devis_herakles.objects.filter(id = duplicate['max_id']).delete()
+
+    #Recherche de nouveaux devis
 
     devis = (
         C101DevisEnTte.objects.db_manager("herakles")
@@ -594,6 +607,18 @@ def actualise_herakles():
             result["Deviscree"].append(d)
 
     # actualisation des BL
+    #Suppression des BL en doublon
+    duplicates = (
+            BL_herakles.objects.values("BL")
+            .order_by()  # Supprime tout ordre par défaut pour GROUP BY
+            .annotate(max_id=Max('id'), count_id=Count('id'))
+            .filter(count_id__gt=1)
+        )
+    for duplicate in duplicates:
+        BL_herakles.objects.filter(id = duplicate['max_id']).delete()
+
+    #Création des nouveaux BL
+
     BLs = (
         C7001Phases.objects.db_manager("herakles")
         .filter(codephase__icontains="BL" + str(timezone.now().year)[2:4])

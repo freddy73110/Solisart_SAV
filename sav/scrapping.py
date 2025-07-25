@@ -679,12 +679,6 @@ class scrappingMySolisart:
                     path=os.path.join(os.path.dirname(__file__), "temp", "config.csv"),
                     dicttoconvert=dict_schematic,
                 )
-                send_channel_message(
-                    "cartcreating",
-                    {
-                        "message": "<i class='fas fa-times' style='color: #fe0101;'></i>" + msg
-                    },
-                )
                 
                 send_channel_message(
                     "cartcreating",
@@ -701,7 +695,7 @@ class scrappingMySolisart:
 
                 # URL de l'api
                 url = "https://www.solisart.fr/schematics/api/getSchema.php?image=SchemaHydrauWithLegend"
-                # ici getSchema.php peut contenir 2 paramètre get :
+                # ici getSchema.php peut contenir 2 paramètres get :
                 #   -image : qui permet d'indiquer l'image à récupérer (SchemaHydrau, SchemaHydrauWithLegend, SchemaExe, Etiquetage, ImageFicheProg)
                 #   -format : qui peut uniquement prendre la valeur PDF pour indiquer de renvoyer l'image en format PDF
                 # exemple d'url pour récupérer l'etiquetage en format pdf :

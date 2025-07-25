@@ -65,17 +65,15 @@ $("#enregister").on("click", function(){
 
 //Update quickly details fields of ticket
 function Updatedata(t){
-    console.log(t)
                 $.ajax({
                       url: window.location.href,
                       data: {"details": $(t).val(), "id": $(t).attr('id')},
                       dataType: 'json',
                       type: 'Post',
                       success: function (data) {
-                          console.log(data)
+                          console.log("")
                       }
                 })
-
   }
 
 //
