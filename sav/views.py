@@ -3593,7 +3593,8 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
-        
+        from .tasks import ActualiseInstallationByScapping
+        ActualiseInstallationByScapping()
         # from .tasks import trouvercoordonneeGPSinstallateur  
         # trouvercoordonneeGPSinstallateur()
 

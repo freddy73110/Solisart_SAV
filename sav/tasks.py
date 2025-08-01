@@ -743,7 +743,13 @@ def ActualiseUtilisateur(*args, **kwargs):
             "nature": "utilisateurs",
         },
     )
-    for index, row in df.iterrows():
+
+    ids_fournis_set = set(list(df['id']))
+    ids_existants_qs = User.objects.filter(username__in=list(df['id'])).values_list('username', flat=True)
+    ids_existants_set = set(ids_existants_qs)
+    ids_manquants = ids_fournis_set - ids_existants_set
+    print(ids_manquants)
+    for index, row in df[df['id'].isin(list(ids_manquants))].iterrows():
         try:
             user, created = User.objects.get_or_create(username=row["id"])
             user.first_name = (row["prenom"],)
@@ -836,7 +842,12 @@ def ActualiseInstallation(*args, **kwargs):
             + lendf,
         },
     )
-    for index, row in df.iterrows():
+    ids_fournis_set = set(list(df['id']))
+    ids_existants_qs = installation.objects.filter(idsa__in=list(df['id'])).values_list('idsa', flat=True)
+    ids_existants_set = set(ids_existants_qs)
+    ids_manquants = ids_fournis_set - ids_existants_set
+
+    for index, row in df[df['id'].isin(list(ids_manquants))].iterrows():
         try:
             inst, created = installation.objects.get_or_create(idsa=row["id"])
             # tc= row['type_communication'] if row['type_communication'] != np.nan else None
@@ -1033,7 +1044,7 @@ def ActualiseAttribut(*args, **kwargs):
     lendf = str(len(df))
     df.columns = ["installation", "attribut_def", "valeur"]
     df = df.reset_index()  # make sure indexes pair with number of rows
-    total_created = 0
+
     send_channel_message(
         "updateDB",
         {
@@ -1041,45 +1052,97 @@ def ActualiseAttribut(*args, **kwargs):
             + lendf,
         },
     )
-    for index, row in df.iterrows():
-        try:
-            int, created = attribut_valeur.objects.get_or_create(
-                installation=installation.objects.get(idsa=row["installation"]),
-                attribut_def=attribut_def.objects.get(idsa=row["attribut_def"]),
-            )
-            int.valeur = row["valeur"]
-            int.save()
-            if created:
-                total_created += 1
+    from .models import installation, attribut_def
+    installations = {i.idsa: i for i in installation.objects.all()}
+    attribut_defs = {a.id: a for a in attribut_def.objects.all()}
 
-        except Exception as e:
+    to_create = []
+    to_update = []
+    # Clé composée : (installation_id, attribut_def_id)
+    existing_avs = {
+        (av.installation_id, av.attribut_def_id): av
+        for av in attribut_valeur.objects.select_related('installation', 'attribut_def').all()
+    }
 
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            print(e)
-            pass
-        if index % 500 == 0:
-            send_channel_message(
-                "updateDB",
-                {
-                    "message": "En cours d'éxécution:<br>attribut_val: "
-                    + str(index)
-                    + "/"
-                    + lendf,
-                    "index": index,
-                    "total": lendf,
-                    "nature": "valeurs d'attribut",
-                },
-            )
+    for i, row in df.iterrows():
+        installation_code = row["installation"]
+        attribut_def_id = row["attribut_def"]
+        valeur = row["valeur"]
+
+        installation = installations.get(installation_code)
+        attribut_def = attribut_defs.get(attribut_def_id)
+
+        if not installation or not attribut_def:
+            continue  # ou log l'erreur
+
+        key = (installation.id, attribut_def.id)
+
+        if key in existing_avs:
+            av = existing_avs[key]
+            if str(av.valeur).strip() != str(valeur).strip():
+                av.valeur = valeur
+                to_update.append(av)
+        else:
+            to_create.append(attribut_valeur(
+                installation=installation,
+                attribut_def=attribut_def,
+                valeur=valeur
+            ))
+        if (i + 1) % 500 == 0 or (i + 1) == lendf:
+            send_channel_message("updateDB", {
+                "index": i + 1,
+                "total": lendf,
+                "message": f"Traitement {i + 1} / {lendf}",
+                "nature": "historiques"
+            })
+
+    from django.db import transaction
+    with transaction.atomic():
+        if to_create:
+            attribut_valeur.objects.bulk_create(to_create, batch_size=1000)
+        if to_update:
+            attribut_valeur.objects.bulk_update(to_update, fields=['valeur'], batch_size=1000)
+
+
+    # for index, row in df.iterrows():
+    #     try:
+    #         int, created = attribut_valeur.objects.get_or_create(
+    #             installation=installation.objects.get(idsa=row["installation"]),
+    #             attribut_def=attribut_def.objects.get(idsa=row["attribut_def"]),
+    #         )
+    #         int.valeur = row["valeur"]
+    #         int.save()
+    #         if created:
+    #             total_created += 1
+
+    #     except Exception as e:
+
+    #         exc_type, exc_obj, exc_tb = sys.exc_info()
+    #         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    #         print(exc_type, fname, exc_tb.tb_lineno)
+    #         print(e)
+    #         pass
+    #     if index % 500 == 0:
+    #         send_channel_message(
+    #             "updateDB",
+    #             {
+    #                 "message": "En cours d'éxécution:<br>attribut_val: "
+    #                 + str(index)
+    #                 + "/"
+    #                 + lendf,
+    #                 "index": index,
+    #                 "total": lendf,
+    #                 "nature": "valeurs d'attribut",
+    #             },
+    #         )
     send_channel_message(
         "updateDB",
         {
-            "message": "Importation finie:<br>attribut_val: " + lendf + "/" + lendf,
+            "message": str(len(to_create)) + " nouveaux historiques et " + str(len(to_update)) + " mises à jour",
         },
     )
     save_result_celery(
-        "args", {}, "SUCCESS", str(total_created) + " nouveaux historiques"
+        "args", {}, "SUCCESS", str(len(to_create)) + " nouveaux historiques et " + str(len(to_update)) + " mises à jour"
     )
 
 @shared_task
@@ -1207,7 +1270,6 @@ ID = "LAGRANGE"
 #============== Fin Zone de Personnalisation - Ne rien toucher en dehors de cette zone ====================== 
 
 DOMAIN = "https://my.solisart.fr"
-URL_DATA = "/admin/divers/ajax/lecture_installations.php"
 URL_DICT = "/admin/divers/js/solisart/commun-donnees.1702435180.js"
 IHM = "admin"
 CONNEXION = "Se Connecter"
@@ -1224,7 +1286,7 @@ def logInSolisart(LOGIN,PASS, domain=DOMAIN):
     urllib.request.urlopen(loginRequest, loginbytes)
     return cookie
 
-def getValues(cookie, id, domain=DOMAIN):
+def getValues(cookie, id, URL_DATA, domain=DOMAIN):
     id = "installations"
     requestData = {        
         'filtre': 0,
@@ -1241,14 +1303,16 @@ def getValues(cookie, id, domain=DOMAIN):
 def ActualiseInstallationByScapping(*args, **kwargs):
 
     try:
-        cookie = logInSolisart(LOGIN, PASS )
-        xmldata = getValues(cookie, ID)
+        URL_DATA = "/admin/divers/ajax/lecture_installations.php"
+        cookie = logInSolisart(LOGIN, PASS )        
+        xmldata = getValues(cookie, ID, URL_DATA)
         xml_str = xmldata
         root = xml.etree.ElementTree.fromstring(xml_str)
         html_value = root.attrib.get("html")
         html_decoded = base64.b64decode(html_value, validate=True).decode("latin-1")
 
         from bs4 import BeautifulSoup
+        
         soup = BeautifulSoup(html_decoded, "lxml")
         tables = soup.findChildren('table')
         my_table = tables[0]
@@ -1259,6 +1323,29 @@ def ActualiseInstallationByScapping(*args, **kwargs):
             if not installation.objects.filter(idsa=instal).exists():
                 installation.objects.create(idsa=instal)
                 install_created+=1
+        """
+        #Récupérer les nouveaux utilisateurs
+        
+        URL_DATA = "/admin/index.php?page=utilisateurs"
+        cookie = logInSolisart(LOGIN, PASS )
+        html_value = getValues(cookie, ID, URL_DATA)
+
+        soup = BeautifulSoup(html_value, "html.parser")
+        tables = soup.find_all('table', class_="liste" )
+        my_table = tables[0]
+        rows = my_table.find_all('tr')
+        users_idsa = [
+            {
+                "idsa" : r.find_all('td')[0].a['href'].split('id=')[1],
+                "email": r.find_all('td')[1].get_text(),
+                "prenom": r.find_all('td')[0].get_text().split("\xa0")[1] if '\xa0' in r.find_all('td')[0].get_text() else "",
+                "nom": r.find_all('td')[0].get_text().split("\xa0")[0] if '\xa0' in r.find_all('td')[0].get_text() else ""} 
+                for r in rows[1:]
+                ]
+        print(users_idsa)
+        """
+
+
         
         save_result_celery(
         "args", {}, "SUCCESS", str(install_created) + " nouvelles installations de créer"
