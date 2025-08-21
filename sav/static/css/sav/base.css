@@ -26,6 +26,13 @@ h1 {
   stroke-width: 10;
 }
 
+.leaflet-tile-pane {
+  background-color: white !important;
+}
+
+.leaflet-container {
+  background-color: white !important;
+}
 
   @media print {
     * 

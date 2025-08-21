@@ -14,19 +14,200 @@ const fontAwesomeIconInstallateur = L.divIcon({
     popupAnchor:  [0, -48],
     className: 'myDivIcon'
 });
-// Create map with backgroud googlemaps
+// Create map 
 const mymap = L.map('map').setView([45, 0],5);
-L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
+const googleMaps = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']})
 
+// Fond OpenStreetMap
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+});
+
+// Fond satellite (Exemple Esri)
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Esri'
+});
+
+const CartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
+
+// Sombre
+const CartoDBDark =L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+
+const whiteTiles = L.tileLayer('', {
+  attribution: '',
+  minZoom: 0,
+  maxZoom: 22,
+  tileSize: 256
+});
+
+// Open map with CartoDB than background
+CartoDB.addTo(mymap);
+
+//Add all background map
+L.control.layers({
+  "OpenStreetMap": osm,
+  "Satellite": satellite,
+  "Google Maps": googleMaps,
+  "CartoDB": CartoDB,
+  "CartoDB Dark": CartoDBDark,
+  "Fond blanc" :whiteTiles
+}).addTo(mymap);
+
+//Create Regroup markers
 var markersClusterInstallateur = new L.MarkerClusterGroup();
 var markersClusterInstallation = new L.MarkerClusterGroup();
+let geoGroup = L.layerGroup().addTo(mymap)
+
+function getColor(d) {
+  return d > 95 ? '#a50f15' : // 100
+         d > 90 ? '#de2d26' :
+         d > 85 ? '#fb6a4a' :
+         d > 80 ? '#fc9272' :
+         d > 75 ? '#7f2704' :
+         d > 70 ? '#a63603' :
+         d > 65 ? '#d94801' :
+         d > 60 ? '#f16913' :
+         d > 55 ? '#fd8d3c' :
+         d > 50 ? '#fdae6b' :
+         d > 45 ? '#fdd0a2' :
+         d > 40 ? '#08306b' :
+         d > 35 ? '#08519c' :
+         d > 30 ? '#2171b5' :
+         d > 25 ? '#4292c6' :
+         d > 20 ? '#6baed6' :
+         d > 15 ? '#9ecae1' :
+         d > 10 ? '#c6dbef' :
+         d > 5  ? '#deebf7' :
+                  '#f7fbff'; // très faible densité
+}
+
+//Pour générer le nuancier
+
+  const colors = [
+    '#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6',
+    '#4292c6', '#2171b5', '#08519c', '#08306b', '#fdd0a2',
+    '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#a63603',
+    '#7f2704', '#fc9272', '#fb6a4a', '#de2d26', '#a50f15'
+  ];
+
+  function GenerateNuancier(max, unit){
+
+    const container = document.getElementById("nuancier");
+
+    colors.forEach((color, i) => {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.alignItems = "center";
+
+        const box = document.createElement("div");
+        box.className = "nuance";
+        box.style.backgroundColor = color;
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = Math.round((i / (colors.length - 1)) * max);
+
+        wrapper.appendChild(box);
+        wrapper.appendChild(label);
+        container.appendChild(wrapper);
+    });
+
+    $("#unite").html(unit)
+}
+
+function style(density,densityMax, color) {
+  return {
+    fillColor: getColor(parseFloat(density)/parseFloat(densityMax)*100),
+    weight: 3,
+    opacity: 1,
+    color: color,
+    fillOpacity: 1
+  };
+}
 
 //To display all deptment with color of salesman
-function ajoutDepartement(value, color){
-    myStyle={'color':color}
-    L.geoJSON(value, {
-        style:myStyle
-    }).addTo(mymap)
+function ajoutDepartement(value, color, varCode, density){
+    var code = varCode != 0 ? varCode : value.properties.code
+    switch (density){
+        case undefined :
+            myStyle={'color':color}
+            geo = L.geoJSON(value, {
+                style:myStyle
+            }).addTo(geoGroup)
+            var center = geo.getBounds().getCenter(); // Centre approximatif
+
+            // Création d'un divIcon pour afficher juste du texte
+            var label = L.divIcon({
+            className: 'dep-label',
+            html: `<div style="color: ${color}" class="dep-text">${code}</div>`, // ou code_insee selon ton fichier
+            iconAnchor: [7, 7],
+            iconSize: null, // Important pour ne pas réserver de place inutile
+            code : code
+            });
+
+            // Ajout de l’étiquette sur la carte
+            let marker
+            switch (varCode){
+                case 0 :
+                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Département ' + value.properties.nom +  ' (' + code +') :</b>');
+                    tableData.data.push(
+                        {
+                            dept:value.properties.nom, 
+                            code:value.properties.code,
+                            surface: (turf.area(value)/1000000).toFixed(2)
+                        }
+                    )
+                    break;
+                case 100 :
+                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Belgique (' + code +') :</b>');
+                                tableData.data.push(
+                        {
+                            dept:"Belgique", 
+                            code: 100,
+                            surface: 30688
+                        }
+                    )
+                    break;
+                case 200 :
+                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Suisse (' + code +') :</b>');
+                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Belgique (' + code +') :</b>');
+                                tableData.data.push(
+                        {
+                            dept:"Suisse", 
+                            code: 200,
+                            surface: 41285
+                        }
+                    )
+                    break;
+                case 1000:
+                    break
+            }
+
+            geo.on("mouseout", function (e) {
+            geo.closePopup();
+            });
+            geo.on("click", function (e) {
+            marker.openPopup();
+            });
+            break
+        case "installationDensity":
+            L.geoJSON(value, {
+                style:style(value.properties.installationDensity, DensityInstallationMax, color)
+            }).addTo(geoGroup)
+            break
+        case "installateurDensity":
+            L.geoJSON(value, {
+                style:style(value.properties.installateurDensity, DensityInstallateurMax, color)
+            }).addTo(geoGroup)
+            break
+        case "rapport":
+            L.geoJSON(value, {
+                style:style(value.properties.rapport, rapportMax, color)
+            }).addTo(geoGroup)
+            break
+    }
+
 }
 
 
@@ -38,66 +219,76 @@ function onEachFeature(feature, layer, myTag) {
 }
 
 //add maker on maps
-function generate_marker(start, stop){
-    $.ajax({
-                url: window.location.href,
-                type:'post',
-                dataType: 'json',
-                data: 'start=' + start + '&stop=' + stop,
-                success: function (json) {
-                        L.geoJSON(json, {
-                            onEachFeature: function (feature, layer) { 
-                                layer.myTag = "myGeoJSONINstallation";
-                                if (feature.properties && feature.properties.popupContent) {
-                                    layer.bindPopup(feature.properties.popupContent);
-                                }
-                            },
-                            pointToLayer: function (feature, latlng) {
-                                return L.marker(latlng, { icon: fontAwesomeIcon});
-                            },
-                            filter: function(feature, layer) {
-                                return feature.properties.show_on_map;
-                            }
-                        }).addTo(markersClusterInstallation);
+function generate_marker(start, stop) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: window.location.href,
+            type: 'post',
+            dataType: 'json',
+            data: 'start=' + start + '&stop=' + stop,
+            success: function (json) {
+                L.geoJSON(json, {
+                    onEachFeature: function (feature, layer) { 
+                        layer.myTag = "myGeoJSONINstallation";
+
+                        if (feature.properties && feature.properties.popupContent) {
+                            layer.bindPopup(feature.properties.popupContent);
+                        }
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        return L.marker(latlng, { icon: fontAwesomeIcon });
+                    },
+                    filter: function(feature, layer) {
+                        return feature.properties.show_on_map;
                     }
-            })
+                }).addTo(markersClusterInstallation);
 
-    mymap.addLayer(markersClusterInstallation);
+                mymap.addLayer(markersClusterInstallation);
 
+                resolve(); // ✅ la promesse est terminée
+            },
+            error: function (xhr, status, error) {
+                reject(error); // ⚠️ important pour gérer les erreurs
+            }
+        });
+    });
 }
-
+var profils //list texte des commerciaux à convertir en json
+var DensityInstallationMax = 0
+var DensityInstallateurMax = 0
+var rapportMax = 0
 async function load() {
         
         let url = '/static/sav/geojson/geojsonFrance.json';
-        let geojsonFrance = await (await fetch(url)).json();
-        color=["blue", "gray", "green", "red", "orange", "pink", "cyan", "red", "orange"]
-        const profils = JSON.parse(document.getElementById('profils').textContent);
+        geojsonFrance = await (await fetch(url)).json();
+        profils = JSON.parse(document.getElementById('profils').textContent);
         $.each(JSON.parse(profils), function(k, v){
             $("#list_profil").append('<li style="color:' + v.color + '">'+v.user+ ' '+ v.telephone1 + '</li>')
         })
-        $.each( geojsonFrance.features, function( key, value ) {
+        $.each(geojsonFrance.features, function( key, value ) {
           $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes(value.properties.code)){
-                ajoutDepartement(value, v.color)
+                ajoutDepartement(value, v.color, 0)
             }
           })
         });
 
         let url2 = '/static/sav/geojson/geojsonbelgique.json';
-        let geojsonBelgique = await (await fetch(url2)).json();
+        geojsonBelgique = await (await fetch(url2)).json();
             $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes("100")){
-                ajoutDepartement(geojsonBelgique, v.color)
+                ajoutDepartement(geojsonBelgique, v.color, 100)
             }
           })
 
          let url3 = '/static/sav/geojson/geojsonSuisse.json';
-        let geojsonSuisse = await (await fetch(url3)).json();
+        geojsonSuisse = await (await fetch(url3)).json();
             $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes("200")){
-                ajoutDepartement(geojsonSuisse, v.color)
+                ajoutDepartement(geojsonSuisse, v.color, 200)
             }
           })
+        $('#table').bootstrapTable(tableData)
         
 
 }
@@ -106,27 +297,217 @@ window.onload = load();
 
 class DisplayMarker{
 
-    installation(){
+    async installation(){
 
         var install_total = parseInt(document.getElementById('install_total').textContent)
         var compter=0
         var start =0
+        var json = []
+        let promises = [];
+        //To display marker by group 
         while(install_total>compter){
             compter=compter+100
-            generate_marker(start, compter)
+            promises.push(generate_marker(start, compter))
             start=compter
         }
+
+        //wait all marker display
+        await Promise.all(promises);
         
+        tableData.columns.push(
+                        {
+                field: 'installation',
+                title: "Nombre d'installation",
+                sortable: true,
+                align: 'center'
+            },{
+                field: 'densInstallation',
+                title: "Densité d'installation<br>(installation/1 000km²)",
+                sortable: true,
+                align: 'center'
+            }
+        )
+        if("installateurDensity" in geojsonFrance.features[0].properties){
+            tableData.columns.push(
+                        {
+                field: 'rapport',
+                title: "rapport<br>(installation/installateur)",
+                sortable: true,
+                align: 'center'
+            })
+        }
+        var density
+        //count installation by french's departments
+        $.each( window.geojsonFrance.features, function( key, value ) {
+                                    const polygon = value
+
+                                    let count = 0;                                    
+                                    
+                                    markersClusterInstallation.getLayers().forEach(marker => {
+                                        if (marker.myTag
+                                        && marker.myTag == "myGeoJSONINstallation"){
+                                            const point = turf.point(marker.feature.geometry.coordinates);
+                                            if (turf.booleanPointInPolygon(point, polygon)) {
+                                                count++;
+                                            }
+                                    }
+                                    });
+                                    tableData.data.forEach(o => {
+                                        if (o.code === value.properties.code) {
+                                            o.installation = count;
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallation = density
+                                            if("installateurDensity" in value.properties){
+                                                o.rapport = value.properties.installateurDensity != 0 ? (density/value.properties.installateurDensity).toFixed(2) : 0
+                                            }                                            
+                                        }
+                                        }); 
+                                    value.properties.installationDensity = density
+                                    if("installateurDensity" in value.properties){
+                                        value.properties.rapport = value.properties.installateurDensity != 0 ? (density/value.properties.installateurDensity).toFixed(2) : 0
+                                        rapportMax = parseFloat(value.properties.rapport) > parseFloat(rapportMax) ? parseFloat(value.properties.rapport) : parseFloat(rapportMax)
+                                    }
+                                    if(parseFloat(density) > parseFloat(DensityInstallationMax)){
+                                        DensityInstallationMax = parseFloat(density)
+                                    }
+                                    
+                                    
+                                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == value.properties.code;
+                                    });
+
+                                    filtered.forEach(marker => {
+                                        if (!marker._popup._content.includes("installation")){
+                                            if (count > 1){
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installation/1 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installation/1 000km²)</li>');
+                                            }
+                                        }
+                                    });
+                                    });
+                                    
+                    
+
+                                 
+                    // Pour compter le nombre d'installation pour la Belgique    
+                    let count = 0;
+                    $.each( window.geojsonBelgique.features, function( key, value ) {
+                                    const polygon = value
+                                    markersClusterInstallation.getLayers().forEach(marker => {
+                                        if (marker.myTag
+                                        && marker.myTag == "myGeoJSONINstallation"){
+                                            const point = turf.point(marker.feature.geometry.coordinates);
+                                            if (turf.booleanPointInPolygon(point, polygon)) {
+                                                count++;
+                                            }
+                                    }
+                                    });                                   
+                    }); 
+                    tableData.data.forEach(o => {
+                                        if (o.code === 100) {
+                                            o.installation = count;
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallation = density
+                                        }
+                                        }); 
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 100;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (!marker._popup._content.includes("installation")){
+                                            if (count > 1){
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installateur/1 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installateur/1 000km²)</li>');
+                                            }
+                                        }
+                                    });
+                        
+                    //Pour compter le nombre d'installation pour la Suisse
+                    count = 0;
+                    $.each( window.geojsonSuisse.features, function( key, value ) {
+                                    const polygon = value
+                                    
+                                    markersClusterInstallation.getLayers().forEach(marker => {
+                                        if (marker.myTag
+                                        && marker.myTag == "myGeoJSONINstallation"){
+                                            const point = turf.point(marker.feature.geometry.coordinates);
+                                            if (turf.booleanPointInPolygon(point, polygon)) {
+                                                count++;
+                                            }
+                                    }
+                                    });                                  
+                    }); 
+                    tableData.data.forEach(o => {
+                                        if (o.code === 200) {
+                                            o.installation = count;
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallation = density
+                                        }
+                                        });  
+                    
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 200;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (count > 1){
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installateur/1 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installateur/1 000km²)</li>');
+                                            }
+                                    });   
+                    
+                    $('#table').bootstrapTable('destroy')                  
+                    $('#table').bootstrapTable(tableData)
+                    $("#DensityInstallation").prop('disabled', false); 
+                    if("installateurDensity" in geojsonFrance.features[0].properties){
+                        $("#rapport").prop('disabled', false);
+                    }
+                                   
 
     }
 
     installateur(){
+        tableData.columns.push(
+                        {
+                field: 'installateur',
+                title: "Nombre d'installateur",
+                sortable: true,
+                align: 'center'
+            },{
+                field: 'densInstallateur',
+                title: "Densité d'installateur<br>(installateur/10 000km²)",
+                sortable: true,
+                align: 'center'
+            }
+        )
+        if("installationDensity" in geojsonFrance.features[0].properties){
+            tableData.columns.push(
+                        {
+                field: 'rapport',
+                title: "rapport<br>(installation/installateur)",
+                sortable: true,
+                align: 'center'
+            })
+        }
+        var density
         $.ajax({
                 url: window.location.href,
                 type:'post',
                 dataType: 'json',
                 data: 'show=installateur',
-                success: function (json) {                    
+                success: function (json) {               
                     L.geoJSON(json, {
                             onEachFeature: function (feature, layer) { 
                                 layer.myTag = "myGeoJSONINstallateur";
@@ -141,10 +522,138 @@ class DisplayMarker{
                                 return feature.properties.show_on_map;
                             }
                         }).addTo(markersClusterInstallateur);
+                    //Pour compter le nombre de marker par département français                    
+
+                    $.each( window.geojsonFrance.features, function( key, value ) {
+                                    const polygon = value
+
+                                    let count = 0;
+                                    json.forEach(marker => {
+                                        const point = turf.point(marker.geometry.coordinates);
+                                        if (turf.booleanPointInPolygon(point, polygon)) {
+                                            count++;
+                                        }
+                                    });
+
+
+                                    tableData.data.forEach(o => {
+                                        if (o.code === value.properties.code) {
+                                            o.installateur = count;
+                                            density = (count/o.surface*1000).toFixed(2) 
+                                            o.densInstallateur = density
+                                            if("installationDensity" in geojsonFrance.features[0].properties){
+                                                o.rapport = density != 0 ? (value.properties.installationDensity/density).toFixed(2) : 0
+                                            } 
+                                        }
+                                    });
+                                    value.properties.installateurDensity = density
+                                    if("installationDensity" in value.properties){
+                                        value.properties.rapport = density != 0 ? (value.properties.installationDensity/density).toFixed(2) : 0
+                                        rapportMax = parseFloat(value.properties.rapport) > parseFloat(rapportMax) ? parseFloat(value.properties.rapport) : parseFloat(rapportMax)
+                                    }
+                                    DensityInstallateurMax = parseFloat(density) > parseFloat(DensityInstallateurMax) ? parseFloat(density) : parseFloat(DensityInstallateurMax)
+                                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == polygon.properties.code;
+                                    });
+
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (!marker._popup._content.includes("installateur")){
+                                            if (count > 1){
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateurs ('+  density+' installateur/10 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateur ('+  density+' installateur/10 000km²)</li>');
+                                            }
+                                        }
+                                    });
+                                    
+                })    
+                    // Pour compter le nombre d'installateur pour la Belgique    
+                    let count = 0;
+                    $.each( window.geojsonBelgique.features, function( key, value ) {
+                                    const polygon = value
+                                    
+                                    json.forEach(marker => {
+                                        const point = turf.point(marker.geometry.coordinates);
+                                        if (turf.booleanPointInPolygon(point, polygon)) {
+                                            count++;
+                                        }
+                                    });                                    
+                    }); 
+                    
+                    tableData.data.forEach(o => {
+                                        if (o.code === 100) {
+                                            o.installateur = count;
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallateur = density
+                                        }
+                                        }); 
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 100;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (!marker._popup._content.includes("installateur")){
+                                            if (count > 1){
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateurs ('+  density+' installateur/10 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateur ('+  density+' installateur/10 000km²)</li>');
+                                            }
+                                        }
+                                    });
+                    
+                    //Pour compter le nombre d'installateur pour la Suisse
+                    count = 0;
+                    $.each( window.geojsonSuisse.features, function( key, value ) {
+                                    const polygon = value
+                                    
+                                    json.forEach(marker => {
+                                        const point = turf.point(marker.geometry.coordinates);
+                                        if (turf.booleanPointInPolygon(point, polygon)) {
+                                            count++;
+                                        }
+                                    });                                    
+                    }); 
+                     
+                    tableData.data.forEach(o => {
+                                        if (o.code === 100) {
+                                            o.installateur = count;                                            
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallateur = density
+                                        }
+                                        });
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 200;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (count > 1){
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateurs ('+  density+' installateur/10 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateur ('+  density+' installateur/10 000km²)</li>');
+                                            }
+                                    });
+                    
+                    $('#table').bootstrapTable('destroy')                  
+                    $('#table').bootstrapTable(tableData)
+                    $("#DensityInstallateur").prop('disabled', false);
+                    if("installationDensity" in geojsonFrance.features[0].properties){
+                        $("#rapport").prop('disabled', false);
                     }
+
+                    }    
             })
 
-        mymap.addLayer(markersClusterInstallateur);
+        mymap.addLayer(markersClusterInstallateur);                    
     }
 }
 const $DisplayMarker = new DisplayMarker()
@@ -241,6 +750,7 @@ $('#adresse').keypress(function (e) {
 });
 
 var removeMarkers = function(tag) {
+
         mymap.eachLayer( function(layer) {
           if ( layer.myTag &&  layer.myTag === tag) {
             mymap.removeLayer(layer)
@@ -270,3 +780,102 @@ $("#inputInstallation").on("change", function(){
         markersClusterInstallation = new L.MarkerClusterGroup()
     }
 })
+
+
+// Pour que les numéro des département augmente quand on zoome
+const zoomBase = mymap.getZoom();
+
+mymap.on("zoomend", () => {
+  const currentZoom = mymap.getZoom();
+  const scale = 1 + (currentZoom - zoomBase) * 0.3; // règle l’effet
+
+  document.querySelectorAll(".dep-text").forEach(el => {
+    el.style.transform = `scale(${scale})`;
+    el.style.transformOrigin = "center center";
+  });
+});
+
+//Création du tableau
+let tableData = {
+  columns: [{
+    field: 'dept',
+    title: 'Département',
+    align: 'center'
+  }, {
+    field: 'code',
+    title: 'Code',
+    sortable: true,
+    align: 'center'
+  }, {
+    field: 'surface',
+    title: 'Surface<br>(km²)',
+    sortable: true,
+    align: 'center'
+  }],
+  data: [],
+  sortName: 'code',     // colonne utilisée pour trier
+  sortOrder: 'asc',     // ou 'desc'
+  search: true,
+  pagination: true
+
+}
+
+$('[name="repartition"]').change(async function() {
+  var repartition = $(this).filter(':checked').val();
+  $("#nuancier").html("")
+  $("#unite").html("")
+  geoGroup.clearLayers()
+  switch (repartition){
+    case "repartitionCommercial":        
+        $.each(geojsonFrance.features, function( key, value ) {
+          $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes(value.properties.code)){
+                ajoutDepartement(value, v.color, 1000)
+            }
+          })
+        });
+        $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("100")){
+                ajoutDepartement(geojsonBelgique, v.color, 100)
+            }
+          })
+          $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("200")){
+                ajoutDepartement(geojsonSuisse, v.color, 200)
+            }
+          })
+        
+        break
+    case "installation":
+
+        $.each(geojsonFrance.features, function( key, value ) {
+            $.each(JSON.parse(profils), function(k, v){
+                if(v.departement.includes(value.properties.code)){
+                    ajoutDepartement(value, v.color, 0, "installationDensity")
+                }
+            })
+        });
+        GenerateNuancier(DensityInstallationMax, " installation/1000km²")
+        break
+    case "installateur":
+        $.each(geojsonFrance.features, function( key, value ) {
+            $.each(JSON.parse(profils), function(k, v){
+                if(v.departement.includes(value.properties.code)){
+                    ajoutDepartement(value, v.color, 0, "installateurDensity")
+                }
+            })
+        });
+        GenerateNuancier(DensityInstallateurMax, " installateur/10 000km²")
+        break
+    case "rapport":
+        $.each(geojsonFrance.features, function( key, value ) {
+            $.each(JSON.parse(profils), function(k, v){
+                if(v.departement.includes(value.properties.code)){
+                    ajoutDepartement(value, v.color, 0, "rapport")
+                }
+            })
+        });
+        GenerateNuancier(rapportMax, " installations par installateur")
+        break
+  }
+});

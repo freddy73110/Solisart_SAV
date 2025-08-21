@@ -1088,19 +1088,30 @@ def ActualiseAttribut(*args, **kwargs):
                 attribut_def=attribut_def,
                 valeur=valeur
             ))
-        if (i + 1) % 500 == 0 or (i + 1) == lendf:
-            send_channel_message("updateDB", {
-                "index": i + 1,
-                "total": lendf,
-                "message": f"Traitement {i + 1} / {lendf}",
-                "nature": "historiques"
-            })
-
+        # if (i + 1) % 500 == 0 or (i + 1) == lendf:
+        #     send_channel_message("updateDB", {
+        #         "index": i + 1,
+        #         "total": lendf,
+        #         "message": f"Traitement {i + 1} / {lendf}",
+        #         "nature": "valeurs d'attribut"
+        #     })
     from django.db import transaction
     with transaction.atomic():
         if to_create:
+            send_channel_message("updateDB", {
+                "index": i + 1,
+                "total": lendf,
+                "message": f"Injection en base de données des attributs à créer",
+                "nature": "valeurs d'attribut"
+            })
             attribut_valeur.objects.bulk_create(to_create, batch_size=1000)
         if to_update:
+            send_channel_message("updateDB", {
+                "index": i + 1,
+                "total": lendf,
+                "message": f"Injection en base de données des attributs à mettre à jour",
+                "nature": "valeurs d'attribut"
+            })
             attribut_valeur.objects.bulk_update(to_update, fields=['valeur'], batch_size=1000)
 
 
@@ -1138,11 +1149,11 @@ def ActualiseAttribut(*args, **kwargs):
     send_channel_message(
         "updateDB",
         {
-            "message": str(len(to_create)) + " nouveaux historiques et " + str(len(to_update)) + " mises à jour",
+            "message": str(len(to_create)) + " nouveaux attributs et " + str(len(to_update)) + " mises à jour",
         },
     )
     save_result_celery(
-        "args", {}, "SUCCESS", str(len(to_create)) + " nouveaux historiques et " + str(len(to_update)) + " mises à jour"
+        "args", {}, "SUCCESS", str(len(to_create)) + " nouveaux attributs et " + str(len(to_update)) + " mises à jour"
     )
 
 @shared_task
