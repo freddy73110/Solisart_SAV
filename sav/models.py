@@ -580,7 +580,7 @@ class profil_user(models.Model):
                         'id': instal.id,
                         'geolocalisation': instal.coordonnee_GPS().valeur,
                         'installation': str(instal),
-                        'proprio': instal.proprio().get_full_name() if instal.proprio() else ''
+                        'proprio': instal.proprio()[0].get_full_name() if instal.proprio()[0] else ''
                      }
                 )
         return geoloc_install
@@ -924,7 +924,7 @@ class installation(models.Model):
 
     def proprio(self):
         try:
-            return User.objects.get(
+            return User.objects.filter(
                 acces__installation=self, acces__profil_type__name="Propriétaire"
             )
         except:
@@ -932,7 +932,7 @@ class installation(models.Model):
 
     def installateur(self):
         try:
-            return User.objects.get(
+            return User.objects.filter(
                 acces__installation=self, acces__profil_type__name="Installateur"
             )
         except:

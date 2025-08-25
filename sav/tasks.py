@@ -426,12 +426,12 @@ def trouvercoordonneeGPS(*args, **kwargs):
 
             if GPS == "46.603354,1.8883335" and install.proprio():
                 url = "https://nominatim.openstreetmap.org/?q=France"
+                if install.proprio()[0].profil_user.voie1 != "nan":
+                    url += "+" + str(install.proprio()[0].profil_user.voie1)
+                if install.proprio()[0].profil_user.voie1 != "nan":
+                    url += "+" + str(install.proprio()[0].profil_user.codepostal)
                 if install.proprio().profil_user.voie1 != "nan":
-                    url += "+" + str(install.proprio().profil_user.voie1)
-                if install.proprio().profil_user.voie1 != "nan":
-                    url += "+" + str(install.proprio().profil_user.codepostal)
-                if install.proprio().profil_user.voie1 != "nan":
-                    url += "+" + str(install.proprio().profil_user.commune)
+                    url += "+" + str(install.proprio()[0].profil_user.commune)
                 url += "&format=json"
                 resp = requests.get(url).json()
                 if resp and "lon" in resp[0]:

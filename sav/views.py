@@ -2567,8 +2567,8 @@ class installation_view(View):
         self.form_class = installation_form(instance=self.instal)
         self.title = self.title + " " + str(self.instal.idsa)
         self.title = (
-            self.title + " / " + str(self.instal.proprio())
-            if self.instal.proprio()
+            self.title + " / " + str(self.instal.proprio()[0])
+            if self.instal.proprio()[0]
             else self.instal.idsa 
         )
         self.title += (
@@ -3397,19 +3397,20 @@ class carte(View):
             if t.installation.proprio():
                 popup += (
                     '<br><b>Propriétaire: </b><a href="/utilisateur/'
-                    + str(t.installation.proprio().id)
+                    + str(t.installation.proprio()[0].id)
                     + '">'
-                    + str(t.installation.proprio())
+                    + str(t.installation.proprio()[0])
                     + "</a>"
                 )
             if t.installation.installateur():
-                popup += (
-                    '<br><b>Installateur: </b><a href="/utilisateur/'
-                    + str(t.installation.installateur().id)
-                    + '">'
-                    + str(t.installation.installateur())
-                    + "</a>"
-                )
+                for installateur in t.installation.installateur():
+                    popup += (
+                        '<br><b>Installateur: </b><a href="/utilisateur/'
+                        + str(installateur.id)
+                        + '">'
+                        + str(installateur)
+                        + "</a>"
+                    )
             list_install.append(
                 {
                     "type": "Feature",
@@ -3593,8 +3594,9 @@ class bidouille(View):
     title = "Bidouille"
 
     def get(self, request, *args, **kwargs):
-        from .tasks import ActualiseInstallationByScapping
-        ActualiseInstallationByScapping()
+        from .tasks import ActualiseInstallationByScapping, rapport_ticket
+        # ActualiseInstallationByScapping()
+        rapport_ticket()
         # from .tasks import trouvercoordonneeGPSinstallateur  
         # trouvercoordonneeGPSinstallateur()
 

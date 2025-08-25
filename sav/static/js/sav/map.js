@@ -15,23 +15,32 @@ const fontAwesomeIconInstallateur = L.divIcon({
     className: 'myDivIcon'
 });
 // Create map 
-const mymap = L.map('map').setView([45, 0],5);
-const googleMaps = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']})
+const mymap = L.map('map',{
+  attributionControl: false
+}).setView([45, 0],5);
+const googleMaps = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3'],
+  crossOrigin: true})
+
+
 
 // Fond OpenStreetMap
 const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
+  attribution: '© OpenStreetMap',
+  crossOrigin: true
 });
 
 // Fond satellite (Exemple Esri)
 const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '© Esri'
+  attribution: '© Esri',
+  crossOrigin: true
 });
 
-const CartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
+const CartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  crossOrigin: true})
 
 // Sombre
-const CartoDBDark =L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+const CartoDBDark =L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  crossOrigin: true})
 
 const whiteTiles = L.tileLayer('', {
   attribution: '',
@@ -879,3 +888,42 @@ $('[name="repartition"]').change(async function() {
         break
   }
 });
+
+//Pour agrandir la fenêtre de la carte
+
+const colMap = document.getElementById("col-map");
+  const mapDiv = document.getElementById("map");
+  const resizer = document.getElementById("resizer");
+
+  let isResizing = false;
+
+  resizer.addEventListener("mousedown", function(e) {
+    isResizing = true;
+    document.body.style.userSelect = "none";
+  });
+
+  document.addEventListener("mousemove", function(e) {
+    if (!isResizing) return;
+
+    const minWidth = 300;
+    const minHeight = 600;
+
+    // Largeur: distance entre le bord gauche de la row et la souris
+    const newWidth = Math.max(minWidth, e.clientX - colMap.parentElement.offsetLeft);
+
+    // Hauteur: distance entre le haut du conteneur et la souris
+    const newHeight = Math.max(minHeight, e.clientY - mapDiv.getBoundingClientRect().top);
+
+    // on fixe la largeur de la colonne gauche
+    colMap.style.flex = "0 0 " + newWidth + "px";
+
+    // on fixe la hauteur de la carte
+    mapDiv.style.height = newHeight + "px";
+
+    mymap.invalidateSize();
+  });
+
+  document.addEventListener("mouseup", function() {
+    isResizing = false;
+    document.body.style.userSelect = "auto";
+  });

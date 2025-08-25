@@ -39,6 +39,25 @@
     font-size: 12px;
     font-weight: bold;
   }
+
+ #map{
+    min-height: 600px; /* garde ton minimum */
+    height: 600px;
+    width: 100%; 
+    position: relative;
+    border: 2px solid #444;
+  }
+
+  #resizer {
+    width: 15px;
+    height: 15px;
+    background: #444;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    z-index: 1000;
+  }
 </style>
 {%endblock%}
 
@@ -52,9 +71,9 @@
 </div>
 
 
-<div class="container h-100">
-    <div class="row h-100">
-        <div class="col-9 h-100">
+<div class="container">
+    <div class="row">
+        <div class="col-12">
             <form>{% csrf_token %}
                 <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon1"><i class="fas fa-search-location"></i></span>
@@ -94,8 +113,16 @@
                         <label class="form-check-label" for="inlineRadio1">Rapport installation-installateur</label>
                     </div>
                 </div> 
-            </fieldset>            
-            <div id="map" style="min-height: 600px" class="rounded h-100"></div>
+            </fieldset> 
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-9" id="col-map">                       
+            <div id="map" class="rounded">
+                <div id="resizer"></div>
+            </div>
             <div id="nuancier"></div>
             <div id="unite"></div>
         </div>
