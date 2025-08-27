@@ -2568,7 +2568,7 @@ class installation_view(View):
         self.title = self.title + " " + str(self.instal.idsa)
         self.title = (
             self.title + " / " + str(self.instal.proprio()[0])
-            if self.instal.proprio()[0]
+            if self.instal.proprio()
             else self.instal.idsa 
         )
         self.title += (
@@ -3354,10 +3354,10 @@ class carte(View):
                     + str(installateur)
                     + "</a>"
                 )
-                eval = installateur.evaluation_self()
-                star_text = ""
-                if eval:
-                    popup += "<br><b>Note: </b>" + installateur.evaluation_self_star()
+                # eval = installateur.evaluation_self()
+                # star_text = ""
+                # if eval:
+                #     popup += "<br><b>Note: </b>" + installateur.evaluation_self_star()
                 popup += "<br><b>Entreprise: </b>" + str(installateur.Client_herakles)
                 list_installateur.append(
                     {
@@ -3596,7 +3596,7 @@ class bidouille(View):
     def get(self, request, *args, **kwargs):
         from .tasks import ActualiseInstallationByScapping, rapport_ticket
         # ActualiseInstallationByScapping()
-        rapport_ticket()
+        # rapport_ticket()
         # from .tasks import trouvercoordonneeGPSinstallateur  
         # trouvercoordonneeGPSinstallateur()
 
@@ -3615,7 +3615,9 @@ class bidouille(View):
             self.template_name, 
             {
                 "title": self.title,
-                "installations": []
+                "installations": [ inst for inst in installation.objects.filter(
+                    attribut_valeur__attribut_def__description = "Commune", 
+                    attribut_valeur__valeur__isnull = False).exclude(attribut_valeur__valeur = "?") if not inst.coordonnee_GPS()]
                 }
         )
 
