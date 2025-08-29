@@ -56,13 +56,37 @@ const fontAwesomeIconInstallateur = L.divIcon({
         });
             L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(mymap);
     const installators = JSON.parse(document.getElementById('installators').textContent)  
+
+    const gradient = [
+  "#00FF00", // vert
+  "#33CC00",
+  "#66AA00",
+  "#999900",
+  "#CC7700",
+  "#FF5500",
+  "#FF3300",
+  "#FF2200",
+  "#FF1100",
+  "#FF0000"  // rouge
+];
                          
                 $.each(installators, function(index, item){
                     arrayOfMarkers.push(item.GPS)
                     L.polygon([
                             item.GPS,
                             installationGPS
-                        ]).addTo(mymap).bindPopup(item.distance + " km")
+                        ], {
+                        color : gradient[index],
+                        opacity: 0.5,
+                        fill: false
+                    }).addTo(mymap).bindPopup(item.distance + " km")
+                    var radius = (parseFloat(item.distance)*1000).toFixed(0)
+                    L.circle(installationGPS, {
+                        color : gradient[index],
+                        radius : radius,
+                        opacity: 0.5,
+                        fill: false
+                    }).addTo(mymap)
                     L.marker(item.GPS, { icon: fontAwesomeIconInstallateur})
                         .addTo(mymap)
                         .bindPopup("<a href='/utilisateur/"+ item.installateur_id +"' target='_blank'><b>"+ item.installateur +"</b></a><br>@"+ item.distance + ' km' )

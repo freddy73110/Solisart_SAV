@@ -580,7 +580,7 @@ class profil_user(models.Model):
                         'id': instal.id,
                         'geolocalisation': instal.coordonnee_GPS().valeur,
                         'installation': str(instal),
-                        'proprio': instal.proprio()[0].get_full_name() if instal.proprio()[0] else ''
+                        'proprio': instal.proprio()[0].get_full_name() if instal.proprio() else ''
                      }
                 )
         return geoloc_install
