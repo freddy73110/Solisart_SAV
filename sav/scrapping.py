@@ -1498,7 +1498,13 @@ class scrappingMySolisart:
                     + str(ex)
                 },
             )
-            self.close()
+            send_channel_message(
+                "cartcreating",
+                    {
+                        "message": "<i class='fas fa-times' style='color: #fe0101;'></i> La carte de régulation n'a pas pu être mise à jour. Vérifier la version de la carte de régulation!"
+                    },
+
+            )
 
     def update_nano(self, installation):
         try:
@@ -1590,7 +1596,13 @@ class scrappingMySolisart:
                     + str(ex)
                 },
             )
-            self.close()
+            send_channel_message(
+                "cartcreating",
+                    {
+                        "message": "<i class='fas fa-times' style='color: #fe0101;'></i> Le nano serveur n'a pas pu être mise à jour. Vérifier la version du nano serveur!"
+                    },
+
+            )
 
     def downloadConfigCsvInstallation(self, installation):
 
