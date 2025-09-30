@@ -45,7 +45,6 @@ class InstallationViewSet(viewsets.ModelViewSet):
     queryset = installation.objects.all()
     serializer_class = InstallationSerializer
     lookup_field = 'idsa'
-    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True, methods=['get'])
     def coordonnee(self, request, idsa=None):
