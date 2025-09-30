@@ -49,7 +49,7 @@ class InstallationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def coordonnee(self, request, idsa=None):
         installation = self.get_object()
-        return Response(installation.coordonnee_GPS())
+        return Response(installation.GEOlist())
 
 
 class FichierViewSet(viewsets.ModelViewSet):
