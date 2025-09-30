@@ -212,7 +212,10 @@ class scrappingMySolisart:
             else:
                 return element
         except TimeoutException:
-            print("L'élément n'est pas apparu dans les " + time_max + " secondes.")
+            send_channel_message(
+            "cartcreating",
+            {"message": "L'élément n'est pas apparu dans les " + str(time_max) + " secondes.", "processing": False},
+            )
             self.close()
 
     def close(self):

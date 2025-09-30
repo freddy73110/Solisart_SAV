@@ -1,5 +1,8 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import viewsets
 
 from sav.serializers import (
     GroupSerializer,
@@ -41,7 +44,13 @@ class InstallationViewSet(viewsets.ModelViewSet):
 
     queryset = installation.objects.all()
     serializer_class = InstallationSerializer
+    lookup_field = 'idsa'
     permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=['get'])
+    def coordonnee(self, request, idsa=None):
+        installation = self.get_object()
+        return Response(installation.coordonnee_GPS())
 
 
 class FichierViewSet(viewsets.ModelViewSet):

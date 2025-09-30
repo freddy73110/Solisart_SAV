@@ -58,7 +58,11 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   <tr>
    <td>{{t.evenement.date}}</td>
    <td>{{t.evenement.installation}}</td>
-   <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
+   <td>{% if t.evenement.installation.proprio %}
+    {%for p in t.evenement.installation.proprio %}
+    {{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}<br>
+    {%endfor%}
+    {%else%}-{%endif%}</td>
    <td>{% if t.evenement.installation.installateur %}
     {%for installateur in t.evenement.installation.installateur%}
     {{installateur.icon4email|safe}}{{installateur}}
@@ -95,10 +99,15 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   <tr>
     <td>{{t.evenement.date}}</td>
     <td>{{t.evenement.installation}}</td>
-    <td>{% if t.evenement.installation.proprio %}{{t.evenement.installation.proprio.icon4email|safe}}{{t.evenement.installation.proprio}}{%else%}-{%endif%}</td>
+    <td>{% if t.evenement.installation.proprio %}
+      {%for p in t.evenement.installation.proprio %}
+      {{p.icon4email|safe}}{{p}}
+      {%endfor%}
+      {%else%}-{%endif%}
+    </td>
     <td>{% if t.evenement.installation.installateur %}
       {%for installateur in t.evenement.installation.installateur%}
-        {{installateur.icon4email|safe}}{{installateur}}
+        {{installateur.icon4email|safe}}{{installateur}}<br>
       {%endfor%}
       {%else%}-{%endif%}</td>
     <td>{{t.utilisateur.icon4email|safe}}<br>{{t.utilisateur}}</td>
