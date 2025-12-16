@@ -739,8 +739,9 @@ class Stattableauform(forms.Form):
             .values("codouv", "titre")
             .distinct()
         )
+
         self.fields["article_BL"].choices = (("sans", "sans BL"),) + tuple(
-            [(i["codouv"], i["codouv"] + " - " + i["titre"]) for i in articles]
+            [(i["codouv"], i["codouv"] + " - " + i["titre"]) for i in articles if i["codouv"] and i["titre"]]
         )
         self.fields["article_BL"].initial = ["sans"] + [i["codouv"] for i in articles]
         self.helper = FormHelper()

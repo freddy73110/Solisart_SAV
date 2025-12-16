@@ -480,7 +480,7 @@ def actualise_date_livraison_CL():
     )
     result = []
     for CL in CLs:
-        # before = date avavnt modif
+        # before = date avant modif
         before = CL.date_livraison_prevu
         CL.date_livraison_prevu = (
             C601ChantierEnTte.objects.db_manager("herakles")
