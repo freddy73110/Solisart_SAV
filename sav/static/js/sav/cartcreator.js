@@ -1,10 +1,18 @@
 function getISOWeekNumber(date) {
-    const target = new Date(date.valueOf());
-    const dayNumber = (date.getDay() + 6) % 7; // Ajuste pour que lundi = 0, dimanche = 6
-    target.setDate(target.getDate() - dayNumber + 3); // Se place au jeudi de la semaine actuelle
-    const firstMonday = new Date(target.getFullYear(), 0, 1);
-    const weekNumber = Math.ceil(((target - firstMonday) / 86400000 + firstMonday.getDay() + 1) / 7);
-    return weekNumber;
+    // Copie de la date pour éviter les effets de bord
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
+  // ISO : jeudi = jour 4
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+
+  // Début de l'année
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+
+  // Calcul du numéro de semaine
+  const weekNumber = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+
+  return weekNumber;
 }
 
 $("#typeInstallation").on('change', function(){
