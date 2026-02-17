@@ -492,7 +492,7 @@ class profil_user(models.Model):
         verbose_name="liste de département",
         blank=True,
         null=True,
-        help_text='la liste doit être du format:["XX", "XX", ...], mettre 100 pour la Belgique',
+        help_text='la liste doit être du format:["XX", "XX", ...], mettre 100 pour la Belgique, 200 pour la Suisse et 300 pour le Luxembourg',
     )
     color = models.CharField(
         verbose_name="couleur sur la carte",

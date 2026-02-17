@@ -180,12 +180,21 @@ function ajoutDepartement(value, color, varCode, density){
                     break;
                 case 200 :
                     marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Suisse (' + code +') :</b>');
-                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Belgique (' + code +') :</b>');
-                                tableData.data.push(
+                    tableData.data.push(
                         {
                             dept:"Suisse", 
                             code: 200,
                             surface: 41285
+                        }
+                    )
+                    break;
+                case 300 :
+                    marker = L.marker(center, { icon: label }).addTo(mymap).bindPopup('<b>Luxembourg (' + code +') :</b>');
+                    tableData.data.push(
+                        {
+                            dept:"Luxembourg", 
+                            code: 300,
+                            surface: 2586
                         }
                     )
                     break;
@@ -295,6 +304,13 @@ async function load() {
             $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes("200")){
                 ajoutDepartement(geojsonSuisse, v.color, 200)
+            }
+          })
+          let url4 = '/static/sav/geojson/geojsonLuxembourg.json';
+        geojsonLuxembourg = await (await fetch(url4)).json();
+            $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("300")){
+                ajoutDepartement(geojsonLuxembourg, v.color, 300)
             }
           })
         $('#table').bootstrapTable(tableData)
@@ -432,9 +448,9 @@ class DisplayMarker{
                                     filtered.forEach(marker => {
                                         if (!marker._popup._content.includes("installation")){
                                             if (count > 1){
-                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installateur/1 000km²)</li>');
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installation/1 000km²)</li>');
                                             }else{
-                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installateur/1 000km²)</li>');
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installation/1 000km²)</li>');
                                             }
                                         }
                                     });
@@ -471,12 +487,48 @@ class DisplayMarker{
                                     // Exemple : modifier le popup de tous
                                     filtered.forEach(marker => {
                                         if (count > 1){
-                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installateur/1 000km²)</li>');
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installation/1 000km²)</li>');
                                             }else{
-                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installateur/1 000km²)</li>');
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installation/1 000km²)</li>');
                                             }
                                     });   
+                    //Pour compter le nombre d'installation pour le Luxembourg
+                    count = 0;
+                    $.each( window.geojsonLuxembourg.features, function( key, value ) {
+                                    const polygon = value
+                                    
+                                    markersClusterInstallation.getLayers().forEach(marker => {
+                                        if (marker.myTag
+                                        && marker.myTag == "myGeoJSONINstallation"){
+                                            const point = turf.point(marker.feature.geometry.coordinates);
+                                            if (turf.booleanPointInPolygon(point, polygon)) {
+                                                count++;
+                                            }
+                                    }
+                                    });                                  
+                    }); 
+                    tableData.data.forEach(o => {
+                                        if (o.code === 300) {
+                                            o.installation = count;
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallation = density
+                                        }
+                                        });  
                     
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 300;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (count > 1){
+                                            marker.setPopupContent(marker._popup._content + '<li>'+ count +' installations ('+  density+' installation/1 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installation ('+  density+' installation/1 000km²)</li>');
+                                            }
+                                    });
                     $('#table').bootstrapTable('destroy')                  
                     $('#table').bootstrapTable(tableData)
                     $("#DensityInstallation").prop('disabled', false); 
@@ -631,7 +683,7 @@ class DisplayMarker{
                     }); 
                      
                     tableData.data.forEach(o => {
-                                        if (o.code === 100) {
+                                        if (o.code === 200) {
                                             o.installateur = count;                                            
                                             density = (count/o.surface*1000).toFixed(2)
                                             o.densInstallateur = density
@@ -651,7 +703,41 @@ class DisplayMarker{
                                                 marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateur ('+  density+' installateur/10 000km²)</li>');
                                             }
                                     });
-                    
+                    //Pour compter le nombre d'installateur pour le luxembourg
+                    count = 0;
+                    $.each( window.geojsonLuxembourg.features, function( key, value ) {
+                                    const polygon = value
+                                    
+                                    json.forEach(marker => {
+                                        const point = turf.point(marker.geometry.coordinates);
+                                        if (turf.booleanPointInPolygon(point, polygon)) {
+                                            count++;
+                                        }
+                                    });                                    
+                    }); 
+                     
+                    tableData.data.forEach(o => {
+                                        if (o.code === 300) {
+                                            o.installateur = count;                                            
+                                            density = (count/o.surface*1000).toFixed(2)
+                                            o.densInstallateur = density
+                                        }
+                                        });
+                    var filtered = Object.values(mymap._layers).filter(lay => {
+                                    return lay instanceof L.Marker 
+                                        && lay.options.icon 
+                                        && lay.options.icon.options.code == 300;
+                                    });
+
+                                    // Exemple : modifier le popup de tous
+                                    filtered.forEach(marker => {
+                                        if (count > 1){
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateurs ('+  density+' installateur/10 000km²)</li>');
+                                            }else{
+                                                marker.setPopupContent(marker._popup._content + '<li>'+ count +' installateur ('+  density+' installateur/10 000km²)</li>');
+                                            }
+                                    });
+
                     $('#table').bootstrapTable('destroy')                  
                     $('#table').bootstrapTable(tableData)
                     $("#DensityInstallateur").prop('disabled', false);
@@ -851,6 +937,11 @@ $('[name="repartition"]').change(async function() {
           $.each(JSON.parse(profils), function(k, v){
             if(v.departement.includes("200")){
                 ajoutDepartement(geojsonSuisse, v.color, 200)
+            }
+          })
+        $.each(JSON.parse(profils), function(k, v){
+            if(v.departement.includes("300")){
+                ajoutDepartement(geojsonLuxembourg, v.color, 200)
             }
           })
         
